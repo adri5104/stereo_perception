@@ -1,0 +1,15 @@
+=== To generate ROS1 bag from kitti dataset:
+
+wget https://s3.eu-central-1.amazonaws.com/avg-kitti/raw_data/2011_09_26_drive_0014/2011_09_26_drive_0014_sync.zip
+unzip 2011_09_26_drive_0014_sync.zip
+python3 kitti2bag.py -t 2011_09_26 -r 0014 raw_synced .
+
+=== To conver it from ROS1 to ROS2
+
+ rosbags-convert  kitti_2011_09_26_drive_0014_synced.bag --dst ./rkitti_rosbag_0014
+
+
+
+To convert from .db3 to .mcap:
+
+$ mcap-linux-amd64 convert multiple_files_1.db3 demo.mcap

@@ -1,0 +1,1 @@
+# ROS packages in charge of the perception pipeline

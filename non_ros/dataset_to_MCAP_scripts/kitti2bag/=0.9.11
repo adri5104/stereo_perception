@@ -1,0 +1,12 @@
+Collecting rosbags
+  Downloading rosbags-0.9.23-py3-none-any.whl (102 kB)
+Collecting zstandard
+  Downloading zstandard-0.23.0-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (5.4 MB)
+Requirement already satisfied: lz4 in /usr/lib/python3/dist-packages (from rosbags) (3.0.2+dfsg)
+Requirement already satisfied: numpy in /usr/lib/python3/dist-packages (from rosbags) (1.17.4)
+Collecting ruamel.yaml
+  Downloading ruamel.yaml-0.18.6-py3-none-any.whl (117 kB)
+Collecting ruamel.yaml.clib>=0.2.7; platform_python_implementation == "CPython" and python_version < "3.13"
+  Downloading ruamel.yaml.clib-0.2.8-cp38-cp38-manylinux_2_5_x86_64.manylinux1_x86_64.whl (596 kB)
+Installing collected packages: zstandard, ruamel.yaml.clib, ruamel.yaml, rosbags
+Successfully installed rosbags-0.9.23 ruamel.yaml-0.18.6 ruamel.yaml.clib-0.2.8 zstandard-0.23.0
