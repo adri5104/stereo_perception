@@ -21,6 +21,12 @@ OpticalFlowNode::OpticalFlowNode()
         std::bind(&OpticalFlowNode::imageCallback, this, std::placeholders::_1));
 
     // Publisher for optical flow
+    optical_flow_debug_colors_pub_ = this->create_publisher<sensor_msgs::msg::Image>(
+        "/debug/colored_image", 10);
+
+    optical_flow_debug_arrows_pub_ = this->create_publisher<sensor_msgs::msg::Image>(
+        "/debug/arrows", 10);
+      
     optical_flow_pub_ = this->create_publisher<sensor_msgs::msg::Image>(
         "/optical_flow", 10);
 
@@ -62,6 +68,19 @@ void OpticalFlowNode::imageCallback(const sensor_msgs::msg::Image::SharedPtr msg
     calcOpticalFlowFarneback(prev_image_, gray_image, flow, pyr_scale_, levels_,
                              winsize_, iterations_, poly_n_, poly_sigma_, flags_);
 
+    // We publish the optical flow message
+    auto flow_msg = cv_bridge::CvImage(std_msgs::msg::Header(), "32FC2", flow).toImageMsg();
+    optical_flow_pub_->publish(*flow_msg);
+
+    // We publish the debug messages
+    publishDebugMessages(current_image, flow);
+    
+    // Update previous image
+    prev_image_ = gray_image.clone();
+}
+
+void OpticalFlowNode::publishDebugMessages(const Mat current_image, const Mat flow)
+{
     // Convert optical flow to HSV for visualization
     Mat flow_hsv(flow.size(), CV_8UC3);
     for (int y = 0; y < flow.rows; y++) {
@@ -70,6 +89,9 @@ void OpticalFlowNode::imageCallback(const sensor_msgs::msg::Image::SharedPtr msg
 
             // Compute magnitude and angle
             float magnitude = sqrt(flow_at_point.x * flow_at_point.x + flow_at_point.y * flow_at_point.y);
+
+
+
             float angle = atan2(flow_at_point.y, flow_at_point.x); // Angle in radians
 
             // Normalize angle to [0, 180] for HSV (OpenCV hue range)
@@ -88,11 +110,35 @@ void OpticalFlowNode::imageCallback(const sensor_msgs::msg::Image::SharedPtr msg
     // Convert HSV to BGR for publishing
     Mat flow_bgr;
     cvtColor(flow_hsv, flow_bgr, COLOR_HSV2BGR);
+    
 
     // Publish the optical flow as an image
     auto flow_msg = cv_bridge::CvImage(std_msgs::msg::Header(), "bgr8", flow_bgr).toImageMsg();
-    optical_flow_pub_->publish(*flow_msg);
+    optical_flow_debug_colors_pub_->publish(*flow_msg);
 
-    // Update previous image
-    prev_image_ = gray_image.clone();
+
+    // Create an image to visualize optical flow with arrows
+    Mat flow_vis = current_image.clone();
+
+    // Parameters for arrow visualization
+    const int step = 16; // Grid step size
+    const Scalar arrow_color(0, 255, 0); // Green arrows
+    const int arrow_thickness = 1;
+
+    for (int y = 0; y < flow.rows; y += step) {
+        for (int x = 0; x < flow.cols; x += step) {
+            // Get the flow vector at the current point
+            const Point2f flow_at_point = flow.at<Point2f>(y, x);
+            Point start(x, y);
+            Point end(cvRound(x + flow_at_point.x), cvRound(y + flow_at_point.y));
+
+            // Draw the arrow on the visualization image
+            arrowedLine(flow_vis, start, end, arrow_color, arrow_thickness, LINE_AA, 0, 0.2);
+        }
+    }
+
+    // Publish the visualization image with arrows
+    sensor_msgs::msg::Image::SharedPtr flow_arrow_msg =
+    cv_bridge::CvImage(std_msgs::msg::Header(), "bgr8", flow_vis).toImageMsg();
+    optical_flow_debug_arrows_pub_->publish(*flow_arrow_msg);
 }

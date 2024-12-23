@@ -13,3 +13,32 @@ python3 kitti2bag.py -t 2011_09_26 -r 0014 raw_synced .
 To convert from .db3 to .mcap:
 
 $ mcap-linux-amd64 convert multiple_files_1.db3 demo.mcap
+
+
+rosbag filter  Datasets/FramosDepthCamera/test2/2_meter.bag Datasets/FramosDepthCamera/test2/2_meter_filtered.bag "\
+topic == '/device_0/sensor_0/Depth_0/image/data' or \
+topic == '/device_0/sensor_0/Depth_0/info/camera_info' or \
+topic == '/device_0/sensor_1/Color_0/image/data' or \
+topic == '/device_0/sensor_1/Color_0/info/camera_info' or \
+topic == '/device_0/sensor_0/Depth_0/image/metadata' or \
+topic == '/device_0/sensor_0/option/Depth_Units/value' or \
+topic == '/device_0/sensor_0/option/Depth_Units/description' "
+
+rosbags-convert Datasets/FramosDepthCamera/test2/2_meter_filtered.bag --dst Datasets/FramosDepthCamera/test2/2_meter_filtered
+
+
+
+rosbag filter  Datasets/FramosDepthCamera/test2/8_meter.bag Datasets/FramosDepthCamera/test2/8_meter_filtered.bag "\
+topic != '/device_0/sensor_2/Accel_0/imu_intrinsic ' or \
+topic != '/device_0/sensor_2/Accel_0/info' or \
+topic != '/device_0/sensor_2/Accel_0/imu_intrinsic ' or \
+topic != '/device_0/sensor_2/Accel_0/info' or \
+
+
+
+
+"topic == '/device_0/sensor_0/Depth_0/info/camera_info'" \
+"/device_0/sensor_0/option/Depth_Units/value'"
+
+
+rosbag filter  Datasets/FramosDepthCamera/test2/8_meter.bag Datasets/FramosDepthCamera/test2/8_meter_filtered.bag "topic == 'realsense'"

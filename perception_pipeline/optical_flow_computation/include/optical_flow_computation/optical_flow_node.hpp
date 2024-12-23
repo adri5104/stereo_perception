@@ -24,9 +24,12 @@ public:
 
 private:
     void imageCallback(const sensor_msgs::msg::Image::SharedPtr msg);
+    void publishDebugMessages(const cv::Mat current_image, const cv::Mat flow);
 
     rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr image_sub_;
     rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr optical_flow_pub_;
+    rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr optical_flow_debug_colors_pub_;
+    rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr optical_flow_debug_arrows_pub_;
     cv::Mat prev_image_;
 
     // Parameters for Farneback Optical Flow

@@ -1,4 +1,4 @@
-FROM osrf/ros:melodic-desktop-full
+FROM osrf/ros:noetic-desktop-full
 
 # Add ubuntu user with same UID and GID as your host system, if it doesn't already exist
 # Since Ubuntu 24.04, a non-root user is created by default with the name vscode and UID=1000
@@ -15,6 +15,8 @@ RUN apt-get update && \
     echo "$USERNAME ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/$USERNAME && \
     chmod 0440 /etc/sudoers.d/$USERNAME
 
+
+
 # Switch from root to user
 USER $USERNAME
 
@@ -26,12 +28,26 @@ RUN sudo apt update && sudo apt upgrade -y
 
 # Install Git
 RUN sudo apt install -y git
-
-# Rosdep update
+RUN sudo apt update
+RUN sudo apt install -y python3-pip
+RUN sudo apt install -y python3-pandas
+RUN sudo apt install -y python3-matplotlib
+RUN sudo apt install -y wget
+RUN sudo apt install -y unzip
+RUN pip install progressbar2
+RUN pip install mcap
+RUN pip install rosbags
 RUN rosdep update
+
 
 # Source the ROS setup file
 RUN echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> ~/.bashrc
+
+WORKDIR /data
+
+RUN source /opt/ros/noetic/setup.bash 
+
+ENTRYPOINT ["/kitti2bag/docker_entrypoint.sh"]
 
 ################################
 ## ADD ANY CUSTOM SETUP BELOW ##
