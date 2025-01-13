@@ -6,8 +6,8 @@ namespace kalman_filter {
 WorldPoint::WorldPoint(Mat &projectionMatrix, Mat &projectionMatrixInv, Mat &C, Mat &T, bool &useVarEgo, int gridSize)
 : projection_matrix_(projectionMatrix), 
   projection_matrix_inv_(projectionMatrixInv),
-  c_(C), 
-  t_(T), 
+  cov_system(C), 
+  cov_measurement(T), 
   use_ego_motion_(useVarEgo), 
   grid_size_worldpoints(gridSize),
   age_(0),

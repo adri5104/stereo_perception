@@ -56,11 +56,23 @@ public:
 
 private:
   
+  // Vector containing references to tracked WorldPoints
+  std::vector<WorldPoint&> worldpoints_;
+
   // Camera parameters
   double fx_;
   double fy_;
   double cx_;
   double cy_;
+  Mat projection_matrix_;
+  Mat projection_matrix_inv_;
+
+  // Kalman filter parameters
+  Mat cov_system; // System covariance matrix
+  Mat cov_measurement; // Measurement model covariance matrix
+  Mat transition_new; // Transition matrix
+  Mat ego_trans_new; // Egomotion translation vector
+  Mat ego_rot_new; // Egomotion rotation matrix
 
 };
 

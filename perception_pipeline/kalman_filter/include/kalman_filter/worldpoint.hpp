@@ -129,8 +129,8 @@ class WorldPoint
     double v_; // Vertical position in pixels
     Mat projection_matrix_; // Projection matrix of the camera 
     Mat projection_matrix_inv_; // Inverse of the projection matrix
-    Mat c_; // System covariance matrix
-    Mat t_; // Measurement model covariance matrix
+    Mat cov_system_; // System covariance matrix
+    Mat cov_measurement; // Measurement model covariance matrix
     bool use_ego_motion_; // Use ego motion
     double grid_size_worldpoints;	///< Width of a square of pixels, which is initialized with one WorldPoint
     int age_; // Number of iterations the object has passed
@@ -145,7 +145,7 @@ class WorldPoint
     double f_y_; // Focal length y
     double c_x_; // Principal point x
     double c_y_; // Principal point y
-
+ 
 };
 
 } // namespace kalman_filter
