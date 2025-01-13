@@ -1,4 +1,4 @@
-#ifndef KALMAN_FILTER__KALMAN_CORE_HPP_
+  #ifndef KALMAN_FILTER__KALMAN_CORE_HPP_
 #define KALMAN_FILTER__KALMAN_CORE_HPP_
 
 #include <opencv2/opencv.hpp>
@@ -67,14 +67,25 @@ private:
   double cx_;
   double cy_;
   Mat projection_matrix_;
-  Mat projection_matrix_inv_;
+  Mat projection_matrix_inv_; 
 
-  // Kalman filter parameters
-  Mat cov_system; // System covariance matrix
-  Mat cov_measurement; // Measurement model covariance matrix
-  Mat transition_new; // Transition matrix
-  Mat ego_trans_new; // Egomotion translation vector
-  Mat ego_rot_new; // Egomotion rotation matrix
+  
+
+  // Kalman filter parameters 
+  bool first_time_;	// Flag for first time execution
+  Mat C_ // Covariance matrix of the egomotion
+  Mat T_ // Covariance matrix of the measurement model
+  Mat	A_new_;		// Transition matrix
+  Mat	u_new_;		// Egomotion translation vector
+  Mat	D_new_;		// Matrix containing the rotation matrix of the egomotion
+  Mat	Q_new_w_;	// Covariance matrix of discrete-time process
+  Mat	G_new_;		// Jacobian for state transformation
+  Mat	para_rot_;	// Parametervector with some precomputed values (sin/cos) for rotation of egomotion 
+  double delta_time;	// Timedifference between the current frame and the frame before
+  double term1;		// Value needed for computation of Jacobimatrices
+  double term2;		// Value needed for computation of Jacobimatrices
+  double term3;		// Value needed for computation of Jacobimatrices
+  double term4;		// Value needed for computation of Jacobimatrices
 
 };
 
