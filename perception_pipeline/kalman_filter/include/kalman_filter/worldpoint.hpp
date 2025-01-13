@@ -8,6 +8,26 @@ namespace kalman_filter {
 using namespace std;
 using namespace cv;
 
+
+enum class KalmanErrorCode {
+    OK = 1,
+    BAD_DISPARITY_ERROR,
+    NEW_MEASUREMENT_OUT_OF_BOUNDS_ERROR,
+    THREE_SIGMA_TEST_FAILED,
+};
+
+// Helper function to get error messages
+std::string getErrorMessage(KalmanErrorCode code) {
+    static const std::unordered_map<KalmanErrorCode, std::string> errorMessages = {
+        {KalmanErrorCode::OK, "No error."},
+        {KalmanErrorCode::BAD_DISPARITY_ERROR, "Invalid disparity value."},
+        {KalmanErrorCode::NEW_MEASUREMENT_OUT_OF_BOUNDS_ERROR, "New measurement dimensions out of range."},
+    };
+
+    auto it = errorMessages.find(code);
+    return it != errorMessages.end() ? it->second : "Invalid error code.";
+}
+
 /**
  * @class WorldPoint
  * @brief Represents a point in of the scene with its own local state (6D state and covariance).
@@ -66,7 +86,7 @@ class WorldPoint
      * @param timediff 
      * @return int 
      */
-    int	 computeKalmanStep(const Mat& inputDisp,													///< Method that runs a complete Kalmanstep with all necessary computations. Returns integer depending on the condition of the state vector
+    KalmanErrorCode	 computeKalmanStep(const Mat& inputDisp,													///< Method that runs a complete Kalmanstep with all necessary computations. Returns integer depending on the condition of the state vector
 						   const Mat& inputFlow,
 						   const Mat& A_new,
 						   const Mat& D_new,
@@ -89,7 +109,17 @@ class WorldPoint
      * @param d Disparity value.
      * @param coordinates Coordinates of the world point.
      */
-    void projectPixelTo3D(const double &u, const double &v, const double &d, Mat &coordinates);	
+    void projectPixelTo3D(const double &u, const double &v, const double &d, Mat &coordinates);
+
+    /**
+     * @brief Function for computing world coordinates out of pixel values (3D reprojection).
+     * 
+     * @param u The horizontal position in pixels.
+     * @param v The vertical position in pixels.
+     * @param depth Depth value in mm
+     * @param coordinates Coordinates of the world point.
+     */
+    void projectPixelTo3D(const double &u, const double &v, const uint16_t &depth, Mat &coordinates);	
 
     /**
      * @brief Function for computing pixel values out of world coordinates (2D projection).
@@ -127,24 +157,26 @@ class WorldPoint
     // Attributes
     double u_; // Horizontal position in pixels
     double v_; // Vertical position in pixels
-    Mat projection_matrix_; // Projection matrix of the camera 
-    Mat projection_matrix_inv_; // Inverse of the projection matrix
-    Mat cov_system_; // System covariance matrix
-    Mat cov_measurement; // Measurement model covariance matrix
-    bool use_ego_motion_; // Use ego motion
-    double grid_size_worldpoints;	///< Width of a square of pixels, which is initialized with one WorldPoint
-    int age_; // Number of iterations the object has passed
-
-    // Kalman filter
-    Mat	z_old_;	// Old measurement vector
+    
+	  Mat	z_old_;	// Old measurement vector			
 	  Mat	x_old_;	// Old state vector
-	  Mat	p_old_;	// Posterior estimate covariance matrix of previous timestep	
+	  Mat	P_old_;	// Old state covariance matrix				
+	  
+	  Mat	C_;	 // Reference to the covariance matrix of the egomotion
+	  Mat	T_;	 // Reference to the covariance matrix of the measurement model
+	  bool use_var_ego_;	// Flag for using the covariance matrix of the egomotion
+	  double grid_size_worldpoints;	// Size of the grid for the worldpoints
+    int	age_; // Number of iterations the object has already been passed through
 
     // Camera parameters
+    Mat	projection_matrix_;		// Variable for holding the reference to the projection matrix
+	  Mat	projection_matrix_inv_;	// Variable for holding the reference to the inverse projection matrix
     double f_x_; // Focal length x
     double f_y_; // Focal length y
     double c_x_; // Principal point x
     double c_y_; // Principal point y
+
+    KalmanErrorCode errorCode; // Error code for the Kalman filter
  
 };
 

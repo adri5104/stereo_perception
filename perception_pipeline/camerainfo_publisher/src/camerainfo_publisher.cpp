@@ -24,6 +24,7 @@ class CameraInfoPublisher : public rclcpp::Node
     {
       publisher_image_ = this->create_publisher<sensor_msgs::msg::Image>("depth_registered/image_rect", 10);
       publisher_camerainfo_ = this->create_publisher<sensor_msgs::msg::CameraInfo>("rgb/camera_info", 10);
+      publisher_rightcamerainfo_ = this->create_publisher<sensor_msgs::msg::CameraInfo>("right/camera_info", 10);
       // Subscriber to camera image topic
       image_sub_ = this->create_subscription<sensor_msgs::msg::Image>(
           "/device_0/sensor_0/Depth_0/image/data", 10,
@@ -71,9 +72,6 @@ class CameraInfoPublisher : public rclcpp::Node
       camera_info_msg = camera_info_; 
       camera_info_msg.header = msg->header;
    
-      
-
-
       // Intrinsic camera matrix (K)
       camera_info_msg.k = {
           421.37701416015625, 0.0, 424.79901123046875,
@@ -107,8 +105,27 @@ class CameraInfoPublisher : public rclcpp::Node
           0.0, 421.37701416015625, 231.86268615722656, 0.0,
           0.0, 0.0, 1.0, 0.0
       };
+
       publisher_camerainfo_->publish(camera_info_msg);
+      sensor_msgs::msg::CameraInfo right_camera_info_msg;
+
+      right_camera_info_msg = camera_info_msg;
+      
+      // Baseline in meters (converted from millimeters)
+      double baseline_m = 95.13829040527344 / 1000.0;  // Convert mm to meters
+
+      // Projection matrix (P)
+      // Adding the baseline to the projection matrix for the right camera
+      right_camera_info_msg.p = {
+          421.37701416015625, 0.0, 424.79901123046875, -421.37701416015625 * baseline_m,  // fx * baseline
+          0.0, 421.37701416015625, 231.86268615722656, 0.0,
+          0.0, 0.0, 1.0, 0.0
+      };
+
+      publisher_rightcamerainfo_->publish(right_camera_info_msg);
+      
     }
+
     void infoCallback(const sensor_msgs::msg::CameraInfo::SharedPtr msg)
     {
       camera_info_ = *msg;
@@ -123,6 +140,7 @@ class CameraInfoPublisher : public rclcpp::Node
     rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr publisher_image_rgb_;
     rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr image_sub_;
     rclcpp::Publisher<sensor_msgs::msg::CameraInfo>::SharedPtr publisher_camerainfo_;
+    rclcpp::Publisher<sensor_msgs::msg::CameraInfo>::SharedPtr publisher_rightcamerainfo_;
     rclcpp::Subscription<sensor_msgs::msg::CameraInfo>::SharedPtr info_sub_;
     sensor_msgs::msg::CameraInfo camera_info_;
     sensor_msgs::msg::Image rgb_image_;

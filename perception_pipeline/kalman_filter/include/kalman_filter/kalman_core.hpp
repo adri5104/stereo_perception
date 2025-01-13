@@ -2,9 +2,11 @@
 #define KALMAN_FILTER__KALMAN_CORE_HPP_
 
 #include <opencv2/opencv.hpp>
+#include "kalman_filter/worldpoint.hpp"
 #include <vector>
 #include <string>
 
+using namespace cv;
 
 namespace perception_pipeline
 {
@@ -57,7 +59,7 @@ public:
 private:
   
   // Vector containing references to tracked WorldPoints
-  std::vector<WorldPoint&> worldpoints_;
+  std::vector<WorldPoint*> worldpoints_;
 
   // Camera parameters
   double fx_;

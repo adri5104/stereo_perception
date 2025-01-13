@@ -6,10 +6,10 @@ def generate_launch_description():
         # Nodo disparity_node para calcular la disparidad
         Node(
             package='depth_image_proc',
-            executable='disparity_node',
+            executable='  ',
             remappings=[  
-                ('left/image_rect', '/device_0/sensor_0/Depth_0/image/data'),   # Si ya están rectificadas, usa los topics de imagen rectificada
-                ('right/camera_info', '/device_0/sensor_0/Depth_0/info/camera_info'),
+                ('left/image_rect', '/rgb/image_rect_color'),   # Si ya están rectificadas, usa los topics de imagen rectificada
+                ('right/camera_info', '/rgb/camera_info '),
                 ('left/disparity', 'disparity'),
             ],
             #parameters=[{
