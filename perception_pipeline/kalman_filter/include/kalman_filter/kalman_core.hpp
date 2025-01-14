@@ -1,4 +1,15 @@
-  #ifndef KALMAN_FILTER__KALMAN_CORE_HPP_
+/**
+ * @file kalman_core.hpp
+ * @author adrian.rieker@tum.de
+ * @brief 
+ * @version 
+ * @date 
+ * 
+ * 
+ * 
+ */
+
+#ifndef KALMAN_FILTER__KALMAN_CORE_HPP_
 #define KALMAN_FILTER__KALMAN_CORE_HPP_
 
 #include <opencv2/opencv.hpp>
@@ -12,6 +23,26 @@ namespace perception_pipeline
 {
 namespace kalman_filter
 {
+
+enum class KalmanCoreErrorCode {
+    OK = 1,
+    BAD_DEPTH_IMAGE_ERROR,
+    BAD_OPTICAL_FLOW_IMAGE_ERROR,
+    BAD_COLOR_IMAGE_ERROR
+};
+
+// Helper function to get error messages
+inline  std::string getErrorMessage(KalmanCoreErrorCode code) {
+    static const std::unordered_map<KalmanCoreErrorCode, std::string> errorMessages = {
+        {KalmanCoreErrorCode::OK, "No error."},
+        {KalmanCoreErrorCode::BAD_DEPTH_IMAGE_ERROR, "Invalid depth image."},
+        {KalmanCoreErrorCode::BAD_OPTICAL_FLOW_IMAGE_ERROR, "Invalid optical flow image."},
+        {KalmanCoreErrorCode::BAD_COLOR_IMAGE_ERROR, "Invalid color image."}
+    };
+
+    auto it = errorMessages.find(code);
+    return it != errorMessages.end() ? it->second : "Invalid error code.";
+}
 
 /**
  * @class KalmanCore
@@ -70,21 +101,18 @@ public:
   ~KalmanCore(void);
 
 
-
+  /**
+   * @brief Update step using synchronized optical flow and depth data.
+   * 
+   * @param optical_flow The optical flow image (CV_32FC2 or similar).
+   * @param depth The depth image.
+   * @param color_image The color image.
+   * @return KalmanCoreErrorCode Error code.
+   */
+  KalmanCoreErrorCode updateSyncedData(
+    const Mat& optical_flow, const Mat& depth, const Mat& color_image);
   
-  /**
-   * @brief Update step using optical flow data.
-   *        
-   * @param flow The optical flow image (CV_32FC2 or similar).
-   */
-  void updateOpticalFlow(const cv::Mat& flow);
-
-  /**
-   * @brief Update step using disparity data.
-   *       
-   * @param disparity The disparity image.
-   */
-  void updateDepth(const cv::Mat& disparity);
+  
 
   /**
    * @brief Get the current state vector.
@@ -104,10 +132,31 @@ public:
    */
   void setCameraParameters(double fx, double fy, double cx, double cy);
 
+  KalmanCoreErrorCode getOutput(cv::Mat &output_6d, cv::Mat &output_debug_image);
+
 private:
+
+  /**
+   * @brief Predict the next state of the Kalman Filter.
+   */
+  KalmanCoreErrorCode predict(Mat input_optical_flow, Mat input_depth, Mat input_color_image);
+
   
   // Vector containing references to tracked WorldPoints
   std::vector<WorldPoint*> worldpoints_;
+
+  // Occupancy grid for the worldpoints
+  Mat occupancy_grid_;
+
+  // Input attributes
+  Mat input_optical_flow_sync_;
+  Mat input_depth_sync_;
+  Mat input_color_image_sync_;
+
+  // Output attributes
+  Mat output_6d_;
+  Mat output_debug_image_;
+
 
   // Config parameters
   bool use_var_ego_;	// Flag for incorporating the egomotion covariance matrix

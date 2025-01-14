@@ -22,10 +22,10 @@ class CameraInfoPublisher : public rclcpp::Node
     CameraInfoPublisher()
     : Node("camerainfo_publisher"), camera_info_()
     {
-      publisher_image_ = this->create_publisher<sensor_msgs::msg::Image>("depth_registered/image_rect", 10);
-      publisher_depth_16UC1_ = this->create_publisher<sensor_msgs::msg::Image>("left/image_rect", 10);
-      publisher_camerainfo_ = this->create_publisher<sensor_msgs::msg::CameraInfo>("rgb/camera_info", 10);
-      publisher_rightcamerainfo_ = this->create_publisher<sensor_msgs::msg::CameraInfo>("right/camera_info", 10);
+      publisher_image_ = this->create_publisher<sensor_msgs::msg::Image>("perception_pipeline/depth_image_sync", 10);
+  
+      publisher_camerainfo_ = this->create_publisher<sensor_msgs::msg::CameraInfo>("perception_pipeline/camera_info_sync", 10);
+      publisher_rightcamerainfo_ = this->create_publisher<sensor_msgs::msg::CameraInfo>("perception_pipeline/right_camera_info_sync", 10);
       // Subscriber to camera image topic
       image_sub_ = this->create_subscription<sensor_msgs::msg::Image>(
           "/device_0/sensor_0/Depth_0/image/data", 10,
@@ -39,7 +39,7 @@ class CameraInfoPublisher : public rclcpp::Node
           "/device_0/sensor_0/Depth_0/info/camera_info", 10,
           std::bind(&CameraInfoPublisher::infoCallback, this, std::placeholders::_1));
 
-      publisher_image_rgb_ = this->create_publisher<sensor_msgs::msg::Image>("rgb/image_rect_color", 10);
+      publisher_image_rgb_ = this->create_publisher<sensor_msgs::msg::Image>("perception_pipeline/color_image_sync", 10);
       
     }
 
@@ -60,7 +60,7 @@ class CameraInfoPublisher : public rclcpp::Node
       // Prepare the new ROS Image message
       cv_bridge::CvImage out_msg;
       out_msg.header = msg->header; // Preserve the original message header
-      out_msg.encoding = sensor_msgs::image_encodings::TYPE_16UC1;
+      out_msg.encoding = msg->encoding; // Preserve the original encoding
       out_msg.image = converted_image;
 
 
@@ -137,7 +137,6 @@ class CameraInfoPublisher : public rclcpp::Node
     double k_1_, k_2_, k_3_, p_1_, p_2_;
     std::vector<double> plumb_bob_d_;
     rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr publisher_image_;
-    rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr publisher_depth_16UC1_;
     rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr image_sub_rgb_;
     rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr publisher_image_rgb_;
     rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr image_sub_;

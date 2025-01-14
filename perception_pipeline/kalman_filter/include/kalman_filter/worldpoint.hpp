@@ -1,3 +1,14 @@
+/**
+ * @file kalman_core.cpp
+ * @author adrian.rieker@tum.de
+ * @brief 
+ * @version 
+ * @date 
+ * 
+ * 
+ * 
+ */
+
 #ifndef KALMAN_FILTER_WORLDPOINT_HPP
 #define KALMAN_FILTER_WORLDPOINT_HPP
 

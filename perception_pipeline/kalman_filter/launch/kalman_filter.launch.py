@@ -16,7 +16,10 @@ def generate_launch_description():
             parameters=[
                 {'optical_flow_topic': '/optical_flow'},
                 {'disparity_topic': '/device_0/sensor_0/Depth_0/image/data'},
-                {'camera_info_topic': '/device_0/sensor_1/Color_0/info/camera_info'}
+                {'camera_info_topic': '/rgb/camera_info'},
+                {'color_image_topic':'/device_0/sensor_1/Color_0/image/data'}, 
+                {'debug_image_topic_':'debug_image'},
+                {'output_6d_topic' : 'output_6d'},
             ]
         )
-    ])
+    ])  
