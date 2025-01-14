@@ -82,15 +82,21 @@ void KalmanFilterNode::opticalFlowCallback(const sensor_msgs::msg::Image::Shared
               flow_image.cols, flow_image.rows);
 
   // Forward the optical flow to the KalmanCore update
-  kalman_core_.updateSyncedData(flow_image, depth_image_, color_image_);
+  KalmanCoreErrorCode result = kalman_core_.updateSyncedData(flow_image, depth_image_, color_image_);
 
   // Get the output of the KalmanCore
   cv::Mat output_6d, output_debug_image;
   sensor_msgs::msg::Image::SharedPtr output_6d_msg, output_debug_image_msg;
 
-
-
-  kalman_core_.getOutput(output_6d, output_debug_image);
+  if (result == KalmanCoreErrorCode::OK)  
+  {
+    kalman_core_.getOutput(output_6d, output_debug_image);
+  }
+  else
+  {
+    RCLCPP_ERROR(this->get_logger(), "KalmanCore error: %s", getErrorMessage(result).c_str());
+  }
+  
 
   output_6d_msg = cv_bridge::CvImage(msg->header, "bgr8", output_6d).toImageMsg();
   output_debug_image_msg = cv_bridge::CvImage(msg->header, "bgr8", output_debug_image).toImageMsg();

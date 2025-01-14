@@ -15,137 +15,173 @@
 using namespace std::chrono_literals;
 using namespace cv;
 
-
-class CameraInfoPublisher : public rclcpp::Node
+/**
+ * @brief Class for publishing camera info, depth image, and color image 
+ *       with synchronized timestamps for visualization purposes using
+ *      the depth_image_proc package.
+ * 
+ */
+class CameraInfoPublisher : public rclcpp::Node 
 {
   public:
-    CameraInfoPublisher()
-    : Node("camerainfo_publisher"), camera_info_()
-    {
-      publisher_image_ = this->create_publisher<sensor_msgs::msg::Image>("perception_pipeline/depth_image_sync", 10);
-  
-      publisher_camerainfo_ = this->create_publisher<sensor_msgs::msg::CameraInfo>("perception_pipeline/camera_info_sync", 10);
-      publisher_rightcamerainfo_ = this->create_publisher<sensor_msgs::msg::CameraInfo>("perception_pipeline/right_camera_info_sync", 10);
-      // Subscriber to camera image topic
-      image_sub_ = this->create_subscription<sensor_msgs::msg::Image>(
-          "/device_0/sensor_0/Depth_0/image/data", 10,
-          std::bind(&CameraInfoPublisher::imageCallback, this, std::placeholders::_1));
+    CameraInfoPublisher() 
+    : Node("camerainfo_publisher"), color_image_received_(false), camera_info_received_(false)
+    { 
+      // Declare parameters with default values
+      this->declare_parameter<std::string>("color_image_pub_topic", "/perception_pipeline/color_sync");
+      this->declare_parameter<std::string>("depth_image_pub_topic", "/perception_pipeline/depth_sync");
+      this->declare_parameter<std::string>("camera_info_pub_topic", "/perception_pipeline/camera_info_sync");
+      this->declare_parameter<std::string>("color_image_sub_topic", "/device_0/sensor_1/Color_0/image/data");
+      this->declare_parameter<std::string>("depth_image_sub_topic", "/device_0/sensor_0/Depth_0/image/data");
+      this->declare_parameter<std::string>("camera_info_sub_topic", "/device_0/sensor_0/Depth_0/info/camera_info");
 
-      image_sub_rgb_ = this->create_subscription<sensor_msgs::msg::Image>(
-          "/device_0/sensor_1/Color_0/image/data", 10,
-          std::bind(&CameraInfoPublisher::imageRgbCallback, this, std::placeholders::_1));
+      this->declare_parameter<bool>("publish_color_image", true);
+      this->declare_parameter<bool>("publish_depth_image", true);
 
-      info_sub_ = this->create_subscription<sensor_msgs::msg::CameraInfo>(
-          "/device_0/sensor_0/Depth_0/info/camera_info", 10,
-          std::bind(&CameraInfoPublisher::infoCallback, this, std::placeholders::_1));
 
-      publisher_image_rgb_ = this->create_publisher<sensor_msgs::msg::Image>("perception_pipeline/color_image_sync", 10);
+      // Read parameters
+      color_image_pub_topic_ = this->get_parameter("color_image_pub_topic").as_string();
+      depth_image_pub_topic_ = this->get_parameter("depth_image_pub_topic").as_string();
+      camera_info_pub_topic_ = this->get_parameter("camera_info_pub_topic").as_string();
+      color_image_sub_topic_ = this->get_parameter("color_image_sub_topic").as_string();
+      depth_image_sub_topic_ = this->get_parameter("depth_image_sub_topic").as_string();
+      camera_info_sub_topic_ = this->get_parameter("camera_info_sub_topic").as_string();
+      publish_image_ = this->get_parameter("publish_color_image").as_bool();
+      publish_depth_ = this->get_parameter("publish_depth_image").as_bool();
+
+
+      // Initialize subscribers
+      color_image_sub_ = this->create_subscription<sensor_msgs::msg::Image>(
+          color_image_sub_topic_, 10,
+          std::bind(&CameraInfoPublisher::colorCallback, this, std::placeholders::_1));
+
+      depth_image_sub_ = this->create_subscription<sensor_msgs::msg::Image>(
+          depth_image_sub_topic_, 10,
+          std::bind(&CameraInfoPublisher::depthCallback, this, std::placeholders::_1));
       
+      camera_info_sub_ = this->create_subscription<sensor_msgs::msg::CameraInfo>(
+          camera_info_sub_topic_, 10,
+          std::bind(&CameraInfoPublisher::infoCallback, this, std::placeholders::_1));
+      
+      // Initialize publishers
+      if (publish_depth_)
+        depth_image_pub_ = this->create_publisher<sensor_msgs::msg::Image>(depth_image_pub_topic_, 10);
+      
+      if (publish_image_)
+        color_image_pub_ = this->create_publisher<sensor_msgs::msg::Image>(color_image_pub_topic_, 10);
+
+      
+      camera_info_pub_ = this->create_publisher<sensor_msgs::msg::CameraInfo>(camera_info_pub_topic_, 10);
+
+
     }
 
   private:
-    void imageRgbCallback(const sensor_msgs::msg::Image::SharedPtr msg)
+
+    void colorCallback(const sensor_msgs::msg::Image::SharedPtr msg)
     {
-      rgb_image_ = *msg;
-    }
-    void imageCallback(const sensor_msgs::msg::Image::SharedPtr msg)
-    { 
-
-      // Convert ROS Image message to OpenCV format
-      cv_bridge::CvImagePtr cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::MONO16);
-      // Ensure the image is interpreted as a 16-bit unsigned integer image
-      cv::Mat converted_image;
-      cv_ptr->image.convertTo(converted_image, CV_16UC1);
-
-      // Prepare the new ROS Image message
-      cv_bridge::CvImage out_msg;
-      out_msg.header = msg->header; // Preserve the original message header
-      out_msg.encoding = msg->encoding; // Preserve the original encoding
-      out_msg.image = converted_image;
-
-
-      publisher_image_->publish(*out_msg.toImageMsg());
-
-
-      publisher_image_rgb_->publish(rgb_image_);
-      sensor_msgs::msg::CameraInfo camera_info_msg;
-      
-      camera_info_msg = camera_info_; 
-      camera_info_msg.header = msg->header;
-   
-      // Intrinsic camera matrix (K)
-      camera_info_msg.k = {
-          421.37701416015625, 0.0, 424.79901123046875,
-          0.0, 421.37701416015625, 231.86268615722656,
-          0.0, 0.0, 1.0
-      };
-
-      // Distortion coefficients (D) using the Plumb Bob model
-      double brown_d[5] = {-0.051035, 0.056578, -0.000681636, -0.000924746,-0.016071};
-        k_1_ = brown_d[0];
-        k_2_ = brown_d[1];
-        p_1_ = brown_d[2];
-        p_2_ = brown_d[3];
-        k_3_ = brown_d[4];
-
-      // Plumb Bob uses k1, k2, k3, p1, p2
-      plumb_bob_d_ = {k_1_, k_2_, k_3_, p_1_, p_2_};
-      camera_info_msg.distortion_model = "plumb_bob";
-      camera_info_msg.d = plumb_bob_d_;
-
-      // Rectification matrix (R)
-      camera_info_msg.r = {
-          0.0, 0.0, 0.0,
-          0.0, 0.0, 0.0,
-          0.0, 0.0, 0.0
-      };
-
-      // Projection matrix (P)
-      camera_info_msg.p = {
-          421.37701416015625, 0.0, 424.79901123046875, 0.0,
-          0.0, 421.37701416015625, 231.86268615722656, 0.0,
-          0.0, 0.0, 1.0, 0.0
-      };
-
-      publisher_camerainfo_->publish(camera_info_msg);
-      sensor_msgs::msg::CameraInfo right_camera_info_msg;
-
-      right_camera_info_msg = camera_info_msg;
-      
-      // Baseline in meters (converted from millimeters)
-      double baseline_m = 95.13829040527344 / 1000.0;  // Convert mm to meters
-
-      // Projection matrix (P)
-      // Adding the baseline to the projection matrix for the right camera
-      right_camera_info_msg.p = {
-          421.37701416015625, 0.0, 424.79901123046875, -421.37701416015625 * baseline_m,  // fx * baseline
-          0.0, 421.37701416015625, 231.86268615722656, 0.0,
-          0.0, 0.0, 1.0, 0.0
-      };
-
-      publisher_rightcamerainfo_->publish(right_camera_info_msg);
-      
+      color_image_ = *msg;
+      color_image_received_ = true;
     }
 
     void infoCallback(const sensor_msgs::msg::CameraInfo::SharedPtr msg)
     {
       camera_info_ = *msg;
+      camera_info_received_ = true;
+    }
+
+    void depthCallback(const sensor_msgs::msg::Image::SharedPtr msg)
+    {
+      sensor_msgs::msg::CameraInfo camera_info_msg;
+      if(camera_info_received_) 
+      {
+        camera_info_msg = camera_info_;
+        camera_info_msg.header = msg->header;
+      }
+      // Default camera info values
+      else
+      {
+        camera_info_msg.k = {
+          421.37701416015625, 0.0, 424.79901123046875,
+          0.0, 421.37701416015625, 231.86268615722656,
+          0.0, 0.0, 1.0};
+        
+        // Distortion coefficients (D) using the Plumb Bob model
+        double brown_d[5] = {-0.051035, 0.056578, -0.000681636, -0.000924746,-0.016071};
+          k_1_ = brown_d[0];
+          k_2_ = brown_d[1];
+          p_1_ = brown_d[2];
+          p_2_ = brown_d[3];
+          k_3_ = brown_d[4];
+
+        // Plumb Bob uses k1, k2, k3, p1, p2
+        plumb_bob_d_ = {k_1_, k_2_, k_3_, p_1_, p_2_};
+        camera_info_msg.distortion_model = "plumb_bob";
+        camera_info_msg.d = plumb_bob_d_;
+
+        // Rectification matrix (R)
+        camera_info_msg.r = {
+            0.0, 0.0, 0.0,
+            0.0, 0.0, 0.0,
+            0.0, 0.0, 0.0};
+        
+
+            // Projection matrix (P)
+        camera_info_msg.p = {
+          421.37701416015625, 0.0, 424.79901123046875, 0.0,
+          0.0, 421.37701416015625, 231.86268615722656, 0.0,
+          0.0, 0.0, 1.0, 0.0};
+
+        camera_info_msg.header = msg->header;
+      }
+      
+      if (publish_depth_)
+        depth_image_pub_->publish(*msg);
+
+      if (publish_image_)
+      {
+        if (color_image_received_)
+        {
+          sensor_msgs::msg::Image rgb_image_;
+          rgb_image_ = color_image_;
+          rgb_image_.header = msg->header;
+          color_image_pub_->publish(color_image_);
+        }
+      }
+
+      camera_info_pub_->publish(camera_info_msg);
     }
 
 
-    
     double k_1_, k_2_, k_3_, p_1_, p_2_;
     std::vector<double> plumb_bob_d_;
-    rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr publisher_image_;
-    rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr image_sub_rgb_;
-    rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr publisher_image_rgb_;
-    rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr image_sub_;
-    rclcpp::Publisher<sensor_msgs::msg::CameraInfo>::SharedPtr publisher_camerainfo_;
-    rclcpp::Publisher<sensor_msgs::msg::CameraInfo>::SharedPtr publisher_rightcamerainfo_;
-    rclcpp::Subscription<sensor_msgs::msg::CameraInfo>::SharedPtr info_sub_;
+
+    // Publishers
+    rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr color_image_pub_;
+    rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr depth_image_pub_;
+    rclcpp::Publisher<sensor_msgs::msg::CameraInfo>::SharedPtr camera_info_pub_;
+
+    // Subscribers
+    rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr color_image_sub_;
+    rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr depth_image_sub_;
+    rclcpp::Subscription<sensor_msgs::msg::CameraInfo>::SharedPtr camera_info_sub_;
+
+    // Topic name paramters
+    std::string color_image_pub_topic_;
+    std::string depth_image_pub_topic_;
+    std::string camera_info_pub_topic_;
+    std::string color_image_sub_topic_;
+    std::string depth_image_sub_topic_;
+    std::string camera_info_sub_topic_;
+
     sensor_msgs::msg::CameraInfo camera_info_;
-    sensor_msgs::msg::Image rgb_image_;
+    sensor_msgs::msg::Image color_image_;
     size_t count_;
+    bool publish_image_;
+    bool publish_depth_;
+    bool camera_info_received_;
+    bool color_image_received_;
+    bool depth_image_received_;
 };
 
 int main(int argc, char * argv[])

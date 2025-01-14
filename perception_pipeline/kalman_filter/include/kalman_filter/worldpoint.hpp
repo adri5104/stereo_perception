@@ -51,16 +51,18 @@ class WorldPoint
   public:
    
     /**
-     * @brief Constructor for the WorldPoint class.
-     *        Initializes internal state, matrices, etc.
+     * @brief Construct a new World Point object
      * 
-     * @param projectionMatrix The projection matrix of the camera.
-     * @param projectionMatrixInv The inverse of the projection matrix.
-     * @param C The system covariance matrix.
-     * @param T The measurement model covariance matrix.
-     * 
+     * @param C 
+     * @param T 
+     * @param fx 
+     * @param fy 
+     * @param cx 
+     * @param cy 
+     * @param useVarEgo 
+     * @param gridSize 
      */
-    WorldPoint(Mat &projectionMatrix, Mat &projectionMatrixInv, Mat &C, Mat &T, bool &useVarEgo, int gridSize);
+    WorldPoint(Mat &C, Mat &T, double fx, double fy, double cx, double cy,  bool &useVarEgo, int gridSize);
 
     /**
      * @brief Destructor for the WorldPoint class.

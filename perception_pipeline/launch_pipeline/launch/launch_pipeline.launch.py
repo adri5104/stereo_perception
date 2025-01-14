@@ -8,15 +8,27 @@ def generate_launch_description():
     return launch.LaunchDescription([
 
         launch_ros.actions.Node(
-            package='camerainfo_publisher',
-            executable='camerainfo_publisher',
+            package= 'camerainfo_publisher',
+            executable= 'camerainfo_publisher',
+            name= 'camerainfo_publisher',
+            output= 'screen',
+            parameters = [
+              {"color_image_pub_topic": "/perception_pipeline/color_image_sync"},
+              {"depth_image_pub_topic": "/perception_pipeline/depth_image_sync"},
+              {"camera_info_pub_topic": "/perception_pipeline/camera_info_sync"},
+              {"color_image_sub_topic": "/device_0/sensor_1/Color_0/image/data"},
+              {"depth_image_sub_topic": "/device_0/sensor_0/Depth_0/image/data"},
+              {"camera_info_sub_topic": "/device_0/sensor_0/Depth_0/info/camera_info"},
+              {"publish_color_image": False},
+              {"publish_depth_image": False},
+            ]
         ),
       
         launch_ros.actions.Node(
             package='optical_flow_computation',
             executable='optical_flow_computation',
             remappings=[
-                ('left/image_raw', 'perception_pipeline/color_image_sync'),   
+                ('left/image_raw', '/device_0/sensor_0/Depth_0/image/data'),   
                 ('/optical_flow', 'perception_pipeline/optical_flow'),
             ],
             parameters=[{
@@ -37,10 +49,10 @@ def generate_launch_description():
             output='screen',
             parameters=[
                 {'optical_flow_topic': '/perception_pipeline/optical_flow'},
-                {'depth_topic': 'perception_pipeline/depth_image_sync'},
+                {'depth_topic': "/device_0/sensor_0/Depth_0/image/data"},
                 {'camera_info_topic': '/perception_pipeline/camera_info_sync'},
-                {'color_image_topic':'/perception_pipeline/color_image_sync'}, 
-                {'debug_image_topic_':'/perception_pipeline/debug_image'},
+                {'color_image_topic':"/device_0/sensor_1/Color_0/image/data"}, 
+                {'debug_image_topic_':'/debug/debug_image'},
                 {'output_6d_topic' : '/perception_pipeline/output_6d'},
             ]
         )

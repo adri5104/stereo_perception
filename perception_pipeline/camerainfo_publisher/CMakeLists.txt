@@ -27,7 +27,9 @@ ament_target_dependencies(
   cv_bridge
   OpenCV
   )
-
+  install(DIRECTORY 
+  launch
+  DESTINATION share/${PROJECT_NAME})
 
   install(
     TARGETS

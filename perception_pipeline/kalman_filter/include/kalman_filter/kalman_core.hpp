@@ -141,6 +141,20 @@ private:
    */
   KalmanCoreErrorCode predict(Mat input_optical_flow, Mat input_depth, Mat input_color_image);
 
+  /**
+   * @brief Set and initialize the WorldPoints according to the grid defined by the user.
+   * 
+   * @param occupancy_grid The occupancy grid.
+   * @param output_6d The output 6D matrix.
+   * @param output_debug_image The output debug image.
+   */
+  KalmanCoreErrorCode setNewWorldPoints(Mat &occupancy_grid, Mat &output_6d, Mat &output_debug_image);
+
+
+  void setNewWorldPoints(Mat &outputSVLeft,			///< Method to set and initialize the WorldPoints according to the grid defined by the user
+	  					             Mat &occupancyGrid, 
+	  					             Mat &output6D, 
+	  					             Mat &output6DVal);
   
   // Vector containing references to tracked WorldPoints
   std::vector<WorldPoint*> worldpoints_;
@@ -184,6 +198,7 @@ private:
   double term2;		// Value needed for computation of Jacobimatrices
   double term3;		// Value needed for computation of Jacobimatrices
   double term4;		// Value needed for computation of Jacobimatrices
+  bool currently_processing_;	// Flag for indicating that the KalmanCore is currently processing data
 
 };
 

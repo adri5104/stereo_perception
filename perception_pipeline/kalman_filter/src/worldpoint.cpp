@@ -14,16 +14,16 @@
 namespace perception_pipeline {
 namespace kalman_filter {
 
-WorldPoint::WorldPoint(Mat &projectionMatrix, Mat &projectionMatrixInv, Mat &C, Mat &T, bool &useVarEgo, int gridSize)
+WorldPoint::WorldPoint(Mat &C, Mat &T, double fx, double fy, double cx, double cy,  bool &useVarEgo, int gridSize)
 :  C_(C), 
   T_(T), 
   use_var_ego_(useVarEgo), 
   grid_size_worldpoints(gridSize),
   age_(0),
-  f_x_(0.0),
-  f_y_(0.0),
-  c_x_(0.0),
-  c_y_(0.0)
+  f_x_(fx),
+  f_y_(fy),
+  c_x_(cx),
+  c_y_(cy)
 {
 }
 
