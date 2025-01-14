@@ -21,12 +21,57 @@ namespace kalman_filter
 class KalmanCore
 {
 public:
+
   /**
-   * @brief Constructor for the KalmanCore class.
+   * @brief Default constructor for the KalmanCore class.
    *        Initializes internal state, matrices, etc.
    */
   KalmanCore();
 
+  /**
+   * @brief Constructor for the KalmanCore class.
+   *        Initializes internal state, matrices, etc.
+   * 
+   * @param sigma_system The system covariance matrix.
+   * @param C The system covariance matrix.
+   * @param T The measurement model covariance matrix.
+   * @param fx Focal length x
+   * @param fy Focal length y
+   * @param cx Principal point x
+   * @param cy Principal point y
+   * @param useVarEgo Flag for using the covariance matrix of the egomotion
+   * @param gridSize Size of the grid for the worldpoints
+   */
+  KalmanCore(Mat sigma_system, Mat C, Mat T, double fx, double fy, double cx, double cy, bool useVarEgo, int gridSize);
+
+  /**
+   * @brief Default destructor for the KalmanCore class.
+   */
+  KalmanCore(const KalmanCore&) = delete;
+
+  /**
+   * @brief Default copy constructor for the KalmanCore class.
+   */
+  KalmanCore& operator=(const KalmanCore&) = delete;
+
+  /**
+   * @brief Default move constructor for the KalmanCore class.
+   */
+  KalmanCore(KalmanCore&&) = delete;
+
+  /**
+   * @brief Default move assignment operator for the KalmanCore class.
+   */
+  KalmanCore& operator=(KalmanCore&&) = delete;
+
+  /**
+   * @brief Default destructor for the KalmanCore class.
+   */
+  ~KalmanCore(void);
+
+
+
+  
   /**
    * @brief Update step using optical flow data.
    *        
@@ -39,16 +84,7 @@ public:
    *       
    * @param disparity The disparity image.
    */
-  void updateDisparity(const cv::Mat& disparity);
-
-  /**
-   * @brief (Optional) Update step using camera parameters or camera info.
-   * @param fx Focal length x
-   * @param fy Focal length y
-   * @param cx Principal point x
-   * @param cy Principal point y
-   */
-  void setCameraParameters(double fx, double fy, double cx, double cy);
+  void updateDepth(const cv::Mat& disparity);
 
   /**
    * @brief Get the current state vector.
@@ -56,25 +92,38 @@ public:
    */
   cv::Mat getState() const;
 
+  // Setters and getters
+
+  /**
+   * @brief Set the Camera Parameters object
+   * 
+   * @param fx Focal length x
+   * @param fy Focal length y
+   * @param cx Principal point x
+   * @param cy Principal point y
+   */
+  void setCameraParameters(double fx, double fy, double cx, double cy);
+
 private:
   
   // Vector containing references to tracked WorldPoints
   std::vector<WorldPoint*> worldpoints_;
+
+  // Config parameters
+  bool use_var_ego_;	// Flag for incorporating the egomotion covariance matrix
+  int grid_size_worldpoints;	// Size of the grid cells in pixels
 
   // Camera parameters
   double fx_;
   double fy_;
   double cx_;
   double cy_;
-  Mat projection_matrix_;
-  Mat projection_matrix_inv_; 
-
-  
 
   // Kalman filter parameters 
-  bool first_time_;	// Flag for first time execution
-  Mat C_ // Covariance matrix of the egomotion
-  Mat T_ // Covariance matrix of the measurement model
+  bool first_time_;	// Flag for first time execution  
+  Mat C_; // Covariance matrix of the egomotion
+  Mat T_ ;// Covariance matrix of the measurement model
+  Mat sigma_system_;
   Mat	A_new_;		// Transition matrix
   Mat	u_new_;		// Egomotion translation vector
   Mat	D_new_;		// Matrix containing the rotation matrix of the egomotion

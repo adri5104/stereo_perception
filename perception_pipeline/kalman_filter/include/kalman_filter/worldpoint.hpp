@@ -9,19 +9,19 @@ using namespace std;
 using namespace cv;
 
 
-enum class KalmanErrorCode {
+enum class WorldPointErrorCode {
     OK = 1,
-    BAD_DISPARITY_ERROR,
+    BAD_DEPTH_VALUE_ERROR,
     NEW_MEASUREMENT_OUT_OF_BOUNDS_ERROR,
     THREE_SIGMA_TEST_FAILED,
 };
 
 // Helper function to get error messages
-std::string getErrorMessage(KalmanErrorCode code) {
-    static const std::unordered_map<KalmanErrorCode, std::string> errorMessages = {
-        {KalmanErrorCode::OK, "No error."},
-        {KalmanErrorCode::BAD_DISPARITY_ERROR, "Invalid disparity value."},
-        {KalmanErrorCode::NEW_MEASUREMENT_OUT_OF_BOUNDS_ERROR, "New measurement dimensions out of range."},
+inline  std::string getErrorMessage(WorldPointErrorCode code) {
+    static const std::unordered_map<WorldPointErrorCode, std::string> errorMessages = {
+        {WorldPointErrorCode::OK, "No error."},
+        {WorldPointErrorCode::BAD_DEPTH_VALUE_ERROR, "Invalid depth value."},
+        {WorldPointErrorCode::NEW_MEASUREMENT_OUT_OF_BOUNDS_ERROR, "New measurement dimensions out of range."}
     };
 
     auto it = errorMessages.find(code);
@@ -31,7 +31,7 @@ std::string getErrorMessage(KalmanErrorCode code) {
 /**
  * @class WorldPoint
  * @brief Represents a point in of the scene with its own local state (6D state and covariance).
- *        Provides methods for reprojection between pixel/disparity coordinates and world coordinates.
+ *        Provides methods for reprojection between pixel/depth coordinates and world coordinates.
  *        
  *       The state vector is: [x, y, z, vx, vy, vz]
  */
@@ -63,73 +63,67 @@ class WorldPoint
      * 
      * @param u The horizontal position in pixels.
      * @param v The initial y position.
-     * @param d The initial disparity.
+     * @param depth The initial depth.
      */
-    void initKalmanFilter(const double &u, const double &v, const double &d);
+    void initKalmanFilter(const double &u, const double &v, const double &depth);
 
     /**
      * @brief Method that runs a complete Kalmanstep with all necessary computations.
      * 
-     * @param inputDisp disparity image
-     * @param inputFlow optical flow image
-     * @param A_new 
+     * @param input_depth input depth image in mm
+     * @param input_flow input optical flow image in pixels
+     * @param A_new input state transition matrix
      * @param D_new 
      * @param Q_new_w 
      * @param G_new 
      * @param u_new 
-     * @param paraRot 
+     * @param para_rot 
      * @param term1 
      * @param term2 
      * @param term3 
      * @param term4 
-     * @param occupancyGrid 
-     * @param timediff 
-     * @return int 
+     * @param occupancy_grid 
+     * @param delta_time 
+     * @return WorldPointErrorCode 
      */
-    KalmanErrorCode	 computeKalmanStep(const Mat& inputDisp,													///< Method that runs a complete Kalmanstep with all necessary computations. Returns integer depending on the condition of the state vector
-						   const Mat& inputFlow,
-						   const Mat& A_new,
-						   const Mat& D_new,
-						   const Mat& Q_new_w,
-						   const Mat& G_new,
-						   const Mat& u_new,
-						   const Mat& paraRot,
-						   const double& term1,
-						   const double& term2,
-						   const double& term3,
-						   const double& term4,
-						   Mat& occupancyGrid,
-						   const double& timediff);
+    WorldPointErrorCode	 computeKalmanStep(
+              const Mat& input_depth,													///< Method that runs a complete Kalmanstep with all necessary computations. Returns integer depending on the condition of the state vector
+              const Mat& ,
+              const Mat& A_new,
+              const Mat& D_new,
+              const Mat& Q_new_w,
+              const Mat& G_new,
+              const Mat& u_new,
+              const Mat& para_rot,
+              const double& term1,
+              const double& term2,
+              const double& term3,
+              const double& term4,
+              Mat& occupancy_grid,
+              const double& delta_time);
+
 
     /**
      * @brief Function for computing world coordinates out of pixel values (3D reprojection).
      * 
      * @param u The horizontal position in pixels.
      * @param v The vertical position in pixels.
-     * @param d Disparity value.
+     * @param depth Depth value in m
      * @param coordinates Coordinates of the world point.
      */
-    void projectPixelTo3D(const double &u, const double &v, const double &d, Mat &coordinates);
-
-    /**
-     * @brief Function for computing world coordinates out of pixel values (3D reprojection).
-     * 
-     * @param u The horizontal position in pixels.
-     * @param v The vertical position in pixels.
-     * @param depth Depth value in mm
-     * @param coordinates Coordinates of the world point.
-     */
-    void projectPixelTo3D(const double &u, const double &v, const uint16_t &depth, Mat &coordinates);	
+    void projectPixelToWorld(const double &u, const double &v, const uint16_t &depth, Mat &coordinates);	
 
     /**
      * @brief Function for computing pixel values out of world coordinates (2D projection).
      * 
      * @param x The x position in the world.
      * @param y The y position in the world.
-     * @param z The z position in the world.
+     * @param z The z position in the world (depth).
      * @param pixels Pixel values.
      */
-    void project3DToPixel(const double &x, const double &y, const double &z, Mat &pixels);	
+    void projectWorldToPixel(const double &x, const double &y, const double &z, Mat &pixels);	
+
+    // Getters and setters
 
     /**
      * @brief Get the current state vector.
@@ -152,13 +146,20 @@ class WorldPoint
      */
 	  int	 getAge();	
 
+    /**
+     * @brief Set the camera parameters.
+     * 
+     * @param fx Focal length x
+     * @param fy Focal length y
+     * @param cx Principal point x
+     * @param cy Principal point y
+     */
+    void setCameraParameters(double fx, double fy, double cx, double cy);
+
   private:
 
     // Attributes
-    double u_; // Horizontal position in pixels
-    double v_; // Vertical position in pixels
-    
-	  Mat	z_old_;	// Old measurement vector			
+    Mat	z_old_;	// Old measurement vector			
 	  Mat	x_old_;	// Old state vector
 	  Mat	P_old_;	// Old state covariance matrix				
 	  
@@ -169,14 +170,12 @@ class WorldPoint
     int	age_; // Number of iterations the object has already been passed through
 
     // Camera parameters
-    Mat	projection_matrix_;		// Variable for holding the reference to the projection matrix
-	  Mat	projection_matrix_inv_;	// Variable for holding the reference to the inverse projection matrix
     double f_x_; // Focal length x
     double f_y_; // Focal length y
     double c_x_; // Principal point x
     double c_y_; // Principal point y
 
-    KalmanErrorCode errorCode; // Error code for the Kalman filter
+    WorldPointErrorCode errorCode; // Error code for the Kalman filter
  
 };
 

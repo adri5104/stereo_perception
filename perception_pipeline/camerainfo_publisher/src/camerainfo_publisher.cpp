@@ -13,7 +13,7 @@
 #include <cv_bridge/cv_bridge.hpp>
 
 using namespace std::chrono_literals;
-
+using namespace cv;
 
 
 class CameraInfoPublisher : public rclcpp::Node
@@ -23,6 +23,7 @@ class CameraInfoPublisher : public rclcpp::Node
     : Node("camerainfo_publisher"), camera_info_()
     {
       publisher_image_ = this->create_publisher<sensor_msgs::msg::Image>("depth_registered/image_rect", 10);
+      publisher_depth_16UC1_ = this->create_publisher<sensor_msgs::msg::Image>("left/image_rect", 10);
       publisher_camerainfo_ = this->create_publisher<sensor_msgs::msg::CameraInfo>("rgb/camera_info", 10);
       publisher_rightcamerainfo_ = this->create_publisher<sensor_msgs::msg::CameraInfo>("right/camera_info", 10);
       // Subscriber to camera image topic
@@ -136,6 +137,7 @@ class CameraInfoPublisher : public rclcpp::Node
     double k_1_, k_2_, k_3_, p_1_, p_2_;
     std::vector<double> plumb_bob_d_;
     rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr publisher_image_;
+    rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr publisher_depth_16UC1_;
     rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr image_sub_rgb_;
     rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr publisher_image_rgb_;
     rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr image_sub_;

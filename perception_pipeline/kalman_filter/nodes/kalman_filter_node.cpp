@@ -66,7 +66,7 @@ void KalmanFilterNode::disparityCallback(const sensor_msgs::msg::Image::SharedPt
               disp_image.cols, disp_image.rows);
 
   // Forward the disparity to the KalmanCore update
-  kalman_core_.updateDisparity(disp_image);
+  kalman_core_.updateDepth(disp_image);
 }
 
 void KalmanFilterNode::cameraInfoCallback(const sensor_msgs::msg::CameraInfo::SharedPtr msg)

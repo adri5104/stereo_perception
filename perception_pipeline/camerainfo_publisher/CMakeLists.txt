@@ -10,7 +10,8 @@ find_package(ament_cmake REQUIRED)
 find_package(std_msgs)
 find_package(sensor_msgs)
 find_package(rclcpp)
-find_package(cv_bridge)
+find_package(cv_bridge REQUIRED)
+find_package(OpenCV REQUIRED COMPONENTS core imgproc  calib3d optflow)
 
 add_executable(${PROJECT_NAME}  src/camerainfo_publisher.cpp)
 
@@ -24,6 +25,7 @@ ament_target_dependencies(
   std_msgs
   sensor_msgs 
   cv_bridge
+  OpenCV
   )
 
 
