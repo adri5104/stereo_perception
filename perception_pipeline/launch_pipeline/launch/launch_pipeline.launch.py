@@ -13,14 +13,27 @@ def generate_launch_description():
             name= 'camerainfo_publisher',
             output= 'screen',
             parameters = [
-              {"color_image_pub_topic": "/perception_pipeline/color_image_sync"},
-              {"depth_image_pub_topic": "/perception_pipeline/depth_image_sync"},
+              {"color_image_pub_topic": "/view/color_image_sync"},
+              {"depth_image_pub_topic": "/view/depth_image_sync"},
               {"camera_info_pub_topic": "/perception_pipeline/camera_info_sync"},
               {"color_image_sub_topic": "/device_0/sensor_1/Color_0/image/data"},
               {"depth_image_sub_topic": "/device_0/sensor_0/Depth_0/image/data"},
               {"camera_info_sub_topic": "/device_0/sensor_0/Depth_0/info/camera_info"},
-              {"publish_color_image": False},
-              {"publish_depth_image": False},
+              {"publish_color_image": True},
+              {"publish_depth_image": True},
+            ]
+             
+        ),
+        
+        launch_ros.actions.Node(
+            package= 'depth_image_proc',
+            executable= 'point_cloud_xyzrgb_node',
+            name= 'point_cloud_xyzrgb_node',
+            output= 'screen',
+            remappings=[
+                ('rgb/camera_info ', '/perception_pipeline/camera_info_sync'),   
+                ('rgb/image_rect_color', '/view/depth_image_sync'),
+                ('depth_registered/image_rect', 'perception_pipeline/optical_flow'),
             ]
              
         ),
