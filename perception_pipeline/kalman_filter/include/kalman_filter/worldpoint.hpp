@@ -26,6 +26,7 @@ enum class WorldPointErrorCode {
     NEW_MEASUREMENT_OUT_OF_BOUNDS_ERROR,
     THREE_SIGMA_TEST_FAILED,
     DIVISION_BY_ZERO_ERROR,
+    UNABLE_TO_GET_OPT_FLW_MSMT,
     UNKNOWN_ERROR
 };
 
@@ -37,6 +38,7 @@ inline  std::string getErrorMessageWorldpoint(WorldPointErrorCode code) {
         {WorldPointErrorCode::NEW_MEASUREMENT_OUT_OF_BOUNDS_ERROR, "New measurement dimensions out of range."},
         {WorldPointErrorCode::THREE_SIGMA_TEST_FAILED, "Three sigma test failed."},
         {WorldPointErrorCode::DIVISION_BY_ZERO_ERROR, "Division by zero."},
+        {WorldPointErrorCode::UNABLE_TO_GET_OPT_FLW_MSMT, "Problem getting optical flow measurement"},
         {WorldPointErrorCode::UNKNOWN_ERROR, "Unknown error."}
     };
 

@@ -93,23 +93,42 @@ WorldPointErrorCode WorldPoint::computeKalmanStep(
   age_++;
 
   // Get new measurement
+<<<<<<< HEAD
   const Vec2f& pixel_flow = 
     input_flow.at<Vec2f>(
       static_cast<int>(floor(z_old_.at<double>(1,0))), 
       static_cast<int> (floor(z_old_.at<double>(0,0))));
+=======
+  try{
+    const Vec2f& pixel_flow = 
+      input_flow.at<Vec2f>(
+        static_cast<int> (floor(z_old_.at<double>(1,0))), 
+        static_cast<int> (floor(z_old_.at<double>(0,0))));
+
+    // Update measurement vector
+    z_new.at<double>(0,0) = z_old_.at<double>(0,0) + (double) pixel_flow[0];	// u direction
+    z_new.at<double>(1,0) = z_old_.at<double>(1,0) + (double) pixel_flow[1];	// v direction
+  }
+  catch(const std::exception& e)
+  {
+    return WorldPointErrorCode::UNABLE_TO_GET_OPT_FLW_MSMT;
+  }
+
+>>>>>>> 8a6aefa027c15123b5d363cb58490974b915ee19
   
-  
-  // Update measurement vector
-  z_new.at<double>(0,0) = z_old_.at<double>(0,0) + (double) pixel_flow[0];	// u direction
-  z_new.at<double>(1,0) = z_old_.at<double>(1,0) + (double) pixel_flow[1];	// v direction
 
   //cout << "[WorldPoint] Old pixel coordinates: " << z_old_.at<double>(0,0) << ", " << z_old_.at<double>(1,0) << endl;
   //cout << "[WorldPoint] Optical flow: " << pixel_flow[0] << ", " << pixel_flow[1] << endl;
   //cout << "[WorldPoint] New pixel coordinates: " << z_new.at<double>(0,0) << ", " << z_new.at<double>(1,0) << endl;
 
   
+<<<<<<< HEAD
   int new_u = static_cast<int> (floor(z_new.at<double>(0,0)));	// Get pixel coordinates (u)
 	int new_v = static_cast<int> (floor(z_new.at<double>(1,0)));	// Get pixel coordinates (v)
+=======
+  int new_u = static_cast<int>(floor(z_new.at<double>(0,0)));	// Get pixel coordinates (u)
+	int new_v = static_cast<int>(floor(z_new.at<double>(1,0)));	// Get pixel coordinates (v)
+>>>>>>> 8a6aefa027c15123b5d363cb58490974b915ee19
 
   // Check if new pixel coordinates are within the image
   if (new_u > 0 && new_u < input_depth.cols && new_v > 0 && new_v < input_depth.rows)
@@ -117,8 +136,6 @@ WorldPointErrorCode WorldPoint::computeKalmanStep(
     // Check if depth value has a valid value
     // Convert to meters first
     double new_depth = input_depth.at<double>(new_v, new_u) / 1000.0; // Convert mm to m
-    //cout << "[WorldPoint] New depth value: " << new_depth << endl;
-
     if (new_depth > 0)
     {
       // Update measurement vector
@@ -152,6 +169,8 @@ WorldPointErrorCode WorldPoint::computeKalmanStep(
   // Compute the priori estimate
   x_new_pred = A_new * x_old_ + G_new * u_new; 
 
+  cout << "AAAAAAAAAAAAAAA" << x_new_pred << endl;
+
   // Compute the priori estimate covariance matrix
   P_new_pred = A_new * P_old_ * A_new.t() + Q_new;
 
@@ -161,8 +180,13 @@ WorldPointErrorCode WorldPoint::computeKalmanStep(
 	double y_pred = x_new_pred.at<double>(1,0);	
 	double z_pred = x_new_pred.at<double>(2,0);
 
+<<<<<<< HEAD
   if(z_pred == 0 || std::isnan(z_pred)) z_pred = 0.00001;
 
+=======
+  if(z_pred == 0 || std::isnan(z_pred)) z_pred = 0.1;
+  
+>>>>>>> 8a6aefa027c15123b5d363cb58490974b915ee19
   H_new.at<double>(0,0) = f_x_ / z_pred;
 	H_new.at<double>(0,2) = -(f_x_*x_pred)/(z_pred*z_pred);
 	H_new.at<double>(1,1) = f_y_ / z_pred;
