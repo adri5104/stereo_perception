@@ -302,14 +302,11 @@ KalmanCoreErrorCode KalmanCore::predict(Mat input_optical_flow, Mat input_depth,
       // Read current pixel position
       
 			wp->getZ(z);
-      //cout << "New z: " << z << endl;
+      
+      
       pos_u = static_cast<int>(std::floor(z.at<double>(0,0)));
       pos_v = static_cast<int>(std::floor(z.at<double>(1,0)));
-      //cout << "Total number of worldpoints: " << worldpoints_.size() << endl;
-      //cout << "Point number: " << i << " Result: " << getErrorMessageWorldpoint(result) << endl;
-      //
-      //cout << "Old position: " << pos_u_old << " " << pos_v_old << " New position: " << pos_u << " " << pos_v << endl;
-      
+     
       switch(result)
       { 
         
@@ -323,7 +320,7 @@ KalmanCoreErrorCode KalmanCore::predict(Mat input_optical_flow, Mat input_depth,
             // Save state value in output matrix
             wp->getX(x);
             output_6d.at<Vec6f>(pos_v, pos_u) = x;
-            
+            cout << x << endl;  
 
             // Set correspondent validity entry to 1
             output_6d_val.at<uchar>(pos_v, pos_u) = 1;
