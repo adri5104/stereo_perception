@@ -335,11 +335,7 @@ KalmanCoreErrorCode KalmanCore::predict(Mat input_optical_flow, Mat input_depth,
           }
           else
           {
-            // We delete current worldpoint
-            wp.reset();
-            
-
-            // Here we could do something more complex like merging the two worldpoints  
+             
           }
           
         break;

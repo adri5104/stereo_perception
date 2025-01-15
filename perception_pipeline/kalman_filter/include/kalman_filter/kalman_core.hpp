@@ -257,7 +257,7 @@ private:
   Mat	u_new_;		// Egomotion translation vector
   Mat	D_new_;		// Matrix containing the rotation matrix of the egomotion
   Mat	Q_new_w_;	// Covariance matrix of discrete-time process
-  Mat	G_new_;		// Jacobian for state transformation
+  Mat	G_new_;		// Jacobian for state transformation  
   Mat	para_rot_;	// Parametervector with some precomputed values (sin/cos) for rotation of egomotion 
   double delta_time;	// Timedifference between the current frame and the frame before
   double term1;		// Value needed for computation of Jacobimatrices

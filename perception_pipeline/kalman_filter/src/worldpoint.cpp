@@ -95,8 +95,8 @@ WorldPointErrorCode WorldPoint::computeKalmanStep(
   // Get new measurement
   const Vec2f& pixel_flow = 
     input_flow.at<Vec2f>(
-      static_cast<int> (z_old_.at<double>(1,0)), 
-      static_int<int> floor(z_old_.at<double>(0,0)));
+      static_cast<int>(floor(z_old_.at<double>(1,0))), 
+      static_cast<int> (floor(z_old_.at<double>(0,0))));
   
   
   // Update measurement vector
@@ -108,8 +108,8 @@ WorldPointErrorCode WorldPoint::computeKalmanStep(
   //cout << "[WorldPoint] New pixel coordinates: " << z_new.at<double>(0,0) << ", " << z_new.at<double>(1,0) << endl;
 
   
-  int new_u = static_cast<int> floor(z_new.at<double>(0,0));	// Get pixel coordinates (u)
-	int new_v = static_cast<int> floor(z_new.at<double>(1,0));	// Get pixel coordinates (v)
+  int new_u = static_cast<int> (floor(z_new.at<double>(0,0)));	// Get pixel coordinates (u)
+	int new_v = static_cast<int> (floor(z_new.at<double>(1,0)));	// Get pixel coordinates (v)
 
   // Check if new pixel coordinates are within the image
   if (new_u > 0 && new_u < input_depth.cols && new_v > 0 && new_v < input_depth.rows)
@@ -161,7 +161,8 @@ WorldPointErrorCode WorldPoint::computeKalmanStep(
 	double y_pred = x_new_pred.at<double>(1,0);	
 	double z_pred = x_new_pred.at<double>(2,0);
 
-  
+  if(z_pred == 0 || std::isnan(z_pred)) z_pred = 0.00001;
+
   H_new.at<double>(0,0) = f_x_ / z_pred;
 	H_new.at<double>(0,2) = -(f_x_*x_pred)/(z_pred*z_pred);
 	H_new.at<double>(1,1) = f_y_ / z_pred;
@@ -179,12 +180,12 @@ WorldPointErrorCode WorldPoint::computeKalmanStep(
 	S_new_inv = S_new.inv();
 
   // Perform 3 sigma test
-  Mat tmp = s_new.t() * S_new_inv * s_new;
-	double epsilonSquared = tmp.at<double>(0,0);
-	if (sqrt(epsilonSquared) > 3.0) 
-  { 
-    return WorldPointErrorCode::THREE_SIGMA_TEST_FAILED; 
-  }
+  //Mat tmp = s_new.t() * S_new_inv * s_new;
+	//double epsilonSquared = tmp.at<double>(0,0);
+	//if (sqrt(epsilonSquared) > 3.0) 
+  //{ 
+  //  return WorldPointErrorCode::THREE_SIGMA_TEST_FAILED; 
+  //}
 
   // Kalman Gain computation
 	K_new = P_new_pred * H_new.t() * S_new_inv;
