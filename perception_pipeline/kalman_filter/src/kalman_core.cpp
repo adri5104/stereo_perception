@@ -16,8 +16,7 @@ namespace perception_pipeline
 {
 namespace kalman_filter
 {
-
-KalmanCore::KalmanCore() :
+  KalmanCore::KalmanCore() :
   fx_(0.0), fy_(0.0), cx_(0.0), cy_(0.0),
   first_time_(true),
   C_(Mat::zeros(6, 6, CV_64FC1)),
@@ -123,9 +122,6 @@ KalmanCoreErrorCode KalmanCore::updateSyncedData(const Mat& optical_flow, const 
   // Time measurement
   time_diff_ = calculateTimeDifference(sync_input_time_old_);
 
-  cout << "num images received: " << counter << endl;
-
-  
   
   // Do the prediction process
   return predict(input_optical_flow_sync_, input_depth_sync_, input_color_image_sync_);
@@ -133,10 +129,6 @@ KalmanCoreErrorCode KalmanCore::updateSyncedData(const Mat& optical_flow, const 
 
 KalmanCoreErrorCode KalmanCore::updateSyncedData(const Mat& optical_flow, const Mat& depth, const Mat& color_image)
 { 
-  static int counter = 0;
-  counter++;
-
-  
   if (optical_flow.empty() )
   {
     return KalmanCoreErrorCode::BAD_OPTICAL_FLOW_IMAGE_ERROR;
@@ -153,7 +145,6 @@ KalmanCoreErrorCode KalmanCore::updateSyncedData(const Mat& optical_flow, const 
   }
 
   include_ego_motion_ = false;
-
   input_optical_flow_sync_ = optical_flow;
   input_depth_sync_ = depth;
   input_color_image_sync_ = color_image;
@@ -161,11 +152,8 @@ KalmanCoreErrorCode KalmanCore::updateSyncedData(const Mat& optical_flow, const 
   // Time measurement
   time_diff_ = calculateTimeDifference(sync_input_time_old_);
   
-  // Do the prediction process
-  cout << "[KalmanCore] initializating updateSyncedData iteration number: " << counter << endl;
   return predict(input_optical_flow_sync_, input_depth_sync_, input_color_image_sync_);
 }
-
 
 void KalmanCore::setCameraParameters(double fx, double fy, double cx, double cy)
 {
@@ -188,15 +176,7 @@ void KalmanCore::setCameraParameters(double fx, double fy, double cx, double cy)
 
 KalmanCoreErrorCode KalmanCore::predict(Mat input_optical_flow, Mat input_depth, Mat input_color_image)
 { 
-
-  static int counter = 0;
-  counter++;
-  cout << "[KalmanCore] initializating predict iteration number: " << counter << endl;
-
-  
-  
   // Create some output matrices
-
   // 6D output matrix (x, y, z, vx, vy, vz)
   Mat output_6d		= Mat::zeros(input_color_image.rows,	input_color_image.cols,	CV_MAKETYPE(CV_32F, 6));
 
@@ -206,8 +186,6 @@ KalmanCoreErrorCode KalmanCore::predict(Mat input_optical_flow, Mat input_depth,
   // Debug image
 	Mat output_debug_image = Mat::zeros(input_color_image.rows, input_color_image.cols,  CV_8UC3);
 
-  
-	
   // Occupancy grid matrix (Matrix that shows how many world points lie in every single part of the grid)
   int occ_h = static_cast<int>(std::ceil(static_cast<double>(input_depth.rows) / grid_size_worldpoints_)); // Always round up
   int occ_w = static_cast<int>(std::ceil(static_cast<double>(input_depth.cols) / grid_size_worldpoints_));  // Always round up
@@ -247,17 +225,12 @@ KalmanCoreErrorCode KalmanCore::predict(Mat input_optical_flow, Mat input_depth,
       return result;
     }
     first_time_ = false;
-
-    cout << "Number of worldpoints: " << worldpoints_.size() << endl;
-   
   }
   else
   { 
-    
     // Compute the Kalman matrices
     computeKalmanMatrices();
 
-    
     // Buffer values
     Mat z		= Mat::zeros(3,1,CV_64FC1);
     Mat x		= Mat::zeros(6,1,CV_64FC1);
@@ -268,10 +241,6 @@ KalmanCoreErrorCode KalmanCore::predict(Mat input_optical_flow, Mat input_depth,
     int pos_u	= 0;
     int pos_v	= 0;
 
-    
-    
-    
-    
     // Iterate over all worldpoints
     WorldPointErrorCode result;
     int i = 0;
@@ -300,23 +269,17 @@ KalmanCoreErrorCode KalmanCore::predict(Mat input_optical_flow, Mat input_depth,
                                      delta_time);
       
       // Read current pixel position
-      
 			wp->getZ(z);
-      
-      
       pos_u = static_cast<int>(std::floor(z.at<double>(0,0)));
       pos_v = static_cast<int>(std::floor(z.at<double>(1,0)));
-     
       switch(result)
       { 
-        
         // Successful update
         case WorldPointErrorCode::OK:
 
           // Check if there is an entry at the current pixel position...
           if (output_6d_val.at<uchar>(pos_u, pos_v) == 0)
           {           
-            
             // Save state value in output matrix
             wp->getX(x);
             output_6d.at<Vec6f>(pos_v, pos_u) = x;
@@ -324,24 +287,20 @@ KalmanCoreErrorCode KalmanCore::predict(Mat input_optical_flow, Mat input_depth,
 
             // Set correspondent validity entry to 1
             output_6d_val.at<uchar>(pos_v, pos_u) = 1;
-            //cout << "[KalmanCore] end of iteration number: " << counter << endl; 
-
+        
             // We paint the pixel in the debug image
             output_debug_image.at<Vec3b>(pos_v, pos_u) = Vec3b(0, 255, 0);	// GREEN
-            
           }
           else
           {
-             
+             // We should eliminate the point
           }
           
         break;
       }
-
     }
   }
 
-  cout << "[KalmanCore] end of predict iteration number: " << counter <<  endl;
   output_6d_ = output_6d;
   output_debug_image_ = output_debug_image;
   return KalmanCoreErrorCode::OK;
@@ -426,8 +385,6 @@ KalmanCoreErrorCode KalmanCore::computeKalmanMatrices()
   Mat A_new_submatrix = A_new_.colRange(3, 6).rowRange(0, 3);
   scaled_identity.copyTo(A_new_submatrix);
 
-  
-  
   if (include_ego_motion_)
   {
     // Filling D_new_  (Egomotion rotation matrix)
@@ -444,7 +401,6 @@ KalmanCoreErrorCode KalmanCore::computeKalmanMatrices()
     // Compute the new state transition matrix A_new
     A_new_w = A_new_ * D_new_;
   }
-
 
 	// Compute and fill Q_new_w
   // Precompute commonly used values for clarity
@@ -467,8 +423,6 @@ KalmanCoreErrorCode KalmanCore::computeKalmanMatrices()
   Mat Q_bottom_right = Q_new_w_.colRange(3, 6).rowRange(3, 6);
   sigma_system_.copyTo(Q_bottom_right);
 
-
-
 	// Compute jacobian for statetransformation G 
   if (include_ego_motion_)
   {
@@ -476,7 +430,6 @@ KalmanCoreErrorCode KalmanCore::computeKalmanMatrices()
   }
 
   return KalmanCoreErrorCode::OK;
-  
 }
 
 KalmanCoreErrorCode KalmanCore::getOutput(cv::Mat &output_6d, cv::Mat &output_debug_image)
@@ -565,6 +518,5 @@ void KalmanCore::computeJacobianMatrix()
 	G_new_.at<double>(5,4) = sPhi;
 	G_new_.at<double>(5,5) = term8;
 }
-
 } // namespace kalman_filter
 } // namespace perception_pipeline

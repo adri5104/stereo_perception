@@ -1,3 +1,14 @@
+/**
+ * @file kalman_filter_node.hpp
+ * @author adrian.rieker@tum.de
+ * @brief 
+ * @version 
+ * @date 
+ * 
+ * 
+ * 
+ */
+
 #ifndef KALMAN_FILTER__KALMAN_FILTER_NODE_HPP_
 #define KALMAN_FILTER__KALMAN_FILTER_NODE_HPP_
 

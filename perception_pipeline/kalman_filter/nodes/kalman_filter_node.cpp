@@ -1,3 +1,14 @@
+/**
+ * @file kalman_filter_node.hpp
+ * @author adrian.rieker@tum.de
+ * @brief 
+ * @version 
+ * @date 
+ * 
+ * 
+ * 
+ */
+
 #include "kalman_filter_node.hpp"
 #include <cv_bridge/cv_bridge.hpp>
 
@@ -66,7 +77,7 @@ void KalmanFilterNode::updateSync(
   const sensor_msgs::msg::Image::ConstSharedPtr color_msg)
 {
   RCLCPP_INFO(this->get_logger(), "updateSync() called with synchronized messages");
-  cout << "Callback" << endl;
+
   // Convert each to cv::Mat
   cv::Mat flow_image  = imageMsgToMat(flow_msg);
   cv::Mat depth_image = imageMsgToMat(depth_msg);
