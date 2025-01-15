@@ -46,7 +46,6 @@ void OpticalFlowNode::imageCallback(const sensor_msgs::msg::Image::SharedPtr msg
     Mat current_image;
     try {
         current_image = cv_bridge::toCvShare(msg, "bgr8")->image;
-        RCLCPP_INFO(this->get_logger(), "image callback!");
     } catch (cv_bridge::Exception &e) {
         RCLCPP_ERROR(this->get_logger(), "cv_bridge exception: %s", e.what());
         return;

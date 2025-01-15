@@ -1,4 +1,4 @@
-#include "kalman_filter_node.hpp"
+  #include "kalman_filter_node.hpp"
 
 #include <cv_bridge/cv_bridge.hpp>
 
@@ -12,9 +12,9 @@ KalmanFilterNode::KalmanFilterNode()
 {
   // Declare parameters with default values
   this->declare_parameter<std::string>("optical_flow_topic", "/optical_flow");
-  this->declare_parameter<std::string>("depth_topic", "/depth");
-  this->declare_parameter<std::string>("camera_info_topic", "/camera_info");
-  this->declare_parameter<std::string>("color_image_topic", "/color_image");
+  this->declare_parameter<std::string>("depth_topic", "/device_0/sensor_0/Depth_0/image/data");
+  this->declare_parameter<std::string>("camera_info_topic", "/perception_pipeline/camera_info_sync");
+  this->declare_parameter<std::string>("color_image_topic", "/device_0/sensor_1/Color_0/image/data");
   this->declare_parameter<std::string>("output_6d_topic", "/output_6d");
   this->declare_parameter<std::string>("debug_image_topic", "/debug_image");
 
@@ -43,39 +43,42 @@ KalmanFilterNode::KalmanFilterNode()
   // Subscriptions
   optical_flow_sub_ = this->create_subscription<sensor_msgs::msg::Image>(
     optical_flow_topic_, 
-    rclcpp::QoS(10), 
+    rclcpp::QoS(100), 
     std::bind(&KalmanFilterNode::opticalFlowCallback, this, std::placeholders::_1));
 
   depth_sub_ = this->create_subscription<sensor_msgs::msg::Image>(
     depth_topic_, 
-    rclcpp::QoS(10), 
+    rclcpp::QoS(100), 
     std::bind(&KalmanFilterNode::depthCallback, this, std::placeholders::_1));
 
   camera_info_sub_ = this->create_subscription<sensor_msgs::msg::CameraInfo>(
     camera_info_topic_, 
-    rclcpp::QoS(10),
+    rclcpp::QoS(100),
     std::bind(&KalmanFilterNode::cameraInfoCallback, this, std::placeholders::_1));
 
   color_image_sub_ = this->create_subscription<sensor_msgs::msg::Image>(
     color_image_topic_, 
-    rclcpp::QoS(10),
+    rclcpp::QoS(100),
     std::bind(&KalmanFilterNode::colorImageCallback, this, std::placeholders::_1));
   
   // Publishers
   debug_image_pub_ = this->create_publisher<sensor_msgs::msg::Image>(
     debug_image_topic_, 
-    rclcpp::QoS(10));
+    rclcpp::QoS(100));
   
   output_6d_pub_ = this->create_publisher<sensor_msgs::msg::Image>(
     output_6d_topic_, 
-    rclcpp::QoS(10));
+    rclcpp::QoS(100 ));
  
 
   RCLCPP_INFO(this->get_logger(), "KalmanFilterNode started.");
 }
 
 void KalmanFilterNode::opticalFlowCallback(const sensor_msgs::msg::Image::SharedPtr msg)
-{
+{ 
+  static int count = 0;
+  count++;
+  cout << "INIT Optical flow callback: " << count << endl;  
   cv::Mat flow_image = imageMsgToMat(msg);
   RCLCPP_INFO(this->get_logger(),
               "Optical Flow image received (%d x %d).",
@@ -91,6 +94,7 @@ void KalmanFilterNode::opticalFlowCallback(const sensor_msgs::msg::Image::Shared
   if (result == KalmanCoreErrorCode::OK)  
   {
     kalman_core_.getOutput(output_6d, output_debug_image);
+    RCLCPP_INFO(this->get_logger(), "KalmanCore output: %s", getErrorMessage(result).c_str());
   }
   else
   {
@@ -103,36 +107,27 @@ void KalmanFilterNode::opticalFlowCallback(const sensor_msgs::msg::Image::Shared
 
   // Publish the output
   debug_image_pub_->publish(*output_debug_image_msg);
-  output_6d_pub_->publish(*output_6d_msg);
+  
+    output_6d_pub_->publish(*output_6d_msg);
+
+  cout << "END Optical flow callback: " << count << endl;  
 }
 
 void KalmanFilterNode::depthCallback(const sensor_msgs::msg::Image::SharedPtr msg)
 {
   cv::Mat disp_image = imageMsgToMat(msg);
-  RCLCPP_INFO(this->get_logger(),
-              "depth image received (%d x %d).",
-              disp_image.cols, disp_image.rows);
-
   depth_image_ = disp_image;
-
 }
 
 void KalmanFilterNode::colorImageCallback(const sensor_msgs::msg::Image::SharedPtr msg)
 {
   cv::Mat color_image = imageMsgToMat(msg);
-  RCLCPP_INFO(this->get_logger(),
-              "Color image received (%d x %d).",
-              color_image.cols, color_image.rows);
 
   color_image_ = color_image;
 }
 
 void KalmanFilterNode::cameraInfoCallback(const sensor_msgs::msg::CameraInfo::SharedPtr msg)
 {
-  RCLCPP_INFO(this->get_logger(),
-              "CameraInfo received: width=%d, height=%d.",
-              msg->width, msg->height);
-
   // Typically, we can extract fx, fy, cx, cy from the CameraInfo's K matrix
   double fx = msg->k[0];
   double fy = msg->k[4];

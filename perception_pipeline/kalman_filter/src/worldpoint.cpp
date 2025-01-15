@@ -32,7 +32,7 @@ WorldPoint::~WorldPoint(void)
 
 }
 
-void WorldPoint::initKalmanFilter(const double &u, const double &v, const double &depth)
+void WorldPoint::initKalmanFilter(const double &u, const double &v, const double &depth,Mat &occupancyGrid)
 {
   // Initialize measurement vector
   z_old_ = Mat::zeros(3, 1, CV_64FC1);
@@ -49,6 +49,11 @@ void WorldPoint::initKalmanFilter(const double &u, const double &v, const double
 
   // Initialize variances with 10 [m^2 respectively m^2/s^2]
   P_old_ = Mat::eye(6, 6, CV_64FC1) * 10;
+
+  // Increase occupancy grid value
+  occupancyGrid.at<uchar>
+    (static_cast<int>(std::floor(v / static_cast<double>(grid_size_worldpoints))), 
+     static_cast<int>(std::floor(u / static_cast<double>(grid_size_worldpoints)))) += 1;
 }
 
 WorldPointErrorCode WorldPoint::computeKalmanStep(
@@ -94,6 +99,11 @@ WorldPointErrorCode WorldPoint::computeKalmanStep(
   // Update measurement vector
   z_new.at<double>(0,0) = z_old_.at<double>(0,0) + (double) pixel_flow[0];	// u direction
   z_new.at<double>(1,0) = z_old_.at<double>(1,0) + (double) pixel_flow[1];	// v direction
+
+  //cout << "[WorldPoint] Old pixel coordinates: " << z_old_.at<double>(0,0) << ", " << z_old_.at<double>(1,0) << endl;
+  //cout << "[WorldPoint] Optical flow: " << pixel_flow[0] << ", " << pixel_flow[1] << endl;
+  //cout << "[WorldPoint] New pixel coordinates: " << z_new.at<double>(0,0) << ", " << z_new.at<double>(1,0) << endl;
+
   
   int new_u = (int)floor(z_new.at<double>(0,0));	// Get pixel coordinates (u)
 	int new_v = (int)floor(z_new.at<double>(1,0));	// Get pixel coordinates (v)
@@ -104,13 +114,15 @@ WorldPointErrorCode WorldPoint::computeKalmanStep(
     // Check if depth value has a valid value
     // Convert to meters first
     double new_depth = input_depth.at<double>(new_v, new_u) / 1000.0; // Convert mm to m
+    //cout << "[WorldPoint] New depth value: " << new_depth << endl;
+
     if (new_depth > 0)
     {
       // Update measurement vector
       z_new.at<double>(2,0) = new_depth;
       occupancy_grid.at<uchar>(
-        (int)floor(z_new.at<double>(1,0) / (double) grid_size_worldpoints), 
-        (int)floor(z_new.at<double>(0,0) / (double) grid_size_worldpoints)) += 1; // Increase counter value in occupancy grid
+        static_cast<int>(std::floor(z_new.at<double>(1,0) / static_cast<double>(grid_size_worldpoints))), 
+        static_cast<int>(std::floor(z_new.at<double>(0,0) / static_cast<double>(grid_size_worldpoints)))) += 1; // Increase counter value in occupancy grid
     }
     else
     {

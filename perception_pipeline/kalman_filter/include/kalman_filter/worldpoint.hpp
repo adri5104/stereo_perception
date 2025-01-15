@@ -25,14 +25,19 @@ enum class WorldPointErrorCode {
     BAD_DEPTH_VALUE_ERROR,
     NEW_MEASUREMENT_OUT_OF_BOUNDS_ERROR,
     THREE_SIGMA_TEST_FAILED,
+    DIVISION_BY_ZERO_ERROR,
+    UNKNOWN_ERROR
 };
 
 // Helper function to get error messages
-inline  std::string getErrorMessage(WorldPointErrorCode code) {
+inline  std::string getErrorMessageWorldpoint(WorldPointErrorCode code) {
     static const std::unordered_map<WorldPointErrorCode, std::string> errorMessages = {
         {WorldPointErrorCode::OK, "No error."},
         {WorldPointErrorCode::BAD_DEPTH_VALUE_ERROR, "Invalid depth value."},
-        {WorldPointErrorCode::NEW_MEASUREMENT_OUT_OF_BOUNDS_ERROR, "New measurement dimensions out of range."}
+        {WorldPointErrorCode::NEW_MEASUREMENT_OUT_OF_BOUNDS_ERROR, "New measurement dimensions out of range."},
+        {WorldPointErrorCode::THREE_SIGMA_TEST_FAILED, "Three sigma test failed."},
+        {WorldPointErrorCode::DIVISION_BY_ZERO_ERROR, "Division by zero."},
+        {WorldPointErrorCode::UNKNOWN_ERROR, "Unknown error."}
     };
 
     auto it = errorMessages.find(code);
@@ -53,14 +58,14 @@ class WorldPoint
     /**
      * @brief Construct a new World Point object
      * 
-     * @param C 
-     * @param T 
-     * @param fx 
-     * @param fy 
-     * @param cx 
-     * @param cy 
-     * @param useVarEgo 
-     * @param gridSize 
+     * @param C Covariance matrix of the egomotion.
+     * @param T Covariance matrix of the measurement model.
+     * @param fx Focal length x.
+     * @param fy Focal length y.
+     * @param cx Principal point x.
+     * @param cy Principal point y.
+     * @param useVarEgo Use the covariance matrix of the egomotion.
+     * @param gridSize Grid size in pixels
      */
     WorldPoint(Mat &C, Mat &T, double fx, double fy, double cx, double cy,  bool &useVarEgo, int gridSize);
 
@@ -72,13 +77,14 @@ class WorldPoint
     // Methods
 
     /**
-     * @brief Initialize the Kalman filter with the initial state.
+     * @brief Initialize the Kalman filter with the initial state. Also increases value in the occupancy grid.
      * 
      * @param u The horizontal position in pixels.
      * @param v The initial y position.
      * @param depth The initial depth.
+     * @param occupancyGrid The occupancy grid.
      */
-    void initKalmanFilter(const double &u, const double &v, const double &depth);
+    void initKalmanFilter(const double &u, const double &v, const double &depth, Mat &occupancyGrid);
 
     /**
      * @brief Method that runs a complete Kalmanstep with all necessary computations.

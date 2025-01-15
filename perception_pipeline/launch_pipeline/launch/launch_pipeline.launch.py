@@ -22,6 +22,7 @@ def generate_launch_description():
               {"publish_color_image": False},
               {"publish_depth_image": False},
             ]
+             
         ),
       
         launch_ros.actions.Node(
@@ -54,6 +55,7 @@ def generate_launch_description():
                 {'color_image_topic':"/device_0/sensor_1/Color_0/image/data"}, 
                 {'debug_image_topic_':'/debug/debug_image'},
                 {'output_6d_topic' : '/perception_pipeline/output_6d'},
-            ]
+            ],
+            ros_arguments= ["--log-level", "info"] 
         )
     ])  

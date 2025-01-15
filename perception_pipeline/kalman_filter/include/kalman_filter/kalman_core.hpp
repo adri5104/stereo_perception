@@ -12,12 +12,16 @@
 #ifndef KALMAN_FILTER__KALMAN_CORE_HPP_
 #define KALMAN_FILTER__KALMAN_CORE_HPP_
 
-#include <opencv2/opencv.hpp>
-#include "kalman_filter/worldpoint.hpp"
 #include <vector>
 #include <string>
+#include <chrono>
+
+#include <opencv2/opencv.hpp>
+
+#include "kalman_filter/worldpoint.hpp"
 
 using namespace cv;
+using namespace std;
 
 namespace perception_pipeline
 {
@@ -28,21 +32,45 @@ enum class KalmanCoreErrorCode {
     OK = 1,
     BAD_DEPTH_IMAGE_ERROR,
     BAD_OPTICAL_FLOW_IMAGE_ERROR,
-    BAD_COLOR_IMAGE_ERROR
+    BAD_COLOR_IMAGE_ERROR,
+    BAD_EGOMOTION_ERROR,
+    SET_NEW_WP_DEPTH_EMPTY_ERROR,
+    SET_NEW_WP_OPTICAL_FLOW_EMPTY_ERROR,
+    SET_NEW_WP_COLOR_IMAGE_EMPTY_ERROR,
+    SET_NEW_WP_WRONG_MAT_SIZE_ERROR,
 };
 
 // Helper function to get error messages
 inline  std::string getErrorMessage(KalmanCoreErrorCode code) {
     static const std::unordered_map<KalmanCoreErrorCode, std::string> errorMessages = {
-        {KalmanCoreErrorCode::OK, "No error."},
-        {KalmanCoreErrorCode::BAD_DEPTH_IMAGE_ERROR, "Invalid depth image."},
-        {KalmanCoreErrorCode::BAD_OPTICAL_FLOW_IMAGE_ERROR, "Invalid optical flow image."},
-        {KalmanCoreErrorCode::BAD_COLOR_IMAGE_ERROR, "Invalid color image."}
+        {KalmanCoreErrorCode::OK, 
+        "No error."},
+        {KalmanCoreErrorCode::BAD_DEPTH_IMAGE_ERROR,
+         "[KalmanCore::updateSyncedData] Depth image is empty!"},
+        {KalmanCoreErrorCode::BAD_OPTICAL_FLOW_IMAGE_ERROR,
+         "[KalmanCore::updateSyncedData] Optical flow image is empty!"},
+        {KalmanCoreErrorCode::BAD_COLOR_IMAGE_ERROR,
+         "[KalmanCore::updateSyncedData] Color image is empty!"},
+        {KalmanCoreErrorCode::BAD_EGOMOTION_ERROR,
+          "[KalmanCore::updateSyncedData] Egomotion is empty!"},
+        {KalmanCoreErrorCode::SET_NEW_WP_DEPTH_EMPTY_ERROR,
+         "[KalmanCore::setNewWorldPoints] Error: input_depth_sync_ empty"},
+        {KalmanCoreErrorCode::SET_NEW_WP_OPTICAL_FLOW_EMPTY_ERROR,
+         "[KalmanCore::setNewWorldPoints] Error: input_ input_optical_flow_sync_ empty"},
+        {KalmanCoreErrorCode::SET_NEW_WP_COLOR_IMAGE_EMPTY_ERROR,
+         "[KalmanCore::setNewWorldPoints] Error: input_color_image_sync_ empty"},
+        {KalmanCoreErrorCode::SET_NEW_WP_WRONG_MAT_SIZE_ERROR,
+          "[KalmanCore::setNewWorldPoints] Error:  matrices have different sizes."}
     };
 
     auto it = errorMessages.find(code);
     return it != errorMessages.end() ? it->second : "Invalid error code.";
 }
+
+// Define type aliases for convenience
+using Clock = std::chrono::high_resolution_clock;
+using TimePoint = std::chrono::time_point<Clock>;
+using Seconds = std::chrono::duration<double>;
 
 /**
  * @class KalmanCore
@@ -107,11 +135,22 @@ public:
    * @param optical_flow The optical flow image (CV_32FC2 or similar).
    * @param depth The depth image.
    * @param color_image The color image.
+   * @param egomotion The egomotion matrix.
+   * @return KalmanCoreErrorCode Error code.
+   */
+  KalmanCoreErrorCode updateSyncedData(
+    const Mat& optical_flow, const Mat& depth, const Mat& color_image, const Mat& egomotion);
+  
+  /**
+   * @brief Update step using synchronized optical flow and depth data.
+   * 
+   * @param optical_flow The optical flow image (CV_32FC2 or similar).
+   * @param depth The depth image.
+   * @param color_image The color image.
    * @return KalmanCoreErrorCode Error code.
    */
   KalmanCoreErrorCode updateSyncedData(
     const Mat& optical_flow, const Mat& depth, const Mat& color_image);
-  
   
 
   /**
@@ -132,7 +171,20 @@ public:
    */
   void setCameraParameters(double fx, double fy, double cx, double cy);
 
+  /**
+   * @brief Get the Output object
+   * 
+   * @param output_6d output 6D matrix
+   * @param output_debug_image output debug image
+   * @return KalmanCoreErrorCode 
+   */
   KalmanCoreErrorCode getOutput(cv::Mat &output_6d, cv::Mat &output_debug_image);
+
+  // Public helper functions
+
+  // Static method to calculate and update the time difference given a reference to lastTime
+
+  
 
 private:
 
@@ -148,33 +200,47 @@ private:
    * @param output_6d The output 6D matrix.
    * @param output_debug_image The output debug image.
    */
-  KalmanCoreErrorCode setNewWorldPoints(Mat &occupancy_grid, Mat &output_6d, Mat &output_debug_image);
+  KalmanCoreErrorCode setNewWorldPoints(Mat &occupancy_grid, Mat &output_6d, Mat &output_debug_image, Mat &output_6d_val);
 
 
-  void setNewWorldPoints(Mat &outputSVLeft,			///< Method to set and initialize the WorldPoints according to the grid defined by the user
-	  					             Mat &occupancyGrid, 
-	  					             Mat &output6D, 
-	  					             Mat &output6DVal);
+  /**
+   * @brief Compute the Kalman matrices.
+   */
+  KalmanCoreErrorCode computeKalmanMatrices();
+
+  /**
+   * @brief Static method to calculate and update the time difference given a reference to lastTime.
+   *        Automatically updates the lastTime reference.
+   * 
+   * @param lastTime TimePoint reference to the last time.
+   * @return elapsed time in seconds. 
+   */
+  static double calculateTimeDifference(TimePoint& lastTime);
+
+  void computeJacobianMatrix();
   
   // Vector containing references to tracked WorldPoints
-  std::vector<WorldPoint*> worldpoints_;
-
-  // Occupancy grid for the worldpoints
-  Mat occupancy_grid_;
+  std::vector<unique_ptr<WorldPoint>> worldpoints_;
 
   // Input attributes
   Mat input_optical_flow_sync_;
   Mat input_depth_sync_;
   Mat input_color_image_sync_;
+  Mat input_egomotion_sync_;
+
+  // Time attributes
+  TimePoint sync_input_time_old_;
+  double time_diff_;
 
   // Output attributes
-  Mat output_6d_;
-  Mat output_debug_image_;
+  Mat output_6d_; // Output matrix with 
+  Mat output_debug_image_; // Debug image
+
 
 
   // Config parameters
-  bool use_var_ego_;	// Flag for incorporating the egomotion covariance matrix
-  int grid_size_worldpoints;	// Size of the grid cells in pixels
+  bool include_ego_motion_;	// Flag for incorporating the egomotion covariance matrix
+  int grid_size_worldpoints_;	// Size of the grid cells in pixels
 
   // Camera parameters
   double fx_;
