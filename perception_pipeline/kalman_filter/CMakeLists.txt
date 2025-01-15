@@ -7,6 +7,7 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
+find_package(message_filters REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
@@ -29,6 +30,7 @@ set(SRC_FILES src/kalman_core.cpp
 # module libs
 set (MODULE_LIBS  cv_bridge
                   rclcpp 
+                  message_filters
                   std_msgs
                   sensor_msgs
                   OpenCV 

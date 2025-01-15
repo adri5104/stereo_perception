@@ -69,6 +69,7 @@ void OpticalFlowNode::imageCallback(const sensor_msgs::msg::Image::SharedPtr msg
 
     // We publish the optical flow message
     auto flow_msg = cv_bridge::CvImage(std_msgs::msg::Header(), "32FC2", flow).toImageMsg();
+    flow_msg -> header = msg -> header;
     optical_flow_pub_->publish(*flow_msg);
 
     // We publish the debug messages

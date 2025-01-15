@@ -29,7 +29,7 @@ def generate_launch_description():
             package='optical_flow_computation',
             executable='optical_flow_computation',
             remappings=[
-                ('left/image_raw', '/device_0/sensor_0/Depth_0/image/data'),   
+                ('left/image_raw', '/device_0/sensor_1/Color_0/image/data'),   
                 ('/optical_flow', 'perception_pipeline/optical_flow'),
             ],
             parameters=[{

@@ -1,5 +1,4 @@
-  #include "kalman_filter_node.hpp"
-
+#include "kalman_filter_node.hpp"
 #include <cv_bridge/cv_bridge.hpp>
 
 namespace perception_pipeline
@@ -20,133 +19,102 @@ KalmanFilterNode::KalmanFilterNode()
 
   // Read parameters
   optical_flow_topic_ = this->get_parameter("optical_flow_topic").as_string();
-  depth_topic_    = this->get_parameter("depth_topic").as_string();
+  depth_topic_        = this->get_parameter("depth_topic").as_string();
   camera_info_topic_  = this->get_parameter("camera_info_topic").as_string();
   color_image_topic_  = this->get_parameter("color_image_topic").as_string();
-  output_6d_topic_  = this->get_parameter("output_6d_topic").as_string();
+  output_6d_topic_    = this->get_parameter("output_6d_topic").as_string();
   debug_image_topic_  = this->get_parameter("debug_image_topic").as_string();
 
-  RCLCPP_INFO(this->get_logger(),
-              "optical_flow_topic: '%s'", optical_flow_topic_.c_str());
-  RCLCPP_INFO(this->get_logger(),
-              "depth_topic: '%s'", depth_topic_.c_str());
-  RCLCPP_INFO(this->get_logger(),
-              "camera_info_topic: '%s'", camera_info_topic_.c_str());
-  RCLCPP_INFO(this->get_logger(),
-              "color_image_topic: '%s'", color_image_topic_.c_str());
-  RCLCPP_INFO(this->get_logger(),
-              "output_6d_topic: '%s'", output_6d_topic_.c_str());
-  RCLCPP_INFO(this->get_logger(),
-              "debug_image_topic: '%s'", debug_image_topic_.c_str());
+  RCLCPP_INFO(this->get_logger(), "optical_flow_topic: '%s'", optical_flow_topic_.c_str());
+  RCLCPP_INFO(this->get_logger(), "depth_topic: '%s'", depth_topic_.c_str());
+  RCLCPP_INFO(this->get_logger(), "camera_info_topic: '%s'", camera_info_topic_.c_str());
+  RCLCPP_INFO(this->get_logger(), "color_image_topic: '%s'", color_image_topic_.c_str());
+  RCLCPP_INFO(this->get_logger(), "output_6d_topic: '%s'", output_6d_topic_.c_str());
+  RCLCPP_INFO(this->get_logger(), "debug_image_topic: '%s'", debug_image_topic_.c_str());
 
+  // Create message_filters subscribers
+  optical_flow_sub_.subscribe(this, optical_flow_topic_, rmw_qos_profile_sensor_data);
+  depth_sub_.subscribe(this, depth_topic_, rmw_qos_profile_sensor_data);
+  color_sub_.subscribe(this, color_image_topic_, rmw_qos_profile_sensor_data);
 
-  // Subscriptions
-  optical_flow_sub_ = this->create_subscription<sensor_msgs::msg::Image>(
-    optical_flow_topic_, 
-    rclcpp::QoS(100), 
-    std::bind(&KalmanFilterNode::opticalFlowCallback, this, std::placeholders::_1));
+  // Create the synchronizer
+  sync_ = std::make_shared<message_filters::Synchronizer<SyncPolicy>>(
+            SyncPolicy(100),   // queue size
+            optical_flow_sub_,
+            depth_sub_,
+            color_sub_);
 
-  depth_sub_ = this->create_subscription<sensor_msgs::msg::Image>(
-    depth_topic_, 
-    rclcpp::QoS(100), 
-    std::bind(&KalmanFilterNode::depthCallback, this, std::placeholders::_1));
+  // Register the synchronized callback
+  sync_->registerCallback(&KalmanFilterNode::updateSync, this);
 
+  // Camera info subscription (standard rclcpp subscription)
   camera_info_sub_ = this->create_subscription<sensor_msgs::msg::CameraInfo>(
-    camera_info_topic_, 
-    rclcpp::QoS(100),
+    camera_info_topic_, 10,
     std::bind(&KalmanFilterNode::cameraInfoCallback, this, std::placeholders::_1));
 
-  color_image_sub_ = this->create_subscription<sensor_msgs::msg::Image>(
-    color_image_topic_, 
-    rclcpp::QoS(100),
-    std::bind(&KalmanFilterNode::colorImageCallback, this, std::placeholders::_1));
-  
   // Publishers
-  debug_image_pub_ = this->create_publisher<sensor_msgs::msg::Image>(
-    debug_image_topic_, 
-    rclcpp::QoS(100));
-  
-  output_6d_pub_ = this->create_publisher<sensor_msgs::msg::Image>(
-    output_6d_topic_, 
-    rclcpp::QoS(100 ));
- 
+  debug_image_pub_ = this->create_publisher<sensor_msgs::msg::Image>(debug_image_topic_, 10);
+  output_6d_pub_   = this->create_publisher<sensor_msgs::msg::Image>(output_6d_topic_, 10);
 
-  RCLCPP_INFO(this->get_logger(), "KalmanFilterNode started.");
+  RCLCPP_INFO(this->get_logger(), "KalmanFilterNode with message_filters started.");
 }
 
-void KalmanFilterNode::opticalFlowCallback(const sensor_msgs::msg::Image::SharedPtr msg)
-{ 
-  static int count = 0;
-  count++;
-  cout << "INIT Optical flow callback: " << count << endl;  
-  cv::Mat flow_image = imageMsgToMat(msg);
-  RCLCPP_INFO(this->get_logger(),
-              "Optical Flow image received (%d x %d).",
-              flow_image.cols, flow_image.rows);
+// Synchronized callback
+void KalmanFilterNode::updateSync(
+  const sensor_msgs::msg::Image::ConstSharedPtr flow_msg,
+  const sensor_msgs::msg::Image::ConstSharedPtr depth_msg,
+  const sensor_msgs::msg::Image::ConstSharedPtr color_msg)
+{
+  RCLCPP_INFO(this->get_logger(), "updateSync() called with synchronized messages");
+  cout << "Callback" << endl;
+  // Convert each to cv::Mat
+  cv::Mat flow_image  = imageMsgToMat(flow_msg);
+  cv::Mat depth_image = imageMsgToMat(depth_msg);
+  cv::Mat color_image = imageMsgToMat(color_msg);
 
-  // Forward the optical flow to the KalmanCore update
-  KalmanCoreErrorCode result = kalman_core_.updateSyncedData(flow_image, depth_image_, color_image_);
+  // Perform your KalmanCore logic
+  KalmanCoreErrorCode result = kalman_core_.updateSyncedData(flow_image, depth_image, color_image);
 
-  // Get the output of the KalmanCore
+  // Retrieve outputs
   cv::Mat output_6d, output_debug_image;
-  sensor_msgs::msg::Image::SharedPtr output_6d_msg, output_debug_image_msg;
+  kalman_core_.getOutput(output_6d, output_debug_image);
 
-  if (result == KalmanCoreErrorCode::OK)  
-  {
-    kalman_core_.getOutput(output_6d, output_debug_image);
-    RCLCPP_INFO(this->get_logger(), "KalmanCore output: %s", getErrorMessage(result).c_str());
-  }
+  // Convert to sensor_msgs
+  sensor_msgs::msg::Image::SharedPtr output_6d_msg =
+    cv_bridge::CvImage(flow_msg->header, "bgr8", output_6d).toImageMsg();
+  sensor_msgs::msg::Image::SharedPtr debug_image_msg =
+    cv_bridge::CvImage(flow_msg->header, "bgr8", output_debug_image).toImageMsg();
+
+  // Publish
+  if (result == KalmanCoreErrorCode::OK)
+    RCLCPP_INFO(this->get_logger(), "KalmanCore output: OK");
   else
-  {
     RCLCPP_ERROR(this->get_logger(), "KalmanCore error: %s", getErrorMessage(result).c_str());
-  }
+
+  debug_image_pub_->publish(*debug_image_msg);
+  output_6d_pub_->publish(*output_6d_msg);
+}
+
+// Camera info callback
+void KalmanFilterNode::cameraInfoCallback(const sensor_msgs::msg::CameraInfo::ConstSharedPtr msg)
+{
+
   
-
-  output_6d_msg = cv_bridge::CvImage(msg->header, "bgr8", output_6d).toImageMsg();
-  output_debug_image_msg = cv_bridge::CvImage(msg->header, "bgr8", output_debug_image).toImageMsg();
-
-  // Publish the output
-  debug_image_pub_->publish(*output_debug_image_msg);
-  
-    output_6d_pub_->publish(*output_6d_msg);
-
-  cout << "END Optical flow callback: " << count << endl;  
-}
-
-void KalmanFilterNode::depthCallback(const sensor_msgs::msg::Image::SharedPtr msg)
-{
-  cv::Mat disp_image = imageMsgToMat(msg);
-  depth_image_ = disp_image;
-}
-
-void KalmanFilterNode::colorImageCallback(const sensor_msgs::msg::Image::SharedPtr msg)
-{
-  cv::Mat color_image = imageMsgToMat(msg);
-
-  color_image_ = color_image;
-}
-
-void KalmanFilterNode::cameraInfoCallback(const sensor_msgs::msg::CameraInfo::SharedPtr msg)
-{
-  // Typically, we can extract fx, fy, cx, cy from the CameraInfo's K matrix
   double fx = msg->k[0];
   double fy = msg->k[4];
   double cx = msg->k[2];
   double cy = msg->k[5];
 
-  // Pass them to the KalmanCore
   kalman_core_.setCameraParameters(fx, fy, cx, cy);
 }
 
-cv::Mat KalmanFilterNode::imageMsgToMat(const sensor_msgs::msg::Image::SharedPtr msg)
+// Convert sensor_msgs::Image -> cv::Mat
+cv::Mat KalmanFilterNode::imageMsgToMat(const sensor_msgs::msg::Image::ConstSharedPtr & msg)
 {
-  try
-  {
-    // Convert the ROS Image message to an OpenCV Mat using cv_bridge
+  try {
     return cv_bridge::toCvCopy(msg, msg->encoding)->image;
   }
-  catch(const cv_bridge::Exception& e)
-  {
+  catch(const cv_bridge::Exception& e) {
     RCLCPP_ERROR(this->get_logger(), "cv_bridge exception: %s", e.what());
     return cv::Mat();
   }
@@ -155,9 +123,10 @@ cv::Mat KalmanFilterNode::imageMsgToMat(const sensor_msgs::msg::Image::SharedPtr
 } // namespace kalman_filter
 } // namespace perception_pipeline
 
-int main(int argc, char **argv) {
-    rclcpp::init(argc, argv);
-    rclcpp::spin(std::make_shared<perception_pipeline::kalman_filter::KalmanFilterNode>());
-    rclcpp::shutdown();
-    return 0;
-} 
+int main(int argc, char **argv)
+{
+  rclcpp::init(argc, argv);
+  rclcpp::spin(std::make_shared<perception_pipeline::kalman_filter::KalmanFilterNode>());
+  rclcpp::shutdown();
+  return 0;
+}

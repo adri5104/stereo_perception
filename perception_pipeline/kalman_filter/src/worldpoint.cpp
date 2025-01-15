@@ -94,8 +94,11 @@ WorldPointErrorCode WorldPoint::computeKalmanStep(
 
   // Get new measurement
   const Vec2f& pixel_flow = 
-    input_flow.at<Vec2f>((int)floor(z_old_.at<double>(1,0)), (int)floor(z_old_.at<double>(0,0)));
-
+    input_flow.at<Vec2f>(
+      static_cast<int> (z_old_.at<double>(1,0)), 
+      static_int<int> floor(z_old_.at<double>(0,0)));
+  
+  
   // Update measurement vector
   z_new.at<double>(0,0) = z_old_.at<double>(0,0) + (double) pixel_flow[0];	// u direction
   z_new.at<double>(1,0) = z_old_.at<double>(1,0) + (double) pixel_flow[1];	// v direction
@@ -105,8 +108,8 @@ WorldPointErrorCode WorldPoint::computeKalmanStep(
   //cout << "[WorldPoint] New pixel coordinates: " << z_new.at<double>(0,0) << ", " << z_new.at<double>(1,0) << endl;
 
   
-  int new_u = (int)floor(z_new.at<double>(0,0));	// Get pixel coordinates (u)
-	int new_v = (int)floor(z_new.at<double>(1,0));	// Get pixel coordinates (v)
+  int new_u = static_cast<int> floor(z_new.at<double>(0,0));	// Get pixel coordinates (u)
+	int new_v = static_cast<int> floor(z_new.at<double>(1,0));	// Get pixel coordinates (v)
 
   // Check if new pixel coordinates are within the image
   if (new_u > 0 && new_u < input_depth.cols && new_v > 0 && new_v < input_depth.rows)

@@ -1,14 +1,3 @@
-/**
- * @file kalman_core.cpp
- * @author adrian.rieker@tum.de
- * @brief 
- * @version 
- * @date 
- * 
- * 
- * 
- */
-
 #ifndef KALMAN_FILTER__KALMAN_FILTER_NODE_HPP_
 #define KALMAN_FILTER__KALMAN_FILTER_NODE_HPP_
 
@@ -16,11 +5,13 @@
 #include <sensor_msgs/msg/image.hpp>
 #include <sensor_msgs/msg/camera_info.hpp>
 #include <cv_bridge/cv_bridge.hpp>
+#include <opencv2/opencv.hpp>
+
 #include <message_filters/subscriber.h>
 #include <message_filters/synchronizer.h>
 #include <message_filters/sync_policies/approximate_time.h>
-#include <opencv2/opencv.hpp>
 
+// Your KalmanCore
 #include "kalman_filter/kalman_core.hpp"
 
 namespace perception_pipeline
@@ -28,54 +19,79 @@ namespace perception_pipeline
 namespace kalman_filter
 {
 
+
+using SyncPolicy = message_filters::sync_policies::ApproximateTime<
+    sensor_msgs::msg::Image,
+    sensor_msgs::msg::Image,
+    sensor_msgs::msg::Image
+>;
+
 /**
  * @class KalmanFilterNode
- * @brief ROS2 Node that subscribes to optical flow, depth, and camera info,
+ * @brief ROS2 Node that subscribes to optical flow, depth, color, and camera info,
  *        and uses an internal KalmanCore object for the actual filter logic.
+ *
+ *        Implements message_filters to synchronize the three images.
  */
 class KalmanFilterNode : public rclcpp::Node
 {
 public:
-
+  
   /**
-   * @brief Constructor. Initializes ROS subscriptions and the internal KalmanCore.
+   * @brief Construct a new Kalman Filter Node object
+   * 
    */
   KalmanFilterNode();
 
 private:
 
-  // ROS subscription callbacks
-  void opticalFlowCallback(const sensor_msgs::msg::Image::SharedPtr msg);
-  void depthCallback(const sensor_msgs::msg::Image::SharedPtr msg);
-  void cameraInfoCallback(const sensor_msgs::msg::CameraInfo::SharedPtr msg);
-  void colorImageCallback(const sensor_msgs::msg::Image::SharedPtr msg);
+  /**
+   * @brief Callback for the message syncronizer
+   * 
+   * @param flow_msg optical flow message
+   * @param depth_msg depth image in mm
+   * @param color_msg left color image
+   */
+  void updateSync(
+    const sensor_msgs::msg::Image::ConstSharedPtr flow_msg,
+    const sensor_msgs::msg::Image::ConstSharedPtr depth_msg,
+    const sensor_msgs::msg::Image::ConstSharedPtr color_msg);
 
-  // Helper function to convert ROS Image to cv::Mat
-  cv::Mat imageMsgToMat(const sensor_msgs::msg::Image::SharedPtr msg);
+  
+  /**
+   * @brief Camera info callback
+   * 
+   * @param msg 
+   */
+  void cameraInfoCallback(const sensor_msgs::msg::CameraInfo::ConstSharedPtr msg);
 
-  // Internal Kalman filter logic object
+  /**
+   * @brief Helper function to convert from a ROS Image message to openCV Mat
+   * 
+   * @param msg 
+   * @return cv::Mat 
+   */
+  cv::Mat imageMsgToMat(const sensor_msgs::msg::Image::ConstSharedPtr & msg);
+
+  // KalmanCore
   KalmanCore kalman_core_;
 
-  // Input values 
-  cv::Mat optical_flow_;
-  cv::Mat depth_image_;
-  cv::Mat color_image_;
+  // message_filters subscribers
+  message_filters::Subscriber<sensor_msgs::msg::Image> optical_flow_sub_;
+  message_filters::Subscriber<sensor_msgs::msg::Image> depth_sub_;
+  message_filters::Subscriber<sensor_msgs::msg::Image> color_sub_;
 
-  // Output values
-  cv::Mat output_6d_;
-  cv::Mat output_debug_image_;
+  // Synchronizer pointer
+  std::shared_ptr<message_filters::Synchronizer<SyncPolicy>> sync_;
 
-  // Subscriptions
-  rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr optical_flow_sub_;
-  rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr depth_sub_;
-  rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr color_image_sub_;
+  // Separate camera_info subscriber
   rclcpp::Subscription<sensor_msgs::msg::CameraInfo>::SharedPtr camera_info_sub_;
 
   // Publishers
   rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr debug_image_pub_;
   rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr output_6d_pub_;
 
-  // Parameters (topic names)
+  // Parameters
   std::string optical_flow_topic_;
   std::string depth_topic_;
   std::string camera_info_topic_;
