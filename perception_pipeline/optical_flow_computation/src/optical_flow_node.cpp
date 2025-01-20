@@ -37,7 +37,9 @@ OpticalFlowNode::OpticalFlowNode()
     RCLCPP_INFO(this->get_logger(), "  iterations: %d", iterations_);
     RCLCPP_INFO(this->get_logger(), "  poly_n: %d", poly_n_);
     RCLCPP_INFO(this->get_logger(), "  poly_sigma: %.2f", poly_sigma_);
-    RCLCPP_INFO(this->get_logger(), "  flags: %d", flags_);
+    RCLCPP_INFO(this->get_logger(), "  %s", cv::getBuildInformation() .c_str());
+
+    
 }
 
 void OpticalFlowNode::imageCallback(const sensor_msgs::msg::Image::SharedPtr msg) {
@@ -62,10 +64,32 @@ void OpticalFlowNode::imageCallback(const sensor_msgs::msg::Image::SharedPtr msg
         return;
     }
 
-    // Calculate optical flow using Farneback method
+    // Upload the images to CUDA memory
+    cv::cuda::GpuMat d_prev_image, d_next_image;
+    d_prev_image.upload(prev_image_);
+    d_next_image.upload(gray_image);
+
+    
+
+    // Create a GpuMat to store the flow result
+    cv::cuda::GpuMat d_flow;
+    
+
+    Ptr<cuda::FarnebackOpticalFlow> optical_flow_compute = cv::cuda::FarnebackOpticalFlow::create	(
+      levels_,
+      pyr_scale_, 
+      false,
+      winsize_,
+      iterations_,
+      poly_n_,
+      poly_sigma_,
+      flags_);
+
+    optical_flow_compute->calc(d_prev_image, d_next_image, d_flow);
+
+    // Download the flow result to the host for further processing
     Mat flow;
-    calcOpticalFlowFarneback(prev_image_, gray_image, flow, pyr_scale_, levels_,
-                             winsize_, iterations_, poly_n_, poly_sigma_, flags_);
+    d_flow.download(flow);
 
     // We publish the optical flow message
     auto flow_msg = cv_bridge::CvImage(std_msgs::msg::Header(), "32FC2", flow).toImageMsg();
@@ -89,6 +113,7 @@ void OpticalFlowNode::publishDebugMessages(const Mat current_image, const Mat fl
 
             // Compute magnitude and angle
             float magnitude = sqrt(flow_at_point.x * flow_at_point.x + flow_at_point.y * flow_at_point.y);
+            magnitude = magnitude * 2;  
 
 
 
@@ -121,7 +146,7 @@ void OpticalFlowNode::publishDebugMessages(const Mat current_image, const Mat fl
     Mat flow_vis = current_image.clone();
 
     // Parameters for arrow visualization
-    const int step = 16; // Grid step size
+    const int step = 10; // Grid step size
     const Scalar arrow_color(0, 255, 0); // Green arrows
     const int arrow_thickness = 1;
 

@@ -14,7 +14,10 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/videoio.hpp>
-#include <opencv2/video.hpp>
+#include <opencv2/video.hpp>  
+#include <opencv2/cudaoptflow.hpp>
+
+
 #include <iostream>
 
 // OpticalFlowNode class definition
@@ -24,7 +27,7 @@ public:
 
 private:
     void imageCallback(const sensor_msgs::msg::Image::SharedPtr msg);
-    void publishDebugMessages(const cv::Mat current_image, const cv::Mat flow);
+    void publishDebugMessages(const cv::Mat current_image, const cv::Mat flow); 
 
     rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr image_sub_;
     rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr optical_flow_pub_;
