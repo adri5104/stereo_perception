@@ -15,6 +15,8 @@
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/image.hpp>
 #include <sensor_msgs/msg/camera_info.hpp>
+#include <visualization_msgs/msg/marker_array.hpp>
+
 #include <cv_bridge/cv_bridge.hpp>
 #include <opencv2/opencv.hpp>
 
@@ -77,12 +79,22 @@ private:
   void cameraInfoCallback(const sensor_msgs::msg::CameraInfo::ConstSharedPtr msg);
 
   /**
+   * @brief  method that outputs a MarkerArray given a 6d output image
+   * 
+   * @param image Input 6D image (cv::Mat with 32F6C codification)
+   * @return visualization_msgs::msg::MarkerArray 
+   */
+  visualization_msgs::msg::MarkerArray createMarkers(const cv::Mat &image_6d, const cv::Mat &image_6d_val, double delta_time);
+
+  /**
    * @brief Helper function to convert from a ROS Image message to openCV Mat
    * 
    * @param msg 
    * @return cv::Mat 
    */
   cv::Mat imageMsgToMat(const sensor_msgs::msg::Image::ConstSharedPtr & msg);
+
+  
 
   // KalmanCore
   KalmanCore kalman_core_;
@@ -100,6 +112,7 @@ private:
 
   // Publishers
   rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr debug_image_pub_;
+  rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr debug_markers_pub_;
   rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr output_6d_pub_;
 
   // Parameters
@@ -108,7 +121,9 @@ private:
   std::string camera_info_topic_;
   std::string color_image_topic_;
   std::string debug_image_topic_;
+  std::string debug_markers_topic_;;
   std::string output_6d_topic_;
+
 };
 
 } // namespace kalman_filter

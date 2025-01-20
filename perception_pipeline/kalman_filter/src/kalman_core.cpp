@@ -283,7 +283,7 @@ KalmanCoreErrorCode KalmanCore::predict(Mat input_optical_flow, Mat input_depth,
             // Save state value in output matrix
             wp->getX(x);
             output_6d.at<Vec6f>(pos_v, pos_u) = x;
-            cout << x << endl;  
+            
 
             // Set correspondent validity entry to 1
             output_6d_val.at<uchar>(pos_v, pos_u) = 1;
@@ -302,6 +302,7 @@ KalmanCoreErrorCode KalmanCore::predict(Mat input_optical_flow, Mat input_depth,
   }
 
   output_6d_ = output_6d;
+  output_6d_val_ = output_6d_val;
   output_debug_image_ = output_debug_image;
   return KalmanCoreErrorCode::OK;
 }
@@ -432,12 +433,20 @@ KalmanCoreErrorCode KalmanCore::computeKalmanMatrices()
   return KalmanCoreErrorCode::OK;
 }
 
-KalmanCoreErrorCode KalmanCore::getOutput(cv::Mat &output_6d, cv::Mat &output_debug_image)
+KalmanCoreErrorCode KalmanCore::getOutput(cv::Mat &output_6d, cv::Mat &output_6d_val , cv::Mat &output_debug_image)
 {
   output_6d = output_6d_;
+  output_6d_val = output_6d_val_;
   output_debug_image = output_debug_image_;
+  
   return KalmanCoreErrorCode::OK; 
 }
+
+double KalmanCore::getDeltaTime()
+{
+  return delta_time;
+}
+
 
 double KalmanCore::calculateTimeDifference(TimePoint& lastTime) 
 {

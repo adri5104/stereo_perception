@@ -33,6 +33,7 @@ set (MODULE_LIBS  cv_bridge
                   message_filters
                   std_msgs
                   sensor_msgs
+                  visualization_msgs
                   OpenCV 
                   )
 

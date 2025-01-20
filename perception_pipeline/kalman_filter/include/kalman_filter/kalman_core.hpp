@@ -178,11 +178,14 @@ public:
    * @param output_debug_image output debug image
    * @return KalmanCoreErrorCode 
    */
-  KalmanCoreErrorCode getOutput(cv::Mat &output_6d, cv::Mat &output_debug_image);
+  KalmanCoreErrorCode getOutput(cv::Mat &output_6d, cv::Mat &output_6d_val, cv::Mat &output_debug_image);
 
-  // Public helper functions
-
-  // Static method to calculate and update the time difference given a reference to lastTime
+  /**
+   * @brief getter for the current timedifference between frames
+   * 
+   * @return double time difference 
+   */
+  double getDeltaTime();
 
   
 
@@ -234,6 +237,7 @@ private:
 
   // Output attributes
   Mat output_6d_; // Output matrix with 
+  Mat output_6d_val_; //
   Mat output_debug_image_; // Debug image
 
 

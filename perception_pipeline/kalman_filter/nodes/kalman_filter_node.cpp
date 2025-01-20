@@ -26,7 +26,8 @@ KalmanFilterNode::KalmanFilterNode()
   this->declare_parameter<std::string>("camera_info_topic", "/perception_pipeline/camera_info_sync");
   this->declare_parameter<std::string>("color_image_topic", "/device_0/sensor_1/Color_0/image/data");
   this->declare_parameter<std::string>("output_6d_topic", "/output_6d");
-  this->declare_parameter<std::string>("debug_image_topic", "/debug_image");
+  this->declare_parameter<std::string>("debug_image_topic", "/debug/image_6d");
+  this->declare_parameter<std::string>("debug_markers_topic", "/debug/image_6d_markers");
 
   // Read parameters
   optical_flow_topic_ = this->get_parameter("optical_flow_topic").as_string();
@@ -35,6 +36,7 @@ KalmanFilterNode::KalmanFilterNode()
   color_image_topic_  = this->get_parameter("color_image_topic").as_string();
   output_6d_topic_    = this->get_parameter("output_6d_topic").as_string();
   debug_image_topic_  = this->get_parameter("debug_image_topic").as_string();
+  debug_markers_topic_ = this->get_parameter("debug_markers_topic").as_string();
 
   RCLCPP_INFO(this->get_logger(), "optical_flow_topic: '%s'", optical_flow_topic_.c_str());
   RCLCPP_INFO(this->get_logger(), "depth_topic: '%s'", depth_topic_.c_str());
@@ -42,6 +44,7 @@ KalmanFilterNode::KalmanFilterNode()
   RCLCPP_INFO(this->get_logger(), "color_image_topic: '%s'", color_image_topic_.c_str());
   RCLCPP_INFO(this->get_logger(), "output_6d_topic: '%s'", output_6d_topic_.c_str());
   RCLCPP_INFO(this->get_logger(), "debug_image_topic: '%s'", debug_image_topic_.c_str());
+  RCLCPP_INFO(this->get_logger(), "debug_markers_topic: '%s'", debug_markers_topic_.c_str());
 
   // Create message_filters subscribers
   optical_flow_sub_.subscribe(this, optical_flow_topic_, rmw_qos_profile_sensor_data);
@@ -66,6 +69,7 @@ KalmanFilterNode::KalmanFilterNode()
   // Publishers
   debug_image_pub_ = this->create_publisher<sensor_msgs::msg::Image>(debug_image_topic_, 10);
   output_6d_pub_   = this->create_publisher<sensor_msgs::msg::Image>(output_6d_topic_, 10);
+  debug_markers_pub_   = this->create_publisher<visualization_msgs::msg::MarkerArray>(debug_markers_topic_, 10);
 
   RCLCPP_INFO(this->get_logger(), "KalmanFilterNode with message_filters started.");
 }
@@ -87,8 +91,11 @@ void KalmanFilterNode::updateSync(
   KalmanCoreErrorCode result = kalman_core_.updateSyncedData(flow_image, depth_image, color_image);
 
   // Retrieve outputs
-  cv::Mat output_6d, output_debug_image;
-  kalman_core_.getOutput(output_6d, output_debug_image);
+  cv::Mat output_6d, output_6d_val, output_debug_image;
+  double delta_time;
+
+  kalman_core_.getOutput(output_6d, output_6d_val ,output_debug_image);
+  delta_time = kalman_core_.getDeltaTime();
 
   // Convert to sensor_msgs
   sensor_msgs::msg::Image::SharedPtr output_6d_msg =
@@ -102,15 +109,20 @@ void KalmanFilterNode::updateSync(
   else
     RCLCPP_ERROR(this->get_logger(), "KalmanCore error: %s", getErrorMessage(result).c_str());
 
+  visualization_msgs::msg::MarkerArray markers =  
+    createMarkers(output_6d, output_6d_val, delta_time);
+
+
   debug_image_pub_->publish(*debug_image_msg);
+  //debug_markers_pub_->publish(markers);
   output_6d_pub_->publish(*output_6d_msg);
+
+
 }
 
 // Camera info callback
 void KalmanFilterNode::cameraInfoCallback(const sensor_msgs::msg::CameraInfo::ConstSharedPtr msg)
 {
-
-  
   double fx = msg->k[0];
   double fy = msg->k[4];
   double cx = msg->k[2];
@@ -118,6 +130,120 @@ void KalmanFilterNode::cameraInfoCallback(const sensor_msgs::msg::CameraInfo::Co
 
   kalman_core_.setCameraParameters(fx, fy, cx, cy);
 }
+
+
+visualization_msgs::msg::MarkerArray KalmanFilterNode::createMarkers(
+    const cv::Mat &image_6d, 
+    const cv::Mat &image_6d_val, 
+    double delta_time) 
+{
+    visualization_msgs::msg::MarkerArray marker_array;
+
+    try {
+        // Validate that both matrices are not empty and have compatible dimensions
+        if (image_6d.empty() || image_6d_val.empty()) {
+            RCLCPP_ERROR(this->get_logger(), "Input images are empty.");
+            return marker_array;
+        }
+
+        if (image_6d.rows != image_6d_val.rows || image_6d.cols != image_6d_val.cols) {
+            RCLCPP_ERROR(this->get_logger(), "Dimension mismatch between image_6d and image_6d_val.");
+            return marker_array;
+        }
+
+        // Ensure the input matrix types are as expected
+        if (image_6d.type() != CV_32FC(6)) {
+            RCLCPP_ERROR(this->get_logger(), "image_6d must have type CV_32FC(6).");
+            return marker_array;
+        }
+
+        if (image_6d_val.type() != CV_8UC1) {
+            RCLCPP_ERROR(this->get_logger(), "image_6d_val must have type CV_8UC1.");
+            return marker_array;
+        }
+
+        cv::Vec6f x; // 6D state vector
+        int id = 0;  // Unique ID for each marker
+
+        // Iterate over all valid points
+        for (int i = 0; i < image_6d.rows; i++) {
+            for (int j = 0; j < image_6d.cols; j++) {
+                try {
+                    // Check if there is a valid point
+                    uchar valid = image_6d_val.at<uchar>(i, j);
+                    if (valid != 1) {
+                        continue;
+                    }
+
+                    // Extract the state vector safely
+                    x = image_6d.at<cv::Vec6f>(i, j);
+
+                    // Validate the extracted state values (optional range checks)
+                    if (std::isnan(x[0]) || std::isnan(x[1]) || std::isnan(x[2]) ||
+                        std::isnan(x[3]) || std::isnan(x[4]) || std::isnan(x[5])) {
+                        RCLCPP_WARN(this->get_logger(), "NaN value detected in state vector at (%d, %d).", i, j);
+                        continue;
+                    }
+
+                    // Create a new arrow marker
+                    visualization_msgs::msg::Marker marker;
+                    marker.header.frame_id = "camera_frame";
+                    marker.header.stamp = this->now();
+                    marker.ns = "kalman_arrows";
+                    marker.id = id++;
+                    marker.type = visualization_msgs::msg::Marker::ARROW;
+                    marker.action = visualization_msgs::msg::Marker::ADD;
+                    marker.lifetime = rclcpp::Duration::from_seconds(delta_time);
+
+                    // Start point of the arrow
+                    geometry_msgs::msg::Point start;
+                    start.x = x[0];
+                    start.y = x[1];
+                    start.z = x[2];
+
+                    // End point of the arrow
+                    geometry_msgs::msg::Point end;
+                    end.x = x[0] + delta_time * x[3];
+                    end.y = x[1] + delta_time * x[4];
+                    end.z = x[2] + delta_time * x[5];
+
+                    marker.points.push_back(start);
+                    marker.points.push_back(end);
+
+                    // Set arrow color and size
+                    marker.scale.x = 0.01; // Thickness of the arrow shaft
+                    marker.scale.y = 0.02; // Thickness of the arrow head
+                    marker.scale.z = 0.0;
+
+                    marker.color.r = 1.0;
+                    marker.color.g = 0.0;
+                    marker.color.b = 0.0;
+                    marker.color.a = 1.0;
+
+                    // Add the marker to the MarkerArray
+                    marker_array.markers.push_back(marker);
+                    
+                } catch (const cv::Exception &e) {
+                    RCLCPP_ERROR(this->get_logger(), "OpenCV exception at pixel (%d, %d): %s", i, j, e.what());
+                    continue;
+                } catch (const std::exception &e) {
+                    RCLCPP_ERROR(this->get_logger(), "Standard exception at pixel (%d, %d): %s", i, j, e.what());
+                    continue;
+                }
+            }
+        }
+    } catch (const cv::Exception &e) {
+        RCLCPP_ERROR(this->get_logger(), "OpenCV exception in createMarkers: %s", e.what());
+    } catch (const std::exception &e) {
+        RCLCPP_ERROR(this->get_logger(), "Standard exception in createMarkers: %s", e.what());
+    } catch (...) {
+        RCLCPP_ERROR(this->get_logger(), "Unknown error in createMarkers.");
+    }
+
+    
+    return marker_array;
+}
+
 
 // Convert sensor_msgs::Image -> cv::Mat
 cv::Mat KalmanFilterNode::imageMsgToMat(const sensor_msgs::msg::Image::ConstSharedPtr & msg)
@@ -127,7 +253,7 @@ cv::Mat KalmanFilterNode::imageMsgToMat(const sensor_msgs::msg::Image::ConstShar
   }
   catch(const cv_bridge::Exception& e) {
     RCLCPP_ERROR(this->get_logger(), "cv_bridge exception: %s", e.what());
-    return cv::Mat();
+    return cv::Mat(); 
   }
 }
 
