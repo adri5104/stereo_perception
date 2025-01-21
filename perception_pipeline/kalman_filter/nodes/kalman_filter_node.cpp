@@ -58,6 +58,8 @@ KalmanFilterNode::KalmanFilterNode()
   this->declare_parameter<double>("fy", 421.37701);
   this->declare_parameter<double>("cx", 424.7990);
   this->declare_parameter<double>("cy", 231.86268);
+  this->declare_parameter<double>("min_depth", 0.1);
+  this->declare_parameter<double>("max_depth", 15.0);
 
   // Read parameters
   optical_flow_topic_ = this->get_parameter("optical_flow_topic").as_string();
@@ -94,6 +96,8 @@ KalmanFilterNode::KalmanFilterNode()
   double fy = this->get_parameter("fy").as_double();
   double cx = this->get_parameter("cx").as_double();
   double cy = this->get_parameter("cy").as_double();
+  double min_depth = this->get_parameter("min_depth").as_double();
+  double max_depth = this->get_parameter("max_depth").as_double();
   cv::Mat C = Mat::zeros(6, 6, CV_64FC1);
   cv::Mat T = Mat::zeros(3, 3, CV_64FC1);
   cv::Mat sigma_system_ = Mat::zeros(3, 3, CV_64FC1);
@@ -121,6 +125,7 @@ KalmanFilterNode::KalmanFilterNode()
     sigma_system_,
     C,
     T,
+    min_depth, max_depth,
     fx, fy, cx, cy,
     use_ego_motion,
     grid_size
@@ -160,7 +165,6 @@ void KalmanFilterNode::updateSync(
   const sensor_msgs::msg::Image::ConstSharedPtr depth_msg,
   const sensor_msgs::msg::Image::ConstSharedPtr color_msg)
 {
-  RCLCPP_INFO(this->get_logger(), "updateSync() called with synchronized messages");
 
   // Convert each to cv::Mat
   cv::Mat flow_image  = imageMsgToMat(flow_msg);
@@ -191,10 +195,10 @@ void KalmanFilterNode::updateSync(
     cv_bridge::CvImage(flow_msg->header, "bgr8", output_debug_image).toImageMsg();
 
   // Publish
-  if (result == KalmanCoreErrorCode::OK)
-    RCLCPP_INFO(this->get_logger(), "KalmanCore output: OK");
-  else
-    RCLCPP_ERROR(this->get_logger(), "KalmanCore error: %s", getErrorMessage(result).c_str());
+  //if (result == KalmanCoreErrorCode::OK)
+  //  RCLCPP_INFO(this->get_logger(), "KalmanCore output: OK");
+  //else
+  //  RCLCPP_ERROR(this->get_logger(), "KalmanCore error: %s", getErrorMessage(result).c_str());
 
   visualization_msgs::msg::MarkerArray markers =  
     createMarkers(output_6d, output_6d_val, delta_time);
@@ -295,16 +299,16 @@ visualization_msgs::msg::MarkerArray KalmanFilterNode::createMarkers(
 
                     // End point of the arrow
                     geometry_msgs::msg::Point end;
-                    end.x = x[0] + delta_time * x[3];
-                    end.y = x[1] + delta_time * x[4];
-                    end.z = x[2] + delta_time * x[5];
+                    end.x = x[0] +   x[3];
+                    end.y = x[1] +   x[4];
+                    end.z = x[2] +   x[5];
 
                     marker.points.push_back(start);
                     marker.points.push_back(end);
 
                     // Set arrow color and size
-                    marker.scale.x = 0.05; // Thickness of the arrow shaft
-                    marker.scale.y = 0.1; // Thickness of the arrow head
+                    marker.scale.x = 0.01; // Thickness of the arrow shaft
+                    marker.scale.y = 0.02; // Thickness of the arrow head
                     marker.scale.z = 0.0  ;
 
                     marker.color.r = 1.0;

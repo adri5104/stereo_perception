@@ -88,20 +88,21 @@ public:
   KalmanCore();
 
   /**
-   * @brief Constructor for the KalmanCore class.
-   *        Initializes internal state, matrices, etc.
+   * @brief Construct a new Kalman Core object
    * 
-   * @param sigma_system The system covariance matrix.
-   * @param C The system covariance matrix.
-   * @param T The measurement model covariance matrix.
-   * @param fx Focal length x
-   * @param fy Focal length y
-   * @param cx Principal point x
-   * @param cy Principal point y
-   * @param useVarEgo Flag for using the covariance matrix of the egomotion
-   * @param gridSize Size of the grid for the worldpoints
+   * @param sigma_system 
+   * @param C 
+   * @param T 
+   * @param min_depth 
+   * @param max_depth 
+   * @param fx 
+   * @param fy 
+   * @param cx 
+   * @param cy 
+   * @param useVarEgo 
+   * @param gridSize 
    */
-  KalmanCore(Mat sigma_system, Mat C, Mat T, double fx, double fy, double cx, double cy, bool useVarEgo, int gridSize);
+  KalmanCore(Mat sigma_system, Mat C, Mat T, double min_depth, double max_depth, double fx, double fy, double cx, double cy, bool useVarEgo, int gridSize);
 
   /**
    * @brief Default destructor for the KalmanCore class.
@@ -251,6 +252,8 @@ private:
   double fy_;
   double cx_;
   double cy_;
+  double min_depth_;
+  double max_depth_;
 
   // Kalman filter parameters 
   bool first_time_;	// Flag for first time execution  

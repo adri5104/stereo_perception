@@ -33,10 +33,10 @@ def generate_launch_description():
         #    remappings=[
         #        ('rgb/camera_info ', '/perception_pipeline/camera_info_sync'),   
         #        ('rgb/image_rect_color', '/view/depth_image_sync'),
-        #        ('depth_registered/image_rect', 'perception_pipeline/optical_flow'),
+        #        ('depth_registered/image_rect', '/view/color_image_sync'),
         #    ]
-        #     
-        #),
+             
+        
       
         launch_ros.actions.Node(
             package='optical_flow_computation',
@@ -47,11 +47,11 @@ def generate_launch_description():
             ],
             parameters=[{
                 'pyr_scale': 0.5  , 
-                'levels': 10,
-                'winsize': 20,
-                'iterations': 20,
-                'poly_n': 7,
-                'poly_sigma': 1.5   ,
+                'levels': 3,
+                'winsize': 11,
+                'iterations': 5,
+                'poly_n': 5,
+                'poly_sigma': 1.0   ,
                 'flags': 0,
             }],
         ),
@@ -71,21 +71,23 @@ def generate_launch_description():
                 {'debug_markers_topic' : '/debug/image_6d_markers'},
                 {'grid_size' : 10},
                 {'use_ego_motion' : False},
-                {'sigma2_x_system' : 0.01},
-                {'sigma2_y_system' : 0.01},
-                {'sigma2_z_system' : 0.01},
-                {'sigma2_flow_y_measurement' : 0.35},
-                {'sigma2_flow_x_measurement' : 0.35},
+                {'sigma2_x_system' : 10.0},
+                {'sigma2_y_system' : 10.0},
+                {'sigma2_z_system' : 1.0},
+                {'sigma2_flow_y_measurement' : 30.0},
+                {'sigma2_flow_x_measurement' : 30.0},
                 {'sigma2_depth_system' : 0.01},
                 {'sigma2_tx_measurement' : 10.0},
                 {'sigma2_ty_measurement' : 10.0},
                 {'sigma2_tz_measurement' : 10.0},
                 {'sigma2_theta_measurement' : 10.0},
                 {'sigma2_psi_system' : 10.0},
-                {'fx' : 10.0},
-                {'fy' : 10.0},
-                {'cx' : 10.0},
-                {'cy' : 10.0}
+                {'fx' : 416.5728759765625},
+                {'fy' : 416.5728759765625},
+                {'cx' : 419.969818},
+                {'cy' : 242.39743041992188},
+                {'min_depth' : 0.5},
+                {'max_depth' : 5.0},
             ],
             ros_arguments= ["--log-level", "info"] 
         )

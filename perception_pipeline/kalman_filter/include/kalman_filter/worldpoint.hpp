@@ -69,7 +69,7 @@ class WorldPoint
      * @param useVarEgo Use the covariance matrix of the egomotion.
      * @param gridSize Grid size in pixels
      */
-    WorldPoint(Mat &C, Mat &T, double fx, double fy, double cx, double cy,  bool &useVarEgo, int gridSize);
+    WorldPoint(Mat &C, Mat &T, double min_depth, double max_depth, double fx, double fy, double cx, double cy,  bool &useVarEgo, int gridSize);
 
     /**
      * @brief Destructor for the WorldPoint class.
@@ -180,6 +180,8 @@ class WorldPoint
   private:
 
     // Attributes
+    double max_depth_;
+    double min_depth_;
     Mat	z_old_;	// Old measurement vector			
 	  Mat	x_old_;	// Old state vector
 	  Mat	P_old_;	// Old state covariance matrix				

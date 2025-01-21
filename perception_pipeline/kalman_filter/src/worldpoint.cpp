@@ -14,9 +14,11 @@
 namespace perception_pipeline {
 namespace kalman_filter {
 
-WorldPoint::WorldPoint(Mat &C, Mat &T, double fx, double fy, double cx, double cy,  bool &useVarEgo, int gridSize)
+WorldPoint::WorldPoint(Mat &C, Mat &T, double min_depth, double max_depth, double fx, double fy, double cx, double cy,  bool &useVarEgo, int gridSize)
 :  C_(C), 
   T_(T), 
+  min_depth_(min_depth),
+  max_depth_(max_depth),
   use_var_ego_(useVarEgo), 
   grid_size_worldpoints(gridSize),
   age_(0),
@@ -44,9 +46,6 @@ void WorldPoint::initKalmanFilter(const double &u, const double &v, const double
   z_old_.at<double>(1,0) = v;
   z_old_.at<double>(2,0) = depth;
 
-  
-  
-
 
   // Initialize statevector
 	x_old_ = Mat::zeros(6, 1, CV_64FC1);					// Initialize with zeros first
@@ -55,18 +54,18 @@ void WorldPoint::initKalmanFilter(const double &u, const double &v, const double
 	Mat tmp2 = x_old_.rowRange(0,3);						
 	tmp.rowRange(0,3).copyTo(tmp2);	
 
-  if(depth > 0 && depth < 255)
-  {
-  valid ++;
-  cout << "u: " << u << endl;
-  cout << "v: " << v << endl;
-  cout << "d: " << depth << endl;
-  cout << "x: " << x_old_ << endl;
-  cout << "z: " << z_old_ << endl;
-  cout << "temp: " << tmp << endl;
-  cout << "count: " << count << endl;
-  cout << "valid: " << valid << endl;
-  }
+  //  if(depth > 0 && depth < 255)
+  //  {
+  //  valid ++;
+  //  cout << "u: " << u << endl;
+  //  cout << "v: " << v << endl;
+  //  cout << "d: " << depth << endl;
+  //  cout << "x: " << x_old_ << endl;
+  //  cout << "z: " << z_old_ << endl;
+  //  cout << "temp: " << tmp << endl;
+  //  cout << "count: " << count << endl;
+  //  cout << "valid: " << valid << endl;
+  //  }
  
   // Initialize variances with 10 [m^2 respectively m^2/s^2]
   P_old_ = Mat::eye(6, 6, CV_64FC1) * 10;
@@ -152,7 +151,8 @@ WorldPointErrorCode WorldPoint::computeKalmanStep(
     // Check if depth value has a valid value
     // Convert to meters first
     double new_depth = static_cast<double>(input_depth.at<uint16_t>(new_v, new_u)) / 1000.0; // Convert cm to m
-    if (new_depth > 0)
+  
+    if (new_depth > min_depth_ && new_depth < max_depth_)
     {
       // Update measurement vector
       z_new.at<double>(2,0) = new_depth;
@@ -217,12 +217,12 @@ WorldPointErrorCode WorldPoint::computeKalmanStep(
 	S_new_inv = S_new.inv();
 
   // Perform 3 sigma test
-  //Mat tmp = s_new.t() * S_new_inv * s_new;
-	//double epsilonSquared = tmp.at<double>(0,0);
-	//if (sqrt(epsilonSquared) > 3.0) 
-  //{ 
-  //  return WorldPointErrorCode::THREE_SIGMA_TEST_FAILED; 
-  //}
+  Mat tmp = s_new.t() * S_new_inv * s_new;
+	double epsilonSquared = tmp.at<double>(0,0);
+	if (sqrt(epsilonSquared) > 3.0) 
+  { 
+    return WorldPointErrorCode::THREE_SIGMA_TEST_FAILED; 
+  }
 
   // Kalman Gain computation
 	K_new = P_new_pred * H_new.t() * S_new_inv;
@@ -248,8 +248,8 @@ void WorldPoint::projectPixelToWorld(
 
 
   // Now do the standard pinhole math in meters
-  double X = (u - c_x_ / f_x_) * depth; 
-  double Y = (v - c_y_ / f_y_) * depth;
+  double X = ((u - c_x_) / f_x_) * depth;
+  double Y = ((v - c_y_) / f_y_) * depth;
   
 
 	coordinates.at<double>(0,0) = X;

@@ -97,7 +97,7 @@ private:
   
 
   // KalmanCore
-  std::shared_ptr<KalmanCore> kalman_core_;
+  std::unique_ptr<KalmanCore> kalman_core_;
   //KalmanCore kalman_core_;
 
   // message_filters subscribers
