@@ -34,11 +34,19 @@ WorldPoint::~WorldPoint(void)
 
 void WorldPoint::initKalmanFilter(const double &u, const double &v, const double &depth,Mat &occupancyGrid)
 {
+  static int count = 1;
+  static int valid = 1;
+  count++;
+
   // Initialize measurement vector
   z_old_ = Mat::zeros(3, 1, CV_64FC1);
   z_old_.at<double>(0,0) = u;
   z_old_.at<double>(1,0) = v;
   z_old_.at<double>(2,0) = depth;
+
+  
+  
+
 
   // Initialize statevector
 	x_old_ = Mat::zeros(6, 1, CV_64FC1);					// Initialize with zeros first
@@ -47,6 +55,19 @@ void WorldPoint::initKalmanFilter(const double &u, const double &v, const double
 	Mat tmp2 = x_old_.rowRange(0,3);						
 	tmp.rowRange(0,3).copyTo(tmp2);	
 
+  if(depth > 0 && depth < 255)
+  {
+  valid ++;
+  cout << "u: " << u << endl;
+  cout << "v: " << v << endl;
+  cout << "d: " << depth << endl;
+  cout << "x: " << x_old_ << endl;
+  cout << "z: " << z_old_ << endl;
+  cout << "temp: " << tmp << endl;
+  cout << "count: " << count << endl;
+  cout << "valid: " << valid << endl;
+  }
+ 
   // Initialize variances with 10 [m^2 respectively m^2/s^2]
   P_old_ = Mat::eye(6, 6, CV_64FC1) * 10;
 
@@ -130,7 +151,7 @@ WorldPointErrorCode WorldPoint::computeKalmanStep(
   {
     // Check if depth value has a valid value
     // Convert to meters first
-    double new_depth = input_depth.at<double>(new_v, new_u) / 1000.0; // Convert mm to m
+    double new_depth = static_cast<double>(input_depth.at<uint16_t>(new_v, new_u)) / 1000.0; // Convert cm to m
     if (new_depth > 0)
     {
       // Update measurement vector
@@ -162,8 +183,8 @@ WorldPointErrorCode WorldPoint::computeKalmanStep(
 
   // A. Prediction step
   // Compute the priori estimate
-  x_new_pred = A_new * x_old_ + G_new * u_new; 
-
+  x_new_pred = A_new * x_old_ ;//+ G_new * u_new; 
+  //cout << A_new << endl;  		
   
 
   // Compute the priori estimate covariance matrix
@@ -207,7 +228,7 @@ WorldPointErrorCode WorldPoint::computeKalmanStep(
 	K_new = P_new_pred * H_new.t() * S_new_inv;
 
   // --- Measurement update ---
-	x_new = x_new_pred + K_new * s_new;								
+	x_new = x_new_pred + K_new * s_new;						
 	P_new = (Mat::eye(6, 6, CV_64FC1) - K_new*H_new) * P_new_pred;	
 
   // Save new state
@@ -220,7 +241,7 @@ WorldPointErrorCode WorldPoint::computeKalmanStep(
 
 
 void WorldPoint::projectPixelToWorld(
-  const double &u, const double &v, const uint16_t &depth, Mat &coordinates)
+  const double &u, const double &v, const double &depth, Mat &coordinates)
 {
   // Initialize vector for reprojection
 	coordinates = Mat::zeros(4, 1, CV_64FC1);

@@ -83,7 +83,7 @@ class WorldPoint
      * 
      * @param u The horizontal position in pixels.
      * @param v The initial y position.
-     * @param depth The initial depth.
+     * @param depth The initial depth in meters.
      * @param occupancyGrid The occupancy grid.
      */
     void initKalmanFilter(const double &u, const double &v, const double &depth, Mat &occupancyGrid);
@@ -132,7 +132,7 @@ class WorldPoint
      * @param depth Depth value in m
      * @param coordinates Coordinates of the world point.
      */
-    void projectPixelToWorld(const double &u, const double &v, const uint16_t &depth, Mat &coordinates);	
+    void projectPixelToWorld(const double &u, const double &v, const double &depth, Mat &coordinates);	
 
     /**
      * @brief Function for computing pixel values out of world coordinates (2D projection).

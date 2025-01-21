@@ -87,6 +87,13 @@ void KalmanFilterNode::updateSync(
   cv::Mat depth_image = imageMsgToMat(depth_msg);
   cv::Mat color_image = imageMsgToMat(color_msg);
 
+  //try {
+  //  depth_image = cv_bridge::toCvCopy(depth_msg, "8UC1")->image;
+  //}
+  //catch(const cv_bridge::Exception& e) {
+  //  RCLCPP_ERROR(this->get_logger(), "cv_bridge exception: %s", e.what());
+  //}
+
   // Perform your KalmanCore logic
   KalmanCoreErrorCode result = kalman_core_.updateSyncedData(flow_image, depth_image, color_image);
 
@@ -109,8 +116,8 @@ void KalmanFilterNode::updateSync(
   else
     RCLCPP_ERROR(this->get_logger(), "KalmanCore error: %s", getErrorMessage(result).c_str());
 
-  visualization_msgs::msg::MarkerArray markers =  
-    createMarkers(output_6d, output_6d_val, delta_time);
+  //visualization_msgs::msg::MarkerArray markers =  
+  //  createMarkers(output_6d, output_6d_val, delta_time);
 
 
   debug_image_pub_->publish(*debug_image_msg);

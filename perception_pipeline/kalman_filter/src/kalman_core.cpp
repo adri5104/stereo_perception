@@ -17,7 +17,7 @@ namespace perception_pipeline
 namespace kalman_filter
 {
   KalmanCore::KalmanCore() :
-  fx_(0.0), fy_(0.0), cx_(0.0), cy_(0.0),
+  fx_(421.37701), fy_(421.37701), cx_(424.7990), cy_(231.86268),
   first_time_(true),
   C_(Mat::zeros(6, 6, CV_64FC1)),
   T_(Mat::zeros(3, 3, CV_64FC1)),
@@ -29,21 +29,21 @@ namespace kalman_filter
   G_new_(Mat::zeros(6, 6, CV_64FC1)),
   para_rot_(Mat::zeros(6, 1, CV_64FC1)),
   delta_time(0.0),
-  grid_size_worldpoints_(20),
+  grid_size_worldpoints_(10),
   include_ego_motion_(false),
   time_diff_(0.0),
   sync_input_time_old_(Clock::now())
 {
   // Initialize variances
   // Set covariance matrix of system model
-  sigma_system_.at<double>(0,0) = 0.1;         // System: sigma^2 (x dot)
-  sigma_system_.at<double>(1,1) = 0.1;         // System: sigma^2 (y dot)
-  sigma_system_.at<double>(2,2) = 0.01;        // System: sigma^2 (z dot) 
+  sigma_system_.at<double>(0,0) = 100;         // System: sigma^2 (x dot)
+  sigma_system_.at<double>(1,1) = 100;         // System: sigma^2 (y dot)
+  sigma_system_.at<double>(2,2) = 100;        // System: sigma^2 (z dot) 
 
   // Set covariance matrix of measurement model
-  T_.at<double>(0,0) = 10;//3.48152447145948;      // Measurement: sigma^2 (flow x)
-  T_.at<double>(1,1) = 30;//3.32965757670735;      // Measurement: sigma^2 (flow y)
-  T_.at<double>(2,2) = 1;                    // Measurement: sigma^2 (disparity)
+  T_.at<double>(0,0) = 1000;//3.48152447145948;      // Measurement: sigma^2 (flow x)
+  T_.at<double>(1,1) = 1000;//3.32965757670735;      // Measurement: sigma^2 (flow y)
+  T_.at<double>(2,2) = 1000 ;                    // Measurement: sigma^2 (disparity)
 
   // Set covariance matrix of egomotion
   C_ .at<double>(0,0) = 4.240342549164191e-06;  // Egomotion: sigma^2 (t_x)
@@ -189,6 +189,7 @@ KalmanCoreErrorCode KalmanCore::predict(Mat input_optical_flow, Mat input_depth,
   // Occupancy grid matrix (Matrix that shows how many world points lie in every single part of the grid)
   int occ_h = static_cast<int>(std::ceil(static_cast<double>(input_depth.rows) / grid_size_worldpoints_)); // Always round up
   int occ_w = static_cast<int>(std::ceil(static_cast<double>(input_depth.cols) / grid_size_worldpoints_));  // Always round up
+  //cout << "occ_h: " << occ_h << "occ_w: " << occ_w << endl;
 	Mat occupancy_grid = Mat::zeros(occ_h, occ_w, CV_8UC1);
 
   // Time measurement
@@ -201,20 +202,20 @@ KalmanCoreErrorCode KalmanCore::predict(Mat input_optical_flow, Mat input_depth,
                                input_color_image.cols / grid_size_worldpoints_, CV_8UC1);
 
   // Draw lines on visual debug output if needed
-  for (int row = grid_size_worldpoints_-1; row < input_color_image.rows; row += grid_size_worldpoints_)
-  {
-    cv::line(output_debug_image, 
-            cv::Point(0, row), 
-            cv::Point(input_color_image.cols-1, row), 
-            cv::Scalar(255, 0, 0), 1);
-  }
-  for (int col = grid_size_worldpoints_-1; col < input_color_image.cols; col += grid_size_worldpoints_)
-  {
-    cv::line(output_debug_image, 
-            cv::Point(col, 0), 
-            cv::Point(col, input_color_image.rows-1), 
-            cv::Scalar(255, 0, 0), 1);
-  }
+  //for (int row = grid_size_worldpoints_-1; row < input_color_image.rows; row += grid_size_worldpoints_)
+  //{
+  //  cv::line(output_debug_image, 
+  //          cv::Point(0, row), 
+  //          cv::Point(input_color_image.cols-1, row), 
+  //          cv::Scalar(255, 0, 0), 1);
+  //}
+  //for (int col = grid_size_worldpoints_-1; col < input_color_image.cols; col += grid_size_worldpoints_)
+  //{
+  //  cv::line(output_debug_image, 
+  //          cv::Point(col, 0), 
+  //          cv::Point(col, input_color_image.rows-1), 
+  //          cv::Scalar(255, 0, 0), 1);
+  //}
 
   if(first_time_)
   {
@@ -240,6 +241,7 @@ KalmanCoreErrorCode KalmanCore::predict(Mat input_optical_flow, Mat input_depth,
     int pos_v_old = 0;
     int pos_u	= 0;
     int pos_v	= 0;
+
 
     // Iterate over all worldpoints
     WorldPointErrorCode result;
@@ -272,38 +274,146 @@ KalmanCoreErrorCode KalmanCore::predict(Mat input_optical_flow, Mat input_depth,
 			wp->getZ(z);
       pos_u = static_cast<int>(std::floor(z.at<double>(0,0)));
       pos_v = static_cast<int>(std::floor(z.at<double>(1,0)));
-      switch(result)
-      { 
-        // Successful update
-        case WorldPointErrorCode::OK:
 
-          // Check if there is an entry at the current pixel position...
-          if (output_6d_val.at<uchar>(pos_u, pos_v) == 0)
-          {           
-            // Save state value in output matrix
-            wp->getX(x);
-            output_6d.at<Vec6f>(pos_v, pos_u) = x;
-            
+      wp->getX(x);
+      //cout << x << endl;
+      output_6d.at<Vec6f>(pos_v, pos_u) = x;
+      
 
-            // Set correspondent validity entry to 1
-            output_6d_val.at<uchar>(pos_v, pos_u) = 1;
-        
-            // We paint the pixel in the debug image
-            output_debug_image.at<Vec3b>(pos_v, pos_u) = Vec3b(0, 255, 0);	// GREEN
-          }
-          else
-          {
-             // We should eliminate the point
-          }
-          
-        break;
+      // Set correspondent validity entry to 1
+      output_6d_val.at<uchar>(pos_v, pos_u) = 1;
+  
+      // We paint the pixel in the debug image
+      output_debug_image.at<Vec3b>(pos_v, pos_u) = Vec3b(0, 255, 0);	// GREEN
+
+      int age = wp->getAge();
+
+      if (age > 20)
+      {
+
       }
+
+      //switch(result)
+      //{ 
+      //  // Successful update
+      //  case WorldPointErrorCode::OK:
+      //  default:
+//
+      //    // Check if there is an entry at the current pixel position...
+      //    if (output_6d_val.at<uchar>(pos_u, pos_v) == 0)
+      //    {           
+      //      // Save state value in output matrix
+      //      
+      //    }
+      //    else
+      //    {
+      //       // We should eliminate the point
+      //    }
+      //    
+      //  break;
+      //}
     }
+
+    // Refill gaps with new WorldPoints
+    // We iterate over the depth image and create a new WorldPoint for each valid depth value
+    for (int row = 0; row < occupancy_grid.rows; row ++) 
+    {
+        for (int col = 0; col < occupancy_grid.cols; col ++) 
+        {
+          int points = occupancy_grid.at<uchar>(row, col);
+          if(points == 0)
+          {
+						int new_u = static_cast<int>(col*grid_size_worldpoints_ + grid_size_worldpoints_/2);
+						int new_v = static_cast<int>(row*grid_size_worldpoints_ + grid_size_worldpoints_/2);
+            if (new_u >= input_depth_sync_.cols) 
+						{ new_u = input_depth_sync_.cols - 1; }
+						if (new_v >= input_depth_sync_.rows)
+						{ new_v = input_depth_sync_.rows - 1; }
+
+            // Get depth 
+            double depth = static_cast<double>(input_depth_sync_.at<u_int16_t>(new_v, new_u));
+            if (depth < 10 || depth > 0.5)
+            {
+              
+
+            // Create a new WorldPoint
+            worldpoints_.emplace_back(std::make_unique<WorldPoint>(
+                C_, T_, fx_, fy_, cx_, cy_, include_ego_motion_, grid_size_worldpoints_));
+
+            worldpoints_.back()->initKalmanFilter(
+                static_cast<double>(new_u),
+                static_cast<double>(new_v),
+                depth,
+                occupancy_grid);
+
+            worldpoints_.back()->getX(x);
+       
+
+            // Update the output matrices
+            output_debug_image.at<cv::Vec3b>(row, col) = cv::Vec3b(0, 255, 0);
+            output_6d_val.at<uchar>(row, col) = 1;
+
+            // Update the 6D output matrix
+            output_6d.at<cv::Vec6f>(row, col) = cv::Vec6f(x);
+    
+            }
+          }
+
+          //cout << "row: " << row << " col:" << col << " npoints: " << point << endl;
+        }
+    }
+    // Refill gaps with new WorldPoints
+		//	// Matrixiteration
+		//	for (int row = 0; row < occupancyGrid.rows; row++)
+		//	{
+		//		uchar* ptrOcc = occupancyGrid.ptr<uchar>(row);
+		//		for (int col = 0; col < occupancyGrid.cols; col++)
+		//		{
+		//			// Check if there is a gap in the grid
+		//			if (ptrOcc[col] == 0)
+		//			{
+		//				// Compute start point for new WorldPoint in a way that it lies (almost) in the middle of the grid window
+		//				int new_u = (int) (col*gridSizeWorldPoints + gridSizeWorldPoints/2);
+		//				int new_v = (int) (row*gridSizeWorldPoints + gridSizeWorldPoints/2);
+//
+		//				// If the number of grids in the image is not an integer in one direction, it may happen that the method above exceeds matrix dimensions
+		//				// If that is case, set start point to the last possible row / column
+		//				if (new_u >= inputDisp.cols) 
+		//				{ new_u = inputDisp.cols - 1; }
+		//				if (new_v >= inputDisp.rows)
+		//				{ new_v = inputDisp.rows - 1; }
+//
+		//				// Check if disparity is valid at the start point
+		//				if (inputDisp.at<float>(new_v, new_u) > 0)
+		//				{
+		//					// Visual debug output
+		//					if (visualDebugPoints) {outputSVLeft.at<Vec3b>(new_v, new_u) = Vec3b(0, 255, 0);}	// GREEN
+		//					//circle(outputSVLeft, Point(new_u,new_v), 3, Scalar(0,255, 0), 3);
+//
+		//					// Create WorldPoints
+		//					worldPoints.push_back(new WorldPoint(projectionMatrix, projectionMatrixInv, C, T, useVarEgo, gridSizeWorldPoints));
+		//					worldPoints.last()->initKalmanFilter((double)new_u, (double)new_v, (double)inputDisp.at<float>(new_v, new_u), occupancyGrid); // worldPoints.back()->initKalmanFilter((double)new_u, (double)new_v, (double)inputDisp.at<float>(new_v, new_u), occupancyGrid);
+//
+		//					// Save currently processed state vector
+		//					worldPoints.last()->getX(x); // worldPoints.back()->getX(x);
+		//					age = 0;
+		//					copyVecForOutput(x, age, tmp);
+		//					output6D.at<Vec7f>(new_v, new_u) = tmp;
+//
+		//					// Set correspondent entry of validity matrix to 1
+		//					output6DVal.at<uchar>(new_v, new_u) = 1;
+		//				}
+		//				// If disparity is not valid, do not set up the WorldPoint
+		//			}
+		//		} 
   }
+
+
 
   output_6d_ = output_6d;
   output_6d_val_ = output_6d_val;
   output_debug_image_ = output_debug_image;
+  
   return KalmanCoreErrorCode::OK;
 }
 
@@ -342,8 +452,8 @@ KalmanCoreErrorCode KalmanCore::setNewWorldPoints(Mat &occupancy_grid, Mat &outp
              col += grid_size_worldpoints_) 
         {
             // Get the depth value
-            float depth = input_depth_sync_.at<float>(row, col);
-            if (depth <= 0) {
+            double depth = static_cast<double>(input_depth_sync_.at<uint16_t>(row, col)) / 1000.0;
+            if (depth <= 0.5 || depth >= 10) {
                 continue; // Skip invalid depth values
             }
 
@@ -354,7 +464,7 @@ KalmanCoreErrorCode KalmanCore::setNewWorldPoints(Mat &occupancy_grid, Mat &outp
             worldpoints_.back()->initKalmanFilter(
                 static_cast<double>(col),
                 static_cast<double>(row),
-                static_cast<double>(depth),
+                depth,
                 occupancy_grid);
 
             worldpoints_.back()->getX(x);
@@ -381,11 +491,11 @@ KalmanCoreErrorCode KalmanCore::computeKalmanMatrices()
 	// --- Precomputations ---
 
 	// Filling A_new_w (Transition matrix)
-  Mat A_new_ = Mat::eye(6, 6, CV_64FC1);
+  A_new_ = Mat::eye(6, 6, CV_64FC1);
   Mat scaled_identity = Mat::eye(3, 3, CV_64FC1) * time_diff_;
   Mat A_new_submatrix = A_new_.colRange(3, 6).rowRange(0, 3);
   scaled_identity.copyTo(A_new_submatrix);
-
+  
   if (include_ego_motion_)
   {
     // Filling D_new_  (Egomotion rotation matrix)
@@ -401,6 +511,10 @@ KalmanCoreErrorCode KalmanCore::computeKalmanMatrices()
 
     // Compute the new state transition matrix A_new
     A_new_w = A_new_ * D_new_;
+  }
+  else
+  {
+    A_new_w = A_new_;
   }
 
 	// Compute and fill Q_new_w

@@ -113,8 +113,8 @@ void OpticalFlowNode::publishDebugMessages(const Mat current_image, const Mat fl
 
             // Compute magnitude and angle
             float magnitude = sqrt(flow_at_point.x * flow_at_point.x + flow_at_point.y * flow_at_point.y);
-            magnitude = magnitude * 2;  
-
+            if (magnitude > 2) magnitude = 8 * magnitude ; 
+            if (magnitude > 255) magnitude = 255;
 
 
             float angle = atan2(flow_at_point.y, flow_at_point.x); // Angle in radians
