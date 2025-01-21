@@ -37,7 +37,7 @@ OpticalFlowNode::OpticalFlowNode()
     RCLCPP_INFO(this->get_logger(), "  iterations: %d", iterations_);
     RCLCPP_INFO(this->get_logger(), "  poly_n: %d", poly_n_);
     RCLCPP_INFO(this->get_logger(), "  poly_sigma: %.2f", poly_sigma_);
-    RCLCPP_INFO(this->get_logger(), "  %s", cv::getBuildInformation() .c_str());
+    //RCLCPP_INFO(this->get_logger(), "  %s", cv::getBuildInformation() .c_str());
 
     
 }

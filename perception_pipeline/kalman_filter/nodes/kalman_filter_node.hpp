@@ -97,7 +97,8 @@ private:
   
 
   // KalmanCore
-  KalmanCore kalman_core_;
+  std::shared_ptr<KalmanCore> kalman_core_;
+  //KalmanCore kalman_core_;
 
   // message_filters subscribers
   message_filters::Subscriber<sensor_msgs::msg::Image> optical_flow_sub_;
@@ -123,6 +124,7 @@ private:
   std::string debug_image_topic_;
   std::string debug_markers_topic_;;
   std::string output_6d_topic_;
+
 
 };
 

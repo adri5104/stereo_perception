@@ -25,18 +25,18 @@ def generate_launch_description():
              
         ),
         
-        launch_ros.actions.Node(
-            package= 'depth_image_proc',
-            executable= 'point_cloud_xyzrgb_node',
-            name= 'point_cloud_xyzrgb_node',
-            output= 'screen',
-            remappings=[
-                ('rgb/camera_info ', '/perception_pipeline/camera_info_sync'),   
-                ('rgb/image_rect_color', '/view/depth_image_sync'),
-                ('depth_registered/image_rect', 'perception_pipeline/optical_flow'),
-            ]
-             
-        ),
+        #launch_ros.actions.Node(
+        #    package= 'depth_image_proc',
+        #    executable= 'point_cloud_xyzrgb_node',
+        #    name= 'point_cloud_xyzrgb_node',
+        #    output= 'screen',
+        #    remappings=[
+        #        ('rgb/camera_info ', '/perception_pipeline/camera_info_sync'),   
+        #        ('rgb/image_rect_color', '/view/depth_image_sync'),
+        #        ('depth_registered/image_rect', 'perception_pipeline/optical_flow'),
+        #    ]
+        #     
+        #),
       
         launch_ros.actions.Node(
             package='optical_flow_computation',
@@ -68,6 +68,24 @@ def generate_launch_description():
                 {'color_image_topic':"/device_0/sensor_1/Color_0/image/data"}, 
                 {'debug_image_topic_':'/debug/debug_image'},
                 {'output_6d_topic' : '/perception_pipeline/output_6d'},
+                {'debug_markers_topic' : '/debug/image_6d_markers'},
+                {'grid_size' : 10},
+                {'use_ego_motion' : False},
+                {'sigma2_x_system' : 0.01},
+                {'sigma2_y_system' : 0.01},
+                {'sigma2_z_system' : 0.01},
+                {'sigma2_flow_y_measurement' : 0.35},
+                {'sigma2_flow_x_measurement' : 0.35},
+                {'sigma2_depth_system' : 0.01},
+                {'sigma2_tx_measurement' : 10.0},
+                {'sigma2_ty_measurement' : 10.0},
+                {'sigma2_tz_measurement' : 10.0},
+                {'sigma2_theta_measurement' : 10.0},
+                {'sigma2_psi_system' : 10.0},
+                {'fx' : 10.0},
+                {'fy' : 10.0},
+                {'cx' : 10.0},
+                {'cy' : 10.0}
             ],
             ros_arguments= ["--log-level", "info"] 
         )

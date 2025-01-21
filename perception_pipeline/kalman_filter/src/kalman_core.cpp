@@ -74,6 +74,16 @@ KalmanCore::KalmanCore(
   time_diff_(0.0),
   sync_input_time_old_(Clock::now())
 {
+  cout << "[KalmanCore] =================================================================" << endl;
+  cout << "[KalmanCore] =============== KalmanCore object created =======================" << endl;
+  cout << "[KalmanCore] =================================================================" << endl << endl;
+  cout << "[KalmanCore] System Covariance Matrix = " << sigma_system_ << endl; 
+  cout << "[KalmanCore] Measurement Covariance Matrix = " << T_ << endl; 
+  cout << "[KalmanCore] Ego motion Covariance Matrix = " << C_ << endl; 
+  cout << "[KalmanCore] Grid size = " << grid_size_worldpoints_ << endl; 
+  cout << "[KalmanCore] Use ego motion = " << (include_ego_motion_? "Yes" : "No") << endl; 
+  
+
   worldpoints_.clear();
 }
 
@@ -557,8 +567,8 @@ KalmanCoreErrorCode KalmanCore::getOutput(cv::Mat &output_6d, cv::Mat &output_6d
 }
 
 double KalmanCore::getDeltaTime()
-{
-  return delta_time;
+{ 
+  return time_diff_;
 }
 
 
