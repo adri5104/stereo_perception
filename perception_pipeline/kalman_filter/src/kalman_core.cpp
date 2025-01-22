@@ -311,20 +311,11 @@ KalmanCoreErrorCode KalmanCore::predict(Mat input_optical_flow, Mat input_depth,
         case WorldPointErrorCode::OK:
           if(output_6d_val.at<uchar>(pos_v, pos_u) == 0)
           {
-            if((*it)->getAge() < 100)
-            {
               (*it)->getX(x);
               output_6d.at<Vec6f>(pos_v, pos_u) = x;
               output_6d_val.at<uchar>(pos_v, pos_u) = 1;
               output_debug_image.at<Vec3b>(pos_v, pos_u) = Vec3b(0, 255, 0);
               it++;
-            }
-            else
-            {
-              it = worldpoints_.erase(it);
-            }
-            
-            //cout << x << endl;
           }
           else
           {

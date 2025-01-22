@@ -38,7 +38,19 @@ topic != '/device_0/sensor_2/Accel_0/info' or \
 
 
 "topic == '/device_0/sensor_0/Depth_0/info/camera_info'" \
-"/device_0/sensor_0/option/Depth_Units/value'"
+"/device_0/sensor0/option/Depth_Units/value'"
 
 
-rosbag filter  Datasets/FramosDepthCamera/test2/8_meter.bag Datasets/FramosDepthCamera/test2/8_meter_filtered.bag "topic == 'realsense'"
+rosbag filter  Datasets/FramosDepthCamera/test2/8_meter.bag Datasets/FramosDepthCamera/test2/8_meter_filtered.bag "topic == 'realsense'"_
+
+
+
+
+rosbag filter  Datasets/FramosDepthCamera/test1/bag2.bag Datasets/FramosDepthCamera/test1/bag2_filtered.bag "\
+topic == '/device_0/sensor_0/Depth_0/image/data' or \
+topic == '/device_0/sensor_0/Depth_0/info/camera_info' or \
+topic == '/device_0/sensor_1/Color_0/image/data' or \
+topic == '/device_0/sensor_1/Color_0/info/camera_info' or \
+topic == '/device_0/sensor_0/Depth_0/image/metadata' or \
+topic == '/device_0/sensor_0/option/Depth_Units/value' or \
+topic == '/device_0/sensor_0/option/Depth_Units/description' "

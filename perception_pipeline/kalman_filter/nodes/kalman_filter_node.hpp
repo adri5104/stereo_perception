@@ -16,6 +16,8 @@
 #include <sensor_msgs/msg/image.hpp>
 #include <sensor_msgs/msg/camera_info.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
+#include <nav_msgs/msg/odometry.hpp>
+#include <geometry_msgs/msg/pose_stamped.hpp>
 
 #include <cv_bridge/cv_bridge.hpp>
 #include <opencv2/opencv.hpp>
@@ -24,8 +26,8 @@
 #include <message_filters/synchronizer.h>
 #include <message_filters/sync_policies/approximate_time.h>
 
-// Your KalmanCore
 #include "kalman_filter/kalman_core.hpp"
+
 
 namespace perception_pipeline
 {
@@ -98,7 +100,8 @@ private:
 
   // KalmanCore
   std::unique_ptr<KalmanCore> kalman_core_;
-  //KalmanCore kalman_core_;
+  
+
 
   // message_filters subscribers
   message_filters::Subscriber<sensor_msgs::msg::Image> optical_flow_sub_;
@@ -116,13 +119,14 @@ private:
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr debug_markers_pub_;
   rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr output_6d_pub_;
 
+
   // Parameters
   std::string optical_flow_topic_;
   std::string depth_topic_;
   std::string camera_info_topic_;
   std::string color_image_topic_;
   std::string debug_image_topic_;
-  std::string debug_markers_topic_;;
+  std::string debug_markers_topic_;
   std::string output_6d_topic_;
 
 

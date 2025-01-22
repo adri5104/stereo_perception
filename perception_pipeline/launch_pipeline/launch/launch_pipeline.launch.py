@@ -19,25 +19,12 @@ def generate_launch_description():
               {"color_image_sub_topic": "/device_0/sensor_1/Color_0/image/data"},
               {"depth_image_sub_topic": "/device_0/sensor_0/Depth_0/image/data"},
               {"camera_info_sub_topic": "/device_0/sensor_0/Depth_0/info/camera_info"},
-              {"publish_color_image": True},
-              {"publish_depth_image": True},
+              {"publish_color_image": False},
+              {"publish_depth_image": False},
             ]
              
         ),
-        
-        #launch_ros.actions.Node(
-        #    package= 'depth_image_proc',
-        #    executable= 'point_cloud_xyzrgb_node',
-        #    name= 'point_cloud_xyzrgb_node',
-        #    output= 'screen',
-        #    remappings=[
-        #        ('rgb/camera_info ', '/perception_pipeline/camera_info_sync'),   
-        #        ('rgb/image_rect_color', '/view/depth_image_sync'),
-        #        ('depth_registered/image_rect', '/view/color_image_sync'),
-        #    ]
-             
-        
-      
+              
         launch_ros.actions.Node(
             package='optical_flow_computation',
             executable='optical_flow_computation',
@@ -47,13 +34,28 @@ def generate_launch_description():
             ],
             parameters=[{
                 'pyr_scale': 0.5  , 
-                'levels': 3,
-                'winsize': 11,
-                'iterations': 5,
+                'levels': 6,
+                'winsize': 15 , #35
+                'iterations': 10,
                 'poly_n': 5,
-                'poly_sigma': 1.0   ,
+                'poly_sigma': 1.5   ,
                 'flags': 0,
             }],
+        ),
+        
+        launch_ros.actions.Node(
+            package='visual_odometry',
+            executable='visual_odometry_node',
+            parameters=[
+                {'color_image_topic': '/device_0/sensor_1/Color_0/image/data'},
+                {'depth_image_topic': '/device_0/sensor_0/Depth_0/image/data'},
+                {'camera_info_topic': '/perception_pipeline/camera_info_sync'},
+                {'odometry_topic': '/perception_pipeline/odometry'},
+                {'odometry_debug_topic': '/debug/odometry_keypoints'},
+                {'max_depth_odom' : 30.0},
+                {'min_depth_odom' : 0.0},
+                {'odometry_debug_image' : True},
+              ],
         ),
 
         launch_ros.actions.Node(
@@ -69,14 +71,14 @@ def generate_launch_description():
                 {'debug_image_topic_':'/debug/debug_image'},
                 {'output_6d_topic' : '/perception_pipeline/output_6d'},
                 {'debug_markers_topic' : '/debug/image_6d_markers'},
-                {'grid_size' : 10},
+                {'grid_size' : 20},
                 {'use_ego_motion' : False},
                 {'sigma2_x_system' : 10.0},
                 {'sigma2_y_system' : 10.0},
                 {'sigma2_z_system' : 1.0},
-                {'sigma2_flow_y_measurement' : 30.0},
-                {'sigma2_flow_x_measurement' : 30.0},
-                {'sigma2_depth_system' : 0.01},
+                {'sigma2_flow_y_measurement' : 1.0},
+                {'sigma2_flow_x_measurement' : 1.0},
+                {'sigma2_depth_system' : 1.0},
                 {'sigma2_tx_measurement' : 10.0},
                 {'sigma2_ty_measurement' : 10.0},
                 {'sigma2_tz_measurement' : 10.0},
@@ -87,7 +89,7 @@ def generate_launch_description():
                 {'cx' : 419.969818},
                 {'cy' : 242.39743041992188},
                 {'min_depth' : 0.5},
-                {'max_depth' : 5.0},
+                {'max_depth' : 20.0},
             ],
             ros_arguments= ["--log-level", "info"] 
         )

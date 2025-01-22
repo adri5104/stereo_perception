@@ -131,6 +131,8 @@ KalmanFilterNode::KalmanFilterNode()
     grid_size
   );
 
+
+
   // Create message_filters subscribers
   optical_flow_sub_.subscribe(this, optical_flow_topic_, rmw_qos_profile_sensor_data);
   depth_sub_.subscribe(this, depth_topic_, rmw_qos_profile_sensor_data);
@@ -156,6 +158,7 @@ KalmanFilterNode::KalmanFilterNode()
   output_6d_pub_   = this->create_publisher<sensor_msgs::msg::Image>(output_6d_topic_, 10);
   debug_markers_pub_   = this->create_publisher<visualization_msgs::msg::MarkerArray>(debug_markers_topic_, 10);
 
+
   RCLCPP_INFO(this->get_logger(), "KalmanFilterNode with message_filters started.");
 }
 
@@ -171,6 +174,9 @@ void KalmanFilterNode::updateSync(
   cv::Mat depth_image = imageMsgToMat(depth_msg);
   cv::Mat color_image = imageMsgToMat(color_msg);
 
+  cv::Mat translation_;  ///< Current translation vector
+  cv::Mat rotation_;     ///< Current rotation matrix
+
   //try {
   //  depth_image = cv_bridge::toCvCopy(depth_msg, "8UC1")->image;
   //}
@@ -179,6 +185,9 @@ void KalmanFilterNode::updateSync(
   //}
 
   // Perform your KalmanCore logic
+
+
+
   KalmanCoreErrorCode result = kalman_core_->updateSyncedData(flow_image, depth_image, color_image);
 
   // Retrieve outputs
@@ -194,6 +203,7 @@ void KalmanFilterNode::updateSync(
   sensor_msgs::msg::Image::SharedPtr debug_image_msg =
     cv_bridge::CvImage(flow_msg->header, "bgr8", output_debug_image).toImageMsg();
 
+
   // Publish
   //if (result == KalmanCoreErrorCode::OK)
   //  RCLCPP_INFO(this->get_logger(), "KalmanCore output: OK");
@@ -207,7 +217,6 @@ void KalmanFilterNode::updateSync(
   debug_image_pub_->publish(*debug_image_msg);
   debug_markers_pub_->publish(markers);
   output_6d_pub_->publish(*output_6d_msg);
-
 
 }
 
@@ -299,16 +308,16 @@ visualization_msgs::msg::MarkerArray KalmanFilterNode::createMarkers(
 
                     // End point of the arrow
                     geometry_msgs::msg::Point end;
-                    end.x = x[0] +   x[3];
-                    end.y = x[1] +   x[4];
-                    end.z = x[2] +   x[5];
+                    end.x = x[0] +  x[3];
+                    end.y = x[1] +  x[4];
+                    end.z = x[2] +  x[5];
 
                     marker.points.push_back(start);
                     marker.points.push_back(end);
 
                     // Set arrow color and size
-                    marker.scale.x = 0.01; // Thickness of the arrow shaft
-                    marker.scale.y = 0.02; // Thickness of the arrow head
+                    marker.scale.x = 0.02; // Thickness of the arrow shaft
+                    marker.scale.y = 0.04; // Thickness of the arrow head
                     marker.scale.z = 0.0  ;
 
                     marker.color.r = 1.0;

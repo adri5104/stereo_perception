@@ -1,23 +1,31 @@
 cmake_minimum_required(VERSION 3.8)
-project(kalman_filter)
+project(visual_odometry)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-# find dependencies
+# Include directories
+include_directories(
+  include
+)
+
+# Specify custom OpenCV path (your custom build)
+#set(OpenCV_DIR set(OpenCV_DIR /usr/local/lib/cmake/opencv)
+#)  # Update with your OpenCV install path
+find_package(OpenCV REQUIRED)
+
+# Print the OpenCV version
+message("Found OpenCV version: ${OpenCV_VERSION}")
+
+# Find dependencies
 find_package(ament_cmake REQUIRED)
-find_package(message_filters REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
-find_package(geometry_msgs REQUIRED)
-find_package(nav_msgs REQUIRED)
-find_package(visualization_msgs REQUIRED)
 find_package(cv_bridge REQUIRED)
-find_package(OpenCV REQUIRED)
-# Print the OpenCV version
-message("[KalmanFilter] Found OpenCV version: ${OpenCV_VERSION}")
+find_package(nav_msgs REQUIRED)
+find_package(message_filters REQUIRED)
 
 # include directories
 set(INCLUDE_DIRS $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -28,19 +36,17 @@ set(INCLUDE_DIRS $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
                  )
 
 # src files
-set(SRC_FILES src/kalman_core.cpp 
-              src/worldpoint.cpp)
+set(SRC_FILES src/visual_odometry.cpp)
 
 # module libs
 set (MODULE_LIBS  cv_bridge
                   rclcpp 
-                  message_filters
                   std_msgs
                   sensor_msgs
                   geometry_msgs
                   nav_msgs
-                  visualization_msgs
                   OpenCV 
+                  message_filters
                   )
 
 # create library
@@ -63,16 +69,15 @@ install(TARGETS ${PROJECT_NAME}
 
 install(DIRECTORY 
   nodes
-  launch
   DESTINATION share/${PROJECT_NAME})
 
 
 # add nodes
-add_executable(kalman_filter_node nodes/kalman_filter_node.cpp)
-ament_target_dependencies(kalman_filter_node ${MODULE_LIBS})
-target_link_libraries(kalman_filter_node ${PROJECT_NAME})
+add_executable(visual_odometry_node nodes/visual_odometry_node.cpp)
+ament_target_dependencies(visual_odometry_node ${MODULE_LIBS})
+target_link_libraries(visual_odometry_node ${PROJECT_NAME})
 
-install(TARGETS kalman_filter_node
+install(TARGETS visual_odometry_node
         DESTINATION lib/${PROJECT_NAME})
 
 ament_package()

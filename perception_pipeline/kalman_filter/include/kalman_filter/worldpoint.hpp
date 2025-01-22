@@ -181,7 +181,7 @@ class WorldPoint
 
     // Attributes
     double max_depth_;
-    double min_depth_;
+    double min_depth_ ;
     Mat	z_old_;	// Old measurement vector			
 	  Mat	x_old_;	// Old state vector
 	  Mat	P_old_;	// Old state covariance matrix				
