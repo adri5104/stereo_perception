@@ -10,7 +10,8 @@ namespace visual_odometry
                                   camera_info_arrived_(false),
                                   create_debug_image_(create_debug_image),
                                   min_depth_(min_depth), 
-                                  max_depth_(max_depth)
+                                  max_depth_(max_depth),
+                                  covariance_(cv::Mat::zeros(6, 6, CV_64F))
                               
   {
     // Initialize the camera intrinsic matrix
@@ -203,6 +204,34 @@ void VisualOdometry::estimateMotion(const std::vector<cv::Point2f>& prev_points,
     cv::Mat rvec, tvec, inliers;
     cv::solvePnPRansac(points3D, valid_curr_points, camera_matrix_, cv::noArray(), rvec, tvec, false, 100, 8.0, 0.99, inliers);
 
+    // **Covariance Estimation**
+    cv::Mat residuals(inliers.rows, 1, CV_64F);
+    for (int i = 0; i < inliers.rows; ++i)
+    {
+        int idx = inliers.at<int>(i, 0);
+        std::vector<cv::Point3f> single_point{points3D[idx]};
+        std::vector<cv::Point2f> projected_points;
+        
+        cv::projectPoints(single_point, rvec, tvec, camera_matrix_, cv::noArray(), projected_points);
+        cv::Point2f projected_point = projected_points[0];
+
+        residuals.at<double>(i) = cv::norm(projected_point - valid_curr_points[idx]);
+    }
+
+    double var_translation = cv::mean(residuals)[0];
+    double var_rotation = var_translation / 10.0; // Heuristic: rotation uncertainty smaller than translation
+
+    cv::Mat cov = cv::Mat::zeros(6, 6, CV_64F);
+    cov.at<double>(0, 0) = var_translation; // tx
+    cov.at<double>(1, 1) = var_translation; // ty
+    cov.at<double>(2, 2) = var_translation; // tz
+    cov.at<double>(3, 3) = var_rotation;    // roll
+    cov.at<double>(4, 4) = var_rotation;    // pitch
+    cov.at<double>(5, 5) = var_rotation;    // yaw
+
+    covariance_ = cov.clone();
+    
+
     // get rotation matrix
     cv::Mat R;
     cv::Rodrigues(rvec, R);
@@ -231,11 +260,12 @@ void VisualOdometry::estimateMotion(const std::vector<cv::Point2f>& prev_points,
     return cv::Point3f(x, y, depth);
   }
 
-  void VisualOdometry::getOutput(cv::Mat& translation, cv::Mat& rotation, cv::Mat& debug) const
+  void VisualOdometry::getOutput(cv::Mat& translation, cv::Mat& rotation, cv::Mat& covariance, cv::Mat& debug) const
   {
     translation = translation_.clone();
     rotation = rotation_.clone();
     debug = debug_image_.clone();
+    covariance = covariance_.clone();
 
   }
 

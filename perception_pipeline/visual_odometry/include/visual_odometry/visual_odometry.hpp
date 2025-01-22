@@ -36,12 +36,14 @@ namespace visual_odometry
       
 
       /**
-       * @brief Retrieve the current translation and rotation matrices
+       * @brief Get the Output object
        * 
-       * @param translation Output translation vector (3x1 matrix)
-       * @param rotation Output rotation matrix (3x3 matrix)
+       * @param translation translation vector
+       * @param rotation rotation vector
+       * @param covariance covariance matrix
+       * @param debug debug image
        */
-      void getOutput(cv::Mat& translation, cv::Mat& rotation, cv::Mat& debug) const;
+      void getOutput(cv::Mat& translation, cv::Mat& rotation, cv::Mat& covariance, cv::Mat& debug) const;
 
 
        // Setters
@@ -74,7 +76,7 @@ namespace visual_odometry
   
       cv::Mat translation_;  ///< Current translation vector
       cv::Mat rotation_;     ///< Current rotation by 
-
+      cv::Mat covariance_;
       cv::Ptr<cv::cuda::ORB>  feature_detector_gpu_; ///< CUDA-based ORB feature detector
       cv::Ptr<cv::cuda::DescriptorMatcher> matcher_gpu_; ///< CUDA-based descriptor matcher
 

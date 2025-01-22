@@ -200,9 +200,7 @@ void KalmanFilterNode::updateSync(
 
 
   // Publish
-  if (result == KalmanCoreErrorCode::OK)
-    RCLCPP_INFO(this->get_logger(), "KalmanCore output: OK");
-  else
+  if (!(result == KalmanCoreErrorCode::OK))
     RCLCPP_ERROR(this->get_logger(), "KalmanCore error: %s", getErrorMessage(result).c_str());
 
   visualization_msgs::msg::MarkerArray markers =  
