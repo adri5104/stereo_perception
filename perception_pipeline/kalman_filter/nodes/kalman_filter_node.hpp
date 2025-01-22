@@ -129,6 +129,8 @@ private:
   std::string debug_markers_topic_;
   std::string output_6d_topic_;
 
+  bool camera_parameters_set_ = false;
+
 
 };
 

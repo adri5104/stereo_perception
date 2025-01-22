@@ -54,10 +54,6 @@ KalmanFilterNode::KalmanFilterNode()
   this->declare_parameter<double>("sigma2_psi_system", 10);
 
   // Camera parameters
-  this->declare_parameter<double>("fx", 421.37701);
-  this->declare_parameter<double>("fy", 421.37701);
-  this->declare_parameter<double>("cx", 424.7990);
-  this->declare_parameter<double>("cy", 231.86268);
   this->declare_parameter<double>("min_depth", 0.1);
   this->declare_parameter<double>("max_depth", 15.0);
 
@@ -126,7 +122,6 @@ KalmanFilterNode::KalmanFilterNode()
     C,
     T,
     min_depth, max_depth,
-    fx, fy, cx, cy,
     use_ego_motion,
     grid_size
   );
@@ -168,23 +163,16 @@ void KalmanFilterNode::updateSync(
   const sensor_msgs::msg::Image::ConstSharedPtr depth_msg,
   const sensor_msgs::msg::Image::ConstSharedPtr color_msg)
 {
+  if(camera_parameters_set_ == false)
+  {
+    RCLCPP_ERROR(this->get_logger(), "Camera parameters not set yet.");
+    return;
+  }
 
   // Convert each to cv::Mat
   cv::Mat flow_image  = imageMsgToMat(flow_msg);
   cv::Mat depth_image = imageMsgToMat(depth_msg);
   cv::Mat color_image = imageMsgToMat(color_msg);
-
-  cv::Mat translation_;  ///< Current translation vector
-  cv::Mat rotation_;     ///< Current rotation matrix
-
-  //try {
-  //  depth_image = cv_bridge::toCvCopy(depth_msg, "8UC1")->image;
-  //}
-  //catch(const cv_bridge::Exception& e) {
-  //  RCLCPP_ERROR(this->get_logger(), "cv_bridge exception: %s", e.what());
-  //}
-
-  // Perform your KalmanCore logic
 
 
 
@@ -205,10 +193,10 @@ void KalmanFilterNode::updateSync(
 
 
   // Publish
-  //if (result == KalmanCoreErrorCode::OK)
-  //  RCLCPP_INFO(this->get_logger(), "KalmanCore output: OK");
-  //else
-  //  RCLCPP_ERROR(this->get_logger(), "KalmanCore error: %s", getErrorMessage(result).c_str());
+  if (result == KalmanCoreErrorCode::OK)
+    RCLCPP_INFO(this->get_logger(), "KalmanCore output: OK");
+  else
+    RCLCPP_ERROR(this->get_logger(), "KalmanCore error: %s", getErrorMessage(result).c_str());
 
   visualization_msgs::msg::MarkerArray markers =  
     createMarkers(output_6d, output_6d_val, delta_time);
@@ -223,12 +211,20 @@ void KalmanFilterNode::updateSync(
 // Camera info callback
 void KalmanFilterNode::cameraInfoCallback(const sensor_msgs::msg::CameraInfo::ConstSharedPtr msg)
 {
+  if (camera_parameters_set_)
+  { 
+    // Camera parameters already set
+    return;
+  } 
+
   double fx = msg->k[0];
   double fy = msg->k[4];
   double cx = msg->k[2];
   double cy = msg->k[5];
 
   kalman_core_->setCameraParameters(fx, fy, cx, cy);
+
+  camera_parameters_set_ = true;
 }
 
 
@@ -283,13 +279,7 @@ visualization_msgs::msg::MarkerArray KalmanFilterNode::createMarkers(
                     // Extract the state vector safely
                     x = image_6d.at<cv::Vec6f>(i, j);
 
-                    //// Validate the extracted state values (optional range checks)
-                    //if (std::isnan(x[0]) || std::isnan(x[1]) || std::isnan(x[2]) ||
-                    //    std::isnan(x[3]) || std::isnan(x[4]) || std::isnan(x[5])) {
-                    //    RCLCPP_WARN(this->get_logger(), "NaN value detected in state vector at (%d, %d).", i, j);
-                    //    continue;
-                    //}
-
+                  
                     // Create a new arrow marker
                     visualization_msgs::msg::Marker marker;
                     marker.header.frame_id = "camera_frame";

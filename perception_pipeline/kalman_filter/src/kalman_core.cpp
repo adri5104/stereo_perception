@@ -34,7 +34,8 @@ namespace kalman_filter
   grid_size_worldpoints_(10),
   include_ego_motion_(false),
   time_diff_(0.0),
-  sync_input_time_old_(Clock::now())
+  sync_input_time_old_(Clock::now()),
+  camera_parameters_set_(false) 
 {
   // Initialize variances
   // Set covariance matrix of system model
@@ -58,10 +59,9 @@ namespace kalman_filter
 }
 
 KalmanCore::KalmanCore(
-  Mat sigma_system, Mat C, Mat T, double min_depth, double max_depth, double fx, double fy, double cx, double cy, 
+  Mat sigma_system, Mat C, Mat T, double min_depth, double max_depth, 
   bool useVarEgo, int gridSize) : 
-
-  fx_(fx), fy_(fy), cx_(cx), cy_(cy),
+  fx_(421.37701), fy_(421.37701), cx_(424.7990), cy_(231.86268),
   sigma_system_(sigma_system), C_(C), T_(T),
   min_depth_(min_depth), max_depth_(max_depth),
   first_time_(true),
@@ -75,7 +75,8 @@ KalmanCore::KalmanCore(
   grid_size_worldpoints_(gridSize),
   include_ego_motion_(useVarEgo),
   time_diff_(0.0),
-  sync_input_time_old_(Clock::now())
+  sync_input_time_old_(Clock::now()),
+  camera_parameters_set_(false)
 {
   cout << "[KalmanCore] =================================================================" << endl;
   cout << "[KalmanCore] =============== KalmanCore object created =======================" << endl;
@@ -144,6 +145,11 @@ KalmanCoreErrorCode KalmanCore::updateSyncedData(const Mat& optical_flow, const 
 
 KalmanCoreErrorCode KalmanCore::updateSyncedData(const Mat& optical_flow, const Mat& depth, const Mat& color_image)
 { 
+  if (camera_parameters_set_ == false)
+  {
+    return KalmanCoreErrorCode::CAMERA_PARAMETERS_NOT_SET_ERROR;
+  }
+
   if (optical_flow.empty() )
   {
     return KalmanCoreErrorCode::BAD_OPTICAL_FLOW_IMAGE_ERROR;
@@ -172,20 +178,13 @@ KalmanCoreErrorCode KalmanCore::updateSyncedData(const Mat& optical_flow, const 
 
 void KalmanCore::setCameraParameters(double fx, double fy, double cx, double cy)
 {
-  static bool first_time = true;
+
   fx_ = fx;
   fy_ = fy;
   cx_ = cx;
   cy_ = cy;
 
-  if (first_time)
-  {
-    for (auto& wp : worldpoints_)
-    {
-      wp->setCameraParameters(fx, fy, cx, cy);
-    }
-    first_time = false;
-  }
+  camera_parameters_set_ = true;
 }
 
 
@@ -538,6 +537,11 @@ KalmanCoreErrorCode KalmanCore::computeKalmanMatrices()
 
 KalmanCoreErrorCode KalmanCore::getOutput(cv::Mat &output_6d, cv::Mat &output_6d_val , cv::Mat &output_debug_image)
 {
+  if (!camera_parameters_set_)
+  {
+    return KalmanCoreErrorCode::CAMERA_PARAMETERS_NOT_SET_ERROR;
+  }
+
   output_6d = output_6d_;
   output_6d_val = output_6d_val_;
   output_debug_image = output_debug_image_;

@@ -38,6 +38,7 @@ enum class KalmanCoreErrorCode {
     SET_NEW_WP_OPTICAL_FLOW_EMPTY_ERROR,
     SET_NEW_WP_COLOR_IMAGE_EMPTY_ERROR,
     SET_NEW_WP_WRONG_MAT_SIZE_ERROR,
+    CAMERA_PARAMETERS_NOT_SET_ERROR
 };
 
 // Helper function to get error messages
@@ -60,7 +61,9 @@ inline  std::string getErrorMessage(KalmanCoreErrorCode code) {
         {KalmanCoreErrorCode::SET_NEW_WP_COLOR_IMAGE_EMPTY_ERROR,
          "[KalmanCore::setNewWorldPoints] Error: input_color_image_sync_ empty"},
         {KalmanCoreErrorCode::SET_NEW_WP_WRONG_MAT_SIZE_ERROR,
-          "[KalmanCore::setNewWorldPoints] Error:  matrices have different sizes."}
+          "[KalmanCore::setNewWorldPoints] Error:  matrices have different sizes."},
+        {KalmanCoreErrorCode::CAMERA_PARAMETERS_NOT_SET_ERROR,
+          "[KalmanCore::setCameraParameters] Camera parameters not set."}
     };
 
     auto it = errorMessages.find(code);
@@ -95,14 +98,10 @@ public:
    * @param T 
    * @param min_depth 
    * @param max_depth 
-   * @param fx 
-   * @param fy 
-   * @param cx 
-   * @param cy 
    * @param useVarEgo 
    * @param gridSize 
    */
-  KalmanCore(Mat sigma_system, Mat C, Mat T, double min_depth, double max_depth, double fx, double fy, double cx, double cy, bool useVarEgo, int gridSize);
+  KalmanCore(Mat sigma_system, Mat C, Mat T, double min_depth, double max_depth, bool useVarEgo, int gridSize);
 
   /**
    * @brief Default destructor for the KalmanCore class.
@@ -252,6 +251,7 @@ private:
   double fy_;
   double cx_;
   double cy_;
+  bool camera_parameters_set_;
   double min_depth_;
   double max_depth_;
 
