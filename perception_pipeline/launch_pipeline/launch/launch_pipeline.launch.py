@@ -67,6 +67,7 @@ def generate_launch_description():
                 {'optical_flow_topic': '/perception_pipeline/optical_flow'},
                 {'depth_topic': "/device_0/sensor_0/Depth_0/image/data"},
                 {'camera_info_topic': '/perception_pipeline/camera_info_sync'},
+                {'odometry_topic': '/perception_pipeline/odometry'},
                 {'color_image_topic':"/device_0/sensor_1/Color_0/image/data"}, 
                 {'debug_image_topic_':'/debug/debug_image'},
                 {'output_6d_topic' : '/perception_pipeline/output_6d'},

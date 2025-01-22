@@ -38,7 +38,8 @@ namespace kalman_filter
 using SyncPolicy = message_filters::sync_policies::ApproximateTime<
     sensor_msgs::msg::Image,
     sensor_msgs::msg::Image,
-    sensor_msgs::msg::Image
+    sensor_msgs::msg::Image,
+    nav_msgs::msg::Odometry
 >;
 
 /**
@@ -70,7 +71,8 @@ private:
   void updateSync(
     const sensor_msgs::msg::Image::ConstSharedPtr flow_msg,
     const sensor_msgs::msg::Image::ConstSharedPtr depth_msg,
-    const sensor_msgs::msg::Image::ConstSharedPtr color_msg);
+    const sensor_msgs::msg::Image::ConstSharedPtr color_msg,
+    const nav_msgs::msg::Odometry::ConstSharedPtr camera_info_msg);
 
   
   /**
@@ -107,6 +109,7 @@ private:
   message_filters::Subscriber<sensor_msgs::msg::Image> optical_flow_sub_;
   message_filters::Subscriber<sensor_msgs::msg::Image> depth_sub_;
   message_filters::Subscriber<sensor_msgs::msg::Image> color_sub_;
+  message_filters::Subscriber<nav_msgs::msg::Odometry> odometry_sub_;
 
   // Synchronizer pointer
   std::shared_ptr<message_filters::Synchronizer<SyncPolicy>> sync_;
@@ -124,6 +127,7 @@ private:
   std::string optical_flow_topic_;
   std::string depth_topic_;
   std::string camera_info_topic_;
+  std::string odometry_topic_;
   std::string color_image_topic_;
   std::string debug_image_topic_;
   std::string debug_markers_topic_;

@@ -26,6 +26,7 @@ KalmanFilterNode::KalmanFilterNode()
   this->declare_parameter<std::string>("optical_flow_topic", "/optical_flow");
   this->declare_parameter<std::string>("depth_topic", "/device_0/sensor_0/Depth_0/image/data");
   this->declare_parameter<std::string>("camera_info_topic", "/perception_pipeline/camera_info_sync");
+  this->declare_parameter<std::string>("odometry_topic", "/odometry");
   this->declare_parameter<std::string>("color_image_topic", "/device_0/sensor_1/Color_0/image/data");
   this->declare_parameter<std::string>("output_6d_topic", "/output_6d");
   this->declare_parameter<std::string>("debug_image_topic", "/debug/image_6d");
@@ -35,7 +36,7 @@ KalmanFilterNode::KalmanFilterNode()
   this->declare_parameter<int>("grid_size", 10);
   this->declare_parameter<bool>("use_ego_motion", false);
 
-  // Covariance of system model
+  // Covariance of system model 
   this->declare_parameter<double>("sigma2_x_system", 10);
   this->declare_parameter<double>("sigma2_y_system", 10);
   this->declare_parameter<double>("sigma2_z_system", 10);
@@ -61,6 +62,7 @@ KalmanFilterNode::KalmanFilterNode()
   optical_flow_topic_ = this->get_parameter("optical_flow_topic").as_string();
   depth_topic_        = this->get_parameter("depth_topic").as_string();
   camera_info_topic_  = this->get_parameter("camera_info_topic").as_string();
+  odometry_topic_     = this->get_parameter("odometry_topic").as_string();
   color_image_topic_  = this->get_parameter("color_image_topic").as_string();
   output_6d_topic_    = this->get_parameter("output_6d_topic").as_string();
   debug_image_topic_  = this->get_parameter("debug_image_topic").as_string();
@@ -68,6 +70,7 @@ KalmanFilterNode::KalmanFilterNode()
   RCLCPP_INFO(this->get_logger(), "optical_flow_topic: '%s'", optical_flow_topic_.c_str());
   RCLCPP_INFO(this->get_logger(), "depth_topic: '%s'", depth_topic_.c_str());
   RCLCPP_INFO(this->get_logger(), "camera_info_topic: '%s'", camera_info_topic_.c_str());
+  RCLCPP_INFO(this->get_logger(), "odometry_topic: '%s'", odometry_topic_.c_str());
   RCLCPP_INFO(this->get_logger(), "color_image_topic: '%s'", color_image_topic_.c_str());
   RCLCPP_INFO(this->get_logger(), "output_6d_topic: '%s'", output_6d_topic_.c_str());
   RCLCPP_INFO(this->get_logger(), "debug_image_topic: '%s'", debug_image_topic_.c_str());
@@ -88,10 +91,7 @@ KalmanFilterNode::KalmanFilterNode()
   double sigma2_theta_measurement = this->get_parameter("sigma2_theta_measurement").as_double();
   double sigma2_phi_measurement = this->get_parameter("sigma2_phi_measurement").as_double();
   double sigma2_psi_system = this->get_parameter("sigma2_psi_system").as_double();
-  double fx = this->get_parameter("fx").as_double();
-  double fy = this->get_parameter("fy").as_double();
-  double cx = this->get_parameter("cx").as_double();
-  double cy = this->get_parameter("cy").as_double();
+
   double min_depth = this->get_parameter("min_depth").as_double();
   double max_depth = this->get_parameter("max_depth").as_double();
   cv::Mat C = Mat::zeros(6, 6, CV_64FC1);
@@ -132,13 +132,17 @@ KalmanFilterNode::KalmanFilterNode()
   optical_flow_sub_.subscribe(this, optical_flow_topic_, rmw_qos_profile_sensor_data);
   depth_sub_.subscribe(this, depth_topic_, rmw_qos_profile_sensor_data);
   color_sub_.subscribe(this, color_image_topic_, rmw_qos_profile_sensor_data);
+  rclcpp::QoS qos_profile = rclcpp::QoS(rclcpp::SensorDataQoS());
+  odometry_sub_.subscribe(this, odometry_topic_, qos_profile.get_rmw_qos_profile());
+
 
   // Create the synchronizer
   sync_ = std::make_shared<message_filters::Synchronizer<SyncPolicy>>(
             SyncPolicy(100),   // queue size
             optical_flow_sub_,
             depth_sub_,
-            color_sub_);
+            color_sub_,
+            odometry_sub_);
 
   // Register the synchronized callback
   sync_->registerCallback(&KalmanFilterNode::updateSync, this);
@@ -161,7 +165,8 @@ KalmanFilterNode::KalmanFilterNode()
 void KalmanFilterNode::updateSync(
   const sensor_msgs::msg::Image::ConstSharedPtr flow_msg,
   const sensor_msgs::msg::Image::ConstSharedPtr depth_msg,
-  const sensor_msgs::msg::Image::ConstSharedPtr color_msg)
+  const sensor_msgs::msg::Image::ConstSharedPtr color_msg,
+  const nav_msgs::msg::Odometry::ConstSharedPtr odometry_msg)
 {
   if(camera_parameters_set_ == false)
   {
@@ -173,6 +178,8 @@ void KalmanFilterNode::updateSync(
   cv::Mat flow_image  = imageMsgToMat(flow_msg);
   cv::Mat depth_image = imageMsgToMat(depth_msg);
   cv::Mat color_image = imageMsgToMat(color_msg);
+
+ 
 
 
 
