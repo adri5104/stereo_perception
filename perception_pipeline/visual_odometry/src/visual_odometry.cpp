@@ -31,7 +31,7 @@ namespace visual_odometry
         0,                  // firstLevel
         2,                  // WTA_K
         cv::ORB::HARRIS_SCORE, // scoreType
-        25                  // patchSize
+        10                  // patchSize
     );
     matcher_gpu_ = cv::cuda::DescriptorMatcher::createBFMatcher(cv::NORM_HAMMING);
   }
