@@ -134,16 +134,8 @@ WorldPointErrorCode WorldPoint::computeKalmanStep(
     return WorldPointErrorCode::UNABLE_TO_GET_OPT_FLW_MSMT;
   }
 
-  //cout << "[WorldPoint] Old pixel coordinates: " << z_old_.at<double>(0,0) << ", " << z_old_.at<double>(1,0) << endl;
-  //cout << "[WorldPoint] Optical flow: " << pixel_flow[0] << ", " << pixel_flow[1] << endl;
-  //cout << "[WorldPoint] New pixel coordinates: " << z_new.at<double>(0,0) << ", " << z_new.at<double>(1,0) << endl;
-
-  
-
   int new_u = static_cast<int> (floor(z_new.at<double>(0,0)));	// Get pixel coordinates (u)
 	int new_v = static_cast<int> (floor(z_new.at<double>(1,0)));	// Get pixel coordinates (v)
-
-
 
   // Check if new pixel coordinates are within the image
   if (new_u > 0 && new_u < input_depth.cols && new_v > 0 && new_v < input_depth.rows)
@@ -182,6 +174,7 @@ WorldPointErrorCode WorldPoint::computeKalmanStep(
   // Kalman core algorithm
 
   // A. Prediction step
+
   // Compute the priori estimate
   x_new_pred = A_new * x_old_ ;//+ G_new * u_new; 
   //cout << A_new << endl;  		

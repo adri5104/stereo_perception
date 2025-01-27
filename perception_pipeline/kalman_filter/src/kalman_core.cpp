@@ -135,8 +135,7 @@ KalmanCoreErrorCode KalmanCore::updateSyncedData(const Mat& optical_flow, const 
   input_depth_sync_ = depth;
   input_color_image_sync_ = color_image;
 
-  // Time measurement
-  time_diff_ = calculateTimeDifference(sync_input_time_old_);
+  
 
   
   // Do the prediction process
@@ -170,20 +169,16 @@ KalmanCoreErrorCode KalmanCore::updateSyncedData(const Mat& optical_flow, const 
   input_depth_sync_ = depth;
   input_color_image_sync_ = color_image;
 
-  // Time measurement
-  time_diff_ = calculateTimeDifference(sync_input_time_old_);
-  
+  // Do the prediction process
   return predict(input_optical_flow_sync_, input_depth_sync_, input_color_image_sync_);
 }
 
 void KalmanCore::setCameraParameters(double fx, double fy, double cx, double cy)
 {
-
   fx_ = fx;
   fy_ = fy;
   cx_ = cx;
   cy_ = cy;
-
   camera_parameters_set_ = true;
 }
 
@@ -199,15 +194,6 @@ KalmanCoreErrorCode KalmanCore::predict(Mat input_optical_flow, Mat input_depth,
 
   // Debug image
 	Mat output_debug_image = Mat::zeros(input_color_image.rows, input_color_image.cols,  CV_8UC3);
-
-  // Occupancy grid matrix (Matrix that shows how many world points lie in every single part of the grid)
-  //int occ_h = static_cast<int>(std::ceil(static_cast<double>(input_depth.rows) / grid_size_worldpoints_)); // Always round up
-  //int occ_w = static_cast<int>(std::ceil(static_cast<double>(input_depth.cols) / grid_size_worldpoints_));  // Always round up
-  //cout << "occ_h: " << occ_h << "occ_w: " << occ_w << endl;
-	//Mat occupancy_grid = Mat::zeros(occ_h, occ_w, CV_8UC1);
-
-  // Time measurement
-  double time_kalman = (double) cv::getTickCount();
 
   // Initialization
   output_6d = Mat::zeros(input_color_image.rows, input_color_image.cols, CV_MAKETYPE(CV_32F, 6));
@@ -230,6 +216,12 @@ KalmanCoreErrorCode KalmanCore::predict(Mat input_optical_flow, Mat input_depth,
   //          cv::Point(col, input_color_image.rows), 
   //          cv::Scalar(255, 0, 0), 1);
   //}
+
+  // Time measurement
+  // Time measurement
+  time_diff_ = calculateTimeDifference(sync_input_time_old_);
+  std::cout << "Time diff: " << time_diff_ << std::endl;
+  std::cout << "freq: " << 1/time_diff_ << std::endl;
 
   if(first_time_)
   {
@@ -290,21 +282,8 @@ KalmanCoreErrorCode KalmanCore::predict(Mat input_optical_flow, Mat input_depth,
       pos_u = static_cast<int>(std::floor(z.at<double>(0,0)));
       pos_v = static_cast<int>(std::floor(z.at<double>(1,0)));
 
-      
-      
-
-      // Set correspondent validity entry to 1
-      
-  
-      // We paint the pixel in the debug image
-      if (result == WorldPointErrorCode::OK)
-        output_debug_image.at<Vec3b>(pos_v, pos_u) = Vec3b(0, 255, 0);	// GREEN
-      if (result == WorldPointErrorCode::BAD_DEPTH_VALUE_ERROR)
-        	// GREEN
-
       int age = (*it)->getAge();
 
-      
       switch (result)
       {
         case WorldPointErrorCode::OK:
@@ -327,10 +306,11 @@ KalmanCoreErrorCode KalmanCore::predict(Mat input_optical_flow, Mat input_depth,
         break;
         case WorldPointErrorCode::NEW_MEASUREMENT_OUT_OF_BOUNDS_ERROR:
           it = worldpoints_.erase(it);
-        break;
+        break;  
         case WorldPointErrorCode::THREE_SIGMA_TEST_FAILED:
           it = worldpoints_.erase(it);
-        break;
+          cout << "Three sigma test failed" << endl;
+        break;  
       }
     }
 

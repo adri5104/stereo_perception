@@ -27,7 +27,7 @@ enum class WorldPointErrorCode {
     THREE_SIGMA_TEST_FAILED,
     DIVISION_BY_ZERO_ERROR,
     UNABLE_TO_GET_OPT_FLW_MSMT,
-    UNKNOWN_ERROR
+    UNKNOWN_ERROR,
 };
 
 // Helper function to get error messages

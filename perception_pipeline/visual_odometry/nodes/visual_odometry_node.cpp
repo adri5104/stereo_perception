@@ -90,7 +90,7 @@ namespace visual_odometry
     // Retrieve output
     cv::Mat translation, rotation, covariance, debug_image;
     visual_odometry_->getOutput(translation, rotation, covariance, debug_image);
-
+  
     // Publish odometry
     nav_msgs::msg::Odometry odometry_msg;
     odometry_msg.header = color_msg->header;

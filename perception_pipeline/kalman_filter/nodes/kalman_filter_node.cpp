@@ -303,9 +303,9 @@ visualization_msgs::msg::MarkerArray KalmanFilterNode::createMarkers(
 
                     // End point of the arrow
                     geometry_msgs::msg::Point end;
-                    end.x = x[0] +  x[3];
-                    end.y = x[1] +  x[4];
-                    end.z = x[2] +  x[5];
+                    end.x = x[0] +  delta_time * x[3];
+                    end.y = x[1] +  delta_time * x[4];
+                    end.z = x[2] +  delta_time * x[5];
 
                     marker.points.push_back(start);
                     marker.points.push_back(end);
