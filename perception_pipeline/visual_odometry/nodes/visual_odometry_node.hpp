@@ -16,6 +16,12 @@
 #include <sensor_msgs/msg/camera_info.hpp>
 #include <geometry_msgs/msg/twist.hpp>
 #include <nav_msgs/msg/odometry.hpp>
+#include <tf2_ros/transform_broadcaster.h>
+#include <tf2/LinearMath/Quaternion.h>  // Para tf2::Quaternion
+#include <tf2/LinearMath/Matrix3x3.h>   // Opcional, para manejar rotaciones en tf2
+#include <tf2_ros/static_transform_broadcaster.h>
+
+#include <geometry_msgs/msg/transform_stamped.hpp>
 
 #include <cv_bridge/cv_bridge.hpp>
 #include <opencv2/opencv.hpp>
@@ -26,7 +32,7 @@
 
 #include "visual_odometry/visual_odometry.hpp"
 
-namespace perception_pipeline
+namespace perception_pipeline 
 {
 namespace visual_odometry
 { 
@@ -68,7 +74,7 @@ namespace visual_odometry
       void cameraInfoCallback(const sensor_msgs::msg::CameraInfo::ConstSharedPtr msg);
 
       cv::Mat imageMsgToMat(const sensor_msgs::msg::Image::ConstSharedPtr & msg);
-
+      cv::Mat T_world_to_camera_optical_;
       // Subscribers
       message_filters::Subscriber<sensor_msgs::msg::Image> color_sub_; 
       message_filters::Subscriber<sensor_msgs::msg::Image> depth_sub_; 
@@ -80,6 +86,10 @@ namespace visual_odometry
 
       /// Synchronizer
       std::unique_ptr<message_filters::Synchronizer<SyncPolicy>> sync_;
+
+      /// Transform broadcaster
+      std::shared_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
+      std::shared_ptr<tf2_ros::StaticTransformBroadcaster> static_tf_broadcaster_;
       
       /// Visual Odometry object
       std::unique_ptr<VisualOdometry> visual_odometry_; 

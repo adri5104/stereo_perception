@@ -54,19 +54,7 @@ void WorldPoint::initKalmanFilter(const double &u, const double &v, const double
 	Mat tmp2 = x_old_.rowRange(0,3);						
 	tmp.rowRange(0,3).copyTo(tmp2);	
 
-  //  if(depth > 0 && depth < 255)
-  //  {
-  //  valid ++;
-  //  cout << "u: " << u << endl;
-  //  cout << "v: " << v << endl;
-  //  cout << "d: " << depth << endl;
-  //  cout << "x: " << x_old_ << endl;
-  //  cout << "z: " << z_old_ << endl;
-  //  cout << "temp: " << tmp << endl;
-  //  cout << "count: " << count << endl;
-  //  cout << "valid: " << valid << endl;
-  //  }
- 
+  
   // Initialize variances with 10 [m^2 respectively m^2/s^2]
   P_old_ = Mat::eye(6, 6, CV_64FC1) * 10;
 

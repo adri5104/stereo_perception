@@ -16,6 +16,8 @@ find_package(nav_msgs REQUIRED)
 find_package(visualization_msgs REQUIRED)
 find_package(cv_bridge REQUIRED)
 find_package(OpenCV REQUIRED)
+find_package(OpenMP REQUIRED) # Ensure OpenMP is included
+
 # Print the OpenCV version
 message("[KalmanFilter] Found OpenCV version: ${OpenCV_VERSION}")
 
@@ -32,21 +34,24 @@ set(SRC_FILES src/kalman_core.cpp
               src/worldpoint.cpp)
 
 # module libs
-set (MODULE_LIBS  cv_bridge
-                  rclcpp 
-                  message_filters
-                  std_msgs
-                  sensor_msgs
-                  geometry_msgs
-                  nav_msgs
-                  visualization_msgs
-                  OpenCV 
-                  )
+set(MODULE_LIBS  cv_bridge
+                 rclcpp 
+                 message_filters
+                 std_msgs
+                 sensor_msgs
+                 geometry_msgs
+                 nav_msgs
+                 visualization_msgs
+                 OpenCV 
+                 )
 
 # create library
 add_library(${PROJECT_NAME} SHARED ${SRC_FILES})
 target_include_directories(${PROJECT_NAME} PUBLIC ${INCLUDE_DIRS})
 ament_target_dependencies(${PROJECT_NAME} ${MODULE_LIBS})
+
+# Link OpenMP to the library
+target_link_libraries(${PROJECT_NAME} OpenMP::OpenMP_CXX)
 
 # install
 install( 
@@ -70,7 +75,9 @@ install(DIRECTORY
 # add nodes
 add_executable(kalman_filter_node nodes/kalman_filter_node.cpp)
 ament_target_dependencies(kalman_filter_node ${MODULE_LIBS})
-target_link_libraries(kalman_filter_node ${PROJECT_NAME})
+
+# Link OpenMP to the executable
+target_link_libraries(kalman_filter_node ${PROJECT_NAME} OpenMP::OpenMP_CXX)
 
 install(TARGETS kalman_filter_node
         DESTINATION lib/${PROJECT_NAME})

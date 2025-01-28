@@ -149,6 +149,7 @@ class CameraInfoPublisher : public rclcpp::Node
         }
       }
 
+      camera_info_msg.header.frame_id = "camera_optical_frame";
       camera_info_pub_->publish(camera_info_msg);
     }
 

@@ -16,6 +16,8 @@
   <build_depend>sensor_msgs</build_depend>
   <build_depend>geometry_msgs</build_depend>
   <build_depend>nav_msgs</build_depend>
+  <build_depend>tf2</build_depend>
+  <build_depend>ros_tf2</build_depend>
   <build_depend>visualization_msgs</build_depend>
   
   <build_depend>cv_bridge</build_depend>

@@ -5,14 +5,27 @@ namespace perception_pipeline
 {
 namespace visual_odometry
 {
-
-  VisualOdometry::VisualOdometry(double min_depth, double max_depth, bool create_debug_image):
+  VisualOdometry::VisualOdometry(double min_depth, double max_depth, 
+    bool create_debug_image, bool apply_statistical_filtering, 
+    bool apply_expotential_smoothing, double exponential_alpha):
                                   camera_info_arrived_(false),
                                   create_debug_image_(create_debug_image),
                                   min_depth_(min_depth), 
                                   max_depth_(max_depth),
-                                  covariance_(cv::Mat::zeros(6, 6, CV_64F))
-                              
+                                  covariance_(cv::Mat::zeros(6, 6, CV_64F)),
+                                  translation_(cv::Mat::zeros(3, 1, CV_64F)),
+                                  rotation_(cv::Mat::eye(3, 3, CV_64F)),
+                                  translation_prev(cv::Mat::zeros(3, 1, CV_64F)),
+                                  rotation_prev(cv::Mat::eye(3, 3, CV_64F)),
+                                  translation_x_window_(std::deque<double>(window_size_, 0.0)),
+                                  translation_y_window_(std::deque<double>(window_size_, 0.0)),
+                                  translation_z_window_(std::deque<double>(window_size_, 0.0)),
+                                  roll_window_(std::deque<double>(window_size_, 0.0)),
+                                  pitch_window_(std::deque<double>(window_size_, 0.0)),
+                                  yaw_window_(std::deque<double>(window_size_, 0.0)),
+                                  apply_expotential_smoothing_(apply_expotential_smoothing),
+                                  exponential_alpha_(exponential_alpha),
+                                  apply_statistical_filtering_(apply_statistical_filtering)
   {
     // Initialize the camera intrinsic matrix
     camera_matrix_ = (cv::Mat_<double>(3, 3) <<  1.0, 0.0, 1.0,
@@ -24,15 +37,16 @@ namespace visual_odometry
 
     // Initialize CUDA-based feature detector and matcher
     feature_detector_gpu_ = cv::cuda::ORB::create(
-        1500,               // nfeatures
-        1.1f,               // scaleFactor
-        12,                 // nlevels
-        15,                 // edgeThreshold
-        0,                  // firstLevel
-        2,                  // WTA_K
-        cv::ORB::HARRIS_SCORE, // scoreType
-        10                  // patchSize
+      5000,               // Increased number of features
+      1.2f,               // Scale factor
+      8,                  // Number of levels
+      31,                 // Edge threshold
+      0,                  // firstLevel
+      2,                  // WTA_K
+      cv::ORB::HARRIS_SCORE, // scoreType
+      31                 // patchSize
     );
+    
     matcher_gpu_ = cv::cuda::DescriptorMatcher::createBFMatcher(cv::NORM_HAMMING);
   }
 
@@ -150,7 +164,7 @@ void VisualOdometry::detectAndMatchFeatures(const cv::cuda::GpuMat& prev_image, 
     {
         prev_points.emplace_back(keypoints_prev_host[match.queryIdx].pt);
         curr_points.emplace_back(keypoints_curr_host[match.trainIdx].pt);
-    }
+    }  
 }
 
 void VisualOdometry::estimateMotion(const std::vector<cv::Point2f>& prev_points, const std::vector<cv::Point2f>& curr_points, 
@@ -173,54 +187,61 @@ void VisualOdometry::estimateMotion(const std::vector<cv::Point2f>& prev_points,
 
         if (depth > min_depth_ && depth < max_depth_)
         {
-            // Valid depth: reproject to 3D
-            points3D.push_back(reprojectTo3D(point, depth));
-            valid_curr_points.push_back(curr_points[i]);
+          // Valid depth: reproject to 3D
+          points3D.push_back(reprojectTo3D(point, depth));
+          valid_curr_points.push_back(curr_points[i]);
 
-            // Draw valid keypoints in green
-            if (create_debug_image_)
-            {
-                cv::circle(debug_image_, curr_points[i], 3, cv::Scalar(0, 255, 0), -1);
-            }
+          // Draw valid keypoints in green
+          if (create_debug_image_)
+          {
+            cv::circle(debug_image_, curr_points[i], 2, cv::Scalar(0, 255, 0), -1);
+          }
         }
         else
         {
-            // Draw invalid keypoints in red
-            if (create_debug_image_)
-            {
-                cv::circle(debug_image_, curr_points[i], 3, cv::Scalar(0, 0, 255), -1);
-            }
+          // Draw invalid keypoints in red
+          if (create_debug_image_)
+          {
+            cv::circle(debug_image_, curr_points[i], 2, cv::Scalar(0, 0, 255), -1);
+          }
         }
     }
 
     // Early exit if not enough points
     if (points3D.size() < 6)
     {
-        std::cerr << "Not enough valid points for motion estimation." << std::endl;
-        return;
+      std::cerr << "[VisualOdometry.cpp] Not enough valid points for motion estimation." << std::endl;
+      return;
     }
 
     // Estimate motion using solvePnPRansac
     cv::Mat rvec, tvec, inliers;
-    cv::solvePnPRansac(points3D, valid_curr_points, camera_matrix_, cv::noArray(), rvec, tvec, false, 100, 8.0, 0.99, inliers);
+    cv::solvePnPRansac(
+      points3D, // 3D points
+      valid_curr_points, // 2D points
+      camera_matrix_, 
+      cv::noArray(), 
+      rvec, // Output rotation vector
+      tvec, // Output translation vector
+      false, // Use extrinsic guess
+      500, // Max iterations
+      5.0, // Reprojection error threshold
+      0.99, // Confidence
+      inliers);
 
     // **Covariance Estimation**
     cv::Mat residuals(inliers.rows, 1, CV_64F);
     for (int i = 0; i < inliers.rows; ++i)
     {
-        int idx = inliers.at<int>(i, 0);
-        std::vector<cv::Point3f> single_point{points3D[idx]};
-        std::vector<cv::Point2f> projected_points;
-        
-        cv::projectPoints(single_point, rvec, tvec, camera_matrix_, cv::noArray(), projected_points);
-        cv::Point2f projected_point = projected_points[0];
-
-        residuals.at<double>(i) = cv::norm(projected_point - valid_curr_points[idx]);
+      int idx = inliers.at<int>(i, 0);
+      std::vector<cv::Point3f> single_point{points3D[idx]};
+      std::vector<cv::Point2f> projected_points;
+      cv::projectPoints(single_point, rvec, tvec, camera_matrix_, cv::noArray(), projected_points);
+      cv::Point2f projected_point = projected_points[0];
+      residuals.at<double>(i) = cv::norm(projected_point - valid_curr_points[idx]);
     }
-
     double var_translation = cv::mean(residuals)[0];
     double var_rotation = var_translation / 10.0; // Heuristic: rotation uncertainty smaller than translation
-
     cv::Mat cov = cv::Mat::zeros(6, 6, CV_64F);
     cov.at<double>(0, 0) = var_translation; // tx
     cov.at<double>(1, 1) = var_translation; // ty
@@ -228,29 +249,147 @@ void VisualOdometry::estimateMotion(const std::vector<cv::Point2f>& prev_points,
     cov.at<double>(3, 3) = var_rotation;    // roll
     cov.at<double>(4, 4) = var_rotation;    // pitch
     cov.at<double>(5, 5) = var_rotation;    // yaw
-
     covariance_ = cov.clone();
     
 
-    // get rotation matrix
-    cv::Mat R;
-    cv::Rodrigues(rvec, R);
+   
+    if(apply_statistical_filtering_)
+    {
+      // Compute linear and angular velocities
+      double linear_velocity = cv::norm(tvec);
+      double angular_velocity = cv::norm(rvec);
 
-    // Transform rotation matrix to Euler angles
-    double roll = atan2(R.at<double>(2, 1), R.at<double>(2, 2));
-    double pitch = asin(-R.at<double>(2, 0));
-    double yaw = atan2(R.at<double>(1, 0), R.at<double>(0, 0));
+      // Apply statistical filtering
+      // Decompose translation vector
+      double tx = tvec.at<double>(0);
+      double ty = tvec.at<double>(1);
+      double tz = tvec.at<double>(2);
 
-    // Update rotation vector
-    rotation_.at<double>(0) = roll;
-    rotation_.at<double>(1) = pitch;
-    rotation_.at<double>(2) = yaw;
+      // Decompose rotation vector
+      double rx = rvec.at<double>(0);
+      double ry = rvec.at<double>(1);
+      double rz = rvec.at<double>(2);
 
-    // Update translation vector
-    translation_ = tvec.clone();
+      // Filter each component
+      tx = filterOutlier(tx, translation_x_window_, max_translation_threshold_);
+      ty = filterOutlier(ty, translation_y_window_, max_translation_threshold_);
+      tz = filterOutlier(tz, translation_z_window_, max_translation_threshold_);
 
-    std::cout << "Motion estimated: " << inliers.rows << " inliers used." << std::endl;
+      rx = filterOutlier(rx, roll_window_, max_rotation_threshold_);
+      ry = filterOutlier(ry, pitch_window_, max_rotation_threshold_);
+      rz = filterOutlier(rz, yaw_window_, max_rotation_threshold_);
+
+      // Reconstruct the filtered translation vector
+      tvec.at<double>(0) = applyMovingAverage(translation_x_window_, tx);
+      tvec.at<double>(1) = applyMovingAverage(translation_y_window_, ty);
+      tvec.at<double>(2) = applyMovingAverage(translation_z_window_, tz);
+
+      // Reconstruct the filtered rotation vector
+      rvec.at<double>(0) = applyMovingAverage(roll_window_, rx);
+      rvec.at<double>(1) = applyMovingAverage(pitch_window_, ry);
+      rvec.at<double>(2) = applyMovingAverage(yaw_window_, rz);
+
+      
+    }
+    
+    cv::Rodrigues(rvec, rotation_);   // Convert rotation vector to matrix
+    translation_ = tvec.clone();      // Update translation vector
+
+    if(apply_expotential_smoothing_)
+    {
+      // Smooth the translation and rotation with exponential smoothing
+      translation_ = exponential_alpha_ * translation_ + (1 - exponential_alpha_) * translation_prev;
+      rotation_ = exponential_alpha_ * rotation_ + (1 - exponential_alpha_) * rotation_prev;
+    }
+   
+
+    // Update previous translation and rotation
+    translation_prev = translation_.clone();
+    rotation_prev = rotation_.clone();
+  
 }
+
+void VisualOdometry::computeStatistics(const std::deque<double>& data, double& mean, double& stddev)
+{
+  if (data.empty())
+  {
+      mean = 0.0;
+      stddev = 0.0;
+      return;
+  }
+
+  // Compute mean
+  mean = std::accumulate(data.begin(), data.end(), 0.0) / data.size();
+
+  // Compute variance and standard deviation
+  double variance = 0.0;
+  for (const auto& value : data)
+  {
+      variance += (value - mean) * (value - mean);
+  }
+  variance /= data.size();
+  stddev = std::sqrt(variance);
+}
+
+// Filter outliers based on statistical criteria and maximum thresholds
+
+double VisualOdometry::filterOutlier(double new_value, std::deque<double>& window, double max_threshold)
+{
+  // Initialize the window if empty
+  if (window.empty())
+  {
+      window.push_back(new_value);
+      return new_value; // Return the first value
+  }
+
+  // Compute mean and standard deviation
+  double mean, stddev;
+  computeStatistics(window, mean, stddev);
+
+  if (stddev == 0.0)
+    {
+        std::cerr << "Standard deviation is zero. Accepting new value: " << new_value << std::endl;
+
+        // Add the new value to the window
+        window.push_back(new_value);
+        if (window.size() > window_size_)
+        {
+            window.pop_front(); // Maintain the sliding window size
+        }
+
+        return new_value; // Return the new value as valid
+    }
+
+  // Debugging: Print the statistics
+  std::cerr << "Mean: " << mean << ", Stddev: " << stddev << ", New value: " << new_value << std::endl;
+
+  // Detect and handle huge spikes
+  if (std::abs(new_value) > max_threshold)
+  {
+      std::cerr << "Huge spike detected: " << new_value << " (exceeds max threshold: " << max_threshold << ")" << std::endl;
+      return mean; // Replace with the mean
+  }
+
+  // Detect and handle statistical outliers
+  if (std::abs(new_value - mean) > outlier_threshold_factor_ * stddev)
+  {
+      std::cerr << "Statistical outlier detected: " << new_value 
+                << " (mean: " << mean << ", stddev: " << stddev << ")" << std::endl;
+      return mean; // Replace with the mean
+  }
+
+  // Add the new value to the window
+  window.push_back(new_value);
+
+  // Remove the oldest value if the window exceeds the maximum size
+  if (window.size() > window_size_)
+  {
+      window.pop_front();
+  }
+
+  return new_value; // Return the filtered value
+}
+
 
 
   cv::Point3f VisualOdometry::reprojectTo3D(const cv::Point2f& point, float depth) const
@@ -284,6 +423,17 @@ void VisualOdometry::estimateMotion(const std::vector<cv::Point2f>& prev_points,
     max_depth_ = max_depth;
   }
 
+  double VisualOdometry::applyMovingAverage(std::deque<double>& window, double new_value)
+{
+    window.push_back(new_value);
+
+    if (window.size() > window_size_)
+    {
+        window.pop_front();
+    }
+
+    return std::accumulate(window.begin(), window.end(), 0.0) / window.size();
+}
 
 
 } // Namespace visual_odometry

@@ -220,8 +220,7 @@ KalmanCoreErrorCode KalmanCore::predict(Mat input_optical_flow, Mat input_depth,
   // Time measurement
   // Time measurement
   time_diff_ = calculateTimeDifference(sync_input_time_old_);
-  std::cout << "Time diff: " << time_diff_ << std::endl;
-  std::cout << "freq: " << 1/time_diff_ << std::endl;
+  
 
   if(first_time_)
   {
@@ -252,67 +251,62 @@ KalmanCoreErrorCode KalmanCore::predict(Mat input_optical_flow, Mat input_depth,
     // Iterate over all worldpoints
     WorldPointErrorCode result;
     int i = 0;
-    for(auto it = worldpoints_.begin(); it != worldpoints_.end();)
-    {
-      i++;
-      
-      // Read old measurement value
-      (*it)->getZ(z);
-      pos_u_old = static_cast<int>(std::floor(z.at<double>(0,0)));
-      pos_v_old = static_cast<int>(std::floor(z.at<double>(1,0)));
+    
+    // Shared container for indices to remove
+std::vector<size_t> to_remove;
 
-      // Predict the state
-      result = (*it)->computeKalmanStep(input_depth, 
-                                     input_optical_flow, 
-                                     A_new_, 
-                                     D_new_, 
-                                     Q_new_w_, 
-                                     G_new_, 
-                                     u_new_, 
-                                     para_rot_, 
-                                     term1, 
-                                     term2, 
-                                     term3, 
-                                     term4, 
-                                     occupancy_grid, 
-                                     delta_time);
-      
-      // Read current pixel position
-			(*it)->getZ(z);
-      pos_u = static_cast<int>(std::floor(z.at<double>(0,0)));
-      pos_v = static_cast<int>(std::floor(z.at<double>(1,0)));
+#pragma omp parallel
+{
+    std::vector<size_t> local_to_remove; // Thread-local storage for indices to remove
 
-      int age = (*it)->getAge();
+    #pragma omp for
+    for (size_t i = 0; i < worldpoints_.size(); i++) {
+        auto& wp = worldpoints_[i];
+        Mat z = Mat::zeros(3, 1, CV_64FC1);
+        Mat x = Mat::zeros(6, 1, CV_64FC1);
 
-      switch (result)
-      {
-        case WorldPointErrorCode::OK:
-          if(output_6d_val.at<uchar>(pos_v, pos_u) == 0)
-          {
-              (*it)->getX(x);
-              output_6d.at<Vec6f>(pos_v, pos_u) = x;
-              output_6d_val.at<uchar>(pos_v, pos_u) = 1;
-              output_debug_image.at<Vec3b>(pos_v, pos_u) = Vec3b(0, 255, 0);
-              it++;
-          }
-          else
-          {
-            it = worldpoints_.erase(it);
-          }
-        break;
-        case WorldPointErrorCode::BAD_DEPTH_VALUE_ERROR:
-          (*it)->getX(x);
-            it = worldpoints_.erase(it);
-        break;
-        case WorldPointErrorCode::NEW_MEASUREMENT_OUT_OF_BOUNDS_ERROR:
-          it = worldpoints_.erase(it);
-        break;  
-        case WorldPointErrorCode::THREE_SIGMA_TEST_FAILED:
-          it = worldpoints_.erase(it);
-          cout << "Three sigma test failed" << endl;
-        break;  
-      }
+        wp->getZ(z);
+        int pos_u = static_cast<int>(std::floor(z.at<double>(0, 0)));
+        int pos_v = static_cast<int>(std::floor(z.at<double>(1, 0)));
+
+        WorldPointErrorCode result = wp->computeKalmanStep(
+            input_depth, input_optical_flow, A_new_, D_new_, Q_new_w_, G_new_, u_new_,
+            para_rot_, term1, term2, term3, term4, occupancy_grid, delta_time);
+
+        switch (result) {
+            case WorldPointErrorCode::OK:
+                if (output_6d_val.at<uchar>(pos_v, pos_u) == 0) {
+                    wp->getX(x);
+                    output_6d.at<Vec6f>(pos_v, pos_u) = x;
+                    output_6d_val.at<uchar>(pos_v, pos_u) = 1;
+                    output_debug_image.at<Vec3b>(pos_v, pos_u) = Vec3b(0, 255, 0);
+                } else {
+                    local_to_remove.push_back(i); // Mark for removal
+                }
+                break;
+            case WorldPointErrorCode::BAD_DEPTH_VALUE_ERROR:
+            case WorldPointErrorCode::NEW_MEASUREMENT_OUT_OF_BOUNDS_ERROR:
+            case WorldPointErrorCode::THREE_SIGMA_TEST_FAILED:
+                local_to_remove.push_back(i); // Mark for removal
+                break;
+        }
     }
+
+    // Combine all thread-local removal lists into a global one
+    #pragma omp critical
+    {
+        to_remove.insert(to_remove.end(), local_to_remove.begin(), local_to_remove.end());
+    }
+}
+
+// Sort and remove duplicates in the removal list
+std::sort(to_remove.begin(), to_remove.end());
+to_remove.erase(std::unique(to_remove.begin(), to_remove.end()), to_remove.end());
+
+// Remove elements in reverse order to avoid invalidating indices
+for (auto it = to_remove.rbegin(); it != to_remove.rend(); ++it) {
+    worldpoints_.erase(worldpoints_.begin() + *it);
+}
 
     // Refill gaps with new WorldPoints
     // We iterate over the depth image and create a new WorldPoint for each valid depth value
