@@ -348,7 +348,7 @@ double VisualOdometry::filterOutlier(double new_value, std::deque<double>& windo
 
   if (stddev == 0.0)
     {
-        std::cerr << "Standard deviation is zero. Accepting new value: " << new_value << std::endl;
+        //std::cerr << "Standard deviation is zero. Accepting new value: " << new_value << std::endl;
 
         // Add the new value to the window
         window.push_back(new_value);
@@ -360,21 +360,20 @@ double VisualOdometry::filterOutlier(double new_value, std::deque<double>& windo
         return new_value; // Return the new value as valid
     }
 
-  // Debugging: Print the statistics
-  std::cerr << "Mean: " << mean << ", Stddev: " << stddev << ", New value: " << new_value << std::endl;
+
 
   // Detect and handle huge spikes
   if (std::abs(new_value) > max_threshold)
   {
-      std::cerr << "Huge spike detected: " << new_value << " (exceeds max threshold: " << max_threshold << ")" << std::endl;
+      //std::cerr << "Huge spike detected: " << new_value << " (exceeds max threshold: " << max_threshold << ")" << std::endl;
       return mean; // Replace with the mean
   }
 
   // Detect and handle statistical outliers
   if (std::abs(new_value - mean) > outlier_threshold_factor_ * stddev)
   {
-      std::cerr << "Statistical outlier detected: " << new_value 
-                << " (mean: " << mean << ", stddev: " << stddev << ")" << std::endl;
+      //std::cerr << "Statistical outlier detected: " << new_value 
+      //          << " (mean: " << mean << ", stddev: " << stddev << ")" << std::endl;
       return mean; // Replace with the mean
   }
 

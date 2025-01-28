@@ -15,7 +15,7 @@ namespace perception_pipeline {
 namespace kalman_filter {
 
 WorldPoint::WorldPoint(Mat &C, Mat &T, double min_depth, double max_depth, double fx, double fy, double cx, double cy,  bool &useVarEgo, int gridSize)
-:  C_(C), 
+: C_(C), 
   T_(T), 
   min_depth_(min_depth),
   max_depth_(max_depth),
@@ -36,10 +36,6 @@ WorldPoint::~WorldPoint(void)
 
 void WorldPoint::initKalmanFilter(const double &u, const double &v, const double &depth,Mat &occupancyGrid)
 {
-  static int count = 1;
-  static int valid = 1;
-  count++;
-
   // Initialize measurement vector
   z_old_ = Mat::zeros(3, 1, CV_64FC1);
   z_old_.at<double>(0,0) = u;
@@ -48,7 +44,7 @@ void WorldPoint::initKalmanFilter(const double &u, const double &v, const double
 
 
   // Initialize statevector
-	x_old_ = Mat::zeros(6, 1, CV_64FC1);					// Initialize with zeros first
+	x_old_ = Mat::zeros(6, 1, CV_64FC1);				
 	Mat tmp = Mat::zeros(4, 1, CV_64FC1);
 	projectPixelToWorld(u, v, depth, tmp);							
 	Mat tmp2 = x_old_.rowRange(0,3);						
@@ -87,7 +83,7 @@ WorldPointErrorCode WorldPoint::computeKalmanStep(
   Mat z_new_pred = Mat::zeros(3, 1, CV_64FC1);
   Mat z_new = Mat::zeros(3, 1, CV_64FC1);
 
-  Mat s_new = Mat::zeros(3, 3, CV_64FC1); // Innovation vector
+  Mat s_new = Mat::zeros(3, 1, CV_64FC1); // 3x1 innovation vector
   Mat Q_new = Mat::zeros(6, 6, CV_64FC1); // Process noise covariance matrix
   Mat P_new_pred = Mat::zeros(6, 6, CV_64FC1); // Priori estimate covariance matrix
   Mat P_new = Mat::zeros(6, 6, CV_64FC1); // Posterior estimate covariance matrix
@@ -101,7 +97,6 @@ WorldPointErrorCode WorldPoint::computeKalmanStep(
   age_++;
 
   // Get new measurement
-
   const Vec2f& pixel_flow = 
     input_flow.at<Vec2f>(
       static_cast<int>(floor(z_old_.at<double>(1,0))), 
@@ -165,7 +160,7 @@ WorldPointErrorCode WorldPoint::computeKalmanStep(
 
   // Compute the priori estimate
   x_new_pred = A_new * x_old_ ;//+ G_new * u_new; 
-  //cout << A_new << endl;  		
+ 		
   
 
   // Compute the priori estimate covariance matrix
@@ -176,7 +171,8 @@ WorldPointErrorCode WorldPoint::computeKalmanStep(
   double x_pred = x_new_pred.at<double>(0,0);	
 	double y_pred = x_new_pred.at<double>(1,0);	
 	double z_pred = x_new_pred.at<double>(2,0);
-
+  
+  
 
   if(z_pred == 0 || std::isnan(z_pred)) z_pred = 0.00001;
 
@@ -200,8 +196,10 @@ WorldPointErrorCode WorldPoint::computeKalmanStep(
   // Perform 3 sigma test
   Mat tmp = s_new.t() * S_new_inv * s_new;
 	double epsilonSquared = tmp.at<double>(0,0);
-	if (sqrt(epsilonSquared) > 3.0) 
+	if (sqrt(epsilonSquared) > 4.0) 
   { 
+    //cout << "3 sigma test failed" << endl;
+    //cout << "age: " << age_ << endl;
     return WorldPointErrorCode::THREE_SIGMA_TEST_FAILED; 
   }
 
@@ -216,6 +214,8 @@ WorldPointErrorCode WorldPoint::computeKalmanStep(
   x_old_ = x_new;
   P_old_ = P_new;
   z_old_ = z_new;
+
+
 
   return WorldPointErrorCode::OK;
 }

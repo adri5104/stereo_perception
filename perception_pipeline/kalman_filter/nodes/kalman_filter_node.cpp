@@ -270,7 +270,7 @@ visualization_msgs::msg::MarkerArray KalmanFilterNode::createMarkers(
         int total = 0;
         int valid_ = 0;
 
-
+  
 
 // Iterate over all valid points in parallel
 #pragma omp parallel for collapse(2)
