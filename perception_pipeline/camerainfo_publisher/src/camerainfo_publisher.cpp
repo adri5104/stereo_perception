@@ -9,6 +9,8 @@
 #include <sensor_msgs/msg/image.hpp>
 #include <sensor_msgs/msg/camera_info.hpp>
 #include <opencv2/opencv.hpp>
+#include <mutex>
+
 
 #include <cv_bridge/cv_bridge.hpp>
 
@@ -80,12 +82,14 @@ class CameraInfoPublisher : public rclcpp::Node
 
     void colorCallback(const sensor_msgs::msg::Image::SharedPtr msg)
     {
+      std::lock_guard<std::mutex> lock(color_image_mutex_);
       color_image_ = *msg;
       color_image_received_ = true;
     }
 
     void infoCallback(const sensor_msgs::msg::CameraInfo::SharedPtr msg)
     {
+      std::lock_guard<std::mutex> lock(camera_info_mutex_);
       camera_info_ = *msg;
       camera_info_received_ = true;
     }
@@ -97,66 +101,54 @@ class CameraInfoPublisher : public rclcpp::Node
       {
         camera_info_msg = camera_info_;
         camera_info_msg.header = msg->header;
+        camera_info_msg.header.frame_id = "camera_optical_frame";
+        camera_info_msg.width = 848;
+        camera_info_msg.height = 480;
       }
-      // Default camera info values
       else
       {
-        camera_info_msg.k = {
-          421.37701416015625, 0.0, 424.79901123046875,
-          0.0, 421.37701416015625, 231.86268615722656,
-          0.0, 0.0, 1.0};
-        
-        // Distortion coefficients (D) using the Plumb Bob model
-        double brown_d[5] = {-0.051035, 0.056578, -0.000681636, -0.000924746,-0.016071};
-          k_1_ = brown_d[0];
-          k_2_ = brown_d[1];
-          p_1_ = brown_d[2];
-          p_2_ = brown_d[3];
-          k_3_ = brown_d[4];
-
-        // Plumb Bob uses k1, k2, k3, p1, p2
-        plumb_bob_d_ = {k_1_, k_2_, k_3_, p_1_, p_2_};
-        camera_info_msg.distortion_model = "plumb_bob";
-        camera_info_msg.d = plumb_bob_d_;
-
-        // Rectification matrix (R)
-        camera_info_msg.r = {
-            0.0, 0.0, 0.0,
-            0.0, 0.0, 0.0,
-            0.0, 0.0, 0.0};
-        
-
-            // Projection matrix (P)
-        camera_info_msg.p = {
-          421.37701416015625, 0.0, 424.79901123046875, 0.0,
-          0.0, 421.37701416015625, 231.86268615722656, 0.0,
-          0.0, 0.0, 1.0, 0.0};
-
-        camera_info_msg.header = msg->header;
+        RCLCPP_ERROR(this->get_logger(), "Camera info not received yet.");
+        return;
       }
+    
       
-      if (publish_depth_)
-        depth_image_pub_->publish(*msg);
+      
+      
+    
+    
+    if (publish_depth_)
+    { 
+      msg->header.frame_id = "camera_optical_frame";
 
-      if (publish_image_)
+      // Change encoding from mono16 to 32FC1
+      cv_bridge::CvImagePtr cv_ptr;
+      cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::TYPE_32FC1);
+      cv_ptr->image.convertTo(cv_ptr->image, CV_32FC1, 0.001);
+      msg->encoding = sensor_msgs::image_encodings::TYPE_32FC1;
+
+
+      depth_image_pub_->publish(*msg);
+    }
+    
+
+    if (publish_image_)
+    {
+      if (color_image_received_)
       {
-        if (color_image_received_)
-        {
-          sensor_msgs::msg::Image rgb_image_;
-          rgb_image_ = color_image_;
-          rgb_image_.header = msg->header;
-          color_image_pub_->publish(color_image_);
-        }
+        sensor_msgs::msg::Image rgb_image_;
+        rgb_image_ = color_image_;
+        rgb_image_.header = msg->header;
+        rgb_image_.header.frame_id = "camera_optical_frame";
+        color_image_pub_->publish(rgb_image_);
       }
-
-      camera_info_msg.header.frame_id = "camera_optical_frame";
-      camera_info_pub_->publish(camera_info_msg);
     }
 
+    
+    camera_info_pub_->publish(camera_info_msg);
+    
+    }
 
-    double k_1_, k_2_, k_3_, p_1_, p_2_;
-    std::vector<double> plumb_bob_d_;
-
+    
     // Publishers
     rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr color_image_pub_;
     rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr depth_image_pub_;
@@ -174,6 +166,8 @@ class CameraInfoPublisher : public rclcpp::Node
     std::string color_image_sub_topic_;
     std::string depth_image_sub_topic_;
     std::string camera_info_sub_topic_;
+    std::mutex camera_info_mutex_;
+    std::mutex color_image_mutex_;
 
     sensor_msgs::msg::CameraInfo camera_info_;
     sensor_msgs::msg::Image color_image_;
