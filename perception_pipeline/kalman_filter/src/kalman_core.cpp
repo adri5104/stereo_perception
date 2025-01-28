@@ -139,7 +139,7 @@ KalmanCoreErrorCode KalmanCore::updateSyncedData(const Mat& optical_flow, const 
   input_color_image_sync_ = color_image;
 
   // Do the prediction process
-  return predict(input_optical_flow_sync_, input_depth_sync_, input_color_image_sync_);
+  return predict(input_optical_flow_sync_, input_depth_sync_, input_color_image_sync_, input_egomotion_sync_);
 }
 
 KalmanCoreErrorCode KalmanCore::updateSyncedData(const Mat& optical_flow, const Mat& depth, const Mat& color_image)
@@ -170,7 +170,7 @@ KalmanCoreErrorCode KalmanCore::updateSyncedData(const Mat& optical_flow, const 
   input_color_image_sync_ = color_image;
 
   // Do the prediction process
-  return predict(input_optical_flow_sync_, input_depth_sync_, input_color_image_sync_);
+  return predict(input_optical_flow_sync_, input_depth_sync_, input_color_image_sync_, Mat());
 }
 
 void KalmanCore::setCameraParameters(double fx, double fy, double cx, double cy)
@@ -183,7 +183,7 @@ void KalmanCore::setCameraParameters(double fx, double fy, double cx, double cy)
 }
 
 
-KalmanCoreErrorCode KalmanCore::predict(Mat input_optical_flow, Mat input_depth, Mat input_color_image)
+KalmanCoreErrorCode KalmanCore::predict(Mat input_optical_flow, Mat input_depth, Mat input_color_image, Mat input_egomotion)
 { 
   // Create output matrices
   // 6D output matrix (x, y, z, vx, vy, vz)
@@ -288,16 +288,19 @@ KalmanCoreErrorCode KalmanCore::predict(Mat input_optical_flow, Mat input_depth,
           else
           {
             it = worldpoints_.erase(it);
-            cout << "WorldPoint at position [" << pos_u << ", " << pos_v << "] already exists. Deleting it." << endl;
           }
         break;
         case WorldPointErrorCode::BAD_DEPTH_VALUE_ERROR:
+            // We paint the point yellow
+            output_debug_image.at<Vec3b>(pos_v, pos_u) = Vec3b(0, 255, 255);
             it = worldpoints_.erase(it);
         break;
         case WorldPointErrorCode::NEW_MEASUREMENT_OUT_OF_BOUNDS_ERROR:
           it = worldpoints_.erase(it);
         break;
         case WorldPointErrorCode::THREE_SIGMA_TEST_FAILED:
+          // We paint the point red
+          output_debug_image.at<Vec3b>(pos_v, pos_u) = Vec3b(0, 0, 255);
           it = worldpoints_.erase(it);
         break;
       }
@@ -321,29 +324,25 @@ KalmanCoreErrorCode KalmanCore::predict(Mat input_optical_flow, Mat input_depth,
 
           // Get depth 
           double depth = static_cast<double>(input_depth_sync_.at<u_int16_t>(new_v, new_u));
-          depth = depth / 1000; 
+          depth = depth / 1000;  // Convert to meters
           
-          if (depth < 16 && depth > 1)
+          if (depth < max_depth_ && depth > min_depth_)
           {
-            
-
             //Create a new WorldPoint
-          worldpoints_.emplace_back(std::make_unique<WorldPoint>(
-              C_, T_,
-              min_depth_, max_depth_, 
-              fx_, fy_, cx_, cy_, 
-              include_ego_motion_, 
-              grid_size_worldpoints_));
+            worldpoints_.emplace_back(std::make_unique<WorldPoint>(
+                C_, T_,
+                min_depth_, max_depth_, 
+                fx_, fy_, cx_, cy_, 
+                include_ego_motion_, 
+                grid_size_worldpoints_));
 
-          worldpoints_.back()->initKalmanFilter(
-              static_cast<double>(new_u),
-              static_cast<double>(new_v),
-              depth,
-              occupancy_grid);
+            worldpoints_.back()->initKalmanFilter(
+                static_cast<double>(new_u),
+                static_cast<double>(new_v),
+                depth,
+                occupancy_grid);
 
-          worldpoints_.back()->getX(x);
-      
-
+            worldpoints_.back()->getX(x);
           // Update the output matrices
           output_debug_image.at<cv::Vec3b>(new_v, new_u) = cv::Vec3b(0, 255, 0);
           output_6d_val.at<uchar>(new_v, new_u) = 1;

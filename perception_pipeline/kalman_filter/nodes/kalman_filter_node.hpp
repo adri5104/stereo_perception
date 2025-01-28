@@ -18,6 +18,11 @@
 #include <visualization_msgs/msg/marker_array.hpp>
 #include <nav_msgs/msg/odometry.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
+#include <tf2_ros/transform_broadcaster.h>
+#include <tf2/LinearMath/Quaternion.h>  // Para tf2::Quaternion
+#include <tf2/LinearMath/Matrix3x3.h>   // Opcional, para manejar rotaciones en tf2
+#include <tf2_ros/static_transform_broadcaster.h>
+
 
 #include <cv_bridge/cv_bridge.hpp>
 #include <opencv2/opencv.hpp>

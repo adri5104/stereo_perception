@@ -12,6 +12,7 @@
 #include "kalman_filter_node.hpp"
 #include <cv_bridge/cv_bridge.hpp>
 
+
 namespace perception_pipeline
 {
 namespace kalman_filter
@@ -179,11 +180,56 @@ void KalmanFilterNode::updateSync(
   cv::Mat depth_image = imageMsgToMat(depth_msg);
   cv::Mat color_image = imageMsgToMat(color_msg);
 
- 
+  // Get the odometry matrix from odometrry message
+  cv::Mat odometry_matrix = cv::Mat::zeros(4, 4, CV_64FC1); 
+
+  // Get rotation matrix from euler angles
+  cv::Mat rotation_matrix = cv::Mat::zeros(3, 3, CV_64FC1);
+  cv::Mat translation_matrix = cv::Mat::zeros(3, 1, CV_64FC1);
+
+  // Get the rotation matrix from the euler (x,y,z) angles
+  tf2::Quaternion q(
+    odometry_msg->pose.pose.orientation.x,
+    odometry_msg->pose.pose.orientation.y,
+    odometry_msg->pose.pose.orientation.z,
+    odometry_msg->pose.pose.orientation.w
+  );
+  tf2::Matrix3x3 m(q);
+
+  for(int i = 0; i < 3; i++)
+  {
+    for(int j = 0; j < 3; j++)
+    {
+      rotation_matrix.at<double>(i, j) = m[i][j];
+    }
+  }
+
+  // Get the translation vector from the twist
+  translation_matrix.at<double>(0, 0) = odometry_msg->twist.twist.linear.x;
+  translation_matrix.at<double>(1, 0) = odometry_msg->twist.twist.linear.y;
+  translation_matrix.at<double>(2, 0) = odometry_msg->twist.twist.linear.z;
+
+  // Create the odometry matrix
+  for(int i = 0; i < 3; i++)
+  {
+    for(int j = 0; j < 3; j++)
+    {
+      odometry_matrix.at<double>(i, j) = rotation_matrix.at<double>(i, j);
+    }
+  }
+  for(int i = 0; i < 3; i++)
+  {
+    odometry_matrix.at<double>(i, 3) = translation_matrix.at<double>(i, 0);
+  }
+  odometry_matrix.at<double>(3, 3) = 1;
+
+  cout << "Odometry matrix: " << odometry_matrix << endl;
 
 
 
-  KalmanCoreErrorCode result = kalman_core_->updateSyncedData(flow_image, depth_image, color_image);
+
+
+  KalmanCoreErrorCode result = kalman_core_->updateSyncedData(flow_image, depth_image, color_image, odometry_matrix);
 
   // Retrieve outputs
   cv::Mat output_6d, output_6d_val, output_debug_image;

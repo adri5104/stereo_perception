@@ -194,7 +194,7 @@ private:
   /**
    * @brief Predict the next state of the Kalman Filter.
    */
-  KalmanCoreErrorCode predict(Mat input_optical_flow, Mat input_depth, Mat input_color_image);
+  KalmanCoreErrorCode predict(Mat input_optical_flow, Mat input_depth, Mat input_color_image, Mat input_egomotion);
 
   /**
    * @brief Set and initialize the WorldPoints according to the grid defined by the user.

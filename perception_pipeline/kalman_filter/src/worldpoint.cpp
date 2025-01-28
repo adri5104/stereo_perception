@@ -147,7 +147,7 @@ WorldPointErrorCode WorldPoint::computeKalmanStep(
 
 	if (use_var_ego_)
   {
-    // In progress
+    Q_new = D_new * Q_new_w * D_new.t();     
   }
   else
   {
@@ -159,7 +159,17 @@ WorldPointErrorCode WorldPoint::computeKalmanStep(
   // A. Prediction step
 
   // Compute the priori estimate
-  x_new_pred = A_new * x_old_ ;//+ G_new * u_new; 
+
+  if (use_var_ego_)
+  {
+    x_new_pred = A_new * x_old_ +  u_new;
+  }
+  else
+  {
+    x_new_pred = A_new * x_old_ ;
+  }
+  
+   
  		
   
 
