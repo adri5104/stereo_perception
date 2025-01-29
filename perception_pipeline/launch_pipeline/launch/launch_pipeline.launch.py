@@ -118,4 +118,16 @@ def generate_launch_description():
                 {'send_buffer_limit:': 1000000000 },
             ],
         ),
+        
+        launch_ros.actions.Node(
+          package='object_detector',
+          executable='object_detector_node',
+          name='object_detector_node',
+          output='screen',
+          parameters=[
+            {'input_6d_topic': '/perception_pipeline/output_6d'},
+            {'output_markers_topic' : '/perception_pipeline/output_markers'},
+          ],
+          
+        )
     ])  

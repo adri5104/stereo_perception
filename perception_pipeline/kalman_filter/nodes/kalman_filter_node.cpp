@@ -207,7 +207,6 @@ void KalmanFilterNode::updateSync(
   odometry_matrix.at<double>(2, 3) = frame_tf_msg->transform.translation.z;
   odometry_matrix.at<double>(3, 3) = 1.0;
 
-  std::cout << odometry_matrix << std::endl;
 
   // Update the Kalman filter
   KalmanCoreErrorCode result = kalman_core_->updateSyncedData(flow_image, depth_image, color_image, odometry_matrix);

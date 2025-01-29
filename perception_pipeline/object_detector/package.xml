@@ -9,6 +9,16 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
+  <build_depend>rclcpp</build_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>visualization_msgs</exec_depend>
+  <build_depend>cv_bridge</build_depend>
+  <build_depend>OpenCV</build_depend>
+  <build_depend>OpenMP</build_depend>
+  <build_depend>pcl_ros</build_depend>
+  <build_depend>eigen3</build_depend> 
+
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
 
