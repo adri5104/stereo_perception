@@ -27,7 +27,7 @@ KalmanFilterNode::KalmanFilterNode()
   this->declare_parameter<std::string>("optical_flow_topic", "/optical_flow");
   this->declare_parameter<std::string>("depth_topic", "/device_0/sensor_0/Depth_0/image/data");
   this->declare_parameter<std::string>("camera_info_topic", "/perception_pipeline/camera_info_sync");
-  this->declare_parameter<std::string>("odometry_topic", "/odometry");
+  this->declare_parameter<std::string>("camera_frame_tf_topic", "/odometry");
   this->declare_parameter<std::string>("color_image_topic", "/device_0/sensor_1/Color_0/image/data");
   this->declare_parameter<std::string>("output_6d_topic", "/output_6d");
   this->declare_parameter<std::string>("debug_image_topic", "/debug/image_6d");
@@ -58,12 +58,14 @@ KalmanFilterNode::KalmanFilterNode()
   // Camera parameters
   this->declare_parameter<double>("min_depth", 0.1);
   this->declare_parameter<double>("max_depth", 15.0);
+  this->declare_parameter<double>("min_height", 0.0);
+  this->declare_parameter<double>("max_height", 4.0);
 
   // Read parameters
   optical_flow_topic_ = this->get_parameter("optical_flow_topic").as_string();
   depth_topic_        = this->get_parameter("depth_topic").as_string();
   camera_info_topic_  = this->get_parameter("camera_info_topic").as_string();
-  odometry_topic_     = this->get_parameter("odometry_topic").as_string();
+  camera_frame_tf_topic_     = this->get_parameter("camera_frame_tf_topic").as_string();
   color_image_topic_  = this->get_parameter("color_image_topic").as_string();
   output_6d_topic_    = this->get_parameter("output_6d_topic").as_string();
   debug_image_topic_  = this->get_parameter("debug_image_topic").as_string();
@@ -71,7 +73,7 @@ KalmanFilterNode::KalmanFilterNode()
   RCLCPP_INFO(this->get_logger(), "optical_flow_topic: '%s'", optical_flow_topic_.c_str());
   RCLCPP_INFO(this->get_logger(), "depth_topic: '%s'", depth_topic_.c_str());
   RCLCPP_INFO(this->get_logger(), "camera_info_topic: '%s'", camera_info_topic_.c_str());
-  RCLCPP_INFO(this->get_logger(), "odometry_topic: '%s'", odometry_topic_.c_str());
+  RCLCPP_INFO(this->get_logger(), "camera_frame_tf_topic: '%s'", camera_frame_tf_topic_.c_str());
   RCLCPP_INFO(this->get_logger(), "color_image_topic: '%s'", color_image_topic_.c_str());
   RCLCPP_INFO(this->get_logger(), "output_6d_topic: '%s'", output_6d_topic_.c_str());
   RCLCPP_INFO(this->get_logger(), "debug_image_topic: '%s'", debug_image_topic_.c_str());
@@ -95,6 +97,8 @@ KalmanFilterNode::KalmanFilterNode()
 
   double min_depth = this->get_parameter("min_depth").as_double();
   double max_depth = this->get_parameter("max_depth").as_double();
+  double min_height = this->get_parameter("min_height").as_double();
+  double max_height = this->get_parameter("max_height").as_double();
   cv::Mat C = Mat::zeros(6, 6, CV_64FC1);
   cv::Mat T = Mat::zeros(3, 3, CV_64FC1);
   cv::Mat sigma_system_ = Mat::zeros(3, 3, CV_64FC1);
@@ -123,6 +127,7 @@ KalmanFilterNode::KalmanFilterNode()
     C,
     T,
     min_depth, max_depth,
+    min_height, max_height, 
     use_ego_motion,
     grid_size
   );
@@ -133,8 +138,7 @@ KalmanFilterNode::KalmanFilterNode()
   optical_flow_sub_.subscribe(this, optical_flow_topic_, rmw_qos_profile_sensor_data);
   depth_sub_.subscribe(this, depth_topic_, rmw_qos_profile_sensor_data);
   color_sub_.subscribe(this, color_image_topic_, rmw_qos_profile_sensor_data);
-  rclcpp::QoS qos_profile = rclcpp::QoS(rclcpp::SensorDataQoS());
-  odometry_sub_.subscribe(this, odometry_topic_, qos_profile.get_rmw_qos_profile());
+  frame_tf_sub_.subscribe(this, camera_frame_tf_topic_, rmw_qos_profile_sensor_data);
 
 
   // Create the synchronizer
@@ -143,7 +147,7 @@ KalmanFilterNode::KalmanFilterNode()
             optical_flow_sub_,
             depth_sub_,
             color_sub_,
-            odometry_sub_);
+            frame_tf_sub_);
 
   // Register the synchronized callback
   sync_->registerCallback(&KalmanFilterNode::updateSync, this);
@@ -167,7 +171,7 @@ void KalmanFilterNode::updateSync(
   const sensor_msgs::msg::Image::ConstSharedPtr flow_msg,
   const sensor_msgs::msg::Image::ConstSharedPtr depth_msg,
   const sensor_msgs::msg::Image::ConstSharedPtr color_msg,
-  const nav_msgs::msg::Odometry::ConstSharedPtr odometry_msg)
+  const geometry_msgs::msg::TransformStamped::ConstSharedPtr frame_tf_msg)
 {
   if(camera_parameters_set_ == false)
   {
@@ -180,55 +184,32 @@ void KalmanFilterNode::updateSync(
   cv::Mat depth_image = imageMsgToMat(depth_msg);
   cv::Mat color_image = imageMsgToMat(color_msg);
 
-  // Get the odometry matrix from odometrry message
+  // Get the odometry matrix from camera frame tf message
   cv::Mat odometry_matrix = cv::Mat::zeros(4, 4, CV_64FC1); 
 
-  // Get rotation matrix from euler angles
-  cv::Mat rotation_matrix = cv::Mat::zeros(3, 3, CV_64FC1);
-  cv::Mat translation_matrix = cv::Mat::zeros(3, 1, CV_64FC1);
-
-  // Get the rotation matrix from the euler (x,y,z) angles
+  // Convert from geometry_msgs::msg::TransformStamped to cv::Mat
+  // Convert quaternion to rotation matrix
   tf2::Quaternion q(
-    odometry_msg->pose.pose.orientation.x,
-    odometry_msg->pose.pose.orientation.y,
-    odometry_msg->pose.pose.orientation.z,
-    odometry_msg->pose.pose.orientation.w
-  );
+    frame_tf_msg->transform.rotation.x,
+    frame_tf_msg->transform.rotation.y,
+    frame_tf_msg->transform.rotation.z,
+    frame_tf_msg->transform.rotation.w);
   tf2::Matrix3x3 m(q);
 
-  for(int i = 0; i < 3; i++)
-  {
-    for(int j = 0; j < 3; j++)
-    {
-      rotation_matrix.at<double>(i, j) = m[i][j];
+  // Fill the matrix
+  for (int i = 0; i < 3; ++i) {
+    for (int j = 0; j < 3; ++j) {
+      odometry_matrix.at<double>(i, j) = m[i][j];
     }
   }
+  odometry_matrix.at<double>(0, 3) = frame_tf_msg->transform.translation.x;
+  odometry_matrix.at<double>(1, 3) = frame_tf_msg->transform.translation.y;
+  odometry_matrix.at<double>(2, 3) = frame_tf_msg->transform.translation.z;
+  odometry_matrix.at<double>(3, 3) = 1.0;
 
-  // Get the translation vector from the twist
-  translation_matrix.at<double>(0, 0) = odometry_msg->twist.twist.linear.x;
-  translation_matrix.at<double>(1, 0) = odometry_msg->twist.twist.linear.y;
-  translation_matrix.at<double>(2, 0) = odometry_msg->twist.twist.linear.z;
+  std::cout << odometry_matrix << std::endl;
 
-  // Create the odometry matrix
-  for(int i = 0; i < 3; i++)
-  {
-    for(int j = 0; j < 3; j++)
-    {
-      odometry_matrix.at<double>(i, j) = rotation_matrix.at<double>(i, j);
-    }
-  }
-  for(int i = 0; i < 3; i++)
-  {
-    odometry_matrix.at<double>(i, 3) = translation_matrix.at<double>(i, 0);
-  }
-  odometry_matrix.at<double>(3, 3) = 1;
-
-  cout << "Odometry matrix: " << odometry_matrix << endl;
-
-
-
-
-
+  // Update the Kalman filter
   KalmanCoreErrorCode result = kalman_core_->updateSyncedData(flow_image, depth_image, color_image, odometry_matrix);
 
   // Retrieve outputs

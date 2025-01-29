@@ -6,6 +6,17 @@ import launch_ros.actions
 def generate_launch_description():
     
     return launch.LaunchDescription([
+      
+        # Static Transform Publisher (world -> initial_camera_frame)
+        launch_ros.actions.Node(
+            package='tf2_ros',
+            executable='static_transform_publisher',
+            name='static_tf_world_to_camera',
+            arguments=['0', '0', '0',  # Translation (set appropriately if needed)
+                       '0.707', '0', '0', '0.707',  # Rotation (90° around X-axis)
+                       'world', 'camera_optical_frame_initial'],  # Frame IDs
+        ),
+        
         launch_ros.actions.Node(
             package= 'camerainfo_publisher',
             executable= 'camerainfo_publisher',
@@ -55,11 +66,11 @@ def generate_launch_description():
                 {'color_image_topic': '/device_0/sensor_1/Color_0/image/data'},
                 {'depth_image_topic': '/device_0/sensor_0/Depth_0/image/data'},
                 {'camera_info_topic': '/perception_pipeline/camera_info_sync'},
-                {'odometry_topic': '/perception_pipeline/odometry'},
                 {'odometry_debug_topic': '/debug/odometry_keypoints'},
+                {'camera_frame_tf_topic': '/perception_pipeline/camera_frame_tf'},
                 {'max_depth_odom' : 20.0},
                 {'min_depth_odom' : 0.1},
-                {'odometry_debug_image' : True},
+                {'odometry_debug_image' : False},
               ],
         ),
 
@@ -72,12 +83,12 @@ def generate_launch_description():
                 {'optical_flow_topic': '/perception_pipeline/optical_flow'},
                 {'depth_topic': "/device_0/sensor_0/Depth_0/image/data"},
                 {'camera_info_topic': '/perception_pipeline/camera_info_sync'},
-                {'odometry_topic': '/perception_pipeline/odometry'},
+                {'camera_frame_tf_topic': '/perception_pipeline/camera_frame_tf'},
                 {'color_image_topic':"/device_0/sensor_1/Color_0/image/data"}, 
                 {'debug_image_topic_':'/debug/debug_image'},
                 {'output_6d_topic' : '/perception_pipeline/output_6d'},
                 {'debug_markers_topic' : '/debug/image_6d_markers'},
-                {'grid_size' : 8},
+                {'grid_size' : 10},
                 {'use_ego_motion' : True},
                 {'sigma2_x_system' : 4.0},
                 {'sigma2_y_system' : 4.0},
@@ -92,6 +103,8 @@ def generate_launch_description():
                 {'sigma2_psi_system' : 10.0},
                 {'min_depth' : 3.5},
                 {'max_depth' : 18.0},
+                {'min_height_' : -2.0},
+                {'max_height' : 4.0},
             ],
             ros_arguments= ["--log-level", "info"] 
         ),

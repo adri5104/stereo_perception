@@ -93,15 +93,17 @@ public:
   /**
    * @brief Construct a new Kalman Core object
    * 
-   * @param sigma_system 
-   * @param C 
-   * @param T 
-   * @param min_depth 
-   * @param max_depth 
-   * @param useVarEgo 
-   * @param gridSize 
+   * @param sigma_system covariance matrix of the system model
+   * @param C covariance matrix of the egomotion
+   * @param T covariance matrix of the measurement model
+   * @param min_depth minimum depth value of the depth image
+   * @param max_depth maximum depth value of the depth image
+   * @param min_height minimum height value considered for the worldpoints
+   * @param max_height maximum height value considered for the worldpoints
+   * @param useVarEgo include ego motion estimation
+   * @param gridSize grid size for the worldpoints in pixels
    */
-  KalmanCore(Mat sigma_system, Mat C, Mat T, double min_depth, double max_depth, bool useVarEgo, int gridSize);
+  KalmanCore(Mat sigma_system, Mat C, Mat T, double min_depth, double max_depth, double min_height, double max_height,bool useVarEgo, int gridSize);
 
   /**
    * @brief Default destructor for the KalmanCore class.
@@ -254,6 +256,8 @@ private:
   bool camera_parameters_set_;
   double min_depth_;
   double max_depth_;
+  double min_height_;
+  double max_height_;
 
   // Kalman filter parameters 
   bool first_time_;	// Flag for first time execution  

@@ -14,11 +14,13 @@
 namespace perception_pipeline {
 namespace kalman_filter {
 
-WorldPoint::WorldPoint(Mat &C, Mat &T, double min_depth, double max_depth, double fx, double fy, double cx, double cy,  bool &useVarEgo, int gridSize)
+WorldPoint::WorldPoint(Mat &C, Mat &T, double min_depth, double max_depth, double min_height, double max_height, double fx, double fy, double cx, double cy,  bool &useVarEgo, int gridSize)
 : C_(C), 
   T_(T), 
   min_depth_(min_depth),
   max_depth_(max_depth),
+  min_height_(min_height),
+  max_height_(max_height),
   use_var_ego_(useVarEgo), 
   grid_size_worldpoints(gridSize),
   age_(0),
@@ -34,7 +36,7 @@ WorldPoint::~WorldPoint(void)
 
 }
 
-void WorldPoint::initKalmanFilter(const double &u, const double &v, const double &depth,Mat &occupancyGrid)
+WorldPointErrorCode WorldPoint::initKalmanFilter(const double &u, const double &v, const double &depth,Mat &occupancyGrid)
 {
   // Initialize measurement vector
   z_old_ = Mat::zeros(3, 1, CV_64FC1);
@@ -58,6 +60,8 @@ void WorldPoint::initKalmanFilter(const double &u, const double &v, const double
   occupancyGrid.at<uchar>
     (static_cast<int>(std::floor(v / static_cast<double>(grid_size_worldpoints))), 
      static_cast<int>(std::floor(u / static_cast<double>(grid_size_worldpoints)))) += 1;
+
+  return WorldPointErrorCode::OK;
 }
 
 WorldPointErrorCode WorldPoint::computeKalmanStep(
@@ -219,6 +223,15 @@ WorldPointErrorCode WorldPoint::computeKalmanStep(
   // --- Measurement update ---
 	x_new = x_new_pred + K_new * s_new;						
 	P_new = (Mat::eye(6, 6, CV_64FC1) - K_new*H_new) * P_new_pred;	
+
+  // Check if point is within height bounds
+  // In the camera frame, the height is the y coordinate.
+  // Y looks down, so the height is negative
+  if (x_new.at<double>(1,0) < min_height_ || x_new.at<double>(1,0) > max_height_)
+  {
+    return WorldPointErrorCode::MEASUREMENT_OUT_OF_HEIGHT_BOUNDS_ERROR;
+    std::cout << "Height out of bounds" << std::endl;
+  }
 
   // Save new state
   x_old_ = x_new;

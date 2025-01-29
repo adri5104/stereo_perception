@@ -15,10 +15,11 @@
 #include <sensor_msgs/msg/image.hpp>
 #include <sensor_msgs/msg/camera_info.hpp>
 #include <geometry_msgs/msg/twist.hpp>
+#include <geometry_msgs/msg/transform_stamped.hpp>
 #include <nav_msgs/msg/odometry.hpp>
 #include <tf2_ros/transform_broadcaster.h>
-#include <tf2/LinearMath/Quaternion.h>  // Para tf2::Quaternion
-#include <tf2/LinearMath/Matrix3x3.h>   // Opcional, para manejar rotaciones en tf2
+#include <tf2/LinearMath/Quaternion.h>  
+#include <tf2/LinearMath/Matrix3x3.h>   
 #include <tf2_ros/static_transform_broadcaster.h>
 
 #include <geometry_msgs/msg/transform_stamped.hpp>
@@ -73,16 +74,25 @@ namespace visual_odometry
        */
       void cameraInfoCallback(const sensor_msgs::msg::CameraInfo::ConstSharedPtr msg);
 
+      /**
+       * @brief Convert sensor_msgs::Image -> cv::Mat
+       * 
+       * @param msg The image message
+       * @return cv::Mat The image as cv::Mat
+       */
       cv::Mat imageMsgToMat(const sensor_msgs::msg::Image::ConstSharedPtr & msg);
-      cv::Mat T_world_to_camera_optical_;
+
+      /// Accumulated transform from world to camera optical frame
+      cv::Mat camera_tf_accumulated_;
+
       // Subscribers
       message_filters::Subscriber<sensor_msgs::msg::Image> color_sub_; 
       message_filters::Subscriber<sensor_msgs::msg::Image> depth_sub_; 
       rclcpp::Subscription<sensor_msgs::msg::CameraInfo>::SharedPtr camera_info_sub_; 
 
       // Publishers 
-      rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odometry_pub_;
       rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr debug_pub_;
+      rclcpp::Publisher<geometry_msgs::msg::TransformStamped>::SharedPtr camera_frame_tf_pub_;
 
       /// Synchronizer
       std::unique_ptr<message_filters::Synchronizer<SyncPolicy>> sync_;
@@ -95,11 +105,11 @@ namespace visual_odometry
       std::unique_ptr<VisualOdometry> visual_odometry_; 
 
       // Parameters
-      std::string color_image_topic_;
-      std::string depth_image_topic_;
-      std::string camera_info_topic_;
-      std::string odometry_topic_;
-      std::string odometry_debug_topic_;
+      std::string color_image_topic_; ///< Color image topic
+      std::string depth_image_topic_; ///< Depth image topic
+      std::string camera_info_topic_; ///< Camera info topic
+      std::string odometry_debug_topic_; ///< Debug image topic
+      std::string camera_frame_tf_topic_; ///< Camera frame transform between two consewuence frames
       double max_depth_odom_;
       double min_depth_odom_;
       bool odometry_debug_image_;

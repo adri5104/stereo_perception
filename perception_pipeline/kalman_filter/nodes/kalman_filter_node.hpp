@@ -18,6 +18,7 @@
 #include <visualization_msgs/msg/marker_array.hpp>
 #include <nav_msgs/msg/odometry.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
+#include <geometry_msgs/msg/transform_stamped.hpp>
 #include <tf2_ros/transform_broadcaster.h>
 #include <tf2/LinearMath/Quaternion.h>  // Para tf2::Quaternion
 #include <tf2/LinearMath/Matrix3x3.h>   // Opcional, para manejar rotaciones en tf2
@@ -44,7 +45,7 @@ using SyncPolicy = message_filters::sync_policies::ApproximateTime<
     sensor_msgs::msg::Image,
     sensor_msgs::msg::Image,
     sensor_msgs::msg::Image,
-    nav_msgs::msg::Odometry
+    geometry_msgs::msg::TransformStamped
 >;
 
 /**
@@ -77,7 +78,7 @@ private:
     const sensor_msgs::msg::Image::ConstSharedPtr flow_msg,
     const sensor_msgs::msg::Image::ConstSharedPtr depth_msg,
     const sensor_msgs::msg::Image::ConstSharedPtr color_msg,
-    const nav_msgs::msg::Odometry::ConstSharedPtr camera_info_msg);
+    const geometry_msgs::msg::TransformStamped::ConstSharedPtr frame_tf_msg);
 
   
   /**
@@ -108,13 +109,11 @@ private:
   // KalmanCore
   std::unique_ptr<KalmanCore> kalman_core_;
   
-
-
   // message_filters subscribers
   message_filters::Subscriber<sensor_msgs::msg::Image> optical_flow_sub_;
   message_filters::Subscriber<sensor_msgs::msg::Image> depth_sub_;
   message_filters::Subscriber<sensor_msgs::msg::Image> color_sub_;
-  message_filters::Subscriber<nav_msgs::msg::Odometry> odometry_sub_;
+  message_filters::Subscriber<geometry_msgs::msg::TransformStamped> frame_tf_sub_;
 
   // Synchronizer pointer
   std::shared_ptr<message_filters::Synchronizer<SyncPolicy>> sync_;
@@ -132,7 +131,7 @@ private:
   std::string optical_flow_topic_;
   std::string depth_topic_;
   std::string camera_info_topic_;
-  std::string odometry_topic_;
+  std::string camera_frame_tf_topic_;
   std::string color_image_topic_;
   std::string debug_image_topic_;
   std::string debug_markers_topic_;

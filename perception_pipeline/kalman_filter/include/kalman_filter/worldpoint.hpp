@@ -23,6 +23,7 @@ using namespace cv;
 enum class WorldPointErrorCode {
     OK = 1,
     BAD_DEPTH_VALUE_ERROR,
+    MEASUREMENT_OUT_OF_HEIGHT_BOUNDS_ERROR,
     NEW_MEASUREMENT_OUT_OF_BOUNDS_ERROR,
     THREE_SIGMA_TEST_FAILED,
     DIVISION_BY_ZERO_ERROR,
@@ -35,6 +36,7 @@ inline  std::string getErrorMessageWorldpoint(WorldPointErrorCode code) {
     static const std::unordered_map<WorldPointErrorCode, std::string> errorMessages = {
         {WorldPointErrorCode::OK, "No error."},
         {WorldPointErrorCode::BAD_DEPTH_VALUE_ERROR, "Invalid depth value."},
+        {WorldPointErrorCode::MEASUREMENT_OUT_OF_HEIGHT_BOUNDS_ERROR, "New measurement height out of range."},
         {WorldPointErrorCode::NEW_MEASUREMENT_OUT_OF_BOUNDS_ERROR, "New measurement dimensions out of range."},
         {WorldPointErrorCode::THREE_SIGMA_TEST_FAILED, "Three sigma test failed."},
         {WorldPointErrorCode::DIVISION_BY_ZERO_ERROR, "Division by zero."},
@@ -62,6 +64,10 @@ class WorldPoint
      * 
      * @param C Covariance matrix of the egomotion.
      * @param T Covariance matrix of the measurement model.
+     * @param min_depth Minimum depth value in meters.
+     * @param max_depth Maximum depth value in meters.
+     * @param min_height Minimum height value in meters.
+     * @param max_height Maximum height value in meters.
      * @param fx Focal length x.
      * @param fy Focal length y.
      * @param cx Principal point x.
@@ -69,7 +75,7 @@ class WorldPoint
      * @param useVarEgo Use the covariance matrix of the egomotion.
      * @param gridSize Grid size in pixels
      */
-    WorldPoint(Mat &C, Mat &T, double min_depth, double max_depth, double fx, double fy, double cx, double cy,  bool &useVarEgo, int gridSize);
+    WorldPoint(Mat &C, Mat &T, double min_depth, double max_depth, double min_height, double max_height, double fx, double fy, double cx, double cy,  bool &useVarEgo, int gridSize);
 
     /**
      * @brief Destructor for the WorldPoint class.
@@ -86,7 +92,7 @@ class WorldPoint
      * @param depth The initial depth in meters.
      * @param occupancyGrid The occupancy grid.
      */
-    void initKalmanFilter(const double &u, const double &v, const double &depth, Mat &occupancyGrid);
+    WorldPointErrorCode initKalmanFilter(const double &u, const double &v, const double &depth, Mat &occupancyGrid);
 
     /**
      * @brief Method that runs a complete Kalmanstep with all necessary computations.
@@ -182,6 +188,8 @@ class WorldPoint
     // Attributes
     double max_depth_;
     double min_depth_ ;
+    double min_height_;
+    double max_height_;
     Mat	z_old_;	// Old measurement vector			
 	  Mat	x_old_;	// Old state vector
 	  Mat	P_old_;	// Old state covariance matrix				

@@ -26,6 +26,8 @@ namespace kalman_filter
   T_(Mat::zeros(3, 3, CV_64FC1)),
   min_depth_(0.0),
   max_depth_(100.0),
+  min_height_(0.0),
+  max_height_(100.0),
   sigma_system_(Mat::zeros(3, 3, CV_64FC1)),
   A_new_(Mat::zeros(6, 6, CV_64FC1)),
   u_new_(Mat::zeros(6, 1, CV_64FC1)),
@@ -62,11 +64,12 @@ namespace kalman_filter
 }
 
 KalmanCore::KalmanCore(
-  Mat sigma_system, Mat C, Mat T, double min_depth, double max_depth, 
+  Mat sigma_system, Mat C, Mat T, double min_depth, double max_depth, double min_height, double max_height,
   bool useVarEgo, int gridSize) : 
   fx_(421.37701), fy_(421.37701), cx_(424.7990), cy_(231.86268),
   sigma_system_(sigma_system), C_(C), T_(T),
   min_depth_(min_depth), max_depth_(max_depth),
+  min_height_(min_height), max_height_(max_height),
   first_time_(true),
   A_new_(Mat::zeros(6, 6, CV_64FC1)),
   u_new_(Mat::zeros(6, 1, CV_64FC1)),
@@ -89,6 +92,7 @@ KalmanCore::KalmanCore(
   cout << "[KalmanCore] Ego motion Covariance Matrix = " << C_ << endl; 
   cout << "[KalmanCore] Camera parameters: [fx fy cx cy] = [" << fx_ << " " << fy_ << " " << cx_ << " " << cy_ << "]" << endl;
   cout << "[KalmanCore] Valid depth [min max] = [" << min_depth_ << " " << max_depth_ << "]" << endl; 
+  cout << "[KalmanCore] Valid height [min max] = [" << min_height_ << " " << max_height_ << "]" << endl;
   cout << "[KalmanCore] Grid size = " << grid_size_worldpoints_ << endl; 
   cout << "[KalmanCore] Use ego motion = " << (include_ego_motion_? "Yes" : "No") << endl; 
   
@@ -298,11 +302,17 @@ KalmanCoreErrorCode KalmanCore::predict(Mat input_optical_flow, Mat input_depth,
         case WorldPointErrorCode::NEW_MEASUREMENT_OUT_OF_BOUNDS_ERROR:
           it = worldpoints_.erase(it);
         break;
+        case WorldPointErrorCode::MEASUREMENT_OUT_OF_HEIGHT_BOUNDS_ERROR:
+          // We paint the point red
+          output_debug_image.at<Vec3b>(pos_v, pos_u) = Vec3b(0, 0, 255);
+          it = worldpoints_.erase(it);
+        break;
         case WorldPointErrorCode::THREE_SIGMA_TEST_FAILED:
           // We paint the point red
           output_debug_image.at<Vec3b>(pos_v, pos_u) = Vec3b(0, 0, 255);
           it = worldpoints_.erase(it);
         break;
+
       }
     }
 
@@ -332,6 +342,7 @@ KalmanCoreErrorCode KalmanCore::predict(Mat input_optical_flow, Mat input_depth,
             worldpoints_.emplace_back(std::make_unique<WorldPoint>(
                 C_, T_,
                 min_depth_, max_depth_, 
+                min_height_, max_height_,
                 fx_, fy_, cx_, cy_, 
                 include_ego_motion_, 
                 grid_size_worldpoints_));
@@ -397,6 +408,7 @@ KalmanCoreErrorCode KalmanCore::setNewWorldPoints(Mat &occupancy_grid, Mat &outp
       worldpoints_.emplace_back(std::make_unique<WorldPoint>(
         C_, T_,
         min_depth_, max_depth_, 
+        min_height_, max_height_,
         fx_, fy_, cx_, cy_, 
         include_ego_motion_, 
         grid_size_worldpoints_));
