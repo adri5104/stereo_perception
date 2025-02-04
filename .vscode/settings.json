@@ -73,6 +73,14 @@
     "typeinfo": "cpp",
     "variant": "cpp",
     "format": "cpp",
-    "*.ipp": "cpp"
+    "*.ipp": "cpp",
+    "csignal": "cpp",
+    "any": "cpp",
+    "strstream": "cpp",
+    "codecvt": "cpp",
+    "regex": "cpp",
+    "future": "cpp",
+    "shared_mutex": "cpp",
+    "stdfloat": "cpp"
   }
 }

@@ -57,5 +57,10 @@ namespace object_detector
   {
     return velocity_;
   }
+
+  std::vector<pcl::PointXYZ> WorldEntity::getPoints() const
+  {
+    return points_;
+  }
 } // namespace object_detector
 } // namespace perception_pipeline

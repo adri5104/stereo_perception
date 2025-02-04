@@ -48,6 +48,8 @@ public:
   // Getters
   Eigen::Vector3f getCentroid() const;
   Eigen::Vector3f getVelocity() const;
+  std::vector<pcl::PointXYZ> getPoints() const;
+
   
 
 private:

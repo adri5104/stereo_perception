@@ -87,8 +87,9 @@ def generate_launch_description():
                 {'color_image_topic':"/device_0/sensor_1/Color_0/image/data"}, 
                 {'debug_image_topic_':'/debug/debug_image'},
                 {'output_6d_topic' : '/perception_pipeline/output_6d'},
+                {'output_6d_val_topic' : '/perception_pipeline/output_6d_val'},
                 {'debug_markers_topic' : '/debug/image_6d_markers'},
-                {'grid_size' : 10},
+                {'grid_size' : 20},
                 {'use_ego_motion' : True},
                 {'sigma2_x_system' : 4.0},
                 {'sigma2_y_system' : 4.0},
@@ -126,7 +127,12 @@ def generate_launch_description():
           output='screen',
           parameters=[
             {'input_6d_topic': '/perception_pipeline/output_6d'},
+            {'input_6d_val_topic': '/perception_pipeline/output_6d_val'},
             {'output_markers_topic' : '/perception_pipeline/output_markers'},
+            {'eps': 20.0},
+            {'minPts': 10},
+            {'pos_weight': 1.0},
+            {'vel_weight': 0.0}
           ],
           
         )

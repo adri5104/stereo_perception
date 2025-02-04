@@ -125,6 +125,7 @@ private:
   rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr debug_image_pub_;
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr debug_markers_pub_;
   rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr output_6d_pub_;
+  rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr output_6d_val_pub_;
 
 
   // Parameters
@@ -136,6 +137,8 @@ private:
   std::string debug_image_topic_;
   std::string debug_markers_topic_;
   std::string output_6d_topic_;
+  std::string output_6d_val_topic_;
+
 
   bool camera_parameters_set_ = false;
 
