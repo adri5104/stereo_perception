@@ -64,13 +64,13 @@ def generate_launch_description():
             executable='visual_odometry_node',
             parameters=[
                 {'color_image_topic': '/device_0/sensor_1/Color_0/image/data'},
-                {'depth_image_topic': '/device_0/sensor_0/Depth_0/image/data'},
+                {'depth_image_topic': '/device_0/s  ensor_0/Depth_0/image/data'},
                 {'camera_info_topic': '/perception_pipeline/camera_info_sync'},
                 {'odometry_debug_topic': '/debug/odometry_keypoints'},
                 {'camera_frame_tf_topic': '/perception_pipeline/camera_frame_tf'},
                 {'max_depth_odom' : 20.0},
                 {'min_depth_odom' : 0.1},
-                {'odometry_debug_image' : False},
+                {'odometry_debug_image' : True},
               ],
         ),
 
@@ -120,20 +120,20 @@ def generate_launch_description():
             ],
         ),
         
-        launch_ros.actions.Node(
-          package='object_detector',
-          executable='object_detector_node',
-          name='object_detector_node',
-          output='screen',
-          parameters=[
-            {'input_6d_topic': '/perception_pipeline/output_6d'},
-            {'input_6d_val_topic': '/perception_pipeline/output_6d_val'},
-            {'output_markers_topic' : '/perception_pipeline/output_markers'},
-            {'eps': 20.0},
-            {'minPts': 10},
-            {'pos_weight': 1.0},
-            {'vel_weight': 0.0}
-          ],
-          
-        )
+        #launch_ros.actions.Node(
+        #  package='object_detector',
+        #  executable='object_detector_node',
+        #  name='object_detector_node',
+        #  output='screen',
+        #  parameters=[
+        #    {'input_6d_topic': '/perception_pipeline/output_6d'},
+        #    {'input_6d_val_topic': '/perception_pipeline/output_6d_val'},
+        #    {'output_markers_topic' : '/perception_pipeline/output_markers'},
+        #    {'eps': 20.0},
+        #    {'minPts': 10},
+        #    {'pos_weight': 1.0},
+        #    {'vel_weight': 0.0}
+        #  ],
+        #  
+        #)
     ])  

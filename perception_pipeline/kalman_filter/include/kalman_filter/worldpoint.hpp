@@ -12,6 +12,7 @@
 #ifndef KALMAN_FILTER_WORLDPOINT_HPP
 #define KALMAN_FILTER_WORLDPOINT_HPP
 
+#include <iostream>
 #include <opencv2/opencv.hpp>
 namespace perception_pipeline {
 namespace kalman_filter {

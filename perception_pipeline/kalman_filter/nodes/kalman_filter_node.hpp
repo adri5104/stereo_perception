@@ -25,9 +25,13 @@
 #include <tf2_ros/static_transform_broadcaster.h>
 
 
-#include <cv_bridge/cv_bridge.hpp>
-#include <opencv2/opencv.hpp>
 
+#include <opencv2/opencv.hpp>
+#ifdef ROS_VERSION_JAZZY
+#include <cv_bridge/cv_bridge.hpp>
+#else
+#include <cv_bridge/cv_bridge.h>
+#endif
 #include <message_filters/subscriber.h>
 #include <message_filters/synchronizer.h>
 #include <message_filters/sync_policies/approximate_time.h>

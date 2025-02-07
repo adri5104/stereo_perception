@@ -15,14 +15,21 @@ find_package(geometry_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(visualization_msgs REQUIRED)
 find_package(cv_bridge REQUIRED)
-find_package(OpenCV REQUIRED)
+
 find_package(OpenMP REQUIRED) # Ensure OpenMP is included
 find_package(tf2_ros REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
 
 # Print the OpenCV version
-message("[KalmanFilter] Found OpenCV version: ${OpenCV_VERSION}")
+find_package(OpenCV REQUIRED)
+
+# Print the OpenCV version and where it was found
+message(STATUS "OpenCV version: ${OpenCV_VERSION}")
+message(STATUS "OpenCV include directory: ${OpenCV_INCLUDE_DIRS}")
+message(STATUS "OpenCV library directory: ${OpenCV_LIBRARIES}")
+message(STATUS "OpenCV config path: ${OpenCV_CONFIG_PATH}")
+
 
 # include directories
 set(INCLUDE_DIRS $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>

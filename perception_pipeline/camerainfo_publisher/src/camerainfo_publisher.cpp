@@ -12,7 +12,12 @@
 #include <mutex>
 
 
+#ifdef ROS_VERSION_JAZZY
 #include <cv_bridge/cv_bridge.hpp>
+#else
+#include <cv_bridge/cv_bridge.h>
+#endif
+
 
 using namespace std::chrono_literals;
 using namespace cv;

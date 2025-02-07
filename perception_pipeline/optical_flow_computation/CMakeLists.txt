@@ -13,7 +13,10 @@ include_directories(
 # Specify custom OpenCV path (your custom build)
 #set(OpenCV_DIR set(OpenCV_DIR /usr/local/lib/cmake/opencv)
 #)  # Update with your OpenCV install path
+set(OpenCV_DIR "/usr/local/lib/cmake/opencv4")  # Change path if needed
 find_package(OpenCV REQUIRED)
+
+
 
 # Print the OpenCV version
 message("Found OpenCV version: ${OpenCV_VERSION}")

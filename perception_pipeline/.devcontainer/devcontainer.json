@@ -1,19 +1,21 @@
 {
-  "name": "jazzy desktop-full",
-  "dockerFile": "Dockerfile",
+  "name": "perception pipeline Dev Container",
+  "dockerFile": "../Dockerfile",
   "runArgs": [
     "--privileged",
-    "--network=host"
+    "--network=host",
+    "--gpus=all"
   ],
-  "workspaceMount": "source=${localWorkspaceFolder},target=/${localWorkspaceFolderBasename},type=bind",
-  "workspaceFolder": "/${localWorkspaceFolderBasename}",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/ros2_ws/src,type=bind",
+  "workspaceFolder": "/ros2_ws/src",
   "mounts": [
     "source=${localEnv:HOME}${localEnv:USERPROFILE}/.bash_history,target=/home/vscode/.bash_history,type=bind"
 ],
 "features": {
 	"ghcr.io/devcontainers/features/common-utils:2": {},
 	"ghcr.io/devcontainers/features/git:1": {},
-	"ghcr.io/devcontainers/features/nvidia-cuda:1": {},
 	"ghcr.io/devcontainers/features/python:1": {}
 }
 }
+
+

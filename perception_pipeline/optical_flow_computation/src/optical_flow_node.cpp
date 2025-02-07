@@ -1,5 +1,9 @@
 #include "optical_flow_computation/optical_flow_node.hpp"
+#ifdef ROS_VERSION_JAZZY
 #include <cv_bridge/cv_bridge.hpp>
+#else
+#include <cv_bridge/cv_bridge.h>
+#endif
 
 using namespace cv;
 

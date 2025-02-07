@@ -11,7 +11,7 @@ find_package(std_msgs)
 find_package(sensor_msgs)
 find_package(rclcpp)
 find_package(cv_bridge REQUIRED)
-find_package(OpenCV REQUIRED COMPONENTS core imgproc  calib3d optflow)
+find_package(OpenCV REQUIRED COMPONENTS core imgproc)
 
 add_executable(${PROJECT_NAME}  src/camerainfo_publisher.cpp)
 
