@@ -61,12 +61,12 @@ std::vector<WorldEntity> ObjectDetector::applyDBSCAN(float eps, int minPts, floa
     cudaMemset(d_valid_count, 0, sizeof(int));
 
     // Call the CUDA filtering function 
-    filterValidPointsKernelLauncher(
-        (float*)input_6d_image_.ptr<float>(), 
-        (uint8_t*)input_6d_image_val_.ptr<uint8_t>(), 
-        d_valid_points, d_valid_indices, 
-        d_valid_count, total_points
-    );
+    //filterValidPointsKernelLauncher(
+    //    (float*)input_6d_image_.ptr<float>(), 
+    //    (uint8_t*)input_6d_image_val_.ptr<uint8_t>(), 
+    //    d_valid_points, d_valid_indices, 
+    //    d_valid_count, total_points
+    //);
 
     cudaDeviceSynchronize();
 

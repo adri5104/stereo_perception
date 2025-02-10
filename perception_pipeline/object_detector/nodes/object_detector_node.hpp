@@ -4,20 +4,20 @@
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/image.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
+#ifdef ROS_VERSION_JAZZY
 #include <cv_bridge/cv_bridge.hpp>
-
-#include "object_detector/object_detector.hpp"
+#else
+#include <cv_bridge/cv_bridge.h>
+#endif
 #include <opencv2/opencv.hpp>
 #include <opencv2/cudaarithm.hpp>
 #include <opencv2/cudaimgproc.hpp>
 #include <opencv2/cudafilters.hpp>
-#include <opencv2/cudaarithm.hpp>  // GPU computations (most common use case)
-#include <opencv2/core/cuda.hpp>   // General CUDA functionality
+#include <opencv2/core/cuda.hpp>
 
 #include <message_filters/subscriber.h>
 #include <message_filters/synchronizer.h>
 #include <message_filters/sync_policies/approximate_time.h>
-
 
 #include <cmath>
 #include <unordered_map>

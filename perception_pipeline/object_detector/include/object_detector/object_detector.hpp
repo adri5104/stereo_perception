@@ -4,7 +4,9 @@
 // Include necessary headers
 #include "object_detector/object_detector.hpp"  // Self-referencing header
 #include "object_detector/world_entity.hpp"     // World entity class for object representation
-#include <opencv2/opencv.hpp>                   // OpenCV for image processing
+#include <opencv2/opencv.hpp>  
+#include <opencv2/core/cuda.hpp>
+                 // OpenCV for image processing
 #include <cmath>
 #include <unordered_map>
 #include <unordered_set>

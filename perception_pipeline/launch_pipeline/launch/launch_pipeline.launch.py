@@ -34,11 +34,7 @@ def generate_launch_description():
             ]  
         ),
         
-        launch_ros.actions.Node(
-            package='depth_image_proc',
-            executable='point_cloud_xyzrgb_node',
-        ),
-            
+  
       
         
         launch_ros.actions.Node(
@@ -64,7 +60,7 @@ def generate_launch_description():
             executable='visual_odometry_node',
             parameters=[
                 {'color_image_topic': '/device_0/sensor_1/Color_0/image/data'},
-                {'depth_image_topic': '/device_0/s  ensor_0/Depth_0/image/data'},
+                {'depth_image_topic': '/device_0/sensor_0/Depth_0/image/data'},
                 {'camera_info_topic': '/perception_pipeline/camera_info_sync'},
                 {'odometry_debug_topic': '/debug/odometry_keypoints'},
                 {'camera_frame_tf_topic': '/perception_pipeline/camera_frame_tf'},
@@ -110,15 +106,15 @@ def generate_launch_description():
             ros_arguments= ["--log-level", "info"] 
         ),
         
-        launch_ros.actions.Node(
-            package='foxglove_bridge',
-            executable='foxglove_bridge',
-            name='foxglove_bridge',
-            output='screen',
-            parameters=[
-                {'send_buffer_limit:': 1000000000 },
-            ],
-        ),
+        #launch_ros.actions.Node(
+        #    package='foxglove_bridge',
+        #    executable='foxglove_bridge',
+        #    name='foxglove_bridge',
+        #    output='screen',
+        #    parameters=[
+        #        {'send_buffer_limit:': 1000000000 },
+        #    ],
+        #),
         
         #launch_ros.actions.Node(
         #  package='object_detector',

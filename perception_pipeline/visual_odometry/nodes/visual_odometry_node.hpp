@@ -24,7 +24,11 @@
 
 #include <geometry_msgs/msg/transform_stamped.hpp>
 
+#ifdef ROS_VERSION_JAZZY
 #include <cv_bridge/cv_bridge.hpp>
+#else
+#include <cv_bridge/cv_bridge.h>
+#endif
 #include <opencv2/opencv.hpp>
 
 #include <message_filters/subscriber.h>
