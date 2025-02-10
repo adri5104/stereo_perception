@@ -28,6 +28,9 @@ namespace perception_pipeline
 namespace kalman_filter
 {
 
+typedef Vec<float, 7> OutVec;
+const int VAL_IDX = 6;
+
 enum class KalmanCoreErrorCode {
     OK = 1,
     BAD_DEPTH_IMAGE_ERROR,
@@ -196,7 +199,7 @@ private:
   /**
    * @brief Predict the next state of the Kalman Filter.
    */
-  KalmanCoreErrorCode predict(Mat input_optical_flow, Mat input_depth, Mat input_color_image, Mat input_egomotion);
+  KalmanCoreErrorCode predict(Mat input_optical_flow, Mat input_depth, Mat input_color_image);
 
   /**
    * @brief Set and initialize the WorldPoints according to the grid defined by the user.
@@ -205,7 +208,7 @@ private:
    * @param output_6d The output 6D matrix.
    * @param output_debug_image The output debug image.
    */
-  KalmanCoreErrorCode setNewWorldPoints(Mat &occupancy_grid, Mat &output_6d, Mat &output_debug_image, Mat &output_6d_val);
+  KalmanCoreErrorCode setNewWorldPoints(Mat &occupancy_grid, Mat &output_6d, Mat &output_debug_image);
 
 
   /**
@@ -221,6 +224,15 @@ private:
    * @return elapsed time in seconds. 
    */
   static double calculateTimeDifference(TimePoint& lastTime);
+
+  /**
+   * @brief Returns the 6D state vector of a WorldPoint in the format (x, y, z, vx, vy, vz, validity).
+   *    
+   * @param x  6D state vector
+   * @param validity 1 if the pixel contains a valid WorldPoint and 0 otherwise
+   * @return Vec7f 
+   */
+  OutVec formatOutput(Vec6f x, int validity);
 
   void computeJacobianMatrix();
   
@@ -270,12 +282,10 @@ private:
   Mat	Q_new_w_;	// Covariance matrix of discrete-time process
   Mat	G_new_;		// Jacobian for state transformation  
   Mat	para_rot_;	// Parametervector with some precomputed values (sin/cos) for rotation of egomotion 
-  double delta_time;	// Timedifference between the current frame and the frame before
   double term1;		// Value needed for computation of Jacobimatrices
   double term2;		// Value needed for computation of Jacobimatrices
   double term3;		// Value needed for computation of Jacobimatrices
   double term4;		// Value needed for computation of Jacobimatrices
-  bool currently_processing_;	// Flag for indicating that the KalmanCore is currently processing data
 
 };
 

@@ -17,30 +17,29 @@ namespace perception_pipeline
 namespace kalman_filter
 {
   KalmanCore::KalmanCore() :
+  sync_input_time_old_(Clock::now()),
+  time_diff_(0.0),
+  include_ego_motion_(false),
+  grid_size_worldpoints_(10),
   fx_(421.37701),
   fy_(421.37701),
   cx_(424.7990),
   cy_(231.86268),
-  first_time_(true),
-  C_(Mat::zeros(6, 6, CV_64FC1)),
-  T_(Mat::zeros(3, 3, CV_64FC1)),
+  camera_parameters_set_(false),
   min_depth_(0.0),
   max_depth_(100.0),
   min_height_(0.0),
   max_height_(100.0),
+  first_time_(true),
+  C_(Mat::zeros(6, 6, CV_64FC1)),
+  T_(Mat::zeros(3, 3, CV_64FC1)),
   sigma_system_(Mat::zeros(3, 3, CV_64FC1)),
   A_new_(Mat::zeros(6, 6, CV_64FC1)),
   u_new_(Mat::zeros(6, 1, CV_64FC1)),
   D_new_(Mat::zeros(6, 6, CV_64FC1)),
   Q_new_w_(Mat::zeros(6, 6, CV_64FC1)),
   G_new_(Mat::zeros(6, 6, CV_64FC1)),
-  para_rot_(Mat::zeros(6, 1, CV_64FC1)),
-  delta_time(0.0),
-  grid_size_worldpoints_(10),
-  include_ego_motion_(false),
-  time_diff_(0.0),
-  sync_input_time_old_(Clock::now()),
-  camera_parameters_set_(false)
+  para_rot_(Mat::zeros(6, 1, CV_64FC1))
 {
   // Initialize variances
   // Set covariance matrix of system model
@@ -66,23 +65,22 @@ namespace kalman_filter
 KalmanCore::KalmanCore(
   Mat sigma_system, Mat C, Mat T, double min_depth, double max_depth, double min_height, double max_height,
   bool useVarEgo, int gridSize) : 
+  sync_input_time_old_(Clock::now()),
+  time_diff_(0.0),
+  include_ego_motion_(useVarEgo),
+  grid_size_worldpoints_(gridSize),
   fx_(421.37701), fy_(421.37701), cx_(424.7990), cy_(231.86268),
-  sigma_system_(sigma_system), C_(C), T_(T),
+  camera_parameters_set_(false),
   min_depth_(min_depth), max_depth_(max_depth),
   min_height_(min_height), max_height_(max_height),
   first_time_(true),
+  C_(C), T_(T),sigma_system_(sigma_system), 
   A_new_(Mat::zeros(6, 6, CV_64FC1)),
   u_new_(Mat::zeros(6, 1, CV_64FC1)),
   D_new_(Mat::zeros(6, 6, CV_64FC1)),
   Q_new_w_(Mat::zeros(6, 6, CV_64FC1)),
   G_new_(Mat::zeros(6, 6, CV_64FC1)),
-  para_rot_(Mat::zeros(6, 1, CV_64FC1)),
-  delta_time(0.0),
-  grid_size_worldpoints_(gridSize),
-  include_ego_motion_(useVarEgo),
-  time_diff_(0.0),
-  sync_input_time_old_(Clock::now()),
-  camera_parameters_set_(false)
+  para_rot_(Mat::zeros(6, 1, CV_64FC1))
 {
   cout << "[KalmanCore] =================================================================" << endl;
   cout << "[KalmanCore] =============== KalmanCore object created =======================" << endl;
@@ -143,7 +141,7 @@ KalmanCoreErrorCode KalmanCore::updateSyncedData(const Mat& optical_flow, const 
   input_color_image_sync_ = color_image;
 
   // Do the prediction process
-  return predict(input_optical_flow_sync_, input_depth_sync_, input_color_image_sync_, input_egomotion_sync_);
+  return predict(input_optical_flow_sync_, input_depth_sync_, input_color_image_sync_);
 }
 
 KalmanCoreErrorCode KalmanCore::updateSyncedData(const Mat& optical_flow, const Mat& depth, const Mat& color_image)
@@ -174,7 +172,7 @@ KalmanCoreErrorCode KalmanCore::updateSyncedData(const Mat& optical_flow, const 
   input_color_image_sync_ = color_image;
 
   // Do the prediction process
-  return predict(input_optical_flow_sync_, input_depth_sync_, input_color_image_sync_, Mat());
+  return predict(input_optical_flow_sync_, input_depth_sync_, input_color_image_sync_);
 }
 
 void KalmanCore::setCameraParameters(double fx, double fy, double cx, double cy)
@@ -187,14 +185,11 @@ void KalmanCore::setCameraParameters(double fx, double fy, double cx, double cy)
 }
 
 
-KalmanCoreErrorCode KalmanCore::predict(Mat input_optical_flow, Mat input_depth, Mat input_color_image, Mat input_egomotion)
+KalmanCoreErrorCode KalmanCore::predict(Mat input_optical_flow, Mat input_depth, Mat input_color_image)
 { 
   // Create output matrices
-  // 6D output matrix (x, y, z, vx, vy, vz)
-  Mat output_6d		= Mat::zeros(input_color_image.rows,	input_color_image.cols,	CV_MAKETYPE(CV_32F, 6));
-
-  // Validity matrix (1 if it contains a world point, 0 otherwise)
-  Mat output_6d_val	= Mat::zeros(input_color_image.rows,	input_color_image.cols,	CV_8UC1);
+  // 6D output matrix (x, y, z, vx, vy, vz, validitiy)
+  Mat output_6d		= Mat::zeros(input_color_image.rows,	input_color_image.cols,	CV_MAKETYPE(CV_32F, 7));
 
   // Debug image
 	Mat output_debug_image = Mat::zeros(input_color_image.rows, input_color_image.cols,  CV_8UC3);
@@ -225,7 +220,7 @@ KalmanCoreErrorCode KalmanCore::predict(Mat input_optical_flow, Mat input_depth,
   if(first_time_)
   {
     // Set the world points
-    KalmanCoreErrorCode result = setNewWorldPoints(occupancy_grid, output_6d, output_debug_image, output_6d_val);
+    KalmanCoreErrorCode result = setNewWorldPoints(occupancy_grid, output_6d, output_debug_image);
     if(result != KalmanCoreErrorCode::OK)
     {
       return result;
@@ -240,10 +235,7 @@ KalmanCoreErrorCode KalmanCore::predict(Mat input_optical_flow, Mat input_depth,
     // Buffer values
     Mat z		= Mat::zeros(3,1,CV_64FC1);
     Mat x		= Mat::zeros(6,1,CV_64FC1);
-		Vec6f tmp	= 0;
-    int age		= 0;
-    int pos_u_old = 0;
-    int pos_v_old = 0;
+
     int pos_u	= 0;
     int pos_v	= 0;
 
@@ -253,9 +245,7 @@ KalmanCoreErrorCode KalmanCore::predict(Mat input_optical_flow, Mat input_depth,
     { 
       auto& wp = *it;     // Read old measurement value
       wp->getZ(z);
-      pos_u_old = static_cast<int>(std::floor(z.at<double>(0,0)));
-      pos_v_old = static_cast<int>(std::floor(z.at<double>(1,0)));
-
+   
       // Predict the state
       result = wp->computeKalmanStep(input_depth, 
                                      input_optical_flow, 
@@ -280,14 +270,14 @@ KalmanCoreErrorCode KalmanCore::predict(Mat input_optical_flow, Mat input_depth,
       switch (result)
       {
         case WorldPointErrorCode::OK:
+
           // Check if there is already a world point at the new position
-          if(output_6d_val.at<uchar>(pos_v, pos_u) == 0)
+          if(output_6d.at<OutVec>(pos_v, pos_u)[VAL_IDX] == 0)
           {
-              wp->getX(x);
-              output_6d.at<Vec6f>(pos_v, pos_u) = x;
-              output_6d_val.at<uchar>(pos_v, pos_u) = 1;
-              output_debug_image.at<Vec3b>(pos_v, pos_u) = Vec3b(0, 255, 0);
-              it++;
+            wp->getX(x);
+            output_6d.at<OutVec>(pos_v, pos_u) = formatOutput(x, 1);
+            output_debug_image.at<Vec3b>(pos_v, pos_u) = Vec3b(0, 255, 0);
+            it++;
           }
           else
           {
@@ -295,19 +285,18 @@ KalmanCoreErrorCode KalmanCore::predict(Mat input_optical_flow, Mat input_depth,
           }
         break;
         case WorldPointErrorCode::BAD_DEPTH_VALUE_ERROR:
-            // We paint the point yellow
-            output_debug_image.at<Vec3b>(pos_v, pos_u) = Vec3b(0, 255, 255);
-            it = worldpoints_.erase(it);
+          // We paint the point yellow
+          output_debug_image.at<Vec3b>(pos_v, pos_u) = Vec3b(0, 255, 255);
+          it = worldpoints_.erase(it);
         break;
         case WorldPointErrorCode::NEW_MEASUREMENT_OUT_OF_BOUNDS_ERROR:
           it = worldpoints_.erase(it);
         break;
         case WorldPointErrorCode::MEASUREMENT_OUT_OF_HEIGHT_BOUNDS_ERROR:
-          // We paint the point red
-          output_debug_image.at<Vec3b>(pos_v, pos_u) = Vec3b(0, 0, 255);
-          it = worldpoints_.erase(it);
-        break;
         case WorldPointErrorCode::THREE_SIGMA_TEST_FAILED:
+        case WorldPointErrorCode::UNABLE_TO_GET_OPT_FLW_MSMT:
+        case WorldPointErrorCode::DIVISION_BY_ZERO_ERROR:
+        case WorldPointErrorCode::UNKNOWN_ERROR:
           // We paint the point red
           output_debug_image.at<Vec3b>(pos_v, pos_u) = Vec3b(0, 0, 255);
           it = worldpoints_.erase(it);
@@ -354,26 +343,22 @@ KalmanCoreErrorCode KalmanCore::predict(Mat input_optical_flow, Mat input_depth,
                 occupancy_grid);
 
             worldpoints_.back()->getX(x);
+
           // Update the output matrices
           output_debug_image.at<cv::Vec3b>(new_v, new_u) = cv::Vec3b(0, 255, 0);
-          output_6d_val.at<uchar>(new_v, new_u) = 1;
-
-          // Update the 6D output matrix
-          output_6d.at<cv::Vec6f>(new_v, new_u) = cv::Vec6f(x);
-  
-          }
+          output_6d.at<OutVec>(new_v, new_u) = formatOutput(x, 1);
+          }  
         }
       }
     }
   }
 
   output_6d_ = output_6d;
-  output_6d_val_ = output_6d_val;
   output_debug_image_ = output_debug_image;
   return KalmanCoreErrorCode::OK;
 }
 
-KalmanCoreErrorCode KalmanCore::setNewWorldPoints(Mat &occupancy_grid, Mat &output_6d, Mat &output_debug_image, Mat &output_6d_val)
+KalmanCoreErrorCode KalmanCore::setNewWorldPoints(Mat &occupancy_grid, Mat &output_6d, Mat &output_debug_image)
 {
   // Verify that the input matrices are not empty
   if (input_depth_sync_.empty()) {
@@ -423,8 +408,7 @@ KalmanCoreErrorCode KalmanCore::setNewWorldPoints(Mat &occupancy_grid, Mat &outp
 
       // Update the output matrices
       output_debug_image.at<cv::Vec3b>(row, col) = cv::Vec3b(0, 255, 0); // Green color
-      output_6d_val.at<uchar>(row, col) = 1;
-      output_6d.at<cv::Vec6f>(row, col) = cv::Vec6f(x);
+      output_6d.at<OutVec>(row, col) = formatOutput(x, 1);
     }
   }
 
@@ -515,6 +499,18 @@ double KalmanCore::getDeltaTime()
   return time_diff_;
 }
 
+OutVec KalmanCore::formatOutput(Vec6f x, int validity)
+{
+  OutVec output;
+  output[0] = x[0]; // x
+  output[1] = x[1]; // y
+  output[2] = x[2]; // z
+  output[3] = x[3]; // vx
+  output[4] = x[4]; // vy
+  output[5] = x[5]; // vz
+  output[6] = validity; // validity
+  return output;
+}
 
 double KalmanCore::calculateTimeDifference(TimePoint& lastTime) 
 {
