@@ -5,6 +5,24 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
+
+
+# Detect ROS version
+execute_process(
+    COMMAND bash -c "echo -n $ROS_DISTRO"
+    OUTPUT_VARIABLE ROS_VERSION
+)
+# Define preprocessor macros for ros version if they are not already defined
+if(NOT DEFINED ROS_VERSION_MACRO)
+    if(ROS_VERSION STREQUAL "jazzy")
+        add_compile_definitions(ROS_VERSION_JAZZY)
+        set(ROS_VERSION_MACRO "ROS_VERSION_JAZZY")
+    elseif(ROS_VERSION STREQUAL "humble")
+        add_compile_definitions(ROS_VERSION_HUMBLE)
+        set(ROS_VERSION_MACRO "ROS_VERSION_HUMBLE")
+    endif()
+endif()
+
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(std_msgs)

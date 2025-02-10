@@ -3,21 +3,19 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <mutex>
 
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/string.hpp"
 #include <sensor_msgs/msg/image.hpp>
 #include <sensor_msgs/msg/camera_info.hpp>
 #include <opencv2/opencv.hpp>
-#include <mutex>
-
 
 #ifdef ROS_VERSION_JAZZY
-#include <cv_bridge/cv_bridge.hpp>
+  #include <cv_bridge/cv_bridge.hpp>
 #else
-#include <cv_bridge/cv_bridge.h>
+  #include <cv_bridge/cv_bridge.h>
 #endif
-
 
 using namespace std::chrono_literals;
 using namespace cv;

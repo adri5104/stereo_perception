@@ -38,8 +38,6 @@ __global__ void filterValidPointsKernel(const float* data, const uint8_t* valid_
     }
 }
 
-
-
 __global__ void dbscanKernel(float* data, int* labels, int total_points, float eps, int minPts, float pos_w, float vel_w) {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx >= total_points) return;
