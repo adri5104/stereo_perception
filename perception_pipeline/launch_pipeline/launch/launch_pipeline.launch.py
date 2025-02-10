@@ -83,7 +83,6 @@ def generate_launch_description():
                 {'color_image_topic':"/device_0/sensor_1/Color_0/image/data"}, 
                 {'debug_image_topic_':'/debug/debug_image'},
                 {'output_6d_topic' : '/perception_pipeline/output_6d'},
-                {'output_6d_val_topic' : '/perception_pipeline/output_6d_val'},
                 {'debug_markers_topic' : '/debug/image_6d_markers'},
                 {'grid_size' : 20},
                 {'use_ego_motion' : True},
@@ -106,30 +105,29 @@ def generate_launch_description():
             ros_arguments= ["--log-level", "info"] 
         ),
         
-        #launch_ros.actions.Node(
-        #    package='foxglove_bridge',
-        #    executable='foxglove_bridge',
-        #    name='foxglove_bridge',
-        #    output='screen',
-        #    parameters=[
-        #        {'send_buffer_limit:': 1000000000 },
-        #    ],
-        #),
+        launch_ros.actions.Node(
+            package='foxglove_bridge',
+            executable='foxglove_bridge',
+            name='foxglove_bridge',
+            output='screen',
+            parameters=[
+                {'send_buffer_limit:': 1000000000 },
+            ],
+        ),
         
-        #launch_ros.actions.Node(
-        #  package='object_detector',
-        #  executable='object_detector_node',
-        #  name='object_detector_node',
-        #  output='screen',
-        #  parameters=[
-        #    {'input_6d_topic': '/perception_pipeline/output_6d'},
-        #    {'input_6d_val_topic': '/perception_pipeline/output_6d_val'},
-        #    {'output_markers_topic' : '/perception_pipeline/output_markers'},
-        #    {'eps': 20.0},
-        #    {'minPts': 10},
-        #    {'pos_weight': 1.0},
-        #    {'vel_weight': 0.0}
-        #  ],
-        #  
-        #)
+        launch_ros.actions.Node(
+          package='object_detector',
+          executable='object_detector_node',
+          name='object_detector_node',
+          output='screen',
+          parameters=[
+            {'input_6d_topic': '/perception_pipeline/output_6d'},
+            {'output_markers_topic' : '/perception_pipeline/output_markers'},
+            {'eps': 20.0},
+            {'minPts': 10},
+            {'pos_weight': 1.0},
+            {'vel_weight': 0.0}
+          ],
+          
+        )
     ])  
