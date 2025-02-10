@@ -28,8 +28,13 @@ namespace perception_pipeline
 namespace kalman_filter
 {
 
+/// 6D image pixel value
 typedef Vec<float, 7> OutVec;
-const int VAL_IDX = 6;
+
+/// 6D image channel number
+const int OUT6D_VAL_IDX = 6;
+const int OUT6D_C = 7;
+const int OUT6D_TYPE = CV_32FC(OUT6D_C);
 
 enum class KalmanCoreErrorCode {
     OK = 1,
@@ -179,11 +184,11 @@ public:
   /**
    * @brief Get the Output object
    * 
-   * @param output_6d output 6D matrix
+   * @param output_6d output 6D image with (x,y,z,vx,vy,vz,valid) format
    * @param output_debug_image output debug image
    * @return KalmanCoreErrorCode 
    */
-  KalmanCoreErrorCode getOutput(cv::Mat &output_6d, cv::Mat &output_6d_val, cv::Mat &output_debug_image);
+  KalmanCoreErrorCode getOutput(cv::Mat &output_6d, cv::Mat &output_debug_image);
 
   /**
    * @brief getter for the current timedifference between frames
@@ -251,7 +256,6 @@ private:
 
   // Output attributes
   Mat output_6d_; // Output matrix with 
-  Mat output_6d_val_; //
   Mat output_debug_image_; // Debug image
 
 

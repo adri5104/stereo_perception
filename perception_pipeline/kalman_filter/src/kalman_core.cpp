@@ -189,14 +189,12 @@ KalmanCoreErrorCode KalmanCore::predict(Mat input_optical_flow, Mat input_depth,
 { 
   // Create output matrices
   // 6D output matrix (x, y, z, vx, vy, vz, validitiy)
-  Mat output_6d		= Mat::zeros(input_color_image.rows,	input_color_image.cols,	CV_MAKETYPE(CV_32F, 7));
+  Mat output_6d		= Mat::zeros(input_color_image.rows,	input_color_image.cols,	CV_MAKETYPE(CV_32F, OUT6D_C));
 
   // Debug image
-	Mat output_debug_image = Mat::zeros(input_color_image.rows, input_color_image.cols,  CV_8UC3);
+	Mat output_debug_image = input_color_image;
 
-  // Initialization
-  output_6d = Mat::zeros(input_color_image.rows, input_color_image.cols, CV_MAKETYPE(CV_32F, 6));
-  output_debug_image = input_color_image;  
+  // Occupancy map
   Mat occupancy_grid = Mat::zeros(input_color_image.rows / grid_size_worldpoints_, 
                                input_color_image.cols / grid_size_worldpoints_, CV_8UC1);
 
@@ -272,7 +270,7 @@ KalmanCoreErrorCode KalmanCore::predict(Mat input_optical_flow, Mat input_depth,
         case WorldPointErrorCode::OK:
 
           // Check if there is already a world point at the new position
-          if(output_6d.at<OutVec>(pos_v, pos_u)[VAL_IDX] == 0)
+          if(output_6d.at<OutVec>(pos_v, pos_u)[OUT6D_VAL_IDX] != 1.0)
           {
             wp->getX(x);
             output_6d.at<OutVec>(pos_v, pos_u) = formatOutput(x, 1);
@@ -480,7 +478,7 @@ KalmanCoreErrorCode KalmanCore::computeKalmanMatrices()
   return KalmanCoreErrorCode::OK;
 }
 
-KalmanCoreErrorCode KalmanCore::getOutput(cv::Mat &output_6d, cv::Mat &output_6d_val , cv::Mat &output_debug_image)
+KalmanCoreErrorCode KalmanCore::getOutput(cv::Mat &output_6d, cv::Mat &output_debug_image)
 {
   if (!camera_parameters_set_)
   {
@@ -488,7 +486,6 @@ KalmanCoreErrorCode KalmanCore::getOutput(cv::Mat &output_6d, cv::Mat &output_6d
   }
 
   output_6d = output_6d_;
-  output_6d_val = output_6d_val_;
   output_debug_image = output_debug_image_;
   
   return KalmanCoreErrorCode::OK; 
@@ -508,7 +505,7 @@ OutVec KalmanCore::formatOutput(Vec6f x, int validity)
   output[3] = x[3]; // vx
   output[4] = x[4]; // vy
   output[5] = x[5]; // vz
-  output[6] = validity; // validity
+  output[6] = static_cast<float>(validity); // validity
   return output;
 }
 

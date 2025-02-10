@@ -35,7 +35,6 @@
     this->declare_parameter<std::string>("camera_frame_tf_topic", "/odometry");
     this->declare_parameter<std::string>("color_image_topic", "/device_0/sensor_1/Color_0/image/data");
     this->declare_parameter<std::string>("output_6d_topic", "/output_6d");
-    this->declare_parameter<std::string>("output_6d_val_topic", "/output_6d_val");
     this->declare_parameter<std::string>("debug_image_topic", "/debug/image_6d");
     this->declare_parameter<std::string>("debug_markers_topic", "/debug/image_6d_markers");
 
@@ -74,7 +73,6 @@
     camera_frame_tf_topic_     = this->get_parameter("camera_frame_tf_topic").as_string();
     color_image_topic_  = this->get_parameter("color_image_topic").as_string();
     output_6d_topic_    = this->get_parameter("output_6d_topic").as_string();
-    output_6d_val_topic_ = this->get_parameter("output_6d_val_topic").as_string();
     debug_image_topic_  = this->get_parameter("debug_image_topic").as_string();
     debug_markers_topic_ = this->get_parameter("debug_markers_topic").as_string();
     RCLCPP_INFO(this->get_logger(), "optical_flow_topic: '%s'", optical_flow_topic_.c_str());
@@ -83,8 +81,7 @@
     RCLCPP_INFO(this->get_logger(), "camera_frame_tf_topic: '%s'", camera_frame_tf_topic_.c_str());
     RCLCPP_INFO(this->get_logger(), "color_image_topic: '%s'", color_image_topic_.c_str());
     RCLCPP_INFO(this->get_logger(), "output_6d_topic: '%s'", output_6d_topic_.c_str());
-    RCLCPP_INFO(this->get_logger(), "output_6d_val_topic: '%s'", output_6d_val_topic_.c_str());
-    RCLCPP_INFO(this->get_logger(), "debug_image_topic: '%s'", debug_image_topic_.c_str());
+      RCLCPP_INFO(this->get_logger(), "debug_image_topic: '%s'", debug_image_topic_.c_str());
     RCLCPP_INFO(this->get_logger(), "debug_markers_topic: '%s'", debug_markers_topic_.c_str());
     
     // Kalman filter parameters
@@ -140,14 +137,11 @@
       grid_size
     );
 
-
-
     // Create message_filters subscribers
     optical_flow_sub_.subscribe(this, optical_flow_topic_, rmw_qos_profile_sensor_data);
     depth_sub_.subscribe(this, depth_topic_, rmw_qos_profile_sensor_data);
     color_sub_.subscribe(this, color_image_topic_, rmw_qos_profile_sensor_data);
     frame_tf_sub_.subscribe(this, camera_frame_tf_topic_, rmw_qos_profile_sensor_data);
-
 
     // Create the synchronizer
     sync_ = std::make_shared<message_filters::Synchronizer<SyncPolicy>>(
@@ -168,9 +162,7 @@
     // Publishers
     debug_image_pub_ = this->create_publisher<sensor_msgs::msg::Image>(debug_image_topic_, 10);
     output_6d_pub_   = this->create_publisher<sensor_msgs::msg::Image>(output_6d_topic_, 10);
-    output_6d_val_pub_ = this->create_publisher<sensor_msgs::msg::Image>(output_6d_val_topic_, 10);
     debug_markers_pub_   = this->create_publisher<visualization_msgs::msg::MarkerArray>(debug_markers_topic_, 10);
-
 
     RCLCPP_INFO(this->get_logger(), "KalmanFilterNode with message_filters started.");
   }
@@ -221,10 +213,10 @@
     KalmanCoreErrorCode result = kalman_core_->updateSyncedData(flow_image, depth_image, color_image, odometry_matrix);
 
     // Retrieve outputs
-    cv::Mat output_6d, output_6d_val, output_debug_image;
+    cv::Mat output_6d, output_debug_image;
     double delta_time;
 
-    kalman_core_->getOutput(output_6d, output_6d_val ,output_debug_image);
+    kalman_core_->getOutput(output_6d ,output_debug_image);
     delta_time = kalman_core_->getDeltaTime();
 
 
@@ -239,27 +231,17 @@
       cv_bridge::CvImage(header, "bgr8", output_6d).toImageMsg();
     sensor_msgs::msg::Image::SharedPtr debug_image_msg =
       cv_bridge::CvImage(header, "bgr8", output_debug_image).toImageMsg();
-    // Create image msg from output_6d_val directly
-    sensor_msgs::msg::Image::SharedPtr output_6d_val_msg = 
-      cv_bridge::CvImage(header, "8UC1", output_6d_val).toImageMsg();
-    
-
 
     // Publish
     if (!(result == KalmanCoreErrorCode::OK))
       RCLCPP_ERROR(this->get_logger(), "KalmanCore error: %s", getErrorMessage(result).c_str());
 
     visualization_msgs::msg::MarkerArray markers =  
-      createMarkers(output_6d, output_6d_val, delta_time);  
+      createMarkers(output_6d, delta_time);  
     
-    
-
     debug_image_pub_->publish(*debug_image_msg);
     debug_markers_pub_->publish(markers);
     output_6d_pub_->publish(*output_6d_msg);
-    output_6d_val_pub_->publish(*output_6d_val_msg);
-
-
   }
 
   // Camera info callback
@@ -284,42 +266,26 @@
 
   visualization_msgs::msg::MarkerArray KalmanFilterNode::createMarkers(
       const cv::Mat &image_6d, 
-      const cv::Mat &image_6d_val, 
       double delta_time) 
   {
       visualization_msgs::msg::MarkerArray marker_array;
 
       try {
           // Validate that both matrices are not empty and have compatible dimensions
-          if (image_6d.empty() || image_6d_val.empty()) {
-              RCLCPP_ERROR(this->get_logger(), "Input images are empty.");
-              return marker_array;
-          }
-
-          if (image_6d.rows != image_6d_val.rows || image_6d.cols != image_6d_val.cols) {
-              RCLCPP_ERROR(this->get_logger(), "Dimension mismatch between image_6d and image_6d_val.");
+          if (image_6d.empty()) {
+              RCLCPP_ERROR(this->get_logger(), "Input image is empty.");
               return marker_array;
           }
 
           // Ensure the input matrix types are as expected
-          if (image_6d.type() != CV_32FC(6)) {
-              RCLCPP_ERROR(this->get_logger(), "image_6d must have type CV_32FC(6).");
+          if (image_6d.type() != OUT6D_TYPE) {
+              RCLCPP_ERROR(this->get_logger(), "image_6d invalid type. Type = %d", image_6d.type());
               return marker_array;
           }
 
-          if (image_6d_val.type() != CV_8UC1) {
-              RCLCPP_ERROR(this->get_logger(), "image_6d_val must have type CV_8UC1.");
-              return marker_array;
-          }
-
-          cv::Vec6f x; // 6D state vector
+          OutVec x; // 6D state vector
           int id = 0;  // Unique ID for each marker
-      
-
           int total = 0;
-          int valid_ = 0;
-
-    
 
   // Iterate over all valid points in parallel
   #pragma omp parallel for collapse(2)
@@ -327,19 +293,19 @@
       for (int j = 0; j < image_6d.cols; j++) {
           try {
               // Create thread-local variables
-              cv::Vec6f x;
+              OutVec x;
               visualization_msgs::msg::Marker marker;
 
               // Check if there is a valid point
-              uchar valid = image_6d_val.at<uchar>(i, j);
+              float valid = image_6d.at<OutVec>(i, j)[OUT6D_VAL_IDX];
               #pragma omp atomic
               total++;
-              if (valid != 1) {
+              if (valid != 1.0) {
                   continue;
               }
 
               // Extract the state vector safely
-              x = image_6d.at<cv::Vec6f>(i, j);
+              x = image_6d.at<OutVec>(i, j);
 
               // Create a new arrow marker
               marker.header.frame_id = "camera_optical_frame";
@@ -385,10 +351,6 @@
               {
                   marker_array.markers.push_back(marker);
               }
-
-              #pragma omp atomic
-              valid_++;
-
           } catch (const cv::Exception &e) {
               #pragma omp critical
               RCLCPP_ERROR(this->get_logger(), "OpenCV exception at pixel (%d, %d): %s", i, j, e.what());
@@ -400,8 +362,6 @@
           }
       }
   }
-
-      
       } catch (const cv::Exception &e) {
           RCLCPP_ERROR(this->get_logger(), "OpenCV exception in createMarkers: %s", e.what());
       } catch (const std::exception &e) {

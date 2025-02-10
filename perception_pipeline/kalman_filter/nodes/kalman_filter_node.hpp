@@ -98,7 +98,7 @@ private:
    * @param image Input 6D image (cv::Mat with 32F6C codification)
    * @return visualization_msgs::msg::MarkerArray 
    */
-  visualization_msgs::msg::MarkerArray createMarkers(const cv::Mat &image_6d, const cv::Mat &image_6d_val, double delta_time);
+  visualization_msgs::msg::MarkerArray createMarkers(const cv::Mat &image_6d, double delta_time);
 
   /**
    * @brief Helper function to convert from a ROS Image message to openCV Mat
@@ -129,8 +129,6 @@ private:
   rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr debug_image_pub_;
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr debug_markers_pub_;
   rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr output_6d_pub_;
-  rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr output_6d_val_pub_;
-
 
   // Parameters
   std::string optical_flow_topic_;
@@ -141,12 +139,7 @@ private:
   std::string debug_image_topic_;
   std::string debug_markers_topic_;
   std::string output_6d_topic_;
-  std::string output_6d_val_topic_;
-
-
   bool camera_parameters_set_ = false;
-
-
 };
 
 } // namespace kalman_filter
