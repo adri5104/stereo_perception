@@ -170,7 +170,11 @@ RUN sudo apt update && sudo apt upgrade -y
 # Install cv_bridge dependencies
 RUN sudo apt install -y ros-humble-cv-bridge
 
+# Install PCL Dependencies
+RUN sudo apt install ros-${ROS_DISTRO}-pcl-conversions ros-${ROS_DISTRO}-pcl-msgs
 
+# Install foxglove bridge
+RUN sudo apt install -y ros-${ROS_DISTRO}-foxglove-bridge
 
 # Add ROS 2 to the environment
 RUN echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
@@ -185,17 +189,28 @@ USER root
 # Remove the old link and create the new one
 RUN rm -f /usr/local/cuda && ln -s /usr/local/cuda-12.4 /usr/local/cuda
 
-# Set ENV so nvcc is on PATH, etc.
+# Set ENV so nvcc is on PATH, 
 ENV PATH="/usr/local/cuda/bin:${PATH}"
 ENV LD_LIBRARY_PATH="/usr/local/cuda/lib64:${LD_LIBRARY_PATH}"
 ENV CUDA_HOME="/usr/local/cuda"
 
-# Switch back to the ubuntu user if desired
+
+# Switch back to the ubuntu user
 USER ubuntu
 
+# Copy source files
+RUN sudo mkdir -p /perception_pipeline_ws/src
+COPY . /perception_pipeline_ws/src
+RUN sudo chown -R ubuntu:ubuntu /perception_pipeline_ws
 
 # Define entry point
 CMD ["bash"]
 
-# Rebuild only the missing OpenCV module (cudaoptflow)
-WORKDIR /opt/opencv/build   
+# Copy the entrypoint script into the container
+COPY entrypoint.sh /entrypoint.sh
+
+# Give execution permissions
+RUN sudo chmod +x /entrypoint.sh
+
+# Set entrypoint
+ENTRYPOINT ["/entrypoint.sh"]

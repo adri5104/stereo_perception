@@ -7,9 +7,10 @@
     "--gpus=all"
   ],
   "workspaceMount": "source=${localWorkspaceFolder},target=/ros2_ws/src,type=bind",
-  "workspaceFolder": "/ros2_ws/src",
+  "workspaceFolder": "/ros2_ws",
   "mounts": [
-    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.bash_history,target=/home/vscode/.bash_history,type=bind"
+    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.bash_history,target=/home/vscode/.bash_history,type=bind",
+    "source=${localWorkspaceFolder}/../Datasets,target=/ros2_ws/datasets,type=bind"
 ],
 "features": {
 	"ghcr.io/devcontainers/features/common-utils:2": {},
