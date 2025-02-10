@@ -287,70 +287,77 @@
           int id = 0;  // Unique ID for each marker
           int total = 0;
 
-  // Iterate over all valid points in parallel
-  #pragma omp parallel for collapse(2)
-  for (int i = 0; i < image_6d.rows; i++) {
-      for (int j = 0; j < image_6d.cols; j++) {
-          try {
-              // Create thread-local variables
-              OutVec x;
-              visualization_msgs::msg::Marker marker;
+          // First, clear old markers by publishing a DELETE action
+          visualization_msgs::msg::Marker clear_marker;
+          clear_marker.header.frame_id = "camera_optical_frame";  // Adjust the frame as needed
+          clear_marker.header.stamp = this->now();
+          clear_marker.ns = "cluster_points";
+          clear_marker.action = visualization_msgs::msg::Marker::DELETEALL;  // Deletes all previously published markers
+          marker_array.markers.push_back(clear_marker);
 
-              // Check if there is a valid point
-              float valid = image_6d.at<OutVec>(i, j)[OUT6D_VAL_IDX];
-              #pragma omp atomic
-              total++;
-              if (valid != 1.0) {
-                  continue;
-              }
+          // Iterate over all valid points in parallel
+          #pragma omp parallel for collapse(2)
+          for (int i = 0; i < image_6d.rows; i++) {
+              for (int j = 0; j < image_6d.cols; j++) {
+                  try {
+                      // Create thread-local variables
+                      OutVec x;
+                      visualization_msgs::msg::Marker marker;
 
-              // Extract the state vector safely
-              x = image_6d.at<OutVec>(i, j);
+                      // Check if there is a valid point
+                      float valid = image_6d.at<OutVec>(i, j)[OUT6D_VAL_IDX];
+                      #pragma omp atomic
+                      total++;
+                      if (valid != 1.0) {
+                          continue;
+                      }
 
-              // Create a new arrow marker
-              marker.header.frame_id = "camera_optical_frame";
-              marker.header.stamp = this->now();
-              marker.ns = "kalman_arrows";
-              
-              int local_id;
-              #pragma omp atomic capture
-              local_id = id++;
+                      // Extract the state vector safely
+                      x = image_6d.at<OutVec>(i, j);
 
-              marker.id = local_id;
-              marker.type = visualization_msgs::msg::Marker::ARROW;
-              marker.action = visualization_msgs::msg::Marker::ADD;
-              marker.lifetime = rclcpp::Duration::from_seconds(delta_time);
+                      // Create a new arrow marker
+                      marker.header.frame_id = "camera_optical_frame";
+                      marker.header.stamp = this->now();
+                      marker.ns = "kalman_arrows";
+                      
+                      int local_id;
+                      #pragma omp atomic capture
+                      local_id = id++;
 
-              // Start point of the arrow
-              geometry_msgs::msg::Point start;
-              start.x = x[0];
-              start.y = x[1];
-              start.z = x[2];
+                      marker.id = local_id;
+                      marker.type = visualization_msgs::msg::Marker::ARROW;
+                      marker.action = visualization_msgs::msg::Marker::ADD;
+            
+                      // Start point of the arrow
+                      geometry_msgs::msg::Point start;
+                      start.x = x[0];
+                      start.y = x[1];
+                      start.z = x[2];
 
-              // End point of the arrow
-              geometry_msgs::msg::Point end;
-              end.x = x[0] + delta_time * x[3];
-              end.y = x[1] + delta_time * x[4];
-              end.z = x[2] + delta_time * x[5];
+                      // End point of the arrow
+                      geometry_msgs::msg::Point end;
+                      end.x = x[0] + delta_time * x[3];
+                      end.y = x[1] + delta_time * x[4];
+                      end.z = x[2] + delta_time * x[5];
 
-              marker.points.push_back(start);
-              marker.points.push_back(end);
+                      marker.points.push_back(start);
+                      marker.points.push_back(end);
 
-              // Set arrow color and size
-              marker.scale.x = 0.02; // Thickness of the arrow shaft
-              marker.scale.y = 0.04; // Thickness of the arrow head
-              marker.scale.z = 0.0;
+                      // Set arrow color and size
+                      marker.scale.x = 0.02; // Thickness of the arrow shaft
+                      marker.scale.y = 0.04; // Thickness of the arrow head
+                      marker.scale.z = 0.0;
 
-              marker.color.r = 1.0;
-              marker.color.g = 0.0;
-              marker.color.b = 0.0;
-              marker.color.a = 1.0;
+                      marker.color.r = 1.0;
+                      marker.color.g = 0.0;
+                      marker.color.b = 0.0;
+                      marker.color.a = 1.0;
 
-              // Add the marker to the MarkerArray
-              #pragma omp critical
-              {
-                  marker_array.markers.push_back(marker);
-              }
+                      // Add the marker to the MarkerArray
+                      #pragma omp critical
+                      {
+                          marker_array.markers.push_back(marker);
+                      }
           } catch (const cv::Exception &e) {
               #pragma omp critical
               RCLCPP_ERROR(this->get_logger(), "OpenCV exception at pixel (%d, %d): %s", i, j, e.what());
