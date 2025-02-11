@@ -1,7 +1,13 @@
+/**
+ * @file object_detector_cuda.cu
+ * @author Adrian Rieker
+ * @brief CUDA Kernel implementation for the object detector
+ */
+
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 #include <cmath>
-#include <cstdint>  // Ensure uint8_t is defined
+#include <cstdint>  
 #include <stdio.h>
 
 namespace perception_pipeline
@@ -9,95 +15,137 @@ namespace perception_pipeline
 namespace object_detector
 {
 
-// CUDA custom distance function for DBSCAN
+  __device__ int global_cluster_counter = 0;
+
+/**
+ * @brief Computes a custom distance metric for DBSCAN
+ * 
+ * @param a First point (6D: XYZ + Velocity XYZ)
+ * @param b Second point (6D: XYZ + Velocity XYZ)
+ * @param pos_w Weight for position distance
+ * @param vel_w Weight for velocity similarity
+ * @return Distance metric based on position and velocity
+ */
 __device__ float customDistance(const float* a, const float* b, float pos_w, float vel_w) {
-    // Position distance (Euclidean)
     float pos_dist = sqrtf(powf(a[0] - b[0], 2) + powf(a[1] - b[1], 2) + powf(a[2] - b[2], 2));
     
-    // Velocity angular similarity
     float dot_product = a[3] * b[3] + a[4] * b[4] + a[5] * b[5];
     float norm_product = sqrtf(a[3] * a[3] + a[4] * a[4] + a[5] * a[5]) * 
-                          sqrtf(b[3] * b[3] + b[4] * b[4] + b[5] * b[5]);
-    float vel_similarity = (norm_product > 0) ? acosf(dot_product / norm_product) : M_PI;
+                         sqrtf(b[3] * b[3] + b[4] * b[4] + b[5] * b[5]);
 
-   
+    float vel_similarity = (norm_product > 0) ? acosf(dot_product / norm_product) : M_PI;
+    
     return pos_w * pos_dist + vel_w * vel_similarity;
 }
 
-// CUDA Kernel: Filters valid points
-__global__ void filterValidPointsKernel(const float* data, const uint8_t* valid_mask, float* filtered_data, int* valid_indices, int total_points, int* valid_count) {
+/**
+ * @brief Kernel to filter valid points from the input 6D image
+ */
+__global__ void filterValidPointsKernel(
+  const float* data, float* filtered_data, int total_points, int* valid_count) 
+{
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx >= total_points) return;
 
-    if (valid_mask[idx] == 1) {
-        int out_idx = atomicAdd(valid_count, 1);
-        for (int j = 0; j < 6; ++j) {
-            filtered_data[out_idx * 6 + j] = data[idx * 6 + j];
+    int input_offset = idx * 7;  
+    float valid_flag = data[input_offset + 6];
+
+    if (valid_flag >= 0.5f) {
+        int output_idx = atomicAdd(valid_count, 1);
+        for (int i = 0; i < 6; ++i) {
+            filtered_data[output_idx * 6 + i] = data[input_offset + i];
         }
-        valid_indices[out_idx] = idx;
     }
 }
 
-__global__ void dbscanKernel(float* data, int* labels, int total_points, float eps, int minPts, float pos_w, float vel_w) {
+/**
+ * @brief DBSCAN Kernel for clustering
+ */
+__global__ void dbscanKernel(float* data, int* labels, int total_points, 
+                             float eps, int minPts, float pos_w, float vel_w, 
+                             int* neighbors, int* neighbor_counts) 
+{
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx >= total_points) return;
 
-    if (idx < 10) {  // Print first 10 points
-        printf("[DEBUG] CUDA Point %d: [%f, %f, %f, %f, %f, %f]\n",
-               idx, data[idx * 6], data[idx * 6 + 1], data[idx * 6 + 2],
-               data[idx * 6 + 3], data[idx * 6 + 4], data[idx * 6 + 5]);
-    }
+    if (labels[idx] != -2) return;
 
-    if (labels[idx] != -1) return; // Already classified
-
+    int* my_neighbors = &neighbors[idx * 1024];  
     int count = 0;
-    int neighbors[1024]; // Store indices of neighbors (max 1024 for now)
-    
-    // **Find Neighbors**
+
+    // Find neighbors
     for (int j = 0; j < total_points; ++j) {
-        if (idx != j && customDistance(&data[idx * 6], &data[j * 6], pos_w, vel_w) < eps) {
-            if (count < 1024) neighbors[count] = j; // Store neighbor index
-            count++;
+        if (j == idx) continue;
+
+        float dist = customDistance(&data[idx * 6], &data[j * 6], pos_w, vel_w);
+        if (dist < eps && count < 1024) {
+            my_neighbors[count++] = j;
         }
     }
 
+    neighbor_counts[idx] = count;
+
     if (count < minPts) {
-        labels[idx] = -1; // Noise
+        labels[idx] = -1;
         return;
     }
 
-    // **Expand Cluster (Using Shared Memory for Efficiency)**
-    __shared__ int cluster_id;
-    if (threadIdx.x == 0) cluster_id = idx; // Assign unique cluster ID
-    __syncthreads();
+    int cluster_id = atomicAdd(&global_cluster_counter, 1);
+    labels[idx] = cluster_id;
 
-    labels[idx] = cluster_id; // Set label for the starting point
+    // **Iteratively Expand Clusters**
+    for (int iter = 0; iter < 10; ++iter) 
+    {
+        __syncthreads();
 
-    for (int i = 0; i < count; ++i) {
-        int neighbor_idx = neighbors[i];
+        for (int i = 0; i < count; ++i) {
+            int neighbor_idx = my_neighbors[i];
 
-        if (labels[neighbor_idx] == -1) { // If noise, convert to cluster point
-            labels[neighbor_idx] = cluster_id;
-        } else if (labels[neighbor_idx] == -2) { // If unclassified, assign cluster
-            labels[neighbor_idx] = cluster_id;
+            if (labels[neighbor_idx] == -2 || labels[neighbor_idx] == -1) {
+                labels[neighbor_idx] = cluster_id;
+            }
         }
     }
 }
 
-
-// Function to launch CUDA DBSCAN
-void launchDbscanKernel(float* d_data, int* d_labels, int total_points, float eps, int minPts, float pos_w, float vel_w) {
+/**
+ * @brief Function to launch the DBSCAN kernel
+ */
+void launchDbscanKernel(float* d_data, int* d_labels, int total_points,
+                        float eps, int minPts, float pos_w, float vel_w) 
+{
     int blockSize = 256;
     int gridSize = (total_points + blockSize - 1) / blockSize;
-    dbscanKernel<<<gridSize, blockSize>>>(d_data, d_labels, total_points, eps, minPts, pos_w, vel_w);
+
+    int zero = 0;
+    cudaMemcpyToSymbol(global_cluster_counter, &zero, sizeof(int));
     cudaDeviceSynchronize();
+
+    int* d_neighbors;
+    int* d_neighbor_counts;
+    cudaMalloc(&d_neighbors, total_points * 1024 * sizeof(int));
+    cudaMalloc(&d_neighbor_counts, total_points * sizeof(int));
+    cudaMemset(d_neighbor_counts, 0, total_points * sizeof(int));
+  
+    dbscanKernel<<<gridSize, blockSize>>>(d_data, d_labels, total_points, eps, minPts, pos_w, vel_w,
+                                          d_neighbors, d_neighbor_counts);
+    cudaDeviceSynchronize();
+
+    cudaFree(d_neighbors);
+    cudaFree(d_neighbor_counts);
 }
 
-// Function to launch CUDA filtering of valid points
-void filterValidPointsKernelLauncher(const float* d_data, const uint8_t* d_valid_mask, float* d_filtered_data, int* d_valid_indices, int* d_valid_count, int total_points) {
+/**
+ * @brief Filters valid points using CUDA
+ */
+void filterValidPointsKernelLauncher(
+  const float* d_data, float* d_filtered_data, int* d_valid_count, int total_points) 
+{
     int blockSize = 256;
     int gridSize = (total_points + blockSize - 1) / blockSize;
-    filterValidPointsKernel<<<gridSize, blockSize>>>(d_data, d_valid_mask, d_filtered_data, d_valid_indices, total_points, d_valid_count);
+    filterValidPointsKernel<<<gridSize, blockSize>>>(
+      d_data, d_filtered_data, total_points, d_valid_count);
+
     cudaDeviceSynchronize();
 }
 

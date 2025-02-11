@@ -13,70 +13,60 @@ ObjectDetectorNode::ObjectDetectorNode() :
 {
   // Get parameters
   this->declare_parameter("input_6d_topic", "/6d_image");
-  this->declare_parameter("input_6d_val_topic", "/6d_image_val");
   this->declare_parameter("output_markers_topic", "/object_markers");
   this->declare_parameter("eps", 0.1);
   this->declare_parameter("minPts", 10);
   this->declare_parameter("pos_weight", 1.0);
   this->declare_parameter("vel_weight", 1.0);
   this->get_parameter("input_6d_topic", input_6d_topic_);
-  this->get_parameter("input_6d_val_topic", input_6d_val_topic_);
   this->get_parameter("output_markers_topic", output_markers_topic_);
 
-  // Create message filters subscribers
-  input_6d_sub_.subscribe(this, input_6d_topic_, rmw_qos_profile_sensor_data);
-  input_6d_val_sub_.subscribe(this, input_6d_val_topic_,rmw_qos_profile_sensor_data);
-
-  // Create the synchronizer
-  sync_ = std::make_shared<message_filters::Synchronizer<SyncPolicy>>(
-    SyncPolicy(10),   // queue size
-    input_6d_sub_,
-    input_6d_val_sub_
+  // Subscribe to the 6d image topic
+  input_6d_sub_ = this->create_subscription<sensor_msgs::msg::Image>(
+    input_6d_topic_, 10,
+    std::bind(&ObjectDetectorNode::callback6dImage, this, std::placeholders::_1)
   );
-
-  // Register the synchronized callback
-  sync_->registerCallback(&ObjectDetectorNode::inputSyncCallback, this);
 
   // Create publishers
   output_markers_pub_ = this->create_publisher<visualization_msgs::msg::MarkerArray>(output_markers_topic_, 10);
 
-
-    // Object detector
+  // Object detector
   object_detector_ = std::make_unique<ObjectDetector>(
     this->get_parameter("eps").as_double(),
     this->get_parameter("minPts").as_int(),
     this->get_parameter("pos_weight").as_double(),
     this->get_parameter("vel_weight").as_double()
   );
-
 }
 
-void ObjectDetectorNode::inputSyncCallback(const sensor_msgs::msg::Image::SharedPtr in6d, const sensor_msgs::msg::Image::SharedPtr in6d_val)
+void ObjectDetectorNode::callback6dImage(const sensor_msgs::msg::Image::SharedPtr msg)
 {
-  auto image_6d = rosImageToCvMat(in6d);
-  auto image_6d_val = rosImageToCvMat(in6d_val);
+  // Convert ROS image to cv::Mat
+  cv::Mat image = rosImageToCvMat(msg);
 
-  // Update the object detector
-  object_detector_->updateSync(image_6d, image_6d_val);
-  
-  // Publish the detected clusters as markers
-  publishClusters(object_detector_->getClusters());
+  // Detect obj ects
+  object_detector_->update(image);
+  auto clusters = object_detector_->getClusters();
+
+  // Publish the clusters as markers
+  publishClusters(clusters);
+ 
 }
 
 cv::Mat ObjectDetectorNode::rosImageToCvMat(const sensor_msgs::msg::Image::SharedPtr msg)
 {
-  cv_bridge::CvImagePtr cv_ptr;
-  try
-  {
-    cv_ptr = cv_bridge::toCvCopy(msg, msg->encoding);
-  }
-  catch (cv_bridge::Exception& e)
-  {
-    RCLCPP_ERROR(this->get_logger(), "cv_bridge exception: %s", e.what());
-    return cv::Mat();
-  }
+    cv_bridge::CvImagePtr cv_ptr;
+    try
+    {
+        cv_ptr = cv_bridge::toCvCopy(msg, msg->encoding);
+    }
+    catch (cv_bridge::Exception& e)
+    {
+        RCLCPP_ERROR(this->get_logger(), "cv_bridge exception: %s", e.what());
+        return cv::Mat();
+    }
 
-  return cv_ptr->image;
+    return cv_ptr->image; 
 }
 
 void ObjectDetectorNode::publishClusters(const std::vector<WorldEntity>& clusters)

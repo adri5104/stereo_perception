@@ -38,6 +38,7 @@ find_package(OpenCV REQUIRED)
 find_package(OpenMP REQUIRED) 
 find_package(CUDA REQUIRED)  
 find_package(message_filters REQUIRED)
+find_package(kalman_filter REQUIRED)
 
 
 # Print OpenCV version
@@ -84,7 +85,7 @@ set(MODULE_LIBS
     Eigen3
     PCL
     message_filters
-    
+    kalman_filter
 )
 
 # Create object_detector shared library (C++)

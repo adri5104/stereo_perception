@@ -228,7 +228,7 @@
 
     // Convert to sensor_msgs
     sensor_msgs::msg::Image::SharedPtr output_6d_msg =
-      cv_bridge::CvImage(header, "bgr8", output_6d).toImageMsg();
+      cv_bridge::CvImage(header, "32FC7", output_6d).toImageMsg();
     sensor_msgs::msg::Image::SharedPtr debug_image_msg =
       cv_bridge::CvImage(header, "bgr8", output_debug_image).toImageMsg();
 
@@ -286,6 +286,7 @@
           OutVec x; // 6D state vector
           int id = 0;  // Unique ID for each marker
           int total = 0;
+          
 
           // First, clear old markers by publishing a DELETE action
           visualization_msgs::msg::Marker clear_marker;

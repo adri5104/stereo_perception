@@ -302,6 +302,9 @@ KalmanCoreErrorCode KalmanCore::predict(Mat input_optical_flow, Mat input_depth,
 
       }
     }
+    
+    // Print the number of worldpoints
+    cout << "[Kalman] Number of worldpoints: " << worldpoints_.size() << endl;
 
     // Refill gaps with new WorldPoints
     // We iterate over the depth image and create a new WorldPoint for each valid depth value
@@ -505,7 +508,16 @@ OutVec KalmanCore::formatOutput(Vec6f x, int validity)
   output[3] = x[3]; // vx
   output[4] = x[4]; // vy
   output[5] = x[5]; // vz
-  output[6] = static_cast<float>(validity); // validity
+
+  if (validity == 0)
+  {
+    output[6] = 0.0;
+  }
+  else
+  {
+    output[6] = 1.0;
+  }
+  
   return output;
 }
 

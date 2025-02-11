@@ -1,22 +1,29 @@
 #ifndef OBJECT_DETECTOR_HPP
 #define OBJECT_DETECTOR_HPP
 
-// Include necessary headers
-#include "object_detector/object_detector.hpp"  // Self-referencing header
-#include "object_detector/world_entity.hpp"     // World entity class for object representation
 #include <opencv2/opencv.hpp>  
 #include <opencv2/core/cuda.hpp>
-                 // OpenCV for image processing
-#include <cmath>
 #include <unordered_map>
 #include <unordered_set>
+#include <cmath>
 
+#include "object_detector/object_detector.hpp"  
+#include "object_detector/world_entity.hpp"     
 
+using namespace cv;
 
 namespace perception_pipeline
 {
 namespace object_detector
 {
+
+  /// 6D image pixel value
+typedef Vec<float, 7> OutVec;
+
+/// 6D image channel number
+const int OUT6D_VAL_IDX = 6;
+const int OUT6D_C = 7;
+const int OUT6D_TYPE = CV_32FC(OUT6D_C);
 
 /**
  * @brief Error codes for ObjectDetector operations.
@@ -36,7 +43,6 @@ inline std::string getErrorMessageObjectDetector(objectDetectorErrorCode code) {
         : "Invalid error code.";
 }
 
-
 class ObjectDetector
 {
   public: 
@@ -55,10 +61,9 @@ class ObjectDetector
      * @brief update the 6D image stored in GPU memory using OpenCV's CUDA GPU matrix
      * 
      * @param image_6d 6D image to be updated
-     * @param image_6d_val Image mask to update the 6D image
      * @return objectDetectorErrorCode 
      */
-    objectDetectorErrorCode updateSync(const cv::Mat& image_6d, const cv::Mat& image_6d_val);
+    objectDetectorErrorCode update(const cv::Mat& image_6d);
 
     /**
      * @brief Apply DBSCAN clustering on the 6D image using CUDA.
@@ -77,9 +82,6 @@ class ObjectDetector
   private:
     /// The current 6D image stored in GPU memory using OpenCV's CUDA GPU matrix
     cv::cuda::GpuMat input_6d_image_; 
-
-    /// Validity mask for the 6D image
-    cv::cuda::GpuMat input_6d_image_val_;
 
     /// Detected object clusters
     std::vector<WorldEntity> clusters_; ///< Detected object clusters 
@@ -104,8 +106,8 @@ class ObjectDetector
  */
 extern void launchDbscanKernel(float* d_data, int* d_labels, int total_points, float eps, int minPts, float pos_w, float vel_w);
 
-extern void filterValidPointsKernelLauncher(const float* d_data, const uint8_t* d_valid_mask,
-                                     float* d_valid_data, int* d_valid_indices, 
+extern void filterValidPointsKernelLauncher(const float* d_data,
+                                     float* d_valid_data,  
                                      int* d_valid_count, int total_points);
 
 } // namespace object_detector
