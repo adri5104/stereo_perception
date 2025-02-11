@@ -3,19 +3,33 @@
 #include <opencv2/opencv.hpp>
 #include <cmath>
 #include <unordered_map>
+#include <queue>       // For BFS
+#include <iostream>
+#include <opencv2/opencv.hpp>  
+#include <opencv2/core/cuda.hpp>
 #include <cuda_runtime.h>
+
+
 
 namespace perception_pipeline
 {
 namespace object_detector
 {
 
-ObjectDetector::ObjectDetector(float eps, int minPts, float pos_weight, float vel_weight) :
+
+ObjectDetector::ObjectDetector(float eps, int minPts, float pos_weight, float vel_weight, float vel_threshold) :
   input_6d_image_(cv::cuda::GpuMat()),
   eps_(eps),
   minPts_(minPts),
   pos_weight_(pos_weight),
-  vel_weight_(vel_weight)
+  vel_weight_(vel_weight),
+  vel_threshold_(vel_threshold),
+  rs_(true, false, WeightedPosVelDistance(pos_weight, vel_weight)),
+  dbscan_(eps, 
+          minPts, 
+          false, 
+          rs_, 
+          mlpack::OrderedPointSelection())
 {
 }
 
@@ -25,37 +39,93 @@ objectDetectorErrorCode ObjectDetector::update(const cv::Mat& image_6d)
       return objectDetectorErrorCode::INVALID_6D_IMAGE_ERROR;
   }
 
-  // Allocate continuous memory for the 6D image
+  // Allocate continuous memory for the 6D image on the GPU
   cv::cuda::createContinuous(image_6d.size(), image_6d.type(), input_6d_image_);
 
-  // Upload the 6D image to the GPU
+  // Upload to the GPU (so you can do further GPU processing if needed)
   input_6d_image_.upload(image_6d);
 
-  // Apply DBSCAN clustering
+  // Now do CPU-based DBSCAN
   clusters_ = applyDBSCAN(eps_, minPts_, pos_weight_, vel_weight_);
 
   return objectDetectorErrorCode::OK;
 }
 
+
 std::vector<WorldEntity> ObjectDetector::applyDBSCAN(float eps, int minPts, float pos_weight, float vel_weight)
 {
+  std::cout << "Applying DBSCAN clustering on the 6D image..." << std::endl;
   std::vector<WorldEntity> clusters; 
 
-  // Check if the input 6D image is empty
-  if (input_6d_image_.empty()) return clusters;
+  arma::mat points = extractAndFilterCUDA(input_6d_image_, vel_threshold_);
+
+  // print the arma matrix dimension
+  std::cout << "points.n_rows: " << points.n_rows << std::endl;
+  std::cout << "points.n_cols: " << points.n_cols << std::endl;
+
+  // If there are no points, simply return an empty vector.
+  if(points.n_cols == 0) {
+    std::cout << "No valid points found, returning empty clusters." << std::endl;
+    return clusters;
+  }
+
+  arma::Row<size_t> assignments;
+  size_t cluster_count = dbscan_.Cluster(points, assignments);
+
+  // Print the number of clusters
+  std::cout << "Number of clusters: " << cluster_count << std::endl;
+
+    
+  std::vector<int> labels(points.n_cols, -1);
+  for (size_t i = 0; i < points.n_cols; i++) {
+    if (assignments[i] == SIZE_MAX) {
+      labels[i] = -1; // noise
+    } else {
+      labels[i] = static_cast<int>(assignments[i]);
+    }
+  }
+
+  std::unordered_map<int, WorldEntity> cluster_map;
+  for(size_t i=0; i<points.n_cols; i++){
+    int lbl = labels[i];
+    if (lbl < 0) continue; // skip noise
+
+    double x  = points(0, i);
+    double y  = points(1, i);
+    double z  = points(2, i);
+    double vx = points(3, i);
+    double vy = points(4, i);
+    double vz = points(5, i);
+
+    pcl::PointXYZ point(x,y,z);
+    Eigen::Vector3f velocity(vx,vy,vz);
+    cluster_map[lbl].addPoint(point, velocity);
+  }
+
+  for(auto& [cid, entity] : cluster_map) {
+    clusters.push_back(entity);
+  }
+
+
+  return clusters;
+}
+
+arma::mat ObjectDetector::extractAndFilterCUDA(const cv::cuda::GpuMat& image_6d, float vel_threshold)
+{
+  // Check if the input image is empty
+  if (image_6d.empty()) {
+      return arma::mat();
+  }
 
   // Get the image dimensions and total number of points
-  int rows = input_6d_image_.rows;
-  int cols = input_6d_image_.cols;
+  int rows = image_6d.rows;
+  int cols = image_6d.cols;
   int total_points = rows * cols;
 
   // Allocate GPU memory
   float* d_valid_points;
-  int* d_labels;
   int* d_valid_count;
-
   cudaMalloc(&d_valid_points, total_points * 6 * sizeof(float));  
-  cudaMalloc(&d_labels, total_points * sizeof(int)); 
   cudaMalloc(&d_valid_count, sizeof(int));
 
   // Initialize valid count
@@ -72,62 +142,72 @@ std::vector<WorldEntity> ObjectDetector::applyDBSCAN(float eps, int minPts, floa
   // Retrieve the number of valid points
   int valid_points_number = 0;
   cudaMemcpy(&valid_points_number, d_valid_count, sizeof(int), cudaMemcpyDeviceToHost);
-  cudaDeviceSynchronize();  // Ensure all previous CUDA ops complete
 
-  if (valid_points_number == 0) {
-      cudaFree(d_valid_points);
-      cudaFree(d_labels);
-      cudaFree(d_valid_count);
-      return clusters;
-  }
+  // Allocate GPU memory for the filtered points
+  float* d_filtered_points;
+  int* d_filtered_count;
+  cudaMalloc(&d_filtered_points, valid_points_number * 6 * sizeof(float));
+  cudaMalloc(&d_filtered_count, sizeof(int));
 
-  // Properly initialize labels for valid points only
-  std::vector<int> init_labels(valid_points_number, -2);
-  cudaMemcpy(d_labels, init_labels.data(), valid_points_number * sizeof(int), cudaMemcpyHostToDevice);
-  
-  // Run DBSCAN kernel
-  launchDbscanKernel(d_valid_points, d_labels, valid_points_number, eps, minPts, pos_weight, vel_weight);
-  cudaDeviceSynchronize();  // Ensure DBSCAN is completed before proceeding
+  // Initialize filtered count
+  cudaMemset(d_filtered_count, 0, sizeof(int));
 
-  // Retrieve cluster labels from GPU
-  std::vector<int> labels(valid_points_number);
-  cudaMemcpy(labels.data(), d_labels, valid_points_number * sizeof(int), cudaMemcpyDeviceToHost);
+  // Call CUDA filtering function
+  filterPointsVelKernelLauncher(
+    d_valid_points, 
+    d_filtered_points, 
+    d_filtered_count, 
+    valid_points_number, 
+    vel_threshold
+  );
 
-  // Retrieve the valid 6D points **in one go** (batch memory copy)
-  std::vector<float> host_valid_points(valid_points_number * 6);
-  cudaMemcpy(host_valid_points.data(), d_valid_points, valid_points_number * 6 * sizeof(float), cudaMemcpyDeviceToHost);
+  // Retrieve the number of filtered points
+  int filtered_points_number = 0;
+  cudaMemcpy(&filtered_points_number, d_filtered_count, sizeof(int), cudaMemcpyDeviceToHost);
+
+  // Convert the filtered points to an Armadillo matrix
+  arma::mat valid_points = cudaPtrToArmaMat(d_filtered_points, 6, filtered_points_number);
 
   // Free GPU memory (only after data has been copied)
   cudaFree(d_valid_points);
-  cudaFree(d_labels);
   cudaFree(d_valid_count);
+  cudaFree(d_filtered_points);
+  cudaFree(d_filtered_count);
 
-  // Map clusters
-  std::unordered_map<int, WorldEntity> cluster_map;
-  for (int i = 0; i < valid_points_number; ++i) {
-    //std::cout << "Label: " << labels[i] << std::endl;
+  return valid_points;
+}
 
-    if (labels[i] == -1) continue;  // Skip noise
+arma::mat ObjectDetector::cudaPtrToArmaMat(float* d_data, int channels, int total_points)
+{
+  // Allocate memory on the host
+  float* h_data = new float[channels * total_points];
 
-    float* pixel = &host_valid_points[i * 6];
+  // Copy data from device to host
+  cudaMemcpy(h_data, d_data, channels * total_points * sizeof(float), cudaMemcpyDeviceToHost);
 
-    // Create a new point
-    pcl::PointXYZ point(pixel[0], pixel[1], pixel[2]); 
-    Eigen::Vector3f velocity(pixel[3], pixel[4], pixel[5]); 
-
-    cluster_map[labels[i]].addPoint(point, velocity);
+  // Convert float data to double data
+  double* h_data_double = new double[channels * total_points];
+  for (int i = 0; i < channels * total_points; ++i) {
+    h_data_double[i] = static_cast<double>(h_data[i]);
   }
 
-  // Convert clusters to output vector
-  for (auto& [label, cluster] : cluster_map) {
-    clusters.push_back(cluster);
-  }
+  // Convert to Armadillo matrix
+  arma::mat mat(
+    h_data_double, // Pointer to the data
+    channels, // Number of rows
+    total_points, // Number of columns
+    true, //  copy
+    true // Transpose
+    );
 
-  // Print cluster number
-  std::cout << "Number of clusters: " << clusters.size() << std::endl;
-
-  return clusters;
+  // Free host memory
+  delete[] h_data;
+  delete[] h_data_double;
+  
+  // Return the Armadillo matrix
+  return mat;
 }
 
 } // namespace object_detector
 } // namespace perception_pipeline
+

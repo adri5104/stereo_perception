@@ -18,6 +18,7 @@ ObjectDetectorNode::ObjectDetectorNode() :
   this->declare_parameter("minPts", 10);
   this->declare_parameter("pos_weight", 1.0);
   this->declare_parameter("vel_weight", 1.0);
+  this->declare_parameter("vel_threshold", 0.1);
   this->get_parameter("input_6d_topic", input_6d_topic_);
   this->get_parameter("output_markers_topic", output_markers_topic_);
 
@@ -35,7 +36,8 @@ ObjectDetectorNode::ObjectDetectorNode() :
     this->get_parameter("eps").as_double(),
     this->get_parameter("minPts").as_int(),
     this->get_parameter("pos_weight").as_double(),
-    this->get_parameter("vel_weight").as_double()
+    this->get_parameter("vel_weight").as_double(),
+    this->get_parameter("vel_threshold").as_double()
   );
 }
 
@@ -72,29 +74,37 @@ cv::Mat ObjectDetectorNode::rosImageToCvMat(const sensor_msgs::msg::Image::Share
 void ObjectDetectorNode::publishClusters(const std::vector<WorldEntity>& clusters)
 {
     visualization_msgs::msg::MarkerArray marker_array;
-    int cluster_id = 0;
+    int marker_id = 0;
 
     // First, clear old markers by publishing a DELETE action
     visualization_msgs::msg::Marker clear_marker;
-    clear_marker.header.frame_id = "camera_optical_frame";  // Adjust the frame as needed
+    clear_marker.header.frame_id = "camera_optical_frame";
     clear_marker.header.stamp = this->now();
     clear_marker.ns = "cluster_points";
-    clear_marker.action = visualization_msgs::msg::Marker::DELETEALL;  // Deletes all previously published markers
+    clear_marker.action = visualization_msgs::msg::Marker::DELETEALL;
     marker_array.markers.push_back(clear_marker);
 
     // Now publish new markers
+    int cluster_index = 0;
     for (const auto& cluster : clusters)
     {
         // Retrieve all points from the cluster
         const auto& points = cluster.getPoints();
 
+        // Generate ONE random color per cluster
+        float cluster_r = static_cast<float>(rand()) / RAND_MAX;
+        float cluster_g = static_cast<float>(rand()) / RAND_MAX;
+        float cluster_b = static_cast<float>(rand()) / RAND_MAX;
+
         for (const auto& point : points)
         {
             visualization_msgs::msg::Marker marker;
-            marker.header.frame_id = "camera_optical_frame";  // Adjust the frame as needed
+            marker.header.frame_id = "camera_optical_frame";
             marker.header.stamp = this->now();
             marker.ns = "cluster_points";
-            marker.id = cluster_id++;
+
+            // Each marker must have a unique ID
+            marker.id = marker_id++;
             marker.type = visualization_msgs::msg::Marker::SPHERE;
             marker.action = visualization_msgs::msg::Marker::ADD;
 
@@ -108,15 +118,17 @@ void ObjectDetectorNode::publishClusters(const std::vector<WorldEntity>& cluster
             marker.scale.y = 0.1;
             marker.scale.z = 0.1;
 
-            // Assign a random color per cluster
-            marker.color.r = static_cast<float>(rand()) / RAND_MAX;
-            marker.color.g = static_cast<float>(rand()) / RAND_MAX;
-            marker.color.b = static_cast<float>(rand()) / RAND_MAX;
-            marker.color.a = 1.0; // Fully opaque
+            // Use the one random color for this entire cluster
+            marker.color.r = cluster_r;
+            marker.color.g = cluster_g;
+            marker.color.b = cluster_b;
+            marker.color.a = 1.0; 
 
             marker.lifetime = rclcpp::Duration::from_seconds(0.5);
             marker_array.markers.push_back(marker);
         }
+
+        cluster_index++;
     }
 
     // Publish the marker array

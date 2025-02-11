@@ -38,6 +38,10 @@ __device__ float customDistance(const float* a, const float* b, float pos_w, flo
     return pos_w * pos_dist + vel_w * vel_similarity;
 }
 
+__device__ float getSpeed(const float* a) {
+    return sqrtf(a[3] * a[3] + a[4] * a[4] + a[5] * a[5]);
+}
+
 /**
  * @brief Kernel to filter valid points from the input 6D image
  */
@@ -56,6 +60,27 @@ __global__ void filterValidPointsKernel(
             filtered_data[output_idx * 6 + i] = data[input_offset + i];
         }
     }
+}
+
+/**
+ * @brief Kernel to filter valid points depending on the velocity
+ */
+__global__ void filterPointsKernel(
+  const float* data, float* filtered_data, int total_points, int* valid_count, float vel_th) 
+{
+  int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  if (idx >= total_points) return;
+
+  int input_offset = idx * 6;  
+  float speed = getSpeed(&data[input_offset]);
+
+  if (speed >= vel_th) 
+  {
+    int output_idx = atomicAdd(valid_count, 1);
+    for (int i = 0; i < 6; ++i) {
+      filtered_data[output_idx * 6 + i] = data[input_offset + i];
+    }
+  }
 }
 
 /**
@@ -136,7 +161,12 @@ void launchDbscanKernel(float* d_data, int* d_labels, int total_points,
 }
 
 /**
- * @brief Filters valid points using CUDA
+ * @brief Filters valid points using CUDA (valid if 7th element is >= 0.5)
+ * 
+ * @param d_data Input 6D data
+ * @param d_filtered_data Output 6D data
+ * @param d_valid_count Number of valid points
+ * @param total_points Total number of points
  */
 void filterValidPointsKernelLauncher(
   const float* d_data, float* d_filtered_data, int* d_valid_count, int total_points) 
@@ -145,6 +175,26 @@ void filterValidPointsKernelLauncher(
     int gridSize = (total_points + blockSize - 1) / blockSize;
     filterValidPointsKernel<<<gridSize, blockSize>>>(
       d_data, d_filtered_data, total_points, d_valid_count);
+
+    cudaDeviceSynchronize();
+}
+
+/**
+ * @brief Filters points based on velocity 
+ * 
+ * @param d_data Input 6D data
+ * @param d_filtered_data Output 6D data
+ * @param d_valid_count Number of valid points
+ * @param total_points Total number of points of d_data
+ * @param vel_th Velocity threshold
+ */
+void filterPointsVelKernelLauncher(
+  const float* d_data, float* d_filtered_data, int* d_valid_count, int total_points, float vel_th) 
+{
+    int blockSize = 256;
+    int gridSize = (total_points + blockSize - 1) / blockSize;
+    filterPointsKernel<<<gridSize, blockSize>>>(
+      d_data, d_filtered_data, total_points, d_valid_count, vel_th);
 
     cudaDeviceSynchronize();
 }

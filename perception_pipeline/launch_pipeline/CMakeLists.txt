@@ -12,6 +12,7 @@ find_package(sensor_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(cv_bridge REQUIRED)
 
+
 install(DIRECTORY launch DESTINATION share/${PROJECT_NAME}/)
 
 ament_package()

@@ -1,14 +1,23 @@
 #ifndef OBJECT_DETECTOR_HPP
 #define OBJECT_DETECTOR_HPP
 
-#include <opencv2/opencv.hpp>  
-#include <opencv2/core/cuda.hpp>
 #include <unordered_map>
 #include <unordered_set>
 #include <cmath>
 
+
+#include <opencv2/opencv.hpp>  
+#include <opencv2/core/cuda.hpp>
+
 #include "object_detector/object_detector.hpp"  
-#include "object_detector/world_entity.hpp"     
+#include "object_detector/world_entity.hpp"  
+#include "object_detector/object_detector_error_codes.hpp"   
+#include "object_detector/point_distance.hpp"
+
+#include "mlpack/core.hpp"
+#include <mlpack/methods/dbscan/dbscan.hpp>
+#include <mlpack/methods/range_search/range_search.hpp>
+
 
 using namespace cv;
 
@@ -17,31 +26,13 @@ namespace perception_pipeline
 namespace object_detector
 {
 
-  /// 6D image pixel value
-typedef Vec<float, 7> OutVec;
+/// @brief  Range search type for DBSCAN clustering
+using RSType = mlpack::RangeSearch<
+    WeightedPosVelDistance,
+    arma::mat,
+    mlpack::StandardCoverTree
+>;
 
-/// 6D image channel number
-const int OUT6D_VAL_IDX = 6;
-const int OUT6D_C = 7;
-const int OUT6D_TYPE = CV_32FC(OUT6D_C);
-
-/**
- * @brief Error codes for ObjectDetector operations.
- */
-enum class objectDetectorErrorCode {
-    OK = 1,                    ///< Operation successful.
-    INVALID_6D_IMAGE_ERROR,     ///< Input 6D image is invalid or empty.
-};
-inline std::string getErrorMessageObjectDetector(objectDetectorErrorCode code) {
-    static const std::unordered_map<objectDetectorErrorCode, std::string> errorMessages = {
-        {objectDetectorErrorCode::OK, "No error."},
-        {objectDetectorErrorCode::INVALID_6D_IMAGE_ERROR, "Invalid 6D image."}
-    };
-    auto it = errorMessages.find(code);
-    return it != errorMessages.end() 
-        ? it->second 
-        : "Invalid error code.";
-}
 
 class ObjectDetector
 {
@@ -54,8 +45,9 @@ class ObjectDetector
      * @param minPts min number of points to form a cluster
      * @param pos_weight weight factor for position in distance computation
      * @param vel_weight weight factor for velocity in distance computation
+     * @param vel_threshold velocity threshold for filtering
      */
-    ObjectDetector(float eps, int minPts, float pos_weight, float vel_weight);
+    ObjectDetector(float eps, int minPts, float pos_weight, float vel_weight, float vel_threshold);
 
     /**
      * @brief update the 6D image stored in GPU memory using OpenCV's CUDA GPU matrix
@@ -77,38 +69,52 @@ class ObjectDetector
     std::vector<WorldEntity> applyDBSCAN(float eps, int minPts, float pos_weight, float vel_weight);
 
 
+    /**
+     * @brief Get the clusters detected by the object detector.
+     * 
+     * @return std::vector<WorldEntity> List of detected object clusters.
+     */
     std::vector<WorldEntity> getClusters() const { return clusters_; }
     
   private:
-    /// The current 6D image stored in GPU memory using OpenCV's CUDA GPU matrix
+
+    /**
+     * @brief Extracts world points from the 6D image and filters them based on the velocity threshold using CUDA.
+     * 
+     * @param image_6d The input 6D image.
+     * @param vel_threshold The velocity threshold for filtering.
+     * 
+     * @return arma::mat The filtered worldpoints.
+     */
+    arma::mat extractAndFilterCUDA(const cv::cuda::GpuMat& image_6d, float vel_threshold);
+
+
+    arma::mat cudaPtrToArmaMat(float* d_data, int channels, int total_points);
+
+    /// DBSCAN object
+    RSType rs_;
+    mlpack::DBSCAN<RSType> dbscan_;
+    
+
+    /// The current 6D image stored as cuda matrix
     cv::cuda::GpuMat input_6d_image_; 
 
     /// Detected object clusters
-    std::vector<WorldEntity> clusters_; ///< Detected object clusters 
+    std::vector<WorldEntity> clusters_;
 
     float eps_;
     int minPts_;
     float pos_weight_;
     float vel_weight_;
+    float vel_threshold_;
 
 };
 
-/**
- * @brief Function to launch the CUDA-based DBSCAN kernel.
- * 
- * @param d_data Pointer to device memory containing 6D image data.
- * @param d_labels Pointer to device memory storing cluster labels.
- * @param total_points Total number of points in the image.
- * @param eps Clustering epsilon threshold.
- * @param minPts Minimum number of points to form a cluster.
- * @param pos_w Weight for positional distance.
- * @param vel_w Weight for velocity similarity.
- */
-extern void launchDbscanKernel(float* d_data, int* d_labels, int total_points, float eps, int minPts, float pos_w, float vel_w);
+// External function declarations
 
-extern void filterValidPointsKernelLauncher(const float* d_data,
-                                     float* d_valid_data,  
-                                     int* d_valid_count, int total_points);
+void filterValidPointsKernelLauncher(const float* d_input_6d_image, float* d_valid_points, int* d_valid_count, int total_points);
+void filterPointsVelKernelLauncher(const float* d_data, float* d_filtered_data, int* d_valid_count, int total_points, float vel_th);
+
 
 } // namespace object_detector
 } // namespace perception_pipeline

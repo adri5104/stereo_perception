@@ -123,10 +123,12 @@ def generate_launch_description():
           parameters=[
             {'input_6d_topic': '/perception_pipeline/output_6d'},
             {'output_markers_topic' : '/perception_pipeline/output_markers'},
-            {'eps': 100.0},
+            {'eps': 0.1},
             {'minPts': 10},
-            {'pos_weight': 1.0},
-            {'vel_weight': 0.0}
+            {'pos_weight': 0.045},
+            {'vel_weight': 1.0},
+            {'vel_threshold': 1.0},
+            
           ],
           
         )

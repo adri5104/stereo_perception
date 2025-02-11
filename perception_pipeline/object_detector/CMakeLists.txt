@@ -39,6 +39,9 @@ find_package(OpenMP REQUIRED)
 find_package(CUDA REQUIRED)  
 find_package(message_filters REQUIRED)
 find_package(kalman_filter REQUIRED)
+find_package(Armadillo REQUIRED)
+
+
 
 
 # Print OpenCV version
@@ -86,6 +89,7 @@ set(MODULE_LIBS
     PCL
     message_filters
     kalman_filter
+    Armadillo
 )
 
 # Create object_detector shared library (C++)
