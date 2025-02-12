@@ -123,7 +123,12 @@ class ObjectDetector
 
     /// DBSCAN object
     RSType rs_;
+  #ifdef ROS_VERSION_HUMBLE
     mlpack::dbscan::DBSCAN<RSType> dbscan_;
+  #endif
+  #ifdef ROS_VERSION_JAZZY
+    mlpack::DBSCAN<RSType> dbscan_;
+  #endif
     
     /// The current 6D image stored as cuda matrix
     cv::cuda::GpuMat input_6d_image_; 

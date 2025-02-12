@@ -40,7 +40,10 @@ find_package(CUDA REQUIRED)
 find_package(message_filters REQUIRED)
 find_package(kalman_filter REQUIRED)
 find_package(Armadillo REQUIRED)
-find_package(mlpack REQUIRED)
+
+if(ROS_VERSION STREQUAL "humble")
+    find_package(mlpack REQUIRED)
+endif()
 
 
 
@@ -78,21 +81,37 @@ set(CUDA_SRC_FILES
     src/object_detector_cuda.cu
 )
 
-# Module dependencies (which libraries the package depends on)
+if(ROS_VERSION STREQUAL "humble")
+  set(MODULE_LIBS
+      cv_bridge 
+      rclcpp 
+      std_msgs
+      sensor_msgs
+      visualization_msgs
+      OpenCV 
+      Eigen3
+      PCL
+      message_filters
+      kalman_filter
+      Armadillo
+      mlpack
+  )
+else()
 set(MODULE_LIBS
-    cv_bridge 
-    rclcpp 
-    std_msgs
-    sensor_msgs
-    visualization_msgs
-    OpenCV 
-    Eigen3
-    PCL
-    message_filters
-    kalman_filter
-    Armadillo
-    mlpack
+cv_bridge 
+rclcpp 
+std_msgs
+sensor_msgs
+visualization_msgs
+OpenCV 
+Eigen3
+PCL
+message_filters
+kalman_filter
+Armadillo
 )
+endif()
+
 
 # Create object_detector shared library (C++)
 add_library(${PROJECT_NAME} SHARED ${SRC_FILES})                   # Library name and source files
@@ -145,6 +164,9 @@ install(DIRECTORY
 # Add object_detector_node (ROS2 Node)
 add_executable(object_detector_node nodes/object_detector_node.cpp)
 ament_target_dependencies(object_detector_node ${MODULE_LIBS})
+if(ROS_VERSION STREQUAL "humble")
+  target_link_libraries(${PROJECT_NAME} mlpack::mlpack)
+endif()
 target_include_directories(object_detector_node PUBLIC ${INCLUDE_DIRS})
 
 # Link CUDA and OpenMP manually only once
