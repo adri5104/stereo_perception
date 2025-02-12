@@ -34,9 +34,6 @@ def generate_launch_description():
             ]  
         ),
         
-  
-      
-        
         launch_ros.actions.Node(
             package='optical_flow_computation', 
             executable='optical_flow_computation',
@@ -97,9 +94,9 @@ def generate_launch_description():
                 {'sigma2_tz_measurement' : 10.0},
                 {'sigma2_theta_measurement' : 10.0},
                 {'sigma2_psi_system' : 10.0},
-                {'min_depth' : 3.5},
-                {'max_depth' : 18.0},
-                {'min_height_' : -2.0},
+                {'min_depth' : 2.0},
+                {'max_depth' : 20.0},
+                {'min_height_' :-2.0},
                 {'max_height' : 4.0},
             ],
             ros_arguments= ["--log-level", "info"] 

@@ -40,6 +40,7 @@ find_package(CUDA REQUIRED)
 find_package(message_filters REQUIRED)
 find_package(kalman_filter REQUIRED)
 find_package(Armadillo REQUIRED)
+find_package(mlpack REQUIRED)
 
 
 
@@ -90,6 +91,7 @@ set(MODULE_LIBS
     message_filters
     kalman_filter
     Armadillo
+    mlpack
 )
 
 # Create object_detector shared library (C++)

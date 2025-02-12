@@ -15,9 +15,14 @@
 #include "object_detector/point_distance.hpp"
 
 #include "mlpack/core.hpp"
+#include "mlpack/core/util/log.hpp"
+#include "mlpack/core/util/timers.hpp"
 #include <mlpack/methods/dbscan/dbscan.hpp>
 #include <mlpack/methods/range_search/range_search.hpp>
 
+#ifdef ROS_VERSION_HUMBLE
+#include <mlpack/core/tree/cover_tree.hpp>
+#endif
 
 using namespace cv;
 
@@ -26,12 +31,23 @@ namespace perception_pipeline
 namespace object_detector
 {
 
+
+#ifdef ROS_VERSION_JAZZY
 /// @brief  Range search type for DBSCAN clustering
 using RSType = mlpack::RangeSearch<
     WeightedPosVelDistance,
     arma::mat,
     mlpack::StandardCoverTree
 >;
+#endif
+#ifdef ROS_VERSION_HUMBLE
+/// @brief  Range search type for DBSCAN clustering
+using RSType = mlpack::range::RangeSearch<
+    WeightedPosVelDistance,
+    arma::mat,
+    mlpack::tree::StandardCoverTree
+>;
+#endif
 
 
 class ObjectDetector
@@ -93,7 +109,7 @@ class ObjectDetector
 
     /// DBSCAN object
     RSType rs_;
-    mlpack::DBSCAN<RSType> dbscan_;
+    mlpack::dbscan::DBSCAN<RSType> dbscan_;
     
 
     /// The current 6D image stored as cuda matrix

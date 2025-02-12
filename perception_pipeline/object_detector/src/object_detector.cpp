@@ -25,11 +25,21 @@ ObjectDetector::ObjectDetector(float eps, int minPts, float pos_weight, float ve
   vel_weight_(vel_weight),
   vel_threshold_(vel_threshold),
   rs_(true, false, WeightedPosVelDistance(pos_weight, vel_weight)),
+  #ifdef ROS_VERSION_JAZZY
   dbscan_(eps, 
           minPts, 
           false, 
           rs_, 
-          mlpack::OrderedPointSelection())
+          mlpack::dbsOrderedPointSelection())
+  #endif
+  #ifdef ROS_VERSION_HUMBLE
+  dbscan_(eps, 
+          minPts, 
+          false, 
+          rs_, 
+          mlpack::dbscan::OrderedPointSelection())
+  #endif
+
 {
 }
 
