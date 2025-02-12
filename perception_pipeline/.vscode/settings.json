@@ -73,7 +73,16 @@
     "typeinfo": "cpp",
     "variant": "cpp",
     "format": "cpp",
-    "core": "cpp"
+    "core": "cpp",
+    "csetjmp": "cpp",
+    "csignal": "cpp",
+    "any": "cpp",
+    "strstream": "cpp",
+    "codecvt": "cpp",
+    "future": "cpp",
+    "shared_mutex": "cpp",
+    "valarray": "cpp",
+    "stdfloat": "cpp"
   },
   "cmake.sourceDirectory": "/home/adrian/ros2_ws/src/stereo_perception/perception_pipeline/camerainfo_publisher"
 }

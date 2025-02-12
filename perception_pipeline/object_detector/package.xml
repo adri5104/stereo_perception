@@ -3,7 +3,9 @@
 <package format="3">
   <name>object_detector</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
+  <description>
+    The object_detector package is designed for detecting and identifying objects using various sensor inputs. It leverages ROS 2 for communication and includes dependencies for computer vision, point cloud processing, and state estimation.
+  </description>
   <maintainer email="adrian.rieker@tum.de">adrian</maintainer>
   <license>TODO: License declaration</license>
 
