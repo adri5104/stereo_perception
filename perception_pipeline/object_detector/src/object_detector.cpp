@@ -1,21 +1,26 @@
+/**
+ * @file object_detector.hpp
+ * @author Adrian Rieker (adrian.rieker@tum.de)
+ * @brief This file contains the implementation of the ObjectDetector class, which is responsible for detecting object clusters in a 6D image using DBSCAN clustering.
+ */
+
+
 #include "object_detector/object_detector.hpp"
 
-#include <opencv2/opencv.hpp>
+#include <iostream>
 #include <cmath>
 #include <unordered_map>
-#include <queue>       // For BFS
-#include <iostream>
-#include <opencv2/opencv.hpp>  
+#include <queue>
+
+#include <opencv2/opencv.hpp>
 #include <opencv2/core/cuda.hpp>
+
 #include <cuda_runtime.h>
-
-
 
 namespace perception_pipeline
 {
 namespace object_detector
 {
-
 
 ObjectDetector::ObjectDetector(float eps, int minPts, float pos_weight, float vel_weight, float vel_threshold) :
   input_6d_image_(cv::cuda::GpuMat()),
@@ -29,9 +34,7 @@ ObjectDetector::ObjectDetector(float eps, int minPts, float pos_weight, float ve
           minPts, 
           false, 
           rs_, 
-          mlpack::OrderedPointSelection())
-{
-}
+          mlpack::OrderedPointSelection()){}
 
 objectDetectorErrorCode ObjectDetector::update(const cv::Mat& image_6d)
 {
@@ -54,37 +57,24 @@ objectDetectorErrorCode ObjectDetector::update(const cv::Mat& image_6d)
 
 std::vector<WorldEntity> ObjectDetector::applyDBSCAN(float eps, int minPts, float pos_weight, float vel_weight)
 {
-  std::cout << "Applying DBSCAN clustering on the 6D image..." << std::endl;
   std::vector<WorldEntity> clusters; 
-
   arma::mat points = extractAndFilterCUDA(input_6d_image_, vel_threshold_);
-
-  // print the arma matrix dimension
-  std::cout << "points.n_rows: " << points.n_rows << std::endl;
-  std::cout << "points.n_cols: " << points.n_cols << std::endl;
-
-  // If there are no points, simply return an empty vector.
   if(points.n_cols == 0) {
-    std::cout << "No valid points found, returning empty clusters." << std::endl;
     return clusters;
   }
-
   arma::Row<size_t> assignments;
   size_t cluster_count = dbscan_.Cluster(points, assignments);
-
-  // Print the number of clusters
-  std::cout << "Number of clusters: " << cluster_count << std::endl;
-
     
   std::vector<int> labels(points.n_cols, -1);
   for (size_t i = 0; i < points.n_cols; i++) {
     if (assignments[i] == SIZE_MAX) {
       labels[i] = -1; // noise
-    } else {
+    } 
+    else 
+    {
       labels[i] = static_cast<int>(assignments[i]);
     }
   }
-
   std::unordered_map<int, WorldEntity> cluster_map;
   for(size_t i=0; i<points.n_cols; i++){
     int lbl = labels[i];
@@ -101,23 +91,17 @@ std::vector<WorldEntity> ObjectDetector::applyDBSCAN(float eps, int minPts, floa
     Eigen::Vector3f velocity(vx,vy,vz);
     cluster_map[lbl].addPoint(point, velocity);
   }
-
   for(auto& [cid, entity] : cluster_map) {
     clusters.push_back(entity);
   }
-
-
   return clusters;
 }
 
 arma::mat ObjectDetector::extractAndFilterCUDA(const cv::cuda::GpuMat& image_6d, float vel_threshold)
 {
-  // Check if the input image is empty
-  if (image_6d.empty()) {
-      return arma::mat();
-  }
-
-  // Get the image dimensions and total number of points
+  if (image_6d.empty()) 
+    return arma::mat();
+  
   int rows = image_6d.rows;
   int cols = image_6d.cols;
   int total_points = rows * cols;
@@ -127,11 +111,8 @@ arma::mat ObjectDetector::extractAndFilterCUDA(const cv::cuda::GpuMat& image_6d,
   int* d_valid_count;
   cudaMalloc(&d_valid_points, total_points * 6 * sizeof(float));  
   cudaMalloc(&d_valid_count, sizeof(int));
-
-  // Initialize valid count
   cudaMemset(d_valid_count, 0, sizeof(int)); 
 
-  // Call CUDA filtering function 
   filterValidPointsKernelLauncher(
     input_6d_image_.ptr<float>(), 
     d_valid_points,  
@@ -148,11 +129,8 @@ arma::mat ObjectDetector::extractAndFilterCUDA(const cv::cuda::GpuMat& image_6d,
   int* d_filtered_count;
   cudaMalloc(&d_filtered_points, valid_points_number * 6 * sizeof(float));
   cudaMalloc(&d_filtered_count, sizeof(int));
-
-  // Initialize filtered count
   cudaMemset(d_filtered_count, 0, sizeof(int));
 
-  // Call CUDA filtering function
   filterPointsVelKernelLauncher(
     d_valid_points, 
     d_filtered_points, 
@@ -179,13 +157,9 @@ arma::mat ObjectDetector::extractAndFilterCUDA(const cv::cuda::GpuMat& image_6d,
 
 arma::mat ObjectDetector::cudaPtrToArmaMat(float* d_data, int channels, int total_points)
 {
-  // Allocate memory on the host
+
   float* h_data = new float[channels * total_points];
-
-  // Copy data from device to host
   cudaMemcpy(h_data, d_data, channels * total_points * sizeof(float), cudaMemcpyDeviceToHost);
-
-  // Convert float data to double data
   double* h_data_double = new double[channels * total_points];
   for (int i = 0; i < channels * total_points; ++i) {
     h_data_double[i] = static_cast<double>(h_data[i]);
