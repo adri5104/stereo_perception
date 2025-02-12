@@ -8,7 +8,7 @@ def generate_launch_description():
     return launch.LaunchDescription([
       
         launch.actions.ExecuteProcess(
-          cmd=['ros2', 'bag', 'play', '-l', 'datasets/FramosDepthCamera/test1/bag2.db3' ],
+          cmd=['ros2', 'bag', 'play', '-l', './src/Datasets/FramosDepthCamera/test1/bag2.db3' ],
           output='screen'
         ),
       

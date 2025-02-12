@@ -216,4 +216,4 @@ RUN sudo chmod +x /entrypoint.sh
 RUN sudo apt install -y libmlpack-dev
 
 # Set entrypoint
-ENTRYPOINT ["/entrypoint.sh"]
+#ENTRYPOINT ["/entrypoint.sh"]
