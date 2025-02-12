@@ -9,16 +9,13 @@ namespace perception_pipeline
 namespace object_detector
 {
   WorldEntity::WorldEntity() :
-    centroid_(Eigen::Vector3f::Zero()),
-    velocity_(Eigen::Vector3f::Zero()),
     points_(),
     velocities_(),
+    centroid_(Eigen::Vector3f::Zero()),
+    velocity_(Eigen::Vector3f::Zero()),
     bounding_box_(),
     bounding_box_computed_(false),
-    centroid_velocity_computed_(false)
-  { 
-    // Do nothing
-  }
+    centroid_velocity_computed_(false){}
 
   void WorldEntity::addPoint(const pcl::PointXYZ& point, const Eigen::Vector3f& velocity)
   {
@@ -35,13 +32,11 @@ namespace object_detector
     
     for (size_t i = 0; i < points_.size(); ++i)
     {
-        sum_position += Eigen::Vector3f(points_[i].x, points_[i].y, points_[i].z);
-        sum_velocity += velocities_[i];
+      sum_position += Eigen::Vector3f(points_[i].x, points_[i].y, points_[i].z);
+      sum_velocity += velocities_[i];
     }
-    
     centroid_ = sum_position / static_cast<float>(points_.size());
     velocity_ = sum_velocity / static_cast<float>(points_.size());
-
     centroid_velocity_computed_ = true;
   }
 
@@ -94,17 +89,7 @@ namespace object_detector
       Eigen::Vector3f world_corner = eig_vecs * corner_local + centroid_;
       bounding_box_.push_back(pcl::PointXYZ(world_corner.x(), world_corner.y(), world_corner.z()));
     }
-
     bounding_box_computed_ = true;
-  }
-
-  float WorldEntity::computeAngularSimilarity(const WorldEntity& other) const
-  { 
-    float dot_product = velocity_.dot(other.velocity_);
-    float norm_product = velocity_.norm() * other.velocity_.norm();
-
-    if (norm_product == 0.0f) return 0.0f;
-    return std::acos(dot_product / norm_product);
   }
 
   // getters
