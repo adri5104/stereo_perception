@@ -54,7 +54,9 @@ namespace object_detector
      */
     cv::Mat rosImageToCvMat(const sensor_msgs::msg::Image::SharedPtr msg);
 
-    void publishClusters(const std::vector<WorldEntity>& clusters);
+    geometry_msgs::msg::Point pclPointToGeometryMsgPoint(const pcl::PointXYZ& pcl_point);
+
+    void publishClusters(std::vector<WorldEntity>& clusters);
 
     /// Object detector instance
     std::unique_ptr<ObjectDetector> object_detector_;

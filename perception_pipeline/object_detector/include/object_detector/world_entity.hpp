@@ -44,15 +44,19 @@ public:
    * 
    */
   void computeCentroidAndVelocity();
+
+  
  
   // Getters
-  Eigen::Vector3f getCentroid() const;
-  Eigen::Vector3f getVelocity() const;
-  std::vector<pcl::PointXYZ> getPoints() const;
-
+  Eigen::Vector3f getCentroid();
+  Eigen::Vector3f getVelocity();
+  std::vector<pcl::PointXYZ> getPoints();
+  std::vector<pcl::PointXYZ> getBoundingBox();
   
 
 private:
+
+  void computeBoundingBox();
 
   // Attributes
 
@@ -64,7 +68,9 @@ private:
 
   Eigen::Vector3f centroid_;
   Eigen::Vector3f velocity_;
-  
+  std::vector<pcl::PointXYZ> bounding_box_; 
+  bool bounding_box_computed_;
+  bool centroid_velocity_computed_;
 };
 
 

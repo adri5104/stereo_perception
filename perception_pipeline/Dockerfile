@@ -212,5 +212,8 @@ COPY entrypoint.sh /entrypoint.sh
 # Give execution permissions
 RUN sudo chmod +x /entrypoint.sh
 
+# Install mlpack dependency 
+RUN sudo apt install -y libmlpack-dev
+
 # Set entrypoint
 ENTRYPOINT ["/entrypoint.sh"]
