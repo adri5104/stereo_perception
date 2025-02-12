@@ -1,3 +1,9 @@
+/**
+ * @file world_entity.hpp
+ * @author Adrian Rieker (adrian.rieker@tum.de)
+ * @brief This file contains the WorldEntity class, which represents a cluster of points in the world.
+ */
+
 #ifndef WORLD_ENTITY_HPP
 #define WORLD_ENTITY_HPP
 
@@ -6,15 +12,12 @@
 #include <pcl/point_cloud.h>
 #include <Eigen/Dense>
 
-
 namespace perception_pipeline
 {
 namespace object_detector
 {
 
 using namespace std;
-
-
 
 class WorldEntity {
 public:
@@ -33,20 +36,7 @@ public:
    */
   void addPoint(const pcl::PointXYZ& point, const Eigen::Vector3f& velocity);
 
-    /**
-   * @brief returns the angular similarity between the velocity of this entity and another entity
-   * 
-   */
-  float computeAngularSimilarity(const WorldEntity& other) const;
 
-  /**
-   * @brief Computes the centroid and average velocity of the points in the entity
-   * 
-   */
-  void computeCentroidAndVelocity();
-
-  
- 
   // Getters
   Eigen::Vector3f getCentroid();
   Eigen::Vector3f getVelocity();
@@ -55,10 +45,8 @@ public:
   
 
 private:
-
+  void computeCentroidAndVelocity();
   void computeBoundingBox();
-
-  // Attributes
 
   /// points that belong to the entity
   std::vector<pcl::PointXYZ> points_;
