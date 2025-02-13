@@ -187,12 +187,8 @@ RUN sudo chown -R ubuntu:ubuntu /perception_pipeline_ws
 # Define the container's default command
 CMD ["bash"]
 
-# Copy the entrypoint script and set its permissions
-COPY entrypoint.sh /entrypoint.sh
-RUN sudo chmod +x /entrypoint.sh
+
 
 # Install mlpack dependency
 RUN sudo apt install -y libmlpack-dev
 
-# Set the entrypoint
-ENTRYPOINT ["/entrypoint.sh"]

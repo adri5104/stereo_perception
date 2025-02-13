@@ -59,10 +59,6 @@ set(MODULE_LIBS
     message_filters
 )
 
-# Install header files
-install(DIRECTORY include/
-  DESTINATION include
-)
 
 # Install nodes
 install(DIRECTORY
