@@ -10,3 +10,7 @@ Datasets/
 *.out
 *.tdo
 *.upa
+*.lot
+*.toc
+*.synctex.gz
+*.run.xml
