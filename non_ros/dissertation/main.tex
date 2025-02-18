@@ -1,0 +1,85 @@
+% !TeX spellcheck = de_DE
+% English option for spellcheck: en_US
+\documentclass[%
+FTMstudentthesis%		baseclass
+,optArial%				font setting (alternative fonts for debugging purposes: optHelvetica, optCharter)
+,optBiber%				bibliography tool (alternative: optBibtex)
+,optGerman%				[optional] deutsche Vorlage: optGerman, english version: optEnglish
+%,optTikzExternalize%	[optional] compiles faster for large tikz images
+%,optHideTodos%			[optional] disables the todonotespackage and hides any todos and missingfigures
+%,optGroupedAbbreviation%	[optional] gruppieren der Abkürzungen nach Buchstaben	
+,optCMYK%					printing text pages as black and white
+]{FTMlatex}%
+%
+%
+\include{source/definitions/your_own_definitions}
+%
+% Set paths
+\graphicspath{{figures/}}%
+\addbibresource{source/bibliography/literature.bib}%
+\addbibresource{source/bibliography/bibliographyTest.bib}%
+\include{source/lists/abbreviations}% Definition of Acronyms
+%
+%
+\begin{document}%
+%% ========================
+%% ------ Title Page ------
+%% ========================
+\FTMPreText%
+% Info: separate multiple supervisors by \newline
+%\FTMstudentthesisTitlePageFTMDesignDiplomarbeit{Hier steht der Titel der Arbeit, der auch zweizeilig sein kann}{Hier kommt der englische Titel hin, der dann wohl auch zweizeilig sein muss}{Dipl.-Ing. Max Mustermann, B.Sc. \vskip0pt Musterweg 20 \vskip0pt 80999 München}{\FTMnamesProfLienkamp}{\FTMnamesStaffPonn}{\FTMutilsDate{31}{08}{2021}}{./figures/ImagePDF}%
+%\FTMstudentthesisTitlePageFTMDesignBachelorsThesis{Hier steht der Titel der Arbeit, der auch zweizeilig sein kann}{Hier kommt der englische Titel hin, der dann wohl auch zweizeilig sein muss}{Dipl.-Ing. Max Mustermann, B.Sc. \vskip0pt Musterweg 20 \vskip0pt 80999 München}{\FTMnamesProfLienkamp}{\FTMnamesStaffPonn}{\FTMutilsDate{31}{08}{2021}}{./figures/ImagePDF}%
+%\FTMstudentthesisTitlePageFTMDesignSemesterThesis{Hier steht der Titel der Arbeit, der auch zweizeilig sein kann}{Hier kommt der englische Titel hin, der dann wohl auch zweizeilig sein muss}{Dipl.-Ing. Max Mustermann, B.Sc. \vskip0pt Musterweg 20 \vskip0pt 80999 München}{\FTMnamesProfLienkamp}{\FTMnamesStaffPonn}{\FTMutilsDate{31}{08}{2021}}{./figures/ImagePDF}%
+\FTMstudentthesisTitlePageFTMDesignMastersThesis{Hier steht der Titel der Arbeit, der auch zweizeilig sein kann}{Hier kommt der englische Titel hin, der dann wohl auch zweizeilig sein muss}{Dipl.-Ing. Max Mustermann, B.Sc. \vskip0pt Musterweg 20 \vskip0pt 80999 München}{\FTMnamesProfLienkamp}{Max Musterbetreuer, M.Sc.}{\FTMutilsDate{01}{10}{2021}}{./figures/ImagePDF}%
+%
+%
+%% ========================
+%% --- Student's Thesis ---
+%% ========================
+\include{source/frame/conceptualformulation}%
+\FTMstudentthesisForms{Frau}{Forename}{Lastname}{\FTMutilsDate{1}{4}{2021}}{\FTMutilsDate{1}{1}{1994}}{Semester}{2021}{, B.Sc.}
+% Explanation:
+% \FTMstudentthesisForms{Herr/Frau}{Forename}{Lastname}{Submission date}{Date of birth}{Type of Thesis}{Current year}{Your title (optional)}
+%
+%
+%% =========================
+%% --- Content/Gloassary ---
+%% =========================
+\FTMPrintTableOfContents%
+\include{source/lists/formulasymbols}%
+\listoftodos%
+%
+%
+%% =========================
+%% ------- Main Text -------
+%% =========================
+\FTMMainText%
+\include{source/manual}%
+\include{source/chapter01}%
+\include{source/chapter02}%
+\include{source/chapter03}%
+\include{source/chapter04}%
+\include{source/chapter05}%
+\include{source/chapter06}%
+%
+%
+%% =========================
+%% ------ LOF/LOT/Bib ------
+%% =========================
+\FTMPostText%
+\include{source/lists/literature}
+%
+%
+%% =========================
+%% ------- Appendix --------
+%% =========================
+\begin{appendices}%
+	\FTMAppendix%
+	\FTMPrintTableOfAppendix%
+	\include{source/appendix}%
+\end{appendices}%
+%
+%
+\end{document}%
+%
+%
