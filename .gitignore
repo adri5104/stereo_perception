@@ -1,1 +1,12 @@
 Datasets/
+
+# Ignore LaTeX auxiliary files
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.lof
+*.log
+*.out
+*.tdo
+*.upa
