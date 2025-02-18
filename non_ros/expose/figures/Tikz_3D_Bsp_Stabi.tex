@@ -1,0 +1,124 @@
+% Definition der Ansicht
+\tdplotsetmaincoords{60}{-140}
+
+% Begin des Bildes
+\begin{tikzpicture}[scale=0.8, every node/.style={scale=0.8},tdplot_main_coords]
+
+%------------------------------------------Koordinatendefinition----------------------------------------$
+\coordinate (O) at (0,0,0);
+\coordinate (KOSY) at (7,0,0);
+\coordinate (Or) at (0,-1,0);
+\coordinate (Er) at (0,-5,0);
+\coordinate (Lr) at (0,-3,0);
+\coordinate (1r) at (2,-5,1);
+\coordinate (2r) at (3,-5,3);
+\coordinate (Ol) at (0,1,0);
+\coordinate (El) at (0,5,0);
+\coordinate (Ll) at (0,3,0);
+\coordinate (1l) at (2,5,-1);
+\coordinate (2l) at (3,5,1);
+%-------------------------------------------------------------------------------------------------------$
+
+ 
+%------------------------------------------Koordinatensystem------------------------------------------$
+\draw[thick,-{Latex[length=3mm,width=4mm,angle'=45]}] (KOSY) -- ($(KOSY)+(1,0,0)$) node[anchor=south west]{$x$};
+\draw[thick,-{Latex[length=3mm,width=4mm,angle'=45]}] (KOSY) -- ($(KOSY)+(0,1,0)$) node[anchor=south east]{$y$};
+\draw[thick,-{Latex[length=3mm,width=4mm,angle'=45]}] (KOSY) -- ($(KOSY)+(0,0,1)$) node[anchor=south]{$z$};
+%------------------------------------------------------------------------------------------------------------$
+
+% Rechte Seite
+%------------------------------------------Hilfslinien-------------------------------------------------------$
+\draw[dashed, line width = 0.5pt] (Er) -- ($(Er)+(4.5,0,0)$);
+%\draw[dashed, line width = 0.5pt] (1r) -- ($(1r)+(0,0,2)$);
+%\draw[dashed, line width = 0.5pt] (Er) -- ($(Er)-(2.8,0,0)$);
+%\draw[dashed, line width = 0.5pt] (O) -- ($(O)-(2.8,0,0)$);
+\draw[dashed, line width = 0.5pt] (Lr) -- ($(Lr)+(3.0,0,0)$);
+%\draw[dashed, line width = 0.5pt] (KOSY) -- (O);
+\draw[dashed, line width = 0.5pt] (Ol) -- (Or);
+\draw[dashed, line width = 0.5pt] (1r) -- ($(1r)+(0,-1,0)$);
+\draw[dashed, line width = 0.5pt] (Er) -- ($(Er)+(0,-1,0)$);
+
+% Pfeile
+\draw[{Latex[length=2mm,width=2mm,angle'=45]}-, solid, line width = 1pt] ($(Lr)-(0.2,0.2,0)$) -- ($(Lr)+(-5.0,3.5,0)$)node[anchor=west, align=center]{Gummilager\\ zur Lagerung\\ am Fahrzeugaufbau};
+\draw[{Latex[length=2mm,width=2mm,angle'=45]}-, solid, line width = 1pt] ($(Ll)-(0.2,0.2,0)$) -- ($(Lr)+(-5.0,3.5,0)$);
+\draw[{Latex[length=2mm,width=2mm,angle'=45]}-{Latex[length=2mm,width=2mm,angle'=45]}, solid, line width = 1pt] ($(El)+(4.3,0,0)$) -- ($(Er)!0.5!(El)+(4.3,0,0)$)node[anchor=south east]{$s_\mathrm{St}$} --($(Er)+(4.3,0,0)$);
+\draw[{Latex[length=2mm,width=2mm,angle'=45]}-{Latex[length=2mm,width=2mm,angle'=45]}, solid, line width = 1pt] ($(Ll)+(2.8,0,0)$) --($(Ll)!0.5!(Lr)+(2.8,0,0)$)node[anchor=south east]{$l_\mathrm{St}$}--($(Lr)+(2.8,0,0)$);
+\draw[{Latex[length=2mm,width=2mm,angle'=45]}-{Latex[length=2mm,width=2mm,angle'=45]}, solid, line width = 1pt] ($(1r)-(0,0.8,0)$) -- ($(1r)!0.5!(Er)-(0,0.8,0)$) node[anchor=south west]{$b$} -- ($(Er)-(0,0.8,0)$);
+
+% Sonstiges
+\begin{scope}[canvas is yz plane at x=0,transform shape]
+\node[cylinder,draw=black,thick,aspect=1, minimum height=4pt,minimum width=12pt, shape border rotate=0, cylinder uses custom fill, cylinder body fill=black, cylinder end  fill=white!0, transform shape] at (-3.2,0) {};
+\end{scope}
+
+% Bögen
+\tdplotsetrotatedcoords{90}{90}{-90}
+    \tdplotsetrotatedcoordsorigin{(Er)}
+\draw[-{Latex[length=2mm,width=2mm,angle'=45]},tdplot_rotated_coords,solid, line width = 1pt] (1.5,0,0) arc (0:-27:1.5);
+
+
+% Kräfte und Momente
+\draw[-{Latex[length=3mm,width=3mm,angle'=45]},solid, line width = 2pt] ($(1r)+(0,0,0)$) -- ($(1r)+(0,0,1.5)$)node[anchor=south]{$F_\mathrm{K}$};
+\draw[-{Latex[length=3mm,width=3mm,angle'=45]},solid, line width = 2pt] ($(Lr)-(0,0,0.2)$) -- ($(Lr)-(0,0,2.0)$) node[anchor=north]{$F_\mathrm{K}\frac{s_\mathrm{St}}{l_\mathrm{St}}$};
+\tdplotsetrotatedcoords{90}{90}{0}
+   \tdplotsetrotatedcoordsorigin{(Or)}
+\draw[-{Latex[length=3mm,width=3mm,angle'=45]},tdplot_rotated_coords,solid, line width = 2pt] (0,0,0)++(30:0.5) arc (30:330:0.5);
+\tdplotsetrotatedcoords{0}{-90}{-90}
+\begin{scope}[transparency group, opacity=0.65]
+   \tdplotsetrotatedcoordsorigin{(O)}
+\draw[-{Latex[length=3mm,width=6mm,angle'=60]},tdplot_rotated_coords,solid, line width = 3pt] (0,0,-1.8)++(-60:0.7) arc (-60:240:0.7);
+\end{scope}
+%--------------------------------------------------------------------------------------------------------------$
+
+%------------------------------------------Linien Wankstabi---------------------------------------------$
+\draw[line width = 2pt] (Or) -- (Er);
+\draw[line width = 2pt] (Er) -- (1r);
+%------------------------------------------Kreise Wankstabi---------------------------------------------$
+\shade [ball color=white] (1r) circle [radius=3pt];
+%--------------------------------------------------------------------------------------------------------------$
+
+
+%----------------------------------------------Beschriftung-----------------------------------------------$
+\node[] at (2,-5,0.3) {$\alpha_\mathrm{r}$};
+\node[] at (-0.5,-0,-0.2){$M_\mathrm{St}$};
+\node[align = center, anchor = south west, opacity = 0.75] at ($(1,0,0.8)$){$M_\mathrm{Wank,St}$};
+%--------------------------------------------------------------------------------------------------------------$
+
+%%% Linke Seite
+%------------------------------------------Hilfslinien-------------------------------------------------------$
+\draw[dashed, line width = 0.5pt] (El) -- ($(El)+(4.5,0,0)$);
+\draw[dashed, line width = 0.5pt] (Ll) -- ($(Ll)+(3.0,0,0)$);
+
+% Pfeile
+
+% Sonstiges
+\begin{scope}[canvas is yz plane at x=0]
+\node[cylinder,draw=black,thick,aspect=1, minimum height=4pt,minimum width=12pt, shape border rotate=0, cylinder uses custom fill, cylinder body fill=black, cylinder end  fill=white!0, transform shape] at (2.8,0) {};
+\end{scope}
+
+% Bögen
+\tdplotsetrotatedcoords{90}{90}{-90}
+    \tdplotsetrotatedcoordsorigin{(El)}
+\draw[-{Latex[length=2mm,width=2mm,angle'=45]},tdplot_rotated_coords,solid, line width = 1pt] (1.5,0,0) arc (0:27:1.5);
+
+% Kräfte und Momente
+\draw[-{Latex[length=3mm,width=3mm,angle'=45]},solid, line width = 2pt] ($(1l)+(0,0,0)$) -- ($(1l)-(0,0,1.5)$) node[anchor=north]{$F_\mathrm{K}$};
+\draw[{Latex[length=3mm,width=3mm,angle'=45]}-,solid, line width = 2pt] ($(Ll)-(0,0,0.2)$) -- ($(Ll)-(0,0,2.0)$) node[anchor=north]{$F_\mathrm{K}\frac{s_\mathrm{St}}{l_\mathrm{St}}$};
+\tdplotsetrotatedcoords{90}{90}{0}
+    \tdplotsetrotatedcoordsorigin{(Ol)}
+\draw[{Latex[length=3mm,width=3mm,angle'=45]}-,tdplot_rotated_coords,solid, line width = 2pt] (0,0,0)++(-330:0.5) arc (-330:-30:0.5);
+%--------------------------------------------------------------------------------------------------------------$
+
+%------------------------------------------Linien Wankstabi---------------------------------------------$
+\draw[line width = 2pt] (Ol) -- (El);
+\draw[line width = 2pt] (El) -- (1l);
+%------------------------------------------Kreise Wankstabi---------------------------------------------$
+\shade [ball color=white] (1l) circle [radius=3pt];
+%--------------------------------------------------------------------------------------------------------------$
+
+
+%----------------------------------------------Beschriftung-----------------------------------------------$
+\node[] at (1,5,-0.25) {$\alpha_\mathrm{l}$};
+%--------------------------------------------------------------------------------------------------------------$
+
+
+\end{tikzpicture}

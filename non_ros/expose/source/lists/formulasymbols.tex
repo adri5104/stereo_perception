@@ -1,0 +1,36 @@
+\chapter*{\FTMlangFormulaSymbolsName} \label{Formelzeichen}
+\addcontentsline{toc}{chapter}{\FTMlangFormulaSymbolsName}
+%
+%
+%
+%
+%
+\begin{flushleft}%
+	\begingroup%
+	\renewcommand\arraystretch{1.8}%
+	\setlength\tabcolsep{0pt}%
+	% First Column in math mode!
+	\begin{longtable}[l]{>{\fontsize{12pt}{12pt}\selectfont$}M{3.5cm}<{$} >{\fontsize{10pt}{10pt}\selectfont}M{2.3cm}<{} >{\fontsize{10pt}{10pt}\selectfont}m{10cm}<{}}%
+		% Header
+		\text{\fontsize{10pt}{10pt}\selectfont \FTMlangFormulaSymbolsName} & \text{\FTMlangFormulaSymbolsUnitName} & \FTMlangFormulaSymbolsDescriptionName \\%
+		\midrule%
+		%% =========================
+		%% ----- Insert here -------
+		%% =========================
+		B_{\mathrm{Fzg}} & \si{\metre} & Breite des Fahrzeuges\\%
+		B_{\mathrm{Rad}} & \si{\metre} & Reifenbreite (Breite der Lauffläche)\\%
+		D_{\mathrm{Rad}} & \si{\metre} & Raddurchmesser\\%
+		H_{\mathrm{Fzg}} & \si{\metre} & Höhe des Fahrzeuges\\%
+		R_{\mathrm{Fzg}} & \si{\metre} & Radstand des Fahrzeuges\\%
+		S_{\mathrm{Fzg}} & \si{\metre} & Spur des Fahrzeuges\\%
+		a_i	& -	& Gewichtungsfaktoren für die Kostenfunktion $J$\\%
+		\vc_{\mathrm{DGL}} & - & Gleichungsnebenbedingungen, die aus der Diskretisierung der\newline Zustandsdifferentialgleichung resultieren\\%
+		H & - & Hamilton"=Funktion\\%
+		E_\mathrm{pot}	& \si{\joule} & Potenzielle Energie\\%
+		E_m &  \si{\joule} & Spezifische Energie\\%
+		%% =========================
+		%% ----- Insert here -------
+		%% =========================
+	\end{longtable}%
+	\endgroup%
+\end{flushleft}%
