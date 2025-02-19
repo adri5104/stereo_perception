@@ -1,0 +1,20 @@
+\begin{tikzpicture}[node distance=1.5cm, auto]
+
+  % Nodo de entrada (fuera del contenedor)
+  \node[draw, ellipse, fill=blue!20] (detected) {detected objects};
+  
+  % Nodo del algoritmo (dentro del contenedor)
+  \node[draw, rectangle, fill=green!20, minimum width=3cm, minimum height=1cm, below=of detected] (algo) {criticality algorithm};
+  
+  % Nodo de salida (fuera del contenedor)
+  \node[draw, ellipse, fill=blue!20, below=of algo] (metrics) {criticality metrics};
+  
+  % Flechas de conexión
+  \draw[->, thick] (detected) -- (algo);
+  \draw[->, thick] (algo) -- (metrics);
+  
+  % Contenedor punteado que engloba solo el algoritmo
+  \node[draw, dotted, inner sep=0.5cm, fit=(algo)] (pipeline) {};
+  \node[anchor=south east, inner sep=1mm] at (pipeline.south east) {      criticality pipe.};
+  
+\end{tikzpicture}

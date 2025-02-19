@@ -1,0 +1,172 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.2 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \datalist[entry]{nyt/global//global/global}
+    \entry{6d_vision_daimler}{inproceedings}{}
+      \name{author}{4}{}{%
+        {{hash=d996aac909f5d2ef612d23aaebcb75ce}{%
+           family={Franke},
+           familyi={F\bibinitperiod},
+           given={Uwe},
+           giveni={U\bibinitperiod}}}%
+        {{hash=c9204c43ca027421ca4fc00e9cdca069}{%
+           family={Rabe},
+           familyi={R\bibinitperiod},
+           given={Clemens},
+           giveni={C\bibinitperiod}}}%
+        {{hash=2448957fc836101e43a738736db9cd58}{%
+           family={Badino},
+           familyi={B\bibinitperiod},
+           given={Hernán},
+           giveni={H\bibinitperiod}}}%
+        {{hash=baf323834af127b1591e4cca7d5f1497}{%
+           family={Gehrig},
+           familyi={G\bibinitperiod},
+           given={Stefan},
+           giveni={S\bibinitperiod}}}%
+      }
+      \name{editor}{3}{}{%
+        {{hash=7481d97cb8a13e5f103b3f2ddb70738f}{%
+           family={Kropatsch},
+           familyi={K\bibinitperiod},
+           given={Walter\bibnamedelima G.},
+           giveni={W\bibinitperiod\bibinitdelim G\bibinitperiod}}}%
+        {{hash=000f60cc7a41023cdf78fbd3e7b67e5e}{%
+           family={Sablatnig},
+           familyi={S\bibinitperiod},
+           given={Robert},
+           giveni={R\bibinitperiod}}}%
+        {{hash=4fd671afc1ea168300875315d4a028d9}{%
+           family={Hanbury},
+           familyi={H\bibinitperiod},
+           given={Allan},
+           giveni={A\bibinitperiod}}}%
+      }
+      \list{language}{1}{%
+        {en}%
+      }
+      \list{location}{1}{%
+        {Berlin, Heidelberg}%
+      }
+      \list{publisher}{1}{%
+        {Springer}%
+      }
+      \strng{namehash}{5b8660163a22d0872491587004844402}
+      \strng{fullhash}{5b8660163a22d0872491587004844402}
+      \strng{bibnamehash}{5b8660163a22d0872491587004844402}
+      \strng{authorbibnamehash}{5b8660163a22d0872491587004844402}
+      \strng{authornamehash}{5b8660163a22d0872491587004844402}
+      \strng{authorfullhash}{5b8660163a22d0872491587004844402}
+      \strng{editorbibnamehash}{15028846b3bd9a07d6387978ae6f5deb}
+      \strng{editornamehash}{15028846b3bd9a07d6387978ae6f5deb}
+      \strng{editorfullhash}{15028846b3bd9a07d6387978ae6f5deb}
+      \field{labelalpha}{Fra+05}
+      \field{sortinit}{F}
+      \field{sortinithash}{2638baaa20439f1b5a8f80c6c08a13b4}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{abstract}{Obstacle avoidance is one of the most important challenges for mobile robots as well as future vision based driver assistance systems. This task requires a precise extraction of depth and the robust and fast detection of moving objects. In order to reach these goals, this paper considers vision as a process in space and time. It presents a powerful fusion of depth and motion information for image sequences taken from a moving observer. 3D-position and 3D-motion for a large number of image points are estimated simultaneously by means of Kalman-Filters. There is no need of prior error-prone segmentation. Thus, one gets a rich 6D representation that allows the detection of moving obstacles even in the presence of partial occlusion of foreground or background.}
+      \field{booktitle}{Pattern {Recognition}}
+      \field{isbn}{978-3-540-31942-9}
+      \field{shorttitle}{{6D}-{Vision}}
+      \field{title}{{6D}-{Vision}: {Fusion} of {Stereo} and {Motion} for {Robust} {Environment} {Perception}}
+      \field{year}{2005}
+      \field{pages}{216\bibrangedash 223}
+      \range{pages}{8}
+      \verb{doi}
+      \verb 10.1007/11550518_27
+      \endverb
+      \verb{file}
+      \verb PDF:/home/adrian/Zotero/storage/QTB4FM9L/Franke et al. - 2005 - 6D-Vision Fusion of Stereo and Motion for Robust Environment Perception.pdf:application/pdf
+      \endverb
+      \keyw{Perception,6D vision,Daimler}
+    \endentry
+    \entry{autonomous_vehicles_perception_survey}{article}{}
+      \name{author}{4}{}{%
+        {{hash=715494d7f89f03d2761eb4eb0a55ce71}{%
+           family={Van\bibnamedelima Brummelen},
+           familyi={V\bibinitperiod\bibinitdelim B\bibinitperiod},
+           given={Jessica},
+           giveni={J\bibinitperiod}}}%
+        {{hash=015baba0969ef10832f9f128326d0159}{%
+           family={O’Brien},
+           familyi={O\bibinitperiod},
+           given={Marie},
+           giveni={M\bibinitperiod}}}%
+        {{hash=7196983c7c3040eb6b28bc7ffe682319}{%
+           family={Gruyer},
+           familyi={G\bibinitperiod},
+           given={Dominique},
+           giveni={D\bibinitperiod}}}%
+        {{hash=cf9988489350e38fdae92cd02972a100}{%
+           family={Najjaran},
+           familyi={N\bibinitperiod},
+           given={Homayoun},
+           giveni={H\bibinitperiod}}}%
+      }
+      \list{language}{1}{%
+        {en}%
+      }
+      \strng{namehash}{e044dc9e44a681761aaba2d70a3e205e}
+      \strng{fullhash}{e044dc9e44a681761aaba2d70a3e205e}
+      \strng{bibnamehash}{e044dc9e44a681761aaba2d70a3e205e}
+      \strng{authorbibnamehash}{e044dc9e44a681761aaba2d70a3e205e}
+      \strng{authornamehash}{e044dc9e44a681761aaba2d70a3e205e}
+      \strng{authorfullhash}{e044dc9e44a681761aaba2d70a3e205e}
+      \field{labelalpha}{Van+18}
+      \field{sortinit}{V}
+      \field{sortinithash}{afb52128e5b4dc4b843768c0113d673b}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{abstract}{Perception system design is a vital step in the development of an autonomous vehicle (AV). With the vast selection of available oﬀ-the-shelf schemes and seemingly endless options of sensor systems implemented in research and commercial vehicles, it can be diﬃcult to identify the optimal system for one’s AV application. This article presents a comprehensive review of the state-of-the-art AV perception technology available today. It provides up-to-date information about the advantages, disadvantages, limits, and ideal applications of speciﬁc AV sensors; the most prevalent sensors in current research and commercial AVs; autonomous features currently on the market; and localization and mapping methods currently implemented in AV research. This information is useful for newcomers to the AV ﬁeld to gain a greater understanding of the current AV solution landscape and to guide experienced researchers towards research areas requiring further development. Furthermore, this paper highlights future research areas and draws conclusions about the most eﬀective methods for AV perception and its eﬀect on localization and mapping. Topics discussed in the Perception and Automotive Sensors section focus on the sensors themselves, whereas topics discussed in the Localization and Mapping section focus on how the vehicle perceives where it is on the road, providing context for the use of the automotive sensors. By improving on current state-of-the-art perception systems, AVs will become more robust, reliable, safe, and accessible, ultimately providing greater eﬃciency, mobility, and safety beneﬁts to the public.}
+      \field{annotation}{Important notes Classification of perception algorithms A) Classification 1 -{>} mediated perception -{>} behaviour reflex perception -{>} direct perception ! B) Tipe of data -{>} Vision based -{>} Point cloud based}
+      \field{issn}{0968090X}
+      \field{journaltitle}{Transportation Research Part C: Emerging Technologies}
+      \field{month}{4}
+      \field{shorttitle}{Autonomous vehicle perception}
+      \field{title}{Autonomous vehicle perception: {The} technology of today and tomorrow}
+      \field{urlday}{25}
+      \field{urlmonth}{10}
+      \field{urlyear}{2024}
+      \field{volume}{89}
+      \field{year}{2018}
+      \field{urldateera}{ce}
+      \field{pages}{384\bibrangedash 406}
+      \range{pages}{23}
+      \verb{doi}
+      \verb 10.1016/j.trc.2018.02.012
+      \endverb
+      \verb{file}
+      \verb PDF:/home/adrian/Zotero/storage/TDHLRZZG/Van Brummelen et al. - 2018 - Autonomous vehicle perception The technology of today and tomorrow.pdf:application/pdf
+      \endverb
+      \verb{urlraw}
+      \verb https://linkinghub.elsevier.com/retrieve/pii/S0968090X18302134
+      \endverb
+      \verb{url}
+      \verb https://linkinghub.elsevier.com/retrieve/pii/S0968090X18302134
+      \endverb
+      \keyw{Survey,Perception paradigms}
+    \endentry
+  \enddatalist
+  \missing{choset2005principles}
+  \missing{thrun2005probabilistic}
+\endrefsection
+\endinput
+

@@ -1,0 +1,41 @@
+\section{\FTMlangGerEng{Lösungsansatz}{Objective}}%
+% REMARKS
+% Give an overview on the approach you want to use for addressing your topic. Include references to literature when
+% explaining your proposal.
+%
+% ANMERKUNGEN
+% Geben Sie einen Überblick über den angedachten Lösungsweg Ihrer Fragestellung. Erklären und untermauern Sie Ihren
+% Vorschlag mit entsprechenden Quellenangaben.
+%
+Citation: \cite{choset2005principles, thrun2005probabilistic}\par%
+Reference: \cref{fig:MyImage}\par%
+Figures:\par%
+\begin{figure}[htb]%
+    \centering%
+    %
+    % Including .png
+    \includegraphics[width=40mm]{figures/ImagePNG.png}%
+    %
+    \hspace*{5mm}%
+    %
+    % Including .pdf
+    \includegraphics[width=40mm]{figures/ImagePDF.pdf}\par%
+    %
+    % Including .tikz
+    \begingroup%
+        %\FTMtikzExternalizeSkipNext%
+        \resizebox{40mm}{!}{\input{figures/ImageTIKZ.tikz}}%
+    \endgroup%
+    %
+    \hspace*{5mm}%
+    %
+    % Including .pdf_tex
+    \begingroup%
+        \def\svgwidth{40mm}%
+        \fontsize{25}{25}\selectfont%
+        \input{figures/ImagePDFTEX.pdf_tex}%
+    \endgroup%
+    %
+    \caption{\FTMlangGerEng{Beschreibung des Bilds}{Image description}.}%
+    \label{fig:MyImage}%
+\end{figure}%

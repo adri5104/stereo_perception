@@ -1,0 +1,47 @@
+\section{\FTMlangGerEng{Aufgabenstellung}{Topic}}%
+
+Autonomous vehicles are rapidly becoming a widespread reality. However, their perception systems still face significant challenges 
+in complex and unforeseen scenarios, often leading to disengagements, where human intervention via teleoperation is required. 
+In such critical moments, the vehicle must rely on an accurate and robust perception system to ensure safe navigation. 
+
+Most existing perception systems, responsible for detecting and tracking objects in the vehicle's surroundings, rely heavily
+on learning-based solutions. While these methods have demonstrated impressive performance in structured and controlled environments, 
+they often struggle to generalize in novel and untrained scenarios. This limitation is particularly problematic in safety-critical
+situations, where the vehicle must make quick decisions based on the perceived environment.
+
+This project aims to develop a deterministic, stereo camera-based perception system for autonomous vehicles, capable of providing
+a reliable and robust understanding of the vehicle's surroundings, even in highly dynamic and unforeseen scenarios. The system
+will take as input two images from a stereo camera mounted on the vehicle and output a list of detected objects in the scene, along
+with their criticality scores, forming a situational awareness module to assess potential hazards. 
+Additionaly, this deterministic approach could run in parallel with existing learning-based perception systems, providing a
+an additional layer of redundancy and security in critical situations where the learning-based methods may fail.
+
+To achieve accurate 6D motion estimation (position + velocity), the system will implement a deterministic algorithm 
+inspired by the Daimler 6D Vision system. This approach uses Kalman Filters to estimate a 6D state vector for selected feature
+points in the scene, which will then be clustered to identify moving objects. Unlike learning-based methods, this approach
+does not require extensive training data and can generalize well in new unseen scenarios.
+
+Given the real-time requirements of autonomous vehicles, the system will be implemented in C++ using the Robot Operating System (ROS)
+framework. It will also incorporate GPU hardware acceleration using CUDA to speed up computationally intensive tasks, such as
+feature point detection, clustering or optical flow computation.  
+
+To ensure scalability and modularity, the entire system will be containerized using Docker, facilitating deployment across different
+hardware configurations. Finally, the developed system will be deployed and evaluated on the EDGAR research vehicle. Here, 
+the system's performance will be compared against the state-of-the-art learning-based perception systems currently used in the vehicle.
+
+\begin{figure*}[!htb]
+  \centering
+  % First diagram on the left
+  \begin{minipage}{0.45\textwidth}
+    \centering
+    \scalebox{0.6}{\input{figures/high_level_pp.tikz}}
+  \end{minipage}
+  \hfill
+  % Second diagram on the right
+  \begin{minipage}{0.45\textwidth}
+    \centering
+    \scalebox{0.6}{\input{figures/high_level_cp.tikz}}
+  \end{minipage}
+  \caption{Side-by-side diagrams of the high level algorithms}
+  \label{fig:combined}
+\end{figure*}
