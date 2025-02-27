@@ -1,41 +1,146 @@
 \section{\FTMlangGerEng{Lösungsansatz}{Objective}}%
-% REMARKS
-% Give an overview on the approach you want to use for addressing your topic. Include references to literature when
-% explaining your proposal.
-%
-% ANMERKUNGEN
-% Geben Sie einen Überblick über den angedachten Lösungsweg Ihrer Fragestellung. Erklären und untermauern Sie Ihren
-% Vorschlag mit entsprechenden Quellenangaben.
-%
-Citation: \cite{choset2005principles, thrun2005probabilistic}\par%
-Reference: \cref{fig:MyImage}\par%
-Figures:\par%
-\begin{figure}[htb]%
-    \centering%
-    %
-    % Including .png
-    \includegraphics[width=40mm]{figures/ImagePNG.png}%
-    %
-    \hspace*{5mm}%
-    %
-    % Including .pdf
-    \includegraphics[width=40mm]{figures/ImagePDF.pdf}\par%
-    %
-    % Including .tikz
-    \begingroup%
-        %\FTMtikzExternalizeSkipNext%
-        \resizebox{40mm}{!}{\input{figures/ImageTIKZ.tikz}}%
-    \endgroup%
-    %
-    \hspace*{5mm}%
-    %
-    % Including .pdf_tex
-    \begingroup%
-        \def\svgwidth{40mm}%
-        \fontsize{25}{25}\selectfont%
-        \input{figures/ImagePDFTEX.pdf_tex}%
-    \endgroup%
-    %
-    \caption{\FTMlangGerEng{Beschreibung des Bilds}{Image description}.}%
-    \label{fig:MyImage}%
+
+
+The goal of this thesis is to develop a deterministic system that can provide a realiable object detection
+of moving objects in the ego vehicle's surroundings using stereo camera images and the 6D vision concept.
+For this purpose, the work will be devided in two principal pipelines: the perception pipeline 
+and the criticality assessment pipeline.
+
+\subsection{Perception Pipeline}%
+
+The perception pipeline will be responsible for detecting the moving objects and outputting 
+a list with their position and current velocity. This pipeline will be composed by several submodules as shown in figure \ref{fig:perception_pipeline_high_level}.
+
+\begin{figure}[htb]
+  \centering
+  \resizebox{0.8\textwidth}{!}{\input{figures/high_level_pp.tikz}}
+  \caption{High level perception pipeline}
+  \label{fig:perception_pipeline_high_level}
 \end{figure}%
+
+\subsubsection{Optical flow computation}
+
+This module receives as input the left image data from the stereo camera setup and uses it to compute the dense optical flow field.
+
+\subsubsection{Visual odometry computation}
+
+To compute the motion field of the environment, its necessary to know how the ego vehicle is moving with respect 
+to the environment.  
+
+Odometry is the use of data from motion sensors to estimate changes in position over time. It is commonly used in 
+robotics and autonomous vehicles to track the movement of the vehicle.
+
+Visual odometry, on the other hand, is a specific type of odometry that uses visual data (images or video) to 
+estimate the motion of the vehicle. By analyzing the changes in the visual data over time, the system can infer 
+the vehicle's movement and position relative to its environment. 
+In order to build the pipeline independent of the hardware used, a visual odometry module will 
+be implemented to estimate the ego vehicle's motion. 
+
+Visual odometry can be divided into two categories: monocular and stereo visual odometry.
+
+\begin{itemize}
+  \item \textbf{Monocular visual odometry:} Uses a single camera to estimate the motion of the vehicle \cite{vo_mono}.
+  \item \textbf{Stereo visual odometry:} Uses a stereo camera to estimate the motion of the vehicle \cite{vo_rev}, including also
+  the depth information.
+\end{itemize}
+
+Since the system is intended to be used with stereo cameras, and the depth information is already computed for the 
+6D vision algorithm, the stereo visual odometry will be implemented.
+
+\subsubsection{Depth computation}
+
+Even through the EDGAR vehicle is equipped with a stereo camera as will be explained in section \ref{subsec:rt_impl},
+to ensure the system is robust and can be tested with other camera configurations or datasets, a depth computation module will be implemented
+to compute the depth map from the stereo images. This module will take as input the left and right images, as well as the camera calibration
+parameters (focal distance, principal point and baseline \cite{pin_hole_camera_model}) and output the depth map of the scene.
+
+\subsubsection{6D Kalman Filter algorithm}
+
+This module will be responsible for estimating the 6D motion of the objects and will serve as the backbone of the perception pipeline.
+It will take the dense optical flow field, the depth image and the ego vehicle's motion as input and output the 6D motion of the objects. 
+The output will be an image with 6 channels to represent the 6D state of each tracked point in the scene. 
+\subsubsection{Clustering algorithm}
+
+To group the 6D motion vectors into objects, a clustering algorithm \cite{clustering_concept} will be implemented. The clustering algorithm will take the 6D motion image as input and output a list of objects with their 6D motion vectors.
+For this purpose, the DBSCAN (Density-Based Spatial Clustering of Applications with Noise) algorithm will be used \cite{dbscan_concept}. This clustering
+algorithm is suitable for this task since it can handle noise and outliers and does not require the number of clusters to be specified like in 
+other clustering algorithms like k-means \cite{kmeans}.
+
+\subsection{Criticality Assessment Pipeline}%
+
+The other pipeline (figure \ref{fig:cp_high_level}) will be responsible for assessing the criticality of the detected objects. This pipeline will be composed
+by the criticality algorithm that will compute metrics like the time to collision (TTC) \cite{cricitality_metrics}, based on the object list outputted by the perception pipeline
+and the ego vehicle's trajectory. 
+
+\begin{figure}[htb]
+  \centering
+  \resizebox{0.2\textwidth}{!}{\input{figures/high_level_cp.tikz}}
+  \caption{High level criticality pipeline}
+  \label{fig:cp_high_level}
+\end{figure}%
+
+
+\subsection{Development and real time implementation}%
+\label{subsec:rt_impl}
+
+For the development of the system, the stereo camera setup of front of the EDGAR vehicle will be used. This consist in two Framos D455e stereo 
+cameras, two long range Basler cameras in stereo configuration and three medium range Basler cameras for object detection.
+These can be seen in the following figure:  
+
+\begin{figure}[htb]
+  \centering
+  \includegraphics[width=0.8\textwidth]{figures/edgar_visual_perception_sensorkit.png}
+  \caption{EDGAR vehicle camera setup}
+  \label{fig:edgar_cameras}
+\end{figure}%
+
+From this setup, only the Framos and the long range basler cameras will be considered since they are the ones that provide the stereo images.
+
+Regarding the software implementation, the system will be developed using the Robot Operating System (ROS) framework \cite{ros_docu} due to its modularity and easy integration with the EDGAR vehicle’s existing software. This framework supports two primary programming languages: C++ and Python. Since C++ offers higher performance, it will be used to implement the system.
+
+The EDGAR vehicle employs an architecture based on Docker images for each service. Docker is a platform that automates the deployment of 
+applications within lightweight, portable containers. These containers bundle an application together with all its dependencies, libraries, 
+and configuration files, ensuring consistent behavior across different environments. 
+Consequently, the system must also be containerized using Docker for deployment in the vehicle.
+
+Regarding the real-time implementation, extensive image processing makes a multi-threaded system essential. 
+One of the most powerful tools for this purpose is NVIDIA’s CUDA \cite{cuda_concept}, an API that allows the GPU to be used for 
+general-purpose computing rather than just image rendering. This capability can be tapped either by writing custom 
+CUDA kernels \cite{cuda_kernels} or by using libraries like OpenCV \cite{cervera_gpu_opencv} that include GPU support. 
+Consequently, GPU acceleration will be considered 
+for all computationally intensive tasks such as optical flow, clustering, and depth computation.
+
+
+\subsection{Evaluation}%
+
+
+For the evaluation, two aspects will be assessed separately: the individual components of the perception pipeline and the integrated system.
+
+To evaluate the optical flow, depth computation, and visual odometry modules, the corresponding datasets from the KITTI 
+(Karlsruhe Institute of Technology and Toyota Technological Institute) Vision Benchmark Suite \cite{kitti_dataset} will be used. 
+These datasets provide a diverse range of real-world driving scenarios—including urban and highway scenes—along with ground truth data 
+for optical flow \cite{kitti_flow_article}, depth \cite{kitti_depth}, and visual odometry \cite{kitti_odom}.
+
+To assess the integrated system, the goal is to compare its performance with the state-of-the-art learning-based perception systems 
+currently deployed in the EDGAR vehicle. For this purpose, the developed system will be installed on the EDGAR platform and tested 
+in various environments, such as urban settings and parking lots. In each scenario, the criticality metrics produced by the system 
+will be compared with those generated by the existing perception solutions.
+
+In addition to evaluating output data, another key metric will be the system’s computational time. 
+Specifically, the frame rate of each module will be measured, and the overall frame rate of the system will be calculated. 
+This is crucial because the system is intended for real-time operations, where low computational overhead is n
+ecessary to maintain the required frame rate. These measurements will then be compared with those of the current perception 
+systems used in the EDGAR vehicle.
+
+\subsection{Expected Results}%
+
+To summarize the anticipated outcomes of this thesis and how they will advance the department’s ongoing work, the following results are expected:
+
+\begin{itemize} 
+  \item Development of a deterministic, 6D vision-based perception system for moving object detection on autonomous vehicles. 
+  \item Implementation in C++ using the ROS framework, with containerization via Docker for streamlined deployment on the EDGAR vehicle. 
+  \item Integration of GPU acceleration through CUDA, leveraging the work of \cite{previous_tfm_pastor} to improve performance in computationally intensive tasks. 
+  \item Capability to estimate criticality metrics, such as time to collision (TTC), for identified objects. 
+  \item Evaluation of individual modules using the KITTI dataset and validation of the integrated system on the EDGAR vehicle. 
+  \item Enhancement of the existing clustering method by employing the DBSCAN algorithm for more robust object detection. 
+\end{itemize}

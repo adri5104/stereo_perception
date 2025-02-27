@@ -403,6 +403,8 @@
 \RequirePackage{fix-cm}%                                Over­rides the (orig­i­nal) latex re­stric­tions on the sizes at which CM and EC fonts may be used
 \RequirePackage{fontenc}%
 \RequirePackage{helvet}%                                Load Helvetica font (very similar to Arial and TUMNeueHelvetica)
+\DeclareUnicodeCharacter{2063}{}
+
 \ifdefined\optArial%
     \RequirePackage{uarial}%                            Load URW Arial font
 \fi%
@@ -4546,7 +4548,7 @@
 \newcommand{\FTMlayoutSetIndent}{%
     \ifdefined\optEnglish%
         % English
-    	\parindent0.5em%
+    	\parindent0.0em%
     	\parskip0.5em%
     \else%
         % German
@@ -6569,6 +6571,8 @@
 \RequirePackage{caption}%
 \RequirePackage{longtable}%
 \RequirePackage{fancyhdr}%
+\usepackage{colortbl}
+\usepackage[table,xcdraw]{xcolor}
 %
 %
 %=============

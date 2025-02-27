@@ -19,6 +19,306 @@
 
 \refsection{0}
   \datalist[entry]{nyt/global//global/global}
+    \entry{kmeans}{article}{}
+      \name{author}{3}{}{%
+        {{hash=7fb2375082bc9ad06db36522c8341d67}{%
+           family={Ahmed},
+           familyi={A\bibinitperiod},
+           given={Mohiuddin},
+           giveni={M\bibinitperiod}}}%
+        {{hash=3e9eb092a4c6bf87881693570b7f6ed3}{%
+           family={Seraj},
+           familyi={S\bibinitperiod},
+           given={Raihan},
+           giveni={R\bibinitperiod}}}%
+        {{hash=3ee8e8e5547e93d9903b670f2d7b2e45}{%
+           family={Islam},
+           familyi={I\bibinitperiod},
+           given={Syed\bibnamedelimb Mohammed\bibnamedelima Shamsul},
+           giveni={S\bibinitperiod\bibinitdelim M\bibinitperiod\bibinitdelim S\bibinitperiod}}}%
+      }
+      \list{language}{1}{%
+        {en}%
+      }
+      \strng{namehash}{acb47d59a7a3c6337fe7fab2af63c704}
+      \strng{fullhash}{acb47d59a7a3c6337fe7fab2af63c704}
+      \strng{bibnamehash}{acb47d59a7a3c6337fe7fab2af63c704}
+      \strng{authorbibnamehash}{acb47d59a7a3c6337fe7fab2af63c704}
+      \strng{authornamehash}{acb47d59a7a3c6337fe7fab2af63c704}
+      \strng{authorfullhash}{acb47d59a7a3c6337fe7fab2af63c704}
+      \field{labelalpha}{ASI20}
+      \field{sortinit}{A}
+      \field{sortinithash}{2f401846e2029bad6b3ecc16d50031e2}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{abstract}{The k-means clustering algorithm is considered one of the most powerful and popular data mining algorithms in the research community. However, despite its popularity, the algorithm has certain limitations, including problems associated with random initialization of the centroids which leads to unexpected convergence. Additionally, such a clustering algorithm requires the number of clusters to be defined beforehand, which is responsible for different cluster shapes and outlier effects. A fundamental problem of the k-means algorithm is its inability to handle various data types. This paper provides a structured and synoptic overview of research conducted on the k-means algorithm to overcome such shortcomings. Variants of the k-means algorithms including their recent developments are discussed, where their effectiveness is investigated based on the experimental analysis of a variety of datasets. The detailed experimental analysis along with a thorough comparison among different k-means clustering algorithms differentiates our work compared to other existing survey papers. Furthermore, it outlines a clear and thorough understanding of the k-means algorithm along with its different research directions.}
+      \field{issn}{2079-9292}
+      \field{journaltitle}{Electronics}
+      \field{month}{8}
+      \field{note}{Number: 8 Publisher: Multidisciplinary Digital Publishing Institute}
+      \field{number}{8}
+      \field{shorttitle}{The k-means {Algorithm}}
+      \field{title}{The k-means {Algorithm}: {A} {Comprehensive} {Survey} and {Performance} {Evaluation}}
+      \field{volume}{9}
+      \field{year}{2020}
+      \field{pages}{1295}
+      \range{pages}{1}
+      \verb{doi}
+      \verb 10.3390/electronics9081295
+      \endverb
+      \keyw{\textit{k-means},categorical attributes,clustering,concept,cyber security,healthcare,initialization,kmeans,unsupervised learning}
+    \endentry
+    \entry{optical_flow_estimation_survey}{article}{}
+      \name{author}{4}{}{%
+        {{hash=d5495307b3202c7780055b778d2e41b8}{%
+           family={Alfarano},
+           familyi={A\bibinitperiod},
+           given={Andrea},
+           giveni={A\bibinitperiod}}}%
+        {{hash=2a6043b8f042cabfdb5ae6de5de784c2}{%
+           family={Maiano},
+           familyi={M\bibinitperiod},
+           given={Luca},
+           giveni={L\bibinitperiod}}}%
+        {{hash=6881e8df2dcb6b542bb171b072eaa2b4}{%
+           family={Papa},
+           familyi={P\bibinitperiod},
+           given={Lorenzo},
+           giveni={L\bibinitperiod}}}%
+        {{hash=340910ad21515da226deccbe9de84035}{%
+           family={Amerini},
+           familyi={A\bibinitperiod},
+           given={Irene},
+           giveni={I\bibinitperiod}}}%
+      }
+      \strng{namehash}{adc5983be24da92d6dfdea680b8d50f3}
+      \strng{fullhash}{adc5983be24da92d6dfdea680b8d50f3}
+      \strng{bibnamehash}{adc5983be24da92d6dfdea680b8d50f3}
+      \strng{authorbibnamehash}{adc5983be24da92d6dfdea680b8d50f3}
+      \strng{authornamehash}{adc5983be24da92d6dfdea680b8d50f3}
+      \strng{authorfullhash}{adc5983be24da92d6dfdea680b8d50f3}
+      \field{labelalpha}{Alf+24}
+      \field{sortinit}{A}
+      \field{sortinithash}{2f401846e2029bad6b3ecc16d50031e2}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{abstract}{Optical flow estimation is a crucial task in computer vision that provides low-level motion information. Despite recent advances, real-world applications still present significant challenges. This survey provides an overview of optical flow techniques and their application. For a comprehensive review, this survey covers both classical frameworks and the latest AI-based techniques. In doing so, we highlight the limitations of current benchmarks and metrics, underscoring the need for more representative datasets and comprehensive evaluation methods. The survey also highlights the importance of integrating industry knowledge and adopting training practices optimized for deep learning-based models. By addressing these issues, future research can aid the development of robust and efficient optical flow methods that can effectively address real-world scenarios.}
+      \field{journaltitle}{Computer Vision and Image Understanding}
+      \field{month}{12}
+      \field{shorttitle}{Estimating optical flow}
+      \field{title}{Estimating optical flow: {A} comprehensive review of the state of the art}
+      \field{volume}{249}
+      \field{year}{2024}
+      \field{pages}{104160}
+      \range{pages}{1}
+      \verb{doi}
+      \verb 10.1016/j.cviu.2024.104160
+      \endverb
+      \keyw{Survey,Optical flow,Computer Vision,motion estimation}
+    \endentry
+    \entry{previous_tfm_bauer}{thesis}{}
+      \name{author}{1}{}{%
+        {{hash=cb44ad0a20fa7f4feb6ef22f6b3254f4}{%
+           family={Bauer},
+           familyi={B\bibinitperiod},
+           given={Simon},
+           giveni={S\bibinitperiod}}}%
+      }
+      \list{institution}{1}{%
+        {TUM}%
+      }
+      \list{language}{1}{%
+        {German}%
+      }
+      \list{location}{1}{%
+        {Munich}%
+      }
+      \strng{namehash}{cb44ad0a20fa7f4feb6ef22f6b3254f4}
+      \strng{fullhash}{cb44ad0a20fa7f4feb6ef22f6b3254f4}
+      \strng{bibnamehash}{cb44ad0a20fa7f4feb6ef22f6b3254f4}
+      \strng{authorbibnamehash}{cb44ad0a20fa7f4feb6ef22f6b3254f4}
+      \strng{authornamehash}{cb44ad0a20fa7f4feb6ef22f6b3254f4}
+      \strng{authorfullhash}{cb44ad0a20fa7f4feb6ef22f6b3254f4}
+      \field{labelalpha}{Bau14}
+      \field{sortinit}{B}
+      \field{sortinithash}{d7095fff47cda75ca2589920aae98399}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Objektdetektion und {Bewegungsprädiktion} mittels eines {Stereokamerasystems} beim teleoperierten {Fahren}}
+      \field{type}{mathesis}
+      \field{year}{2014}
+      \keyw{Previous work FTM}
+    \endentry
+    \entry{lidarbased_bmw}{misc}{}
+      \name{author}{1}{}{%
+        {{hash=bcb48dddff8c14b5f452ee573b4db770}{%
+           family={BMW},
+           familyi={B\bibinitperiod}}}%
+      }
+      \list{language}{1}{%
+        {en}%
+      }
+      \strng{namehash}{bcb48dddff8c14b5f452ee573b4db770}
+      \strng{fullhash}{bcb48dddff8c14b5f452ee573b4db770}
+      \strng{bibnamehash}{bcb48dddff8c14b5f452ee573b4db770}
+      \strng{authorbibnamehash}{bcb48dddff8c14b5f452ee573b4db770}
+      \strng{authornamehash}{bcb48dddff8c14b5f452ee573b4db770}
+      \strng{authorfullhash}{bcb48dddff8c14b5f452ee573b4db770}
+      \field{labelalpha}{BMW23}
+      \field{sortinit}{B}
+      \field{sortinithash}{d7095fff47cda75ca2589920aae98399}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{+++ Highly automated driving as a new option for customers in Germany +++ For the first time, the vehicle takes over the task of driving in full including in the dark +++ New hands-free function means drivers can switch to other in-vehicle activities while travelling at up to 60 km/h (37 mph) +++}
+      \field{title}{Level 3 highly automated driving available in the new {BMW} 7 {Series} from next spring.}
+      \field{urlday}{26}
+      \field{urlmonth}{2}
+      \field{urlyear}{2025}
+      \field{year}{2023}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://www.press.bmwgroup.com/global/article/detail/T0438214EN/level-3-highly-automated-driving-available-in-the-new-bmw-7-series-from-next-spring?language=en
+      \endverb
+      \verb{url}
+      \verb https://www.press.bmwgroup.com/global/article/detail/T0438214EN/level-3-highly-automated-driving-available-in-the-new-bmw-7-series-from-next-spring?language=en
+      \endverb
+      \keyw{lidar-based perception}
+    \endentry
+    \entry{docker_research}{article}{}
+      \name{author}{1}{}{%
+        {{hash=b23d21a39d596cb65c7411216d994660}{%
+           family={BoettigerCarl},
+           familyi={B\bibinitperiod}}}%
+      }
+      \list{language}{1}{%
+        {EN}%
+      }
+      \strng{namehash}{b23d21a39d596cb65c7411216d994660}
+      \strng{fullhash}{b23d21a39d596cb65c7411216d994660}
+      \strng{bibnamehash}{b23d21a39d596cb65c7411216d994660}
+      \strng{authorbibnamehash}{b23d21a39d596cb65c7411216d994660}
+      \strng{authornamehash}{b23d21a39d596cb65c7411216d994660}
+      \strng{authorfullhash}{b23d21a39d596cb65c7411216d994660}
+      \field{labelalpha}{Boe15}
+      \field{sortinit}{B}
+      \field{sortinithash}{d7095fff47cda75ca2589920aae98399}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{As computational work becomes more and more integral to many aspects of scientific research, computational reproducibility has become an issue of increasing importance to computer systems researchers and domain scientists alike. Though computational ...}
+      \field{journaltitle}{ACM SIGOPS Operating Systems Review}
+      \field{month}{1}
+      \field{note}{Publisher: ACMPUB27New York, NY, USA}
+      \field{title}{An introduction to {Docker} for reproducible research}
+      \field{year}{2015}
+      \verb{doi}
+      \verb 10.1145/2723872.2723882
+      \endverb
+      \keyw{docker}
+    \endentry
+    \entry{cervera_gpu_opencv}{article}{}
+      \name{author}{1}{}{%
+        {{hash=fd53e2ebaab7c3236b04b69bc3322ae1}{%
+           family={Cervera},
+           familyi={C\bibinitperiod},
+           given={Enric},
+           giveni={E\bibinitperiod}}}%
+      }
+      \strng{namehash}{fd53e2ebaab7c3236b04b69bc3322ae1}
+      \strng{fullhash}{fd53e2ebaab7c3236b04b69bc3322ae1}
+      \strng{bibnamehash}{fd53e2ebaab7c3236b04b69bc3322ae1}
+      \strng{authorbibnamehash}{fd53e2ebaab7c3236b04b69bc3322ae1}
+      \strng{authornamehash}{fd53e2ebaab7c3236b04b69bc3322ae1}
+      \strng{authorfullhash}{fd53e2ebaab7c3236b04b69bc3322ae1}
+      \field{labelalpha}{Cer20}
+      \field{sortinit}{C}
+      \field{sortinithash}{4d103a86280481745c9c897c925753c0}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{abstract}{OpenCV is an open source computer vision and machine learning library for C/C++/Python available for Windows, Linux, macOS, and Android platforms. It contains low-level image processing functions as well as high-level algorithms such as object identification, face recognition, and action classification in videos. OpenCV has become very popular, with more than 47,000 people in its user community and 18 million downloads (see https://opencv.org/about/). Under a Berkeley Software Distribution (BSD) license, it can be used for both academic and commercial applications.}
+      \field{issn}{1558-223X}
+      \field{journaltitle}{IEEE Robotics \& Automation Magazine}
+      \field{month}{6}
+      \field{note}{Conference Name: IEEE Robotics \& Automation Magazine}
+      \field{number}{2}
+      \field{shorttitle}{{GPU}-{Accelerated} {Vision} for {Robots}}
+      \field{title}{{GPU}-{Accelerated} {Vision} for {Robots}: {Improving} {System} {Throughput} {Using} {OpenCV} and {CUDA}}
+      \field{volume}{27}
+      \field{year}{2020}
+      \field{pages}{151\bibrangedash 158}
+      \range{pages}{8}
+      \verb{doi}
+      \verb 10.1109/MRA.2020.2977601
+      \endverb
+      \keyw{CUDA,Detectors,Feature extraction,Graphics processing units,Image edge detection,Opencv,Optical flow,Robots,Videos}
+    \endentry
+    \entry{dbscan_concept}{inproceedings}{}
+      \name{author}{1}{}{%
+        {{hash=738b3ba0cde50721f319fb4f840e7a1b}{%
+           family={Deng},
+           familyi={D\bibinitperiod},
+           given={Dingsheng},
+           giveni={D\bibinitperiod}}}%
+      }
+      \strng{namehash}{738b3ba0cde50721f319fb4f840e7a1b}
+      \strng{fullhash}{738b3ba0cde50721f319fb4f840e7a1b}
+      \strng{bibnamehash}{738b3ba0cde50721f319fb4f840e7a1b}
+      \strng{authorbibnamehash}{738b3ba0cde50721f319fb4f840e7a1b}
+      \strng{authornamehash}{738b3ba0cde50721f319fb4f840e7a1b}
+      \strng{authorfullhash}{738b3ba0cde50721f319fb4f840e7a1b}
+      \field{labelalpha}{Den20}
+      \field{sortinit}{D}
+      \field{sortinithash}{6f385f66841fb5e82009dc833c761848}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Clustering technology has important applications in data mining, pattern recognition, machine learning and other fields. However, with the explosive growth of data, traditional clustering algorithm is more and more difficult to meet the needs of big data analysis. How to improve the traditional clustering algorithm and ensure the quality and efficiency of clustering under the background of big data has become an important research topic of artificial intelligence and big data processing. The density-based clustering algorithm can cluster arbitrarily shaped data sets in the case of unknown data distribution. DBSCAN is a classical density-based clustering algorithm, which is widely used for data clustering analysis due to its simple and efficient characteristics. The purpose of this paper is to study DBSCAN clustering algorithm based on density. This paper first introduces the concept of DBSCAN algorithm, and then carries out performance tests on DBSCAN algorithm in three different data sets. By analyzing the experimental results, it can be concluded that DBSCAN algorithm has higher homogeneity and diversity when it performs personalized clustering on data sets of non-uniform density with broad values and gradually sparse forwards. When the DBSCAN algorithm's neighborhood distance eps is 1000, 26 classes are generated after clustering.}
+      \field{booktitle}{2020 7th {International} {Forum} on {Electrical} {Engineering} and {Automation} ({IFEEA})}
+      \field{month}{9}
+      \field{title}{{DBSCAN} {Clustering} {Algorithm} {Based} on {Density}}
+      \field{year}{2020}
+      \field{pages}{949\bibrangedash 953}
+      \range{pages}{5}
+      \verb{doi}
+      \verb 10.1109/IFEEA51475.2020.00199
+      \endverb
+      \keyw{Algorithm Research,Big Data,Clustering algorithms,concept,Data mining,DBSCAN,DBSCAN Algorithm,Density Clustering,Machine learning,Machine Learning,Machine learning algorithms,Prediction algorithms,Unsupervised learning}
+    \endentry
+    \entry{docker_web}{misc}{}
+      \name{author}{1}{}{%
+        {{hash=c5fd214cdd0d2b3b4272e73b022ba5c2}{%
+           family={Docker},
+           familyi={D\bibinitperiod}}}%
+      }
+      \list{language}{1}{%
+        {en-US}%
+      }
+      \strng{namehash}{c5fd214cdd0d2b3b4272e73b022ba5c2}
+      \strng{fullhash}{c5fd214cdd0d2b3b4272e73b022ba5c2}
+      \strng{bibnamehash}{c5fd214cdd0d2b3b4272e73b022ba5c2}
+      \strng{authorbibnamehash}{c5fd214cdd0d2b3b4272e73b022ba5c2}
+      \strng{authornamehash}{c5fd214cdd0d2b3b4272e73b022ba5c2}
+      \strng{authorfullhash}{c5fd214cdd0d2b3b4272e73b022ba5c2}
+      \field{labelalpha}{Doc22}
+      \field{sortinit}{D}
+      \field{sortinithash}{6f385f66841fb5e82009dc833c761848}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{abstract}{Docker is a platform designed to help developers build, share, and run container applications. We handle the tedious setup, so you can focus on the code.}
+      \field{month}{5}
+      \field{shorttitle}{Docker}
+      \field{title}{Docker: {Accelerated} {Container} {Application} {Development}}
+      \field{urlday}{27}
+      \field{urlmonth}{2}
+      \field{urlyear}{2025}
+      \field{year}{2022}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://www.docker.com/
+      \endverb
+      \verb{url}
+      \verb https://www.docker.com/
+      \endverb
+      \keyw{docker}
+    \endentry
     \entry{6d_vision_daimler}{inproceedings}{}
       \name{author}{4}{}{%
         {{hash=d996aac909f5d2ef612d23aaebcb75ce}{%
@@ -93,10 +393,941 @@
       \verb{doi}
       \verb 10.1007/11550518_27
       \endverb
-      \verb{file}
-      \verb PDF:/home/adrian/Zotero/storage/QTB4FM9L/Franke et al. - 2005 - 6D-Vision Fusion of Stereo and Motion for Robust Environment Perception.pdf:application/pdf
-      \endverb
       \keyw{Perception,6D vision,Daimler}
+    \endentry
+    \entry{kitti_dataset}{article}{}
+      \name{author}{4}{}{%
+        {{hash=017cd7b379e94d03c22b32da5dcee445}{%
+           family={Geiger},
+           familyi={G\bibinitperiod},
+           given={A},
+           giveni={A\bibinitperiod}}}%
+        {{hash=ae754cf9b04ce49614913717e802316a}{%
+           family={Lenz},
+           familyi={L\bibinitperiod},
+           given={P},
+           giveni={P\bibinitperiod}}}%
+        {{hash=9dee3559bb84e64b240c89d115d18779}{%
+           family={Stiller},
+           familyi={S\bibinitperiod},
+           given={C},
+           giveni={C\bibinitperiod}}}%
+        {{hash=c4d3341061768ff136f92051e00797aa}{%
+           family={Urtasun},
+           familyi={U\bibinitperiod},
+           given={R},
+           giveni={R\bibinitperiod}}}%
+      }
+      \list{language}{1}{%
+        {en}%
+      }
+      \strng{namehash}{e4bf12d502716fc62e374ff138cecf52}
+      \strng{fullhash}{e4bf12d502716fc62e374ff138cecf52}
+      \strng{bibnamehash}{e4bf12d502716fc62e374ff138cecf52}
+      \strng{authorbibnamehash}{e4bf12d502716fc62e374ff138cecf52}
+      \strng{authornamehash}{e4bf12d502716fc62e374ff138cecf52}
+      \strng{authorfullhash}{e4bf12d502716fc62e374ff138cecf52}
+      \field{labelalpha}{Gei+13}
+      \field{sortinit}{G}
+      \field{sortinithash}{32d67eca0634bf53703493fb1090a2e8}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{abstract}{We present a novel dataset captured from a VW station wagon for use in mobile robotics and autonomous driving research. In total, we recorded 6 hours of trafﬁc scenarios at 10-100 Hz using a variety of sensor modalities such as highresolution color and grayscale stereo cameras, a Velodyne 3D laser scanner and a high-precision GPS/IMU inertial navigation system. The scenarios are diverse, capturing real-world trafﬁc situations and range from freeways over rural areas to innercity scenes with many static and dynamic objects. Our data is calibrated, synchronized and timestamped, and we provide the rectiﬁed and raw image sequences. Our dataset also contains object labels in the form of 3D tracklets and we provide online benchmarks for stereo, optical ﬂow, object detection and other tasks. This paper describes our recording platform, the data format and the utilities that we provide.}
+      \field{issn}{0278-3649, 1741-3176}
+      \field{journaltitle}{The International Journal of Robotics Research}
+      \field{month}{9}
+      \field{number}{11}
+      \field{shorttitle}{Vision meets robotics}
+      \field{title}{Vision meets robotics: {The} {KITTI} dataset}
+      \field{volume}{32}
+      \field{year}{2013}
+      \field{pages}{1231\bibrangedash 1237}
+      \range{pages}{7}
+      \verb{doi}
+      \verb 10.1177/0278364913491297
+      \endverb
+      \keyw{Dataset,KITTI,RAW}
+    \endentry
+    \entry{vo_mono}{article}{}
+      \name{author}{5}{}{%
+        {{hash=74d63b549a34b642ad5d624a0889dd46}{%
+           family={He},
+           familyi={H\bibinitperiod},
+           given={Ming},
+           giveni={M\bibinitperiod}}}%
+        {{hash=ae850b4156589aca6276eeac7370262f}{%
+           family={Zhu},
+           familyi={Z\bibinitperiod},
+           given={Chaozheng},
+           giveni={C\bibinitperiod}}}%
+        {{hash=9b42a1a1fb6a84e97a2d1a0cf917ec9f}{%
+           family={Huang},
+           familyi={H\bibinitperiod},
+           given={Qian},
+           giveni={Q\bibinitperiod}}}%
+        {{hash=c949aa5f5aed0969d5fe0f147b4946a9}{%
+           family={Ren},
+           familyi={R\bibinitperiod},
+           given={Baosen},
+           giveni={B\bibinitperiod}}}%
+        {{hash=7a7107564ecf7d64ed0ffa00a7cb7466}{%
+           family={Liu},
+           familyi={L\bibinitperiod},
+           given={Jintao},
+           giveni={J\bibinitperiod}}}%
+      }
+      \list{language}{1}{%
+        {en}%
+      }
+      \strng{namehash}{eef22c6c18762aa879606628f9847d05}
+      \strng{fullhash}{eef22c6c18762aa879606628f9847d05}
+      \strng{bibnamehash}{eef22c6c18762aa879606628f9847d05}
+      \strng{authorbibnamehash}{eef22c6c18762aa879606628f9847d05}
+      \strng{authornamehash}{eef22c6c18762aa879606628f9847d05}
+      \strng{authorfullhash}{eef22c6c18762aa879606628f9847d05}
+      \field{labelalpha}{He+20}
+      \field{sortinit}{H}
+      \field{sortinithash}{23a3aa7c24e56cfa16945d55545109b5}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Monocular visual odometry provides more robust functions on navigation and obstacle avoidance for mobile robots than other visual odometries, such as binocular visual odometry, RGB-D visual odometry and basic odometry. This paper describes the problem of visual odometry and also determines the relationships between visual odometry and visual simultaneous localization and mapping (SLAM). The basic principle of visual odometry is expressed in the form of mathematics, specifically by incrementally solving the pose changes of two series of frames and further improving the odometry through global optimization. After analyzing the three main ways of implementing visual odometry, the state-of-the-art monocular visual odometries, including ORB-SLAM2, DSO and SVO, are also analyzed and compared in detail. The issues of robustness and real-time operations, which are generally of interest in the current visual odometry research, are discussed from the future development of the directions and trends. Furthermore, we present a novel framework for the implementation of next-generation visual odometry based on additional high-dimensional features, which have not been implemented in the relevant applications.}
+      \field{issn}{1432-2315}
+      \field{journaltitle}{The Visual Computer}
+      \field{month}{5}
+      \field{number}{5}
+      \field{title}{A review of monocular visual odometry}
+      \field{volume}{36}
+      \field{year}{2020}
+      \verb{doi}
+      \verb 10.1007/s00371-019-01714-6
+      \endverb
+      \keyw{Machine learning,Artificial Intelligence,Visual odometry,Multi-sensor data fusion,Visual SLAM}
+    \endentry
+    \entry{flow_schunck}{article}{}
+      \name{author}{2}{}{%
+        {{hash=ebefe287582aeffcb5a9e58331561eac}{%
+           family={Horn},
+           familyi={H\bibinitperiod},
+           given={Berthold\bibnamedelimb K.\bibnamedelimi P.},
+           giveni={B\bibinitperiod\bibinitdelim K\bibinitperiod\bibinitdelim P\bibinitperiod}}}%
+        {{hash=5e0a81f9ae5c927ed69626b3be80e28c}{%
+           family={Schunck},
+           familyi={S\bibinitperiod},
+           given={Brian\bibnamedelima G.},
+           giveni={B\bibinitperiod\bibinitdelim G\bibinitperiod}}}%
+      }
+      \strng{namehash}{60f93c89dcb350b741966bd13e9e2f24}
+      \strng{fullhash}{60f93c89dcb350b741966bd13e9e2f24}
+      \strng{bibnamehash}{60f93c89dcb350b741966bd13e9e2f24}
+      \strng{authorbibnamehash}{60f93c89dcb350b741966bd13e9e2f24}
+      \strng{authornamehash}{60f93c89dcb350b741966bd13e9e2f24}
+      \strng{authorfullhash}{60f93c89dcb350b741966bd13e9e2f24}
+      \field{labelalpha}{HS81}
+      \field{sortinit}{H}
+      \field{sortinithash}{23a3aa7c24e56cfa16945d55545109b5}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Optical flow cannot be computed locally, since only one independent measurement is available from the image sequence at a point, while the flow velocity has two components. A second constraint is needed. A method for finding the optical flow pattern is presented which assumes that the apparent velocity of the brightness pattern varies smoothly almost everywhere in the image. An iterative implementation is shown which successfully computes the optical flow for a number of synthetic image sequences. The algorithm is robust in that it can handle image sequences that are quantized rather coarsely in space and time. It is also insensitive to quantization of brightness levels and additive noise. Examples are included where the assumption of smoothness is violated at singular points or along lines in the image.}
+      \field{issn}{0004-3702}
+      \field{journaltitle}{Artificial Intelligence}
+      \field{month}{8}
+      \field{number}{1}
+      \field{title}{Determining optical flow}
+      \field{volume}{17}
+      \field{year}{1981}
+      \field{pages}{185\bibrangedash 203}
+      \range{pages}{19}
+      \verb{doi}
+      \verb 10.1016/0004-3702(81)90024-2
+      \endverb
+      \keyw{Optical flow}
+    \endentry
+    \entry{clustering_concept}{article}{}
+      \name{author}{3}{}{%
+        {{hash=5158eda7f50d354c819ac47226b8fb7b}{%
+           family={Jain},
+           familyi={J\bibinitperiod},
+           given={A.\bibnamedelimi K.},
+           giveni={A\bibinitperiod\bibinitdelim K\bibinitperiod}}}%
+        {{hash=1a0a2bc14b7a24c53ad3f70d4b5e359f}{%
+           family={Murty},
+           familyi={M\bibinitperiod},
+           given={M.\bibnamedelimi N.},
+           giveni={M\bibinitperiod\bibinitdelim N\bibinitperiod}}}%
+        {{hash=1abb6cbb504b55394f7dd0bd6d7049f4}{%
+           family={Flynn},
+           familyi={F\bibinitperiod},
+           given={P.\bibnamedelimi J.},
+           giveni={P\bibinitperiod\bibinitdelim J\bibinitperiod}}}%
+      }
+      \strng{namehash}{304a8d5abb701718278b83739b30917b}
+      \strng{fullhash}{304a8d5abb701718278b83739b30917b}
+      \strng{bibnamehash}{304a8d5abb701718278b83739b30917b}
+      \strng{authorbibnamehash}{304a8d5abb701718278b83739b30917b}
+      \strng{authornamehash}{304a8d5abb701718278b83739b30917b}
+      \strng{authorfullhash}{304a8d5abb701718278b83739b30917b}
+      \field{labelalpha}{JMF99}
+      \field{sortinit}{J}
+      \field{sortinithash}{b2f54a9081ace9966a7cb9413811edb4}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Clustering is the unsupervised classification of patterns (observations, data items, or feature vectors) into groups (clusters). The clustering problem has been addressed in many contexts and by researchers in many disciplines; this reflects its broad appeal and usefulness as one of the steps in exploratory data analysis. However, clustering is a difficult problem combinatorially, and differences in assumptions and contexts in different communities has made the transfer of useful generic concepts and methodologies slow to occur. This paper presents an overview of pattern clustering methods from a statistical pattern recognition perspective, with a goal of providing useful advice and references to fundamental concepts accessible to the broad community of clustering practitioners. We present a taxonomy of clustering techniques, and identify cross-cutting themes and recent advances. We also describe some important applications of clustering algorithms such as image segmentation, object recognition, and information retrieval.}
+      \field{issn}{0360-0300}
+      \field{journaltitle}{ACM Comput. Surv.}
+      \field{month}{9}
+      \field{number}{3}
+      \field{title}{Data clustering: a review}
+      \field{volume}{31}
+      \field{year}{1999}
+      \verb{doi}
+      \verb 10.1145/331499.331504
+      \endverb
+      \keyw{Clustering,concept}
+    \endentry
+    \entry{edgar_hardware}{misc}{}
+      \name{author}{34}{}{%
+        {{hash=93f969aab3d7fdefee6a6ef8e0fb500e}{%
+           family={Karle},
+           familyi={K\bibinitperiod},
+           given={Phillip},
+           giveni={P\bibinitperiod}}}%
+        {{hash=0d368418a10e3e88c38f63ad800818db}{%
+           family={Betz},
+           familyi={B\bibinitperiod},
+           given={Tobias},
+           giveni={T\bibinitperiod}}}%
+        {{hash=a8342daadd721d068da7d652be75b0ec}{%
+           family={Bosk},
+           familyi={B\bibinitperiod},
+           given={Marcin},
+           giveni={M\bibinitperiod}}}%
+        {{hash=38e7aaf67ddc23d9c39e3f8fc9a4ef7d}{%
+           family={Fent},
+           familyi={F\bibinitperiod},
+           given={Felix},
+           giveni={F\bibinitperiod}}}%
+        {{hash=3f86b8aec5382a212259008530b43953}{%
+           family={Gehrke},
+           familyi={G\bibinitperiod},
+           given={Nils},
+           giveni={N\bibinitperiod}}}%
+        {{hash=42e0d22e0f5c28cba3e2075611f65a35}{%
+           family={Geisslinger},
+           familyi={G\bibinitperiod},
+           given={Maximilian},
+           giveni={M\bibinitperiod}}}%
+        {{hash=97d97e1ea2690d75053818448dcf4e5b}{%
+           family={Gressenbuch},
+           familyi={G\bibinitperiod},
+           given={Luis},
+           giveni={L\bibinitperiod}}}%
+        {{hash=f99c373d439b70e3251e586efdcf5346}{%
+           family={Hafemann},
+           familyi={H\bibinitperiod},
+           given={Philipp},
+           giveni={P\bibinitperiod}}}%
+        {{hash=5d682bdec9e6a04c4e178db19bb69af7}{%
+           family={Huber},
+           familyi={H\bibinitperiod},
+           given={Sebastian},
+           giveni={S\bibinitperiod}}}%
+        {{hash=a9830a42142f54666339ab5954c70d0a}{%
+           family={Hübner},
+           familyi={H\bibinitperiod},
+           given={Maximilian},
+           giveni={M\bibinitperiod}}}%
+        {{hash=ba20539f833c0e2d1137ab85e322afdd}{%
+           family={Huch},
+           familyi={H\bibinitperiod},
+           given={Sebastian},
+           giveni={S\bibinitperiod}}}%
+        {{hash=5777a7b6c89d757eba96bb40d46b9f29}{%
+           family={Kaljavesi},
+           familyi={K\bibinitperiod},
+           given={Gemb},
+           giveni={G\bibinitperiod}}}%
+        {{hash=75557753861ba47d0013c659b6224cf6}{%
+           family={Kerbl},
+           familyi={K\bibinitperiod},
+           given={Tobias},
+           giveni={T\bibinitperiod}}}%
+        {{hash=723da7bc87d8df9d0c75bc3d33132fb3}{%
+           family={Kulmer},
+           familyi={K\bibinitperiod},
+           given={Dominik},
+           giveni={D\bibinitperiod}}}%
+        {{hash=8106c16dc6ebec1146ce05798110a41d}{%
+           family={Mascetta},
+           familyi={M\bibinitperiod},
+           given={Tobias},
+           giveni={T\bibinitperiod}}}%
+        {{hash=9847601b2099b6cc01ff17d0e3b400ee}{%
+           family={Maierhofer},
+           familyi={M\bibinitperiod},
+           given={Sebastian},
+           giveni={S\bibinitperiod}}}%
+        {{hash=37a6cd5d03ec3dedd167ba63b770365c}{%
+           family={Pfab},
+           familyi={P\bibinitperiod},
+           given={Florian},
+           giveni={F\bibinitperiod}}}%
+        {{hash=3aee9e4946be1bacbf937629d1eced87}{%
+           family={Rezabek},
+           familyi={R\bibinitperiod},
+           given={Filip},
+           giveni={F\bibinitperiod}}}%
+        {{hash=a3c8f8598fda6f70139660d7a1785bd8}{%
+           family={Rivera},
+           familyi={R\bibinitperiod},
+           given={Esteban},
+           giveni={E\bibinitperiod}}}%
+        {{hash=d188b16a1f4caf8418e35e5efc576ee5}{%
+           family={Sagmeister},
+           familyi={S\bibinitperiod},
+           given={Simon},
+           giveni={S\bibinitperiod}}}%
+        {{hash=c670e1a09593fee75cf338d865739e82}{%
+           family={Seidlitz},
+           familyi={S\bibinitperiod},
+           given={Leander},
+           giveni={L\bibinitperiod}}}%
+        {{hash=2fb1f48c835bd741eebfa250c02e6471}{%
+           family={Sauerbeck},
+           familyi={S\bibinitperiod},
+           given={Florian},
+           giveni={F\bibinitperiod}}}%
+        {{hash=7f1e5ab7cd9ff94e9359026ba0eb8d38}{%
+           family={Tahiraj},
+           familyi={T\bibinitperiod},
+           given={Ilir},
+           giveni={I\bibinitperiod}}}%
+        {{hash=39b69a50b90a57b37b53088a5a7f4259}{%
+           family={Trauth},
+           familyi={T\bibinitperiod},
+           given={Rainer},
+           giveni={R\bibinitperiod}}}%
+        {{hash=d8b2b638ba33a9600e00a81c3550470b}{%
+           family={Uhlemann},
+           familyi={U\bibinitperiod},
+           given={Nico},
+           giveni={N\bibinitperiod}}}%
+        {{hash=a88b6638ab0a8d8b25dbc680b64b13ac}{%
+           family={Würsching},
+           familyi={W\bibinitperiod},
+           given={Gerald},
+           giveni={G\bibinitperiod}}}%
+        {{hash=caeb7de8e7ff4ae9575741b85f76ca17}{%
+           family={Zarrouki},
+           familyi={Z\bibinitperiod},
+           given={Baha},
+           giveni={B\bibinitperiod}}}%
+        {{hash=6212f49fc6e2ed8c269aa77471508561}{%
+           family={Althoff},
+           familyi={A\bibinitperiod},
+           given={Matthias},
+           giveni={M\bibinitperiod}}}%
+        {{hash=a008b92053ae0f83515b2efc01b51f15}{%
+           family={Betz},
+           familyi={B\bibinitperiod},
+           given={Johannes},
+           giveni={J\bibinitperiod}}}%
+        {{hash=576b75a84b9f7d56e93297519ab00f7d}{%
+           family={Bengler},
+           familyi={B\bibinitperiod},
+           given={Klaus},
+           giveni={K\bibinitperiod}}}%
+        {{hash=8d4a470562f976d64486a25768467b84}{%
+           family={Carle},
+           familyi={C\bibinitperiod},
+           given={Georg},
+           giveni={G\bibinitperiod}}}%
+        {{hash=2723a08f81b226984d9b0895cb062901}{%
+           family={Diermeyer},
+           familyi={D\bibinitperiod},
+           given={Frank},
+           giveni={F\bibinitperiod}}}%
+        {{hash=b2d2b11856b4958d9995063b8ffd0e93}{%
+           family={Ott},
+           familyi={O\bibinitperiod},
+           given={Jörg},
+           giveni={J\bibinitperiod}}}%
+        {{hash=b6eaf9c0cbe6c46f009c422f4db31a23}{%
+           family={Lienkamp},
+           familyi={L\bibinitperiod},
+           given={Markus},
+           giveni={M\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {arXiv}%
+      }
+      \strng{namehash}{5f7878d0d61bc8ec8efe64b7425280d4}
+      \strng{fullhash}{5f7878d0d61bc8ec8efe64b7425280d4}
+      \strng{bibnamehash}{5f7878d0d61bc8ec8efe64b7425280d4}
+      \strng{authorbibnamehash}{5f7878d0d61bc8ec8efe64b7425280d4}
+      \strng{authornamehash}{5f7878d0d61bc8ec8efe64b7425280d4}
+      \strng{authorfullhash}{5f7878d0d61bc8ec8efe64b7425280d4}
+      \field{labelalpha}{Kar+24}
+      \field{sortinit}{K}
+      \field{sortinithash}{c02bf6bff1c488450c352b40f5d853ab}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{abstract}{While current research and development of autonomous driving primarily focuses on developing new features and algorithms, the transfer from isolated software components into an entire software stack has been covered sparsely. Besides that, due to the complexity of autonomous software stacks and public road traffic, the optimal validation of entire stacks is an open research problem. Our paper targets these two aspects. We present our autonomous research vehicle EDGAR and its digital twin, a detailed virtual duplication of the vehicle. While the vehicle's setup is closely related to the state of the art, its virtual duplication is a valuable contribution as it is crucial for a consistent validation process from simulation to real-world tests. In addition, different development teams can work with the same model, making integration and testing of the software stacks much easier, significantly accelerating the development process. The real and virtual vehicles are embedded in a comprehensive development environment, which is also introduced. All parameters of the digital twin are provided open-source at https://github.com/TUMFTM/edgar\_digital\_twin.}
+      \field{month}{1}
+      \field{note}{arXiv:2309.15492 [cs]}
+      \field{shorttitle}{{EDGAR}}
+      \field{title}{{EDGAR}: {An} {Autonomous} {Driving} {Research} {Platform} -- {From} {Feature} {Development} to {Real}-{World} {Application}}
+      \field{year}{2024}
+      \verb{doi}
+      \verb 10.48550/arXiv.2309.15492
+      \endverb
+      \keyw{Computer Science - Robotics,EDGAR}
+    \endentry
+    \entry{radarbased_velocity}{article}{}
+      \name{author}{28}{}{%
+        {{hash=ecbba107b554ea58eb96c11473735dba}{%
+           family={Leonard},
+           familyi={L\bibinitperiod},
+           given={John},
+           giveni={J\bibinitperiod}}}%
+        {{hash=8d39f83a2796eb6c9f7f0cbf1a298a09}{%
+           family={How},
+           familyi={H\bibinitperiod},
+           given={Jonathan},
+           giveni={J\bibinitperiod}}}%
+        {{hash=e1cccf83d1bea5f335ff48b39f0bc52c}{%
+           family={Teller},
+           familyi={T\bibinitperiod},
+           given={Seth},
+           giveni={S\bibinitperiod}}}%
+        {{hash=45e88d7cb0acd277ae5a3da5cefa8571}{%
+           family={Berger},
+           familyi={B\bibinitperiod},
+           given={Mitch},
+           giveni={M\bibinitperiod}}}%
+        {{hash=b20df8f735ed5089d645c766fc84c51b}{%
+           family={Campbell},
+           familyi={C\bibinitperiod},
+           given={Stefan},
+           giveni={S\bibinitperiod}}}%
+        {{hash=c096b6389abac29ef750385f031fced9}{%
+           family={Fiore},
+           familyi={F\bibinitperiod},
+           given={Gaston},
+           giveni={G\bibinitperiod}}}%
+        {{hash=95aab1e3ef76e9b7a663bd155da5330b}{%
+           family={Fletcher},
+           familyi={F\bibinitperiod},
+           given={Luke},
+           giveni={L\bibinitperiod}}}%
+        {{hash=7fe896e8ed8d5f30af73e472ebedcec9}{%
+           family={Frazzoli},
+           familyi={F\bibinitperiod},
+           given={Emilio},
+           giveni={E\bibinitperiod}}}%
+        {{hash=81bad66d90fac60056ad8f25095d0475}{%
+           family={Huang},
+           familyi={H\bibinitperiod},
+           given={Albert},
+           giveni={A\bibinitperiod}}}%
+        {{hash=ca50b61c6d4e6ff567664ac59d4d3837}{%
+           family={Karaman},
+           familyi={K\bibinitperiod},
+           given={Sertac},
+           giveni={S\bibinitperiod}}}%
+        {{hash=97a319d83c4a7972609517e8f2cdd7c3}{%
+           family={Koch},
+           familyi={K\bibinitperiod},
+           given={Olivier},
+           giveni={O\bibinitperiod}}}%
+        {{hash=01955eb1b24a7a895c39ebba3b0a737b}{%
+           family={Kuwata},
+           familyi={K\bibinitperiod},
+           given={Yoshiaki},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=bf0da929c0fee6475cd4f91c951ed272}{%
+           family={Moore},
+           familyi={M\bibinitperiod},
+           given={David},
+           giveni={D\bibinitperiod}}}%
+        {{hash=8f743eebb2f64f75592e54ba06f94320}{%
+           family={Olson},
+           familyi={O\bibinitperiod},
+           given={Edwin},
+           giveni={E\bibinitperiod}}}%
+        {{hash=b772450edd9c8742e82817945ca8099c}{%
+           family={Peters},
+           familyi={P\bibinitperiod},
+           given={Steve},
+           giveni={S\bibinitperiod}}}%
+        {{hash=242d2892db1a68badfdde2816c0368fc}{%
+           family={Teo},
+           familyi={T\bibinitperiod},
+           given={Justin},
+           giveni={J\bibinitperiod}}}%
+        {{hash=171714e8f711cc664885f082fbc5b3a0}{%
+           family={Truax},
+           familyi={T\bibinitperiod},
+           given={Robert},
+           giveni={R\bibinitperiod}}}%
+        {{hash=c135971f0f214b5f62af497718067990}{%
+           family={Walter},
+           familyi={W\bibinitperiod},
+           given={Matthew},
+           giveni={M\bibinitperiod}}}%
+        {{hash=a1b1f461686916d4b7095bdc0b046916}{%
+           family={Barrett},
+           familyi={B\bibinitperiod},
+           given={David},
+           giveni={D\bibinitperiod}}}%
+        {{hash=1f313f6176be74210858b40f1d65f65c}{%
+           family={Epstein},
+           familyi={E\bibinitperiod},
+           given={Alexander},
+           giveni={A\bibinitperiod}}}%
+        {{hash=bec20ac3f7f12d86332aaac678b235cd}{%
+           family={Maheloni},
+           familyi={M\bibinitperiod},
+           given={Keoni},
+           giveni={K\bibinitperiod}}}%
+        {{hash=cf0030be834a585696a010a628a2f985}{%
+           family={Moyer},
+           familyi={M\bibinitperiod},
+           given={Katy},
+           giveni={K\bibinitperiod}}}%
+        {{hash=4688ecacdb649caf6bb18141b266fe1f}{%
+           family={Jones},
+           familyi={J\bibinitperiod},
+           given={Troy},
+           giveni={T\bibinitperiod}}}%
+        {{hash=84850dcca2782ee895561a32d35c8d5f}{%
+           family={Buckley},
+           familyi={B\bibinitperiod},
+           given={Ryan},
+           giveni={R\bibinitperiod}}}%
+        {{hash=096b3dc32cad3effcbe888d8536b366c}{%
+           family={Antone},
+           familyi={A\bibinitperiod},
+           given={Matthew},
+           giveni={M\bibinitperiod}}}%
+        {{hash=c130e406f1898247e894141481e2078c}{%
+           family={Galejs},
+           familyi={G\bibinitperiod},
+           given={Robert},
+           giveni={R\bibinitperiod}}}%
+        {{hash=d6e39954434cfece1019d31d9887fa8c}{%
+           family={Krishnamurthy},
+           familyi={K\bibinitperiod},
+           given={Siddhartha},
+           giveni={S\bibinitperiod}}}%
+        {{hash=7c3d809e6592a34d096000cf95a34ff9}{%
+           family={Williams},
+           familyi={W\bibinitperiod},
+           given={Jonathan},
+           giveni={J\bibinitperiod}}}%
+      }
+      \list{language}{1}{%
+        {en}%
+      }
+      \strng{namehash}{96ad4fc59f85bea29a4141bd3558d23c}
+      \strng{fullhash}{96ad4fc59f85bea29a4141bd3558d23c}
+      \strng{bibnamehash}{96ad4fc59f85bea29a4141bd3558d23c}
+      \strng{authorbibnamehash}{96ad4fc59f85bea29a4141bd3558d23c}
+      \strng{authornamehash}{96ad4fc59f85bea29a4141bd3558d23c}
+      \strng{authorfullhash}{96ad4fc59f85bea29a4141bd3558d23c}
+      \field{labelalpha}{Leo+08}
+      \field{sortinit}{L}
+      \field{sortinithash}{7c47d417cecb1f4bd38d1825c427a61a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{This paper describes the architecture and implementation of an autonomous passenger vehicle designed to navigate using locally perceived information in preference to potentially inaccurate or incomplete map data. The vehicle architecture was designed to handle the original DARPA Urban Challenge requirements of perceiving and navigating a road network with segments defined by sparse waypoints. The vehicle implementation includes many heterogeneous sensors with significant communications and computation bandwidth to capture and process high-resolution, high-rate sensor data. The output of the comprehensive environmental sensing subsystem is fed into a kinodynamic motion planning algorithm to generate all vehicle motion. The requirements of driving in lanes, three-point turns, parking, and maneuvering through obstacle fields are all generated with a unified planner. A key aspect of the planner is its use of closed-loop simulation in a rapidly exploring randomized trees algorithm, which can randomly explore the space while efficiently generating smooth trajectories in a dynamic and uncertain environment. The overall system was realized through the creation of a powerful new suite of software tools for message passing, logging, and visualization. These innovations provide a strong platform for future research in autonomous driving in global positioning system–denied and highly dynamic environments with poor a priori information. © 2008 Wiley Periodicals, Inc.}
+      \field{issn}{1556-4967}
+      \field{journaltitle}{Journal of Field Robotics}
+      \field{note}{\_eprint: https://onlinelibrary.wiley.com/doi/pdf/10.1002/rob.20262}
+      \field{number}{10}
+      \field{title}{A perception-driven autonomous urban vehicle}
+      \field{volume}{25}
+      \field{year}{2008}
+      \field{pages}{727\bibrangedash 774}
+      \range{pages}{48}
+      \verb{doi}
+      \verb 10.1002/rob.20262
+      \endverb
+      \keyw{radar-based perception,velocity}
+    \endentry
+    \entry{lidarbased_review}{article}{}
+      \name{author}{2}{}{%
+        {{hash=8dbac327f65c6734344493bf6ffa5dc5}{%
+           family={Li},
+           familyi={L\bibinitperiod},
+           given={You},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=ece3fc2f9f91eaec5a73f56d42409d33}{%
+           family={Ibanez-Guzman},
+           familyi={I\bibinithyphendelim G\bibinitperiod},
+           given={Javier},
+           giveni={J\bibinitperiod}}}%
+      }
+      \strng{namehash}{28ddaf24bf1e29a3373b9eb832276e98}
+      \strng{fullhash}{28ddaf24bf1e29a3373b9eb832276e98}
+      \strng{bibnamehash}{28ddaf24bf1e29a3373b9eb832276e98}
+      \strng{authorbibnamehash}{28ddaf24bf1e29a3373b9eb832276e98}
+      \strng{authornamehash}{28ddaf24bf1e29a3373b9eb832276e98}
+      \strng{authorfullhash}{28ddaf24bf1e29a3373b9eb832276e98}
+      \field{labelalpha}{LI20}
+      \field{sortinit}{L}
+      \field{sortinithash}{7c47d417cecb1f4bd38d1825c427a61a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{abstract}{Autonomous vehicles rely on their perception systems to acquire information about their immediate surroundings. It is necessary to detect the presence of other vehicles, pedestrians, and other relevant entities. Safety concerns and the need for accurate estimations have led to the introduction of lidar systems to complement camera- or radar-based perception systems. This article presents a review of state-of-the-art automotive lidar technologies and the perception algorithms used with those technologies. Lidar systems are introduced first by analyzing such a system?s main components, from laser transmitter to beamscanning mechanism. The advantages/disadvantages and the current status of various solutions are introduced and compared. Then, the specific perception pipeline for lidar data processing is detailed from an autonomous vehicle perspective. The model-driven approaches and emerging deep learning (DL) solutions are reviewed. Finally, we provide an overview of the limitations, challenges, and trends for automotive lidars and perception systems.}
+      \field{issn}{1558-0792}
+      \field{journaltitle}{IEEE Signal Processing Magazine}
+      \field{month}{7}
+      \field{number}{4}
+      \field{shorttitle}{Lidar for {Autonomous} {Driving}}
+      \field{title}{Lidar for {Autonomous} {Driving}: {The} {Principles}, {Challenges}, and {Trends} for {Automotive} {Lidar} and {Perception} {Systems}}
+      \field{volume}{37}
+      \field{year}{2020}
+      \field{pages}{50\bibrangedash 61}
+      \range{pages}{12}
+      \verb{doi}
+      \verb 10.1109/MSP.2020.2973615
+      \endverb
+      \keyw{Autonomous vehicles,Laser beams,Laser radar,lidar-based perception,Measurement by laser beam,Vertical cavity surface emitting lasers}
+    \endentry
+    \entry{vo_rev}{misc}{}
+      \name{author}{2}{}{%
+        {{hash=bc98074f559da83be5553a3e96d93f46}{%
+           family={Lim},
+           familyi={L\bibinitperiod},
+           given={Kai\bibnamedelima Li},
+           giveni={K\bibinitperiod\bibinitdelim L\bibinitperiod}}}%
+        {{hash=f50ad54f93539c8cee8b439ba432564e}{%
+           family={Bräunl},
+           familyi={B\bibinitperiod},
+           given={Thomas},
+           giveni={T\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {arXiv}%
+      }
+      \strng{namehash}{cf55d8deb796454203d2215ac5ebf6cc}
+      \strng{fullhash}{cf55d8deb796454203d2215ac5ebf6cc}
+      \strng{bibnamehash}{cf55d8deb796454203d2215ac5ebf6cc}
+      \strng{authorbibnamehash}{cf55d8deb796454203d2215ac5ebf6cc}
+      \strng{authornamehash}{cf55d8deb796454203d2215ac5ebf6cc}
+      \strng{authorfullhash}{cf55d8deb796454203d2215ac5ebf6cc}
+      \field{labelalpha}{LB20}
+      \field{sortinit}{L}
+      \field{sortinithash}{7c47d417cecb1f4bd38d1825c427a61a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{The research into autonomous driving applications has observed an increase in computer vision-based approaches in recent years. In attempts to develop exclusive vision-based systems, visual odometry is often considered as a key element to achieve motion estimation and self-localisation, in place of wheel odometry or inertial measurements. This paper presents a recent review to methods that are pertinent to visual odometry with an emphasis on autonomous driving. This review covers visual odometry in their monocular, stereoscopic and visual-inertial form, individually presenting them with analyses related to their applications. Discussions are drawn to outline the problems faced in the current state of research, and to summarise the works reviewed. This paper concludes with future work suggestions to aid prospective developments in visual odometry.}
+      \field{month}{9}
+      \field{note}{arXiv:2009.09193 [cs]}
+      \field{title}{A {Review} of {Visual} {Odometry} {Methods} and {Its} {Applications} for {Autonomous} {Driving}}
+      \field{year}{2020}
+      \verb{doi}
+      \verb 10.48550/arXiv.2009.09193
+      \endverb
+      \keyw{Computer Science - Computer Vision and Pattern Recognition,Visual odometry,Electrical Engineering and Systems Science - Image and Video Processing}
+    \endentry
+    \entry{flow_lucas_kanade}{article}{}
+      \name{author}{4}{}{%
+        {{hash=061075e8245a617dab62fc875f316a39}{%
+           family={Lucey},
+           familyi={L\bibinitperiod},
+           given={Simon},
+           giveni={S\bibinitperiod}}}%
+        {{hash=5b6a9880236d97f154ea360f64bded76}{%
+           family={Navarathna},
+           familyi={N\bibinitperiod},
+           given={Rajitha},
+           giveni={R\bibinitperiod}}}%
+        {{hash=c37b0d2a16a7100c1a5acff90fefe8d2}{%
+           family={Ashraf},
+           familyi={A\bibinitperiod},
+           given={Ahmed\bibnamedelima Bilal},
+           giveni={A\bibinitperiod\bibinitdelim B\bibinitperiod}}}%
+        {{hash=c1bc00367e79852538e7aee394d64860}{%
+           family={Sridharan},
+           familyi={S\bibinitperiod},
+           given={Sridha},
+           giveni={S\bibinitperiod}}}%
+      }
+      \strng{namehash}{95f59e312334738aff9d7095ce2d8bf3}
+      \strng{fullhash}{95f59e312334738aff9d7095ce2d8bf3}
+      \strng{bibnamehash}{95f59e312334738aff9d7095ce2d8bf3}
+      \strng{authorbibnamehash}{95f59e312334738aff9d7095ce2d8bf3}
+      \strng{authornamehash}{95f59e312334738aff9d7095ce2d8bf3}
+      \strng{authorfullhash}{95f59e312334738aff9d7095ce2d8bf3}
+      \field{labelalpha}{Luc+13}
+      \field{sortinit}{L}
+      \field{sortinithash}{7c47d417cecb1f4bd38d1825c427a61a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{In this paper, we propose a framework for both gradient descent image and object alignment in the Fourier domain. Our method centers upon the classical Lucas \& Kanade (LK) algorithm where we represent the source and template/model in the complex 2D Fourier domain rather than in the spatial 2D domain. We refer to our approach as the Fourier LK (FLK) algorithm. The FLK formulation is advantageous when one preprocesses the source image and template/model with a bank of filters (e.g., oriented edges, Gabor, etc.) as 1) it can handle substantial illumination variations, 2) the inefficient preprocessing filter bank step can be subsumed within the FLK algorithm as a sparse diagonal weighting matrix, 3) unlike traditional LK, the computational cost is invariant to the number of filters and as a result is far more efficient, and 4) this approach can be extended to the Inverse Compositional (IC) form of the LK algorithm where nearly all steps (including Fourier transform and filter bank preprocessing) can be precomputed, leading to an extremely efficient and robust approach to gradient descent image matching. Further, these computational savings translate to nonrigid object alignment tasks that are considered extensions of the LK algorithm, such as those found in Active Appearance Models (AAMs).}
+      \field{issn}{1939-3539}
+      \field{journaltitle}{IEEE Transactions on Pattern Analysis and Machine Intelligence}
+      \field{month}{6}
+      \field{note}{Conference Name: IEEE Transactions on Pattern Analysis and Machine Intelligence}
+      \field{number}{6}
+      \field{title}{Fourier {Lucas}-{Kanade} {Algorithm}}
+      \field{volume}{35}
+      \field{year}{2013}
+      \field{pages}{1383\bibrangedash 1396}
+      \range{pages}{14}
+      \verb{doi}
+      \verb 10.1109/TPAMI.2012.220
+      \endverb
+      \keyw{Active appearance model,active appearance model (AAM),Fourier domain,illumination invariance,Integrated circuits,Jacobian matrices,Lighting,Linear programming,Lucas \& Kanade (LK),lucas kanade,optflow,Robustness,Vectors}
+    \endentry
+    \entry{tesla_autopilot}{article}{}
+      \name{author}{4}{}{%
+        {{hash=06f3ce55fe2c974b33b99cddf5d070eb}{%
+           family={Maanyu},
+           familyi={M\bibinitperiod},
+           given={K\bibnamedelima Nived},
+           giveni={K\bibinitperiod\bibinitdelim N\bibinitperiod}}}%
+        {{hash=f29868904add40a7ce63dac4cc1c87af}{%
+           family={Raj},
+           familyi={R\bibinitperiod},
+           given={D\bibnamedelima Goutham},
+           giveni={D\bibinitperiod\bibinitdelim G\bibinitperiod}}}%
+        {{hash=08abbbbb72a2d592c66d073b1288e1d2}{%
+           family={Krishna},
+           familyi={K\bibinitperiod},
+           given={R\bibnamedelima Vamsi},
+           giveni={R\bibinitperiod\bibinitdelim V\bibinitperiod}}}%
+        {{hash=6bcf6cf637222db14dafe31a429aca13}{%
+           family={Choubey},
+           familyi={C\bibinitperiod},
+           given={Dr\bibnamedelima Shruthi\bibnamedelima Bhargava},
+           giveni={D\bibinitperiod\bibinitdelim S\bibinitperiod\bibinitdelim B\bibinitperiod}}}%
+      }
+      \list{language}{1}{%
+        {en}%
+      }
+      \strng{namehash}{d0a2d625b69823f49ca928081221761e}
+      \strng{fullhash}{d0a2d625b69823f49ca928081221761e}
+      \strng{bibnamehash}{d0a2d625b69823f49ca928081221761e}
+      \strng{authorbibnamehash}{d0a2d625b69823f49ca928081221761e}
+      \strng{authornamehash}{d0a2d625b69823f49ca928081221761e}
+      \strng{authorfullhash}{d0a2d625b69823f49ca928081221761e}
+      \field{labelalpha}{Maa+20}
+      \field{sortinit}{M}
+      \field{sortinithash}{4625c616857f13d17ce56f7d4f97d451}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{number}{171}
+      \field{title}{A {Study} on {Tesla} {Autopilot}}
+      \field{volume}{71}
+      \field{year}{2020}
+      \keyw{tesla\_autopilot}
+    \endentry
+    \entry{lidarbased_mercedes}{misc}{}
+      \name{author}{1}{}{%
+        {{hash=be956e74642d5b18c6a4864aad39f494}{%
+           family={Mercedes-Benz},
+           familyi={M\bibinithyphendelim B\bibinitperiod}}}%
+      }
+      \strng{namehash}{be956e74642d5b18c6a4864aad39f494}
+      \strng{fullhash}{be956e74642d5b18c6a4864aad39f494}
+      \strng{bibnamehash}{be956e74642d5b18c6a4864aad39f494}
+      \strng{authorbibnamehash}{be956e74642d5b18c6a4864aad39f494}
+      \strng{authornamehash}{be956e74642d5b18c6a4864aad39f494}
+      \strng{authorfullhash}{be956e74642d5b18c6a4864aad39f494}
+      \field{labelalpha}{Mer25}
+      \field{sortinit}{M}
+      \field{sortinithash}{4625c616857f13d17ce56f7d4f97d451}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Mercedes-Benz}
+      \field{title}{⁣{Drive} {Pilot}}
+      \field{urlday}{26}
+      \field{urlmonth}{2}
+      \field{urlyear}{2025}
+      \field{year}{2025}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://www.mercedes-benz.de/passengercars/technology/drive-pilot.html
+      \endverb
+      \verb{url}
+      \verb https://www.mercedes-benz.de/passengercars/technology/drive-pilot.html
+      \endverb
+      \keyw{lidar-based perception}
+    \endentry
+    \entry{previous_tfm_pastor}{thesis}{}
+      \name{author}{1}{}{%
+        {{hash=8dba0d9fea6eab9d1b248bb598f71cce}{%
+           family={Pastor},
+           familyi={P\bibinitperiod},
+           given={Carlos},
+           giveni={C\bibinitperiod}}}%
+      }
+      \list{institution}{1}{%
+        {TUM}%
+      }
+      \list{language}{1}{%
+        {English}%
+      }
+      \strng{namehash}{8dba0d9fea6eab9d1b248bb598f71cce}
+      \strng{fullhash}{8dba0d9fea6eab9d1b248bb598f71cce}
+      \strng{bibnamehash}{8dba0d9fea6eab9d1b248bb598f71cce}
+      \strng{authorbibnamehash}{8dba0d9fea6eab9d1b248bb598f71cce}
+      \strng{authornamehash}{8dba0d9fea6eab9d1b248bb598f71cce}
+      \strng{authorfullhash}{8dba0d9fea6eab9d1b248bb598f71cce}
+      \field{labelalpha}{Pas21}
+      \field{sortinit}{P}
+      \field{sortinithash}{ff3bcf24f47321b42cb156c2cc8a8422}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Validation of an {Obstacle} {Detection} {Approach} for {Teleoperation} of {Automated} {Vehicles}}
+      \field{type}{{BSc}. {Thesis}}
+      \field{year}{2021}
+      \keyw{Perception,Redundant Perception,Previous work FTM}
+    \endentry
+    \entry{radarbased_weather}{inproceedings}{}
+      \name{author}{2}{}{%
+        {{hash=6fd051066740312a2f9cf80a983d6180}{%
+           family={Rasshofer},
+           familyi={R\bibinitperiod},
+           given={R.\bibnamedelimi H.},
+           giveni={R\bibinitperiod\bibinitdelim H\bibinitperiod}}}%
+        {{hash=878044e3e032cfcfb53c923511a48625}{%
+           family={Gresser},
+           familyi={G\bibinitperiod},
+           given={K.},
+           giveni={K\bibinitperiod}}}%
+      }
+      \list{language}{1}{%
+        {English}%
+      }
+      \list{publisher}{1}{%
+        {Copernicus GmbH}%
+      }
+      \strng{namehash}{0a41c4d9c9134fe709a4426bde22fef5}
+      \strng{fullhash}{0a41c4d9c9134fe709a4426bde22fef5}
+      \strng{bibnamehash}{0a41c4d9c9134fe709a4426bde22fef5}
+      \strng{authorbibnamehash}{0a41c4d9c9134fe709a4426bde22fef5}
+      \strng{authornamehash}{0a41c4d9c9134fe709a4426bde22fef5}
+      \strng{authorfullhash}{0a41c4d9c9134fe709a4426bde22fef5}
+      \field{labelalpha}{RG05}
+      \field{sortinit}{R}
+      \field{sortinithash}{5e1c39a9d46ffb6bebd8f801023a9486}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Automotive radar and lidar sensors represent key components for next generation driver assistance functions (Jones, 2001). Today, their use is limited to comfort applications in premium segment vehicles although an evolution process towards more safety-oriented functions is taking place. Radar sensors available on the market today suffer from low angular resolution and poor target detection in medium ranges (30 to 60m) over azimuth angles larger than \&\#x00B1;30°. In contrast, Lidar sensors show large sensitivity towards environmental influences (e.g. snow, fog, dirt). Both sensor technologies today have a rather high cost level, forbidding their wide-spread usage on mass markets. A common approach to overcome individual sensor drawbacks is the employment of data fusion techniques (Bar-Shalom, 2001). Raw data fusion requires a common, standardized data interface to easily integrate a variety of asynchronous sensor data into a fusion network. Moreover, next generation sensors should be able to dynamically adopt to new situations and should have the ability to work in cooperative sensor environments. As vehicular function development today is being shifted more and more towards virtual prototyping, mathematical sensor models should be available. These models should take into account the sensor's functional principle as well as all typical measurement errors generated by the sensor.}
+      \field{booktitle}{Advances in {Radio} {Science}}
+      \field{month}{5}
+      \field{note}{ISSN: 1684-9965 Issue: B.4}
+      \field{title}{Automotive {Radar} and {Lidar} {Systems} for {Next} {Generation} {Driver} {Assistance} {Functions}}
+      \field{volume}{3}
+      \field{year}{2005}
+      \field{pages}{205\bibrangedash 209}
+      \range{pages}{5}
+      \verb{doi}
+      \verb 10.5194/ars-3-205-2005
+      \endverb
+      \keyw{radar-based perception,weather}
+    \endentry
+    \entry{ros_docu}{misc}{}
+      \name{author}{1}{}{%
+        {{hash=d36b548c4c7a2369249fb4cc0e2eba46}{%
+           family={ros},
+           familyi={r\bibinitperiod}}}%
+      }
+      \strng{namehash}{d36b548c4c7a2369249fb4cc0e2eba46}
+      \strng{fullhash}{d36b548c4c7a2369249fb4cc0e2eba46}
+      \strng{bibnamehash}{d36b548c4c7a2369249fb4cc0e2eba46}
+      \strng{authorbibnamehash}{d36b548c4c7a2369249fb4cc0e2eba46}
+      \strng{authornamehash}{d36b548c4c7a2369249fb4cc0e2eba46}
+      \strng{authorfullhash}{d36b548c4c7a2369249fb4cc0e2eba46}
+      \field{labelalpha}{ros25}
+      \field{sortinit}{r}
+      \field{sortinithash}{5e1c39a9d46ffb6bebd8f801023a9486}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{{ROS} 2 {Documentation} — {ROS} 2 {Documentation}: {Foxy} documentation}
+      \field{urlday}{4}
+      \field{urlmonth}{1}
+      \field{urlyear}{2025}
+      \field{year}{2025}
+      \field{urldateera}{ce}
+      \verb{file}
+      \verb ROS 2 Documentation — ROS 2 Documentation\: Foxy documentation:/home/adrian/Zotero/storage/8J53HWEW/index.html:text/html
+      \endverb
+      \verb{urlraw}
+      \verb https://docs.ros.org/en/foxy/index.html
+      \endverb
+      \verb{url}
+      \verb https://docs.ros.org/en/foxy/index.html
+      \endverb
+    \endentry
+    \entry{previous_tfm_gpu_implementation}{thesis}{}
+      \name{author}{1}{}{%
+        {{hash=e7c54c0b2f790e52b8928d9cd7398734}{%
+           family={Rotar},
+           familyi={R\bibinitperiod},
+           given={Anton},
+           giveni={A\bibinitperiod}}}%
+      }
+      \list{institution}{1}{%
+        {TUM}%
+      }
+      \list{language}{1}{%
+        {German}%
+      }
+      \list{location}{1}{%
+        {Munich}%
+      }
+      \strng{namehash}{e7c54c0b2f790e52b8928d9cd7398734}
+      \strng{fullhash}{e7c54c0b2f790e52b8928d9cd7398734}
+      \strng{bibnamehash}{e7c54c0b2f790e52b8928d9cd7398734}
+      \strng{authorbibnamehash}{e7c54c0b2f790e52b8928d9cd7398734}
+      \strng{authornamehash}{e7c54c0b2f790e52b8928d9cd7398734}
+      \strng{authorfullhash}{e7c54c0b2f790e52b8928d9cd7398734}
+      \field{labelalpha}{Rot16}
+      \field{sortinit}{R}
+      \field{sortinithash}{5e1c39a9d46ffb6bebd8f801023a9486}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Weiterentwicklung und echtzeitfähige {Umsetzung} eines {Stereo}-{Vision}-basierten {Bewegungsprädiktionssystems} für die aktive {Sicherheit} von teleoperierten {Fahrzeugen}}
+      \field{type}{mathesis}
+      \field{year}{2016}
+      \keyw{Previous work FTM}
+    \endentry
+    \entry{pin_hole_camera_model}{article}{}
+      \name{author}{2}{}{%
+        {{hash=14dbc4a5aab6b9dcd82f9f14e5c53ec4}{%
+           family={State},
+           familyi={S\bibinitperiod},
+           given={Penn},
+           giveni={P\bibinitperiod}}}%
+        {{hash=1055ddf72248ab77182da568f7c6758d}{%
+           family={Collins},
+           familyi={C\bibinitperiod},
+           given={Robert},
+           giveni={R\bibinitperiod}}}%
+      }
+      \list{language}{1}{%
+        {en}%
+      }
+      \strng{namehash}{dbad8fc22746bf2d85d90fcec0714d7a}
+      \strng{fullhash}{dbad8fc22746bf2d85d90fcec0714d7a}
+      \strng{bibnamehash}{dbad8fc22746bf2d85d90fcec0714d7a}
+      \strng{authorbibnamehash}{dbad8fc22746bf2d85d90fcec0714d7a}
+      \strng{authornamehash}{dbad8fc22746bf2d85d90fcec0714d7a}
+      \strng{authorfullhash}{dbad8fc22746bf2d85d90fcec0714d7a}
+      \field{labelalpha}{SC}
+      \field{sortinit}{S}
+      \field{sortinithash}{b164b07b29984b41daf1e85279fbc5ab}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Lecture 12: {Camera} {Projection}}
+      \verb{file}
+      \verb PDF:/home/adrian/Zotero/storage/AU27N3ZX/State and Collins - Lecture 12 Camera Projection.pdf:application/pdf
+      \endverb
+      \keyw{Perception,Stereo vision,Pinhole camera model}
     \endentry
     \entry{autonomous_vehicles_perception_survey}{article}{}
       \name{author}{4}{}{%
@@ -142,31 +1373,165 @@
       \field{month}{4}
       \field{shorttitle}{Autonomous vehicle perception}
       \field{title}{Autonomous vehicle perception: {The} technology of today and tomorrow}
-      \field{urlday}{25}
-      \field{urlmonth}{10}
-      \field{urlyear}{2024}
       \field{volume}{89}
       \field{year}{2018}
-      \field{urldateera}{ce}
       \field{pages}{384\bibrangedash 406}
       \range{pages}{23}
       \verb{doi}
       \verb 10.1016/j.trc.2018.02.012
       \endverb
-      \verb{file}
-      \verb PDF:/home/adrian/Zotero/storage/TDHLRZZG/Van Brummelen et al. - 2018 - Autonomous vehicle perception The technology of today and tomorrow.pdf:application/pdf
-      \endverb
-      \verb{urlraw}
-      \verb https://linkinghub.elsevier.com/retrieve/pii/S0968090X18302134
-      \endverb
-      \verb{url}
-      \verb https://linkinghub.elsevier.com/retrieve/pii/S0968090X18302134
-      \endverb
       \keyw{Survey,Perception paradigms}
     \endentry
+    \entry{lidarbased_waymo}{misc}{}
+      \name{author}{1}{}{%
+        {{hash=beb75dcfb476cb9abd4b5ac630a91dfb}{%
+           family={Waymo},
+           familyi={W\bibinitperiod}}}%
+      }
+      \strng{namehash}{beb75dcfb476cb9abd4b5ac630a91dfb}
+      \strng{fullhash}{beb75dcfb476cb9abd4b5ac630a91dfb}
+      \strng{bibnamehash}{beb75dcfb476cb9abd4b5ac630a91dfb}
+      \strng{authorbibnamehash}{beb75dcfb476cb9abd4b5ac630a91dfb}
+      \strng{authornamehash}{beb75dcfb476cb9abd4b5ac630a91dfb}
+      \strng{authorfullhash}{beb75dcfb476cb9abd4b5ac630a91dfb}
+      \field{labelalpha}{Way24}
+      \field{sortinit}{W}
+      \field{sortinithash}{4315d78024d0cea9b57a0c6f0e35ed0d}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{journaltitle}{Waymo}
+      \field{shorttitle}{Meet the 6th-generation {Waymo} {Driver}}
+      \field{title}{Meet the 6th-generation {Waymo} {Driver}: {Optimized} for costs, designed to handle more weather, and coming to riders faster than before}
+      \field{urlday}{26}
+      \field{urlmonth}{2}
+      \field{urlyear}{2025}
+      \field{year}{2024}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://waymo.com/blog/2024/08/meet-the-6th-generation-waymo-driver
+      \endverb
+      \verb{url}
+      \verb https://waymo.com/blog/2024/08/meet-the-6th-generation-waymo-driver
+      \endverb
+    \endentry
+    \entry{learning_based_perception_survey}{article}{}
+      \name{author}{2}{}{%
+        {{hash=a2a03ac42b8124098a4921480949d0eb}{%
+           family={Wen},
+           familyi={W\bibinitperiod},
+           given={Li-Hua},
+           giveni={L\bibinithyphendelim H\bibinitperiod}}}%
+        {{hash=0ab0f66307f5004cdb195c726467e809}{%
+           family={Jo},
+           familyi={J\bibinitperiod},
+           given={Kang-Hyun},
+           giveni={K\bibinithyphendelim H\bibinitperiod}}}%
+      }
+      \strng{namehash}{a87499370c50de4bd057bb6e73454df8}
+      \strng{fullhash}{a87499370c50de4bd057bb6e73454df8}
+      \strng{bibnamehash}{a87499370c50de4bd057bb6e73454df8}
+      \strng{authorbibnamehash}{a87499370c50de4bd057bb6e73454df8}
+      \strng{authornamehash}{a87499370c50de4bd057bb6e73454df8}
+      \strng{authorfullhash}{a87499370c50de4bd057bb6e73454df8}
+      \field{labelalpha}{WJ22}
+      \field{sortinit}{W}
+      \field{sortinithash}{4315d78024d0cea9b57a0c6f0e35ed0d}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{abstract}{With the rapid development of society and the economy, autonomous driving techniques are widely applied in many areas, such as autonomous vehicles, autonomous drones, and robotics. As a dominating technique, deep learning has become more and more popular for 2-D and 3-D object detection. Numerous deep learning-based methods have been proposed to solve various vision issues. To further help with the development of unmanned systems, this paper presents a comprehensive survey of the recent processes from the past five years for 3-D object detection, road detection, traffic sign detection, and traffic light detection and classification. To summarize and analyze previous works in detail, this paper only focuses on deep learning-based object detection tasks in autonomous driving that take place when the input is a point cloud or image(s). It also presents comparative results for insight comparison and inspiring future researches.}
+      \field{issn}{0925-2312}
+      \field{journaltitle}{Neurocomputing}
+      \field{month}{6}
+      \field{shorttitle}{Deep learning-based perception systems for autonomous driving}
+      \field{title}{Deep learning-based perception systems for autonomous driving: {A} comprehensive survey}
+      \field{volume}{489}
+      \field{year}{2022}
+      \field{pages}{255\bibrangedash 270}
+      \range{pages}{16}
+      \verb{doi}
+      \verb 10.1016/j.neucom.2021.08.155
+      \endverb
+      \keyw{2-D object detection,3-D object detection,Autonomous driving,Camera,Deep learning,learningbased perception,LiDAR,Road detection,survey,Survey,Traffic light detection,Traffic sign detection}
+    \endentry
+    \entry{cricitality_metrics}{article}{}
+      \name{author}{9}{}{%
+        {{hash=9c0818da39325df5bb1cb87099f87325}{%
+           family={Westhofen},
+           familyi={W\bibinitperiod},
+           given={Lukas},
+           giveni={L\bibinitperiod}}}%
+        {{hash=0713d4571b1c42a22e1734159583a47b}{%
+           family={Neurohr},
+           familyi={N\bibinitperiod},
+           given={Christian},
+           giveni={C\bibinitperiod}}}%
+        {{hash=e80656bc817ae970773601e334304de1}{%
+           family={Koopmann},
+           familyi={K\bibinitperiod},
+           given={Tjark},
+           giveni={T\bibinitperiod}}}%
+        {{hash=3e117fe51043fcc2b3a80f7f87b28017}{%
+           family={Butz},
+           familyi={B\bibinitperiod},
+           given={Martin},
+           giveni={M\bibinitperiod}}}%
+        {{hash=ca4cc636497810c34dc763bf406d4cb9}{%
+           family={Schütt},
+           familyi={S\bibinitperiod},
+           given={Barbara},
+           giveni={B\bibinitperiod}}}%
+        {{hash=89acae7f0bf9763258ec03519f7033f6}{%
+           family={Utesch},
+           familyi={U\bibinitperiod},
+           given={Fabian},
+           giveni={F\bibinitperiod}}}%
+        {{hash=145843e8698c47e65163caee5e15078a}{%
+           family={Neurohr},
+           familyi={N\bibinitperiod},
+           given={Birte},
+           giveni={B\bibinitperiod}}}%
+        {{hash=4329816ab8c1e5a16c642072f679c5b0}{%
+           family={Gutenkunst},
+           familyi={G\bibinitperiod},
+           given={Christian},
+           giveni={C\bibinitperiod}}}%
+        {{hash=e28aeab0e0d6191ed5a6f10cc5577334}{%
+           family={Böde},
+           familyi={B\bibinitperiod},
+           given={Eckard},
+           giveni={E\bibinitperiod}}}%
+      }
+      \list{language}{1}{%
+        {en}%
+      }
+      \strng{namehash}{6fee591959a58ffc440de2c16b510be6}
+      \strng{fullhash}{6fee591959a58ffc440de2c16b510be6}
+      \strng{bibnamehash}{6fee591959a58ffc440de2c16b510be6}
+      \strng{authorbibnamehash}{6fee591959a58ffc440de2c16b510be6}
+      \strng{authornamehash}{6fee591959a58ffc440de2c16b510be6}
+      \strng{authorfullhash}{6fee591959a58ffc440de2c16b510be6}
+      \field{labelalpha}{Wes+23}
+      \field{sortinit}{W}
+      \field{sortinithash}{4315d78024d0cea9b57a0c6f0e35ed0d}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{abstract}{The large-scale deployment of automated vehicles on public roads has the potential to vastly change the transportation modalities of today’s society. Although this pursuit has been initiated decades ago, there still exist open challenges in reliably ensuring that such vehicles operate safely in open contexts. While functional safety is a well-established concept, the question of measuring the behavioral safety of a vehicle remains subject to research. One way to both objectively and computationally analyze traffic conflicts is the development and utilization of so-called criticality metrics. Contemporary approaches have leveraged the potential of criticality metrics in various applications related to automated driving, e.g. for computationally assessing the dynamic risk or filtering large data sets to build scenario catalogs. As a prerequisite to systematically choose adequate criticality metrics for such applications, we extensively review the state of the art of criticality metrics, their properties, and their applications in the context of automated driving. Based on this review, we propose a suitability analysis as a methodical tool to be used by practitioners. Both the proposed method and the state of the art review can then be harnessed to select well-suited measurement tools that cover an application’s requirements, as demonstrated by an exemplary execution of the analysis. Ultimately, efficient, valid, and reliable measurements of an automated vehicle’s safety performance are a key requirement for demonstrating its trustworthiness.}
+      \field{issn}{1886-1784}
+      \field{journaltitle}{Archives of Computational Methods in Engineering}
+      \field{month}{1}
+      \field{number}{1}
+      \field{shorttitle}{Criticality {Metrics} for {Automated} {Driving}}
+      \field{title}{Criticality {Metrics} for {Automated} {Driving}: {A} {Review} and {Suitability} {Analysis} of the {State} of the {Art}}
+      \field{volume}{30}
+      \field{year}{2023}
+      \field{pages}{1\bibrangedash 35}
+      \range{pages}{35}
+      \verb{doi}
+      \verb 10.1007/s11831-022-09788-7
+      \endverb
+      \keyw{TTC,Critically metrics}
+    \endentry
   \enddatalist
-  \missing{choset2005principles}
-  \missing{thrun2005probabilistic}
 \endrefsection
 \endinput
 

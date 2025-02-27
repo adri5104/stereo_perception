@@ -18,18 +18,28 @@
 	]{1}{24}%
 	\gantttitle[title label node/.append style={below left=7pt and 10pt}]{Month}{1}%
 	\gantttitlelist[title label node/.append style={below left=7pt and 10pt}]{1,...,6}{4} \\%
-	\ganttgroup{\textbf{WP1:} Activity A}{1}{5} \\%
-	\ganttbar{Activity A11}{1}{3} \\%
-	\ganttbar{Activity A12}{2}{5} \\%
-	\ganttgroup{\textbf{WP2:} Activity B}{4}{8} \\%
-	\ganttbar{Activity A21}{4}{8} \\%
-	\ganttgroup{\textbf{WP3:} Activity C}{6}{20} \\%
-	\ganttbar{Activity A31}{6}{17} \\%
-	\ganttbar{Activity A32}{6}{12} \\%
-	\ganttbar{Activity A32}{10}{20} \\%
-	\ganttgroup{\textbf{WP4:} Activity D}{18}{22} \\%
-	\ganttbar{Activity A41}{18}{20} \\%
-	\ganttbar{Activity A42}{18}{22} \\%
-	\ganttgroup{\textbf{WP5:} Activity E}{16}{24} \\%
-	\ganttbar{Activity A51}{16}{24}%
+	\ganttgroup{\textbf{WP1:} Literature research and planning}{1}{4} \\%
+	\ganttbar{Research general perception techniques and paradigms}{1}{2} \\%
+	\ganttbar{Research classical methods for environment perception}{1}{2} \\%
+  \ganttbar{Research actual requirments in automated vehicles}{2}{4} \\%
+  \ganttbar{Research on previous work in the department}{2}{4} \\%
+  \ganttbar{Plan how to implement the selected algorithms}{2}{5} \\%
+	\ganttgroup{\textbf{WP2:} Perception pipeline development}{5}{13} \\%
+	\ganttbar{Collect test datasets}{5}{6} \\%
+  \ganttbar{Prepare docker environment}{5}{6} \\%
+  \ganttbar{Implement stereo vision package}{6}{8} \\%
+  \ganttbar{Implement optical flow package}{6}{8} \\%
+  \ganttbar{Implement 6D Kalman Filter}{8}{12} \\%
+  \ganttbar{Implement clustering algorithm}{11}{13} \\%
+	\ganttgroup{\textbf{WP3:} Criticality pipeline development}{13}{19} \\%
+	\ganttbar{Prepare docker environment}{13}{14} \\%
+	\ganttbar{Implement criticality metrics pipeline}{13}{19} \\%
+	\ganttgroup{\textbf{WP4:} Evaluation and discussion of results}{15}{22} \\%
+	\ganttbar{Deploy system on edgar vehicle}{15}{16} \\%
+	\ganttbar{Collect data from the vehicle}{17}{18} \\%
+  \ganttbar{Analyze the collected data}{18}{22} \\%
+	\ganttgroup{\textbf{WP5:} Masterthesis project management}{6}{24} \\%
+  \ganttbar{Dissertation writing}{6}{24} \\
+  \ganttbar{Preparing presentation}{24}{24}%
+
 \end{ganttchart}%
