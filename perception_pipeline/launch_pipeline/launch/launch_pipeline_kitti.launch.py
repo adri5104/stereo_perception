@@ -42,8 +42,13 @@ def generate_launch_description():
                 {"out_disparity_image_topic": "perception_pipeline/disparity"},
                 {"block_size": 15},
                 {"num_disparities": 128},
+                {"pre_filter_cap": 100},
+                {"speckle_window_size": 100},
+                {"speckle_range": 32},
                 ],
             ),
+            
+
 
         #launch_ros.actions.Node(
         #    package='visual_odometry',
