@@ -85,58 +85,58 @@
     RCLCPP_INFO(this->get_logger(), "debug_markers_topic: '%s'", debug_markers_topic_.c_str());
     
     // Kalman filter parameters
-    bool use_ego_motion = this->get_parameter("use_ego_motion").as_bool();
-    int grid_size = this->get_parameter("grid_size").as_int();
-    double sigma2_x_system = this->get_parameter("sigma2_x_system").as_double();
-    double sigma2_y_system = this->get_parameter("sigma2_y_system").as_double();
-    double sigma2_z_system = this->get_parameter("sigma2_z_system").as_double();
-    double sigma2_flow_y_measurement = this->get_parameter("sigma2_flow_y_measurement").as_double();
-    double sigma2_flow_x_measurement = this->get_parameter("sigma2_flow_x_measurement").as_double();
-    double sigma2_depth_system = this->get_parameter("sigma2_depth_system").as_double();
-    double sigma2_tx_measurement = this->get_parameter("sigma2_tx_measurement").as_double();
-    double sigma2_ty_measurement = this->get_parameter("sigma2_ty_measurement").as_double();
-    double sigma2_tz_measurement = this->get_parameter("sigma2_tz_measurement").as_double();
-    double sigma2_theta_measurement = this->get_parameter("sigma2_theta_measurement").as_double();
-    double sigma2_phi_measurement = this->get_parameter("sigma2_phi_measurement").as_double();
-    double sigma2_psi_system = this->get_parameter("sigma2_psi_system").as_double();
+    use_ego_motion_ = this->get_parameter("use_ego_motion").as_bool();
+    grid_size_ = this->get_parameter("grid_size").as_int();
+    sigma2_x_system_ = this->get_parameter("sigma2_x_system").as_double();
+    sigma2_y_system_ = this->get_parameter("sigma2_y_system").as_double();
+    sigma2_z_system_ = this->get_parameter("sigma2_z_system").as_double();
+    sigma2_flow_y_measurement_ = this->get_parameter("sigma2_flow_y_measurement").as_double();
+    sigma2_flow_x_measurement_ = this->get_parameter("sigma2_flow_x_measurement").as_double();
+    sigma2_depth_system_ = this->get_parameter("sigma2_depth_system").as_double();
+    sigma2_tx_measurement_ = this->get_parameter("sigma2_tx_measurement").as_double();
+    sigma2_ty_measurement_ = this->get_parameter("sigma2_ty_measurement").as_double();
+    sigma2_tz_measurement_ = this->get_parameter("sigma2_tz_measurement").as_double();
+    sigma2_theta_measurement_ = this->get_parameter("sigma2_theta_measurement").as_double();
+    sigma2_phi_measurement_ = this->get_parameter("sigma2_phi_measurement").as_double();
+    sigma2_psi_system_ = this->get_parameter("sigma2_psi_system").as_double();
 
-    double min_depth = this->get_parameter("min_depth").as_double();
-    double max_depth = this->get_parameter("max_depth").as_double();
-    double min_height = this->get_parameter("min_height").as_double();
-    double max_height = this->get_parameter("max_height").as_double();
-    cv::Mat C = Mat::zeros(6, 6, CV_64FC1);
-    cv::Mat T = Mat::zeros(3, 3, CV_64FC1);
-    cv::Mat sigma_system_ = Mat::zeros(3, 3, CV_64FC1);
+    min_depth_ = this->get_parameter("min_depth").as_double();
+    max_depth_ = this->get_parameter("max_depth").as_double();
+    min_height_ = this->get_parameter("min_height").as_double();
+    max_height_ = this->get_parameter("max_height").as_double();
+    C_ = cv::Mat::zeros(6, 6, CV_64FC1);
+    T_ = cv::Mat::zeros(3, 3, CV_64FC1);
+    sigma_system_ = cv::Mat::zeros(3, 3, CV_64FC1);   
 
     // Set covariance matrix of system model
-    sigma_system_.at<double>(0,0) = sigma2_x_system;         
-    sigma_system_.at<double>(1,1) = sigma2_y_system;         
-    sigma_system_.at<double>(2,2) = sigma2_z_system;        
+    sigma_system_.at<double>(0,0) = sigma2_x_system_;         
+    sigma_system_.at<double>(1,1) = sigma2_y_system_;         
+    sigma_system_.at<double>(2,2) = sigma2_z_system_;        
 
     // Set covariance matrix of measurement model
-    T.at<double>(0,0) = sigma2_flow_y_measurement;
-    T.at<double>(1,1) = sigma2_flow_x_measurement;
-    T.at<double>(2,2) = sigma2_depth_system;                    
+    T_.at<double>(0,0) = sigma2_flow_y_measurement_;
+    T_.at<double>(1,1) = sigma2_flow_x_measurement_;
+    T_.at<double>(2,2) = sigma2_depth_system_;                    
 
     // Set covariance matrix of egomotion
-    C.at<double>(0,0) = sigma2_tx_measurement;
-    C.at<double>(1,1) = sigma2_ty_measurement;
-    C.at<double>(2,2) = sigma2_tz_measurement;
-    C.at<double>(3,3) = sigma2_theta_measurement;
-    C.at<double>(4,4) = sigma2_phi_measurement;
-    C.at<double>(5,5) = sigma2_psi_system;
+    C_.at<double>(0,0) = sigma2_tx_measurement_;
+    C_.at<double>(1,1) = sigma2_ty_measurement_;
+    C_.at<double>(2,2) = sigma2_tz_measurement_;
+    C_.at<double>(3,3) = sigma2_theta_measurement_;
+    C_.at<double>(4,4) = sigma2_phi_measurement_;
+    C_.at<double>(5,5) = sigma2_psi_system_;
 
     kalman_core_ = std::make_unique<KalmanCore> 
     ( 
       sigma_system_,
-      C,
-      T,
-      min_depth, max_depth,
-      min_height, max_height, 
-      use_ego_motion,
-      grid_size
-    );
-
+      C_,
+      T_,
+      min_depth_, max_depth_,
+      min_height_, max_height_, 
+      use_ego_motion_,
+      grid_size_
+    );   
+    
     // Create message_filters subscribers
     optical_flow_sub_.subscribe(this, optical_flow_topic_, rmw_qos_profile_sensor_data);
     depth_sub_.subscribe(this, depth_topic_, rmw_qos_profile_sensor_data);
@@ -163,6 +163,10 @@
     debug_image_pub_ = this->create_publisher<sensor_msgs::msg::Image>(debug_image_topic_, 10);
     output_6d_pub_   = this->create_publisher<sensor_msgs::msg::Image>(output_6d_topic_, 10);
     debug_markers_pub_   = this->create_publisher<visualization_msgs::msg::MarkerArray>(debug_markers_topic_, 10);
+
+    // Parameter reconfigure handler
+    param_reconfigure_handler_ = this->add_on_set_parameters_callback(
+      std::bind(&KalmanFilterNode::paramCallback, this, std::placeholders::_1));
 
     RCLCPP_INFO(this->get_logger(), "KalmanFilterNode with message_filters started.");
   }
@@ -380,6 +384,102 @@
 
       
       return marker_array;
+  }
+
+  rcl_interfaces::msg::SetParametersResult 
+    KalmanFilterNode::paramCallback(const std::vector<rclcpp::Parameter> &params)
+  {
+    auto result = rcl_interfaces::msg::SetParametersResult();
+    result.successful = true;
+
+    for (auto &param : params)
+    {
+      const auto &name = param.get_name();
+      
+      if (name == "sigma2_x_system" || 
+          name == "sigma2_y_system" || 
+          name == "sigma2_z_system")
+      {
+        if (name == "sigma2_x_system") sigma2_x_system_ = param.as_double();
+        if (name == "sigma2_y_system") sigma2_y_system_ = param.as_double();
+        if (name == "sigma2_z_system") sigma2_z_system_ = param.as_double();
+
+        sigma_system_ = cv::Mat::zeros(3, 3, CV_64FC1);
+        sigma_system_.at<double>(0, 0) = sigma2_x_system_;
+        sigma_system_.at<double>(1, 1) = sigma2_y_system_;
+        sigma_system_.at<double>(2, 2) = sigma2_z_system_;
+        kalman_core_->setSigmaSystem(sigma_system_);
+      }
+
+      if (name == "sigma2_flow_y_measurement" || 
+          name == "sigma2_flow_x_measurement" || 
+          name == "sigma2_depth_system")
+      {
+        if (name == "sigma2_flow_y_measurement") sigma2_flow_y_measurement_ = param.as_double();
+        if (name == "sigma2_flow_x_measurement") sigma2_flow_x_measurement_ = param.as_double();
+        if (name == "sigma2_depth_system") sigma2_depth_system_ = param.as_double();
+
+        T_ = cv::Mat::zeros(3, 3, CV_64FC1);
+        T_.at<double>(0, 0) = sigma2_flow_y_measurement_;
+        T_.at<double>(1, 1) = sigma2_flow_x_measurement_;
+        T_.at<double>(2, 2) = sigma2_depth_system_;
+        kalman_core_->setT(T_);
+      }
+
+      if (name == "sigma2_tx_measurement" ||
+          name == "sigma2_ty_measurement" || 
+          name == "sigma2_tz_measurement" || 
+          name == "sigma2_theta_measurement" || 
+          name == "sigma2_phi_measurement" || 
+          name == "sigma2_psi_system")
+      {
+        if (name == "sigma2_tx_measurement") sigma2_tx_measurement_ = param.as_double();
+        if (name == "sigma2_ty_measurement") sigma2_ty_measurement_ = param.as_double();
+        if (name == "sigma2_tz_measurement") sigma2_tz_measurement_ = param.as_double();
+        if (name == "sigma2_theta_measurement") sigma2_theta_measurement_ = param.as_double();
+        if (name == "sigma2_phi_measurement") sigma2_phi_measurement_ = param.as_double();
+        if (name == "sigma2_psi_system") sigma2_psi_system_ = param.as_double();
+
+        C_ = cv::Mat::zeros(6, 6, CV_64FC1);
+        C_.at<double>(0, 0) = sigma2_tx_measurement_;
+        C_.at<double>(1, 1) = sigma2_ty_measurement_;
+        C_.at<double>(2, 2) = sigma2_tz_measurement_;
+        C_.at<double>(3, 3) = sigma2_theta_measurement_;
+        C_.at<double>(4, 4) = sigma2_phi_measurement_;
+        C_.at<double>(5, 5) = sigma2_psi_system_;
+        kalman_core_->setC(C_);
+      }
+
+      if (name == "min_depth") 
+      {
+        min_depth_ = param.as_double();
+        kalman_core_->setMinDepth(min_depth_);
+      }
+
+      if (name == "max_depth") 
+      {
+        max_depth_ = param.as_double();
+        kalman_core_->setMaxDepth(max_depth_);
+      }
+
+      if (name == "min_height") 
+      {
+        min_height_ = param.as_double();
+        kalman_core_->setMinHeight(min_height_);
+      }
+
+      if (name == "max_height") 
+      {
+        max_height_ = param.as_double();
+        kalman_core_->setMaxHeight(max_height_);
+      }
+
+      if (name == "use_ego_motion") 
+      {
+        use_ego_motion_ = param.as_bool();
+        kalman_core_->setIncludeEgoMotion(use_ego_motion_);
+      }
+    }
   }
 
 

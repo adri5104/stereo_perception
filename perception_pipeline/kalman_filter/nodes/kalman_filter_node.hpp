@@ -79,10 +79,10 @@ private:
    * @param color_msg left color image
    */
   void updateSync(
-    const sensor_msgs::msg::Image::ConstSharedPtr flow_msg,
-    const sensor_msgs::msg::Image::ConstSharedPtr depth_msg,
-    const sensor_msgs::msg::Image::ConstSharedPtr color_msg,
-    const geometry_msgs::msg::TransformStamped::ConstSharedPtr frame_tf_msg);
+  const sensor_msgs::msg::Image::ConstSharedPtr flow_msg,
+  const sensor_msgs::msg::Image::ConstSharedPtr depth_msg,
+  const sensor_msgs::msg::Image::ConstSharedPtr color_msg,
+  const geometry_msgs::msg::TransformStamped::ConstSharedPtr frame_tf_msg);
 
   
   /**
@@ -130,6 +130,19 @@ private:
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr debug_markers_pub_;
   rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr output_6d_pub_;
 
+  // Parameter reconfigure handler
+  rclcpp::node_interfaces::OnSetParametersCallbackHandle::SharedPtr param_reconfigure_handler_;
+
+  /**
+   * @brief Callback invoked whenever one or more parameters are changed.
+   *
+   * @param params The list of parameters that were updated.
+   * @return A result indicating whether the parameter update is accepted.
+   */
+  rcl_interfaces::msg::SetParametersResult paramCallback(
+  const std::vector<rclcpp::Parameter> &params);
+
+
   // Parameters
   std::string optical_flow_topic_;
   std::string depth_topic_;
@@ -140,7 +153,31 @@ private:
   std::string debug_markers_topic_;
   std::string output_6d_topic_;
   bool camera_parameters_set_ = false;
-};
+
+  // Kalman filter parameters
+  bool use_ego_motion_;
+  int grid_size_;
+  double sigma2_x_system_;
+  double sigma2_y_system_;
+  double sigma2_z_system_;
+  double sigma2_flow_y_measurement_;
+  double sigma2_flow_x_measurement_;
+  double sigma2_depth_system_;
+  double sigma2_tx_measurement_;
+  double sigma2_ty_measurement_;
+  double sigma2_tz_measurement_;
+  double sigma2_theta_measurement_;
+  double sigma2_phi_measurement_;
+  double sigma2_psi_system_;
+
+  double min_depth_;
+  double max_depth_;
+  double min_height_;
+  double max_height_;
+  cv::Mat C_;
+  cv::Mat T_;
+  cv::Mat sigma_system_;
+};;
 
 } // namespace kalman_filter
 } // namespace perception_pipeline

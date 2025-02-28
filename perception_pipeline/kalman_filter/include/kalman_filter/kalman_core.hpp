@@ -197,6 +197,14 @@ public:
    */
   double getDeltaTime();
 
+  void setIncludeEgoMotion(bool include_ego_motion);
+  void setMinDepth(double min_depth);
+  void setMaxDepth(double max_depth);
+  void setMinHeight(double min_height);
+  void setMaxHeight(double max_height);
+  void setC(Mat C);
+  void setT(Mat T);
+  void setSigmaSystem(Mat sigma_system);
   
 
 private:

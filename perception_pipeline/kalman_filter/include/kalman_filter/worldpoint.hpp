@@ -184,6 +184,15 @@ class WorldPoint
      */
     void setCameraParameters(double fx, double fy, double cx, double cy);
 
+    // Setters
+    void setMaxDepth(double max_depth) { max_depth_ = max_depth; }
+    void setMinDepth(double min_depth) { min_depth_ = min_depth; }
+    void setMaxHeight(double max_height) { max_height_ = max_height; }
+    void setMinHeight(double min_height) { min_height_ = min_height; }
+    void setUseVarEgo(bool use_var_ego) { use_var_ego_ = use_var_ego; }
+    void setC(Mat C) { C_ = C; }
+    void setT(Mat T) { T_ = T; }
+
   private:
 
     // Attributes

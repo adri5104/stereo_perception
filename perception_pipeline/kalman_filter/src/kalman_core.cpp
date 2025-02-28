@@ -600,5 +600,84 @@ void KalmanCore::computeJacobianMatrix()
 	G_new_.at<double>(5,4) = sPhi;
 	G_new_.at<double>(5,5) = term8;
 }
+
+
+// Setters
+void KalmanCore::setIncludeEgoMotion(bool includeEgoMotion)
+{
+  include_ego_motion_ = includeEgoMotion;
+
+  for (auto& wp: worldpoints_)
+  {
+    wp->setUseVarEgo(includeEgoMotion);
+  }
+}
+
+void KalmanCore::setMinDepth(double minDepth)
+{
+  min_depth_ = minDepth;
+
+  for (auto& wp: worldpoints_)
+  {
+    wp->setMinDepth(minDepth);
+  }
+}
+
+void KalmanCore::setMaxDepth(double maxDepth)
+{
+  max_depth_ = maxDepth;
+
+  for (auto& wp: worldpoints_)
+  {
+    wp->setMaxDepth(maxDepth);
+  }
+}
+
+void KalmanCore::setMinHeight(double minHeight)
+{
+  min_height_ = minHeight;
+
+  for (auto& wp: worldpoints_)
+  {
+    wp->setMinHeight(minHeight);
+  }
+}
+
+void KalmanCore::setMaxHeight(double maxHeight)
+{
+  max_height_ = maxHeight;
+
+  for (auto& wp: worldpoints_)
+  {
+    wp->setMaxHeight(maxHeight);
+  }
+}
+
+void KalmanCore::setC(Mat C)
+{
+  C_ = C;
+
+  for (auto& wp: worldpoints_)
+  {
+    wp->setC(C);
+  }
+}
+
+void KalmanCore::setT(Mat T)
+{
+  T_ = T;
+
+  for (auto& wp: worldpoints_)
+  {
+    wp->setT(T);
+  }
+}
+
+void KalmanCore::setSigmaSystem(Mat sigmaSystem)
+{
+  sigma_system_ = sigmaSystem;
+}
+
+
 } // namespace kalman_filter
 } // namespace perception_pipeline
