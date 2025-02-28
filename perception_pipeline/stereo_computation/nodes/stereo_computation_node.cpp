@@ -17,6 +17,13 @@ namespace stereo_computation
     this->declare_parameter<std::string>("out_depth_image_topic", "/depth_image");
     this->declare_parameter<std::string>("out_disparity_image_topic", "/disparity_image");
 
+    this->declare_parameter<int>("min_disparity", 0);
+    this->declare_parameter<int>("num_disparities", 128);
+    this->declare_parameter<int>("P1", 10);
+    this->declare_parameter<int>("P2", 120);
+    this->declare_parameter<int>("uniqueness_ratio", 5);
+  
+
     // Read parameters
     in_left_image_topic_ = this->get_parameter("in_left_image_topic").as_string();
     in_right_image_topic_ = this->get_parameter("in_right_image_topic").as_string();
@@ -42,10 +49,15 @@ namespace stereo_computation
       in_camera_info_topic_, 10,
       std::bind(&StereoComputationNode::cameraInfoCallback, this, std::placeholders::_1));
 
-    int minDisparity = 1;
-    int numDisparities = 16; // Ensure numDisparities is a positive multiple of 16 and within the supported range
-    int blockSize = 15;
-    stereoBM_ = cv::cuda::createStereoBM();
+    
+    stereoSGM_ = cv::cuda::createStereoSGM(
+      get_parameter("min_disparity").as_int(),
+      get_parameter("num_disparities").as_int(),
+      get_parameter("P1").as_int(),
+      get_parameter("P2").as_int(),
+      get_parameter("uniqueness_ratio").as_int(),
+      cv::cuda::StereoSGM::MODE_HH4
+    );
 
     // Publisher
     depth_image_pub_ = this->create_publisher<sensor_msgs::msg::Image>(out_depth_image_topic_, 10);
@@ -86,7 +98,7 @@ void StereoComputationNode::updateSync(
 
   // Compute disparity on the GPU.
   cv::cuda::GpuMat d_disparity;
-  stereoBM_->compute(d_left, d_right, d_disparity);
+  stereoSGM_->compute(d_left, d_right, d_disparity);
 
   // Download disparity map to CPU.
   cv::Mat disparity;

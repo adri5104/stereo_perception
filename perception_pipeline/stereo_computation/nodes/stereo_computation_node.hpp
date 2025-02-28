@@ -63,7 +63,7 @@ class StereoComputationNode : public rclcpp::Node
   rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr disparity_image_pub_;
 
   // CUDA-based stereo matcher.
-  cv::Ptr<cv::cuda::StereoBM> stereoBM_; 
+  cv::Ptr<cv::cuda::StereoSGM> stereoSGM_; 
 
   // Topic names
   std::string in_left_image_topic_;
