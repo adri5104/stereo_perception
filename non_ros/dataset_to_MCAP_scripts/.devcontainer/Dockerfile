@@ -45,7 +45,6 @@ RUN echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> ~/.bashrc
 
 WORKDIR /data
 
-RUN source /opt/ros/noetic/setup.bash 
 
 ENTRYPOINT ["/kitti2bag/docker_entrypoint.sh"]
 
