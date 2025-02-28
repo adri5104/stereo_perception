@@ -44,6 +44,10 @@ namespace stereo_computation
     // Register the synchronized callback
     sync_->registerCallback(&StereoComputationNode::updateSync, this);
 
+    // Parameter callback
+    param_callback_handle_ = this->add_on_set_parameters_callback(
+      std::bind(&StereoComputationNode::paramCallback, this, std::placeholders::_1));
+
     // Camera info subscription (standard rclcpp subscription)
     camera_info_sub_ = this->create_subscription<sensor_msgs::msg::CameraInfo>(
       in_camera_info_topic_, 10,
@@ -64,77 +68,47 @@ namespace stereo_computation
     disparity_image_pub_ = this->create_publisher<sensor_msgs::msg::Image>(out_disparity_image_topic_, 10);
   }
 
-void StereoComputationNode::updateSync(
-  const sensor_msgs::msg::Image::ConstSharedPtr left_image_msg,
-  const sensor_msgs::msg::Image::ConstSharedPtr right_image_msg)
-{
-  // Print the focal length and baseline
-  RCLCPP_INFO(this->get_logger(), "Focal length: %f", focal_length_);
-  RCLCPP_INFO(this->get_logger(), "Baseline: %f", baseline_);
-
-  // Convert ROS images to OpenCV format.
-  cv_bridge::CvImagePtr cv_ptr_left, cv_ptr_right;
-  try 
+  void StereoComputationNode::updateSync(
+    const sensor_msgs::msg::Image::ConstSharedPtr left_image_msg,
+    const sensor_msgs::msg::Image::ConstSharedPtr right_image_msg)
   {
-    cv_ptr_left = cv_bridge::toCvCopy(left_image_msg, left_image_msg->encoding);
-    cv_ptr_right = cv_bridge::toCvCopy(right_image_msg, right_image_msg->encoding);
+    // Convert ROS Image messages to OpenCV Mat images and upload to GPU.
+    cv::cuda::GpuMat image_left, image_right;
+    image_left.upload(imageMsgToMat(left_image_msg));
+    image_right.upload(imageMsgToMat(right_image_msg));
+
+
+    // Compute disparity on the GPU.
+    cv::cuda::GpuMat disparity;
+    stereoSGM_->compute(image_left, image_right, disparity);
+
+    // Create colored disparity image for visualization.
+    cv::cuda::GpuMat disparity_color;
+    cv::cuda::drawColorDisp(disparity, disparity_color, 128);
+
+    // Compute the depth image in CV_32FC1 (depth in mm)
+    cv::cuda::GpuMat depth = disparityToDepth(disparity);
+
+    // Download the depth image and disparity image to CPU for publishing.
+    cv::Mat depth_cpu, disparity_cpu;
+    depth.download(depth_cpu);
+    disparity_color.download(disparity_cpu);  
+
+
+    // Publish the disparity image as bgra
+    cv_bridge::CvImage disparity_msg;
+    disparity_msg.header = left_image_msg->header;
+    disparity_msg.encoding = sensor_msgs::image_encodings::BGRA8;
+    disparity_msg.image = disparity_cpu;
+    disparity_image_pub_->publish(*disparity_msg.toImageMsg());
+
+    // Publish the depth image as MONO8.
+    cv_bridge::CvImage depth_msg;
+    depth_msg.header = left_image_msg->header;
+    depth_msg.encoding = sensor_msgs::image_encodings::TYPE_32FC1;
+    depth_msg.image = depth_cpu;
+    depth_image_pub_->publish(*depth_msg.toImageMsg());
   } 
-  catch (cv_bridge::Exception &e) 
-  {
-    RCLCPP_ERROR(this->get_logger(), "cv_bridge exception: %s", e.what());
-    return;
-  }
-  
-  // Ensure the images are grayscale.
-  if (cv_ptr_left->image.channels() > 1)
-    cv::cvtColor(cv_ptr_left->image, cv_ptr_left->image, cv::COLOR_BGR2GRAY);
-  if (cv_ptr_right->image.channels() > 1)
-    cv::cvtColor(cv_ptr_right->image, cv_ptr_right->image, cv::COLOR_BGR2GRAY);
-
-  // Upload images to GPU.
-  cv::cuda::GpuMat d_left, d_right;
-  d_left.upload(cv_ptr_left->image);
-  d_right.upload(cv_ptr_right->image);
-
-  // Compute disparity on the GPU.
-  cv::cuda::GpuMat d_disparity;
-  stereoSGM_->compute(d_left, d_right, d_disparity);
-
-  // Download disparity map to CPU.
-  cv::Mat disparity;
-  d_disparity.download(disparity);
-
-  
-
-  // Compute the depth image in CV_32FC1 (depth in mm)
-  cv::Mat depth(disparity.size(), CV_32F);
-  for (int i = 0; i < disparity.rows; ++i) 
-  {
-    for (int j = 0; j < disparity.cols; ++j) 
-    {
-      float disp = static_cast<float>(disparity.at<short>(i, j)) / 16.0f;
-      if (disp <= 0.0f)
-        depth.at<float>(i, j) = 0.0f;
-      else
-        depth.at<float>(i, j) = static_cast<float>(focal_length_ * baseline_ / disp);
-    }
-  }
-
-
-  // Publish the disparity image (optional).
-  cv_bridge::CvImage disparity_msg;
-  disparity_msg.header = left_image_msg->header;
-  disparity_msg.encoding = sensor_msgs::image_encodings::TYPE_16SC1;
-  disparity_msg.image = disparity;
-  disparity_image_pub_->publish(*disparity_msg.toImageMsg());
-
-  // Publish the depth image as MONO8.
-  cv_bridge::CvImage depth_msg;
-  depth_msg.header = left_image_msg->header;
-  depth_msg.encoding = sensor_msgs::image_encodings::TYPE_32FC1;
-  depth_msg.image = depth;
-  depth_image_pub_->publish(*depth_msg.toImageMsg());
-} 
 
 
   void StereoComputationNode::cameraInfoCallback(const sensor_msgs::msg::CameraInfo::ConstSharedPtr msg)
@@ -143,20 +117,7 @@ void StereoComputationNode::updateSync(
     {
       return;
     }
-
-    // Print camera info
-    RCLCPP_INFO(this->get_logger(), "Received camera info: ");
-    RCLCPP_INFO(this->get_logger(), "  width: %d", msg->width);
-    RCLCPP_INFO(this->get_logger(), "  height: %d", msg->height);
-    RCLCPP_INFO(this->get_logger(), "  distortion_model: %s", msg->distortion_model.c_str());
-    RCLCPP_INFO(this->get_logger(), "  D: %f %f %f %f %f", msg->d[0], msg->d[1], msg->d[2], msg->d[3], msg->d[4]);
-    RCLCPP_INFO(this->get_logger(), "  K: %f %f %f %f %f %f %f %f %f", msg->k[0], msg->k[1], msg->k[2], msg->k[3], msg->k[4], msg->k[5], msg->k[6], msg->k[7], msg->k[8]);
-    RCLCPP_INFO(this->get_logger(), "  R: %f %f %f %f %f %f %f %f %f", msg->r[0], msg->r[1], msg->r[2], msg->r[3], msg->r[4], msg->r[5], msg->r[6], msg->r[7], msg->r[8]);
-    RCLCPP_INFO(this->get_logger(), "  P: %f %f %f %f %f %f %f %f %f %f %f %f", msg->p[0], msg->p[1], msg->p[2], msg->p[3], msg->p[4], msg->p[5], msg->p[6], msg->p[7], msg->p[8], msg->p[9], msg->p[10], msg->p[11]);
-    RCLCPP_INFO(this->get_logger(), "  binning_x: %d", msg->binning_x);
-    RCLCPP_INFO(this->get_logger(), "  binning_y: %d", msg->binning_y);
     
-
     focal_length_ = msg->k[0];
     baseline_ = -msg->p[3] / focal_length_;
 
@@ -164,6 +125,103 @@ void StereoComputationNode::updateSync(
     RCLCPP_INFO(this->get_logger(), "Focal length: %f", focal_length_);
 
     camera_parameters_set_ = true;
+  }
+
+  rcl_interfaces::msg::SetParametersResult 
+    StereoComputationNode::paramCallback(const std::vector<rclcpp::Parameter> &params)
+  {
+    auto result = rcl_interfaces::msg::SetParametersResult();
+    result.successful = true;
+
+    for (auto &p : params)
+    {
+      const auto &name = p.get_name();
+
+      if (name == "P1")
+      {
+        stereoSGM_->setP1(p.as_int());
+      }
+
+      if (name == "P2")
+      {
+        stereoSGM_->setP2(p.as_int());
+      }
+
+      if (name == "uniqueness_ratio")
+      {
+        stereoSGM_->setUniquenessRatio(p.as_int());
+      }
+      
+    }
+    return result;
+  }
+
+  cv::cuda::GpuMat StereoComputationNode::disparityToDepth(const cv::cuda::GpuMat & disparity)
+  {
+    // The raw disparity is typically CV_16S with scale=16, meaning stored as "disp * 16".
+    // Convert it to float: disp_float = disp / 16
+    cv::cuda::GpuMat d_disp_float;
+    disparity.convertTo(d_disp_float, CV_32F, 1.0f / 16.0f);
+
+    // We'll compute: depth = (focal_length * baseline) / disp_float
+    // First, create a mask for invalid disparity (disp <= 0)
+    cv::cuda::GpuMat d_invalidMask;
+    cv::cuda::compare(d_disp_float, 0.0f, d_invalidMask, cv::CMP_LE); 
+    // d_invalidMask = 255 where disp_float <= 0, else 0
+
+    // Compute the inverse of the disparity: 1 / disp_float
+    cv::cuda::GpuMat d_inv_disp;
+    cv::cuda::divide(1.0f, d_disp_float, d_inv_disp);
+
+    // Multiply by (focal_length * baseline)
+    cv::cuda::GpuMat d_depth;
+    float scale = focal_length_ * baseline_;
+    cv::cuda::multiply(d_inv_disp, scale, d_depth);
+
+    // Zero out depth where disparity was invalid
+    d_depth.setTo(0.0f, d_invalidMask);
+
+    return d_depth;
+  }
+
+  cv::Mat StereoComputationNode::imageMsgToMat(const sensor_msgs::msg::Image::ConstSharedPtr & msg)
+  {
+    try
+    {
+      // 1) Convert to the original encoding
+      cv_bridge::CvImageConstPtr cv_ptr = cv_bridge::toCvCopy(msg, msg->encoding);
+      cv::Mat image = cv_ptr->image;
+
+      // 2) If it's a color image (more than one channel), convert to grayscale
+      if (image.channels() > 1)
+      {
+        // Typically BGR or RGB, but could be different. If you know for sure it’s BGR, use COLOR_BGR2GRAY.
+        // If it could be RGB, use COLOR_RGB2GRAY. 
+        // For simplicity, assume BGR here.
+        cv::cvtColor(image, image, cv::COLOR_BGR2GRAY);
+      }
+
+      // 3) Ensure the final image is indeed 8-bit, single channel (mono8)
+      //    If it's already 8UC1, this does nothing; otherwise it will convert bit depth.
+      if (image.type() != CV_8UC1)
+      {
+        // If the current type is something else (like 16U, 32F, etc.), scale appropriately:
+        double minVal, maxVal;
+        cv::minMaxLoc(image, &minVal, &maxVal);
+        // If the image is already 8-bit, this won't do anything.
+        // Otherwise, e.g. if it's 16-bit, we scale it to [0,255].
+        // Adjust the scaling if your data range is known or you prefer a different approach.
+        image.convertTo(image, CV_8UC1, 255.0 / (maxVal - minVal), -minVal * 255.0 / (maxVal - minVal));
+      }
+
+      // Return guaranteed mono8
+      return image;
+    }
+    catch (cv_bridge::Exception & e)
+    {
+      RCLCPP_ERROR(this->get_logger(), "cv_bridge exception: %s", e.what());
+      return cv::Mat();
+    }
   }
 
 } // namespace stereo_computation

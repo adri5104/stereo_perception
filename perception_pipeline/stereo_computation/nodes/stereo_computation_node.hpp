@@ -17,6 +17,7 @@
 #include <opencv2/core.hpp>
 #include <opencv2/cudaimgproc.hpp>
 #include <opencv2/cudastereo.hpp>
+#include <opencv2/cudaarithm.hpp>
 
 namespace perception_pipeline
 {
@@ -48,6 +49,37 @@ class StereoComputationNode : public rclcpp::Node
   // CameraInfo callback
   void cameraInfoCallback(const sensor_msgs::msg::CameraInfo::ConstSharedPtr msg);
 
+  /**
+   * @brief Callback invoked whenever one or more parameters are changed.
+   *
+   * @param params The list of parameters that were updated.
+   * @return A result indicating whether the parameter update is accepted.
+   */
+  rcl_interfaces::msg::SetParametersResult paramCallback(
+    const std::vector<rclcpp::Parameter> &params);
+
+  /**
+   * @brief Helper function to convert from a ROS Image message to openCV Mat
+   * 
+   * @param msg 
+   * @return cv::Mat 
+   */
+  cv::Mat imageMsgToMat(const sensor_msgs::msg::Image::ConstSharedPtr & msg);
+
+  /**
+   * @brief Converts a 16-bit fixed-point (4 fractional bits) disparity map to a depth map on the GPU.
+   *
+   * StereoSGM output is 16-bit signed, scaled by 16 (4 fractional bits):
+   *   raw_disparity_value = disparity_in_pixels * 16
+   *
+   * Thus, to get the real disparity in pixels, we divide by 16.0f. Then, we compute
+   *   depth = (focal_length_ * baseline_) / disparity_in_pixels
+   * 
+   * @param disparity  Input 16-bit signed disparity map (CV_16S), from StereoSGM->compute().
+   * @return           32-bit floating-point depth map (CV_32F)
+   */
+  cv::cuda::GpuMat disparityToDepth(const cv::cuda::GpuMat & disparity);
+
   // Message filter subscribers
   message_filters::Subscriber<sensor_msgs::msg::Image> left_image_sub_;
   message_filters::Subscriber<sensor_msgs::msg::Image> right_image_sub_;
@@ -57,6 +89,10 @@ class StereoComputationNode : public rclcpp::Node
 
   // Synchronizer pointer
   std::shared_ptr<message_filters::Synchronizer<SyncPolicy>> sync_;
+
+  // Parameter handling
+  rclcpp::node_interfaces::OnSetParametersCallbackHandle::SharedPtr param_callback_handle_;
+
 
   // Publisher
   rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr depth_image_pub_;
@@ -76,6 +112,8 @@ class StereoComputationNode : public rclcpp::Node
   double focal_length_;  // typically from camera_info.k[0]
   double baseline_;      
   bool camera_parameters_set_ = false;
+
+
 
 };
 

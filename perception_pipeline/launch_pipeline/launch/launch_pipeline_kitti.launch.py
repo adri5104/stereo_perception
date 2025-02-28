@@ -23,32 +23,27 @@ def generate_launch_description():
                 'pyr_scale': 0.5  , 
                 'levels': 6,
                 'winsize': 15 , #35
-                'iterations': 10,
-                'poly_n': 5,
-                'poly_sigma': 1.5   ,
+                'iterations': 15,
+                'poly_n': 7,
+                'poly_sigma': 1.2,
                 'flags': 0,
-            }],
-        ),
-        
-        
-        
-        launch_ros.actions.Node(
-            package='stereo_computation', 
-            executable='stereo_computation_node',
-            output='screen',
-            parameters=[
-              {"in_left_image_topic": "/left/image_raw"},
-              {"in_right_image_topic": "/right/image_raw"},
-              {"in_camera_info_topic": "/kitti/camera_gray_right/camera_info"},
-              {"out_depth_image_topic": "perception_pipeline/depth_image"},
-              {"out_disparity_image_topic": "perception_pipeline/disparity"},
-              {"min_disparity": 0},
-              {"num_disparities": 128},
-              {"P1": 10},
-              {"P2": 120},
-              {"uniqueness_ratio": 5},
-              ],
-        ),
+              }],
+            ),
+            
+            launch_ros.actions.Node(
+              package='stereo_computation', 
+              executable='stereo_computation_node',
+              output='screen',
+              parameters=[
+                {"in_left_image_topic": "/kitti/camera_gray_left/image_raw"},
+                {"in_right_image_topic": "/kitti/camera_gray_right/image_raw"},
+                {"in_camera_info_topic": "/kitti/camera_gray_right/camera_info"},
+                {"out_depth_image_topic": "perception_pipeline/depth_image"},
+                {"out_disparity_image_topic": "perception_pipeline/disparity"},
+                {"block_size": 15},
+                {"num_disparities": 128},
+                ],
+            ),
 
         #launch_ros.actions.Node(
         #    package='visual_odometry',
