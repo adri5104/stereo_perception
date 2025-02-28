@@ -17,42 +17,33 @@ namespace stereo_computation
     this->declare_parameter<std::string>("out_depth_image_topic", "/depth_image");
     this->declare_parameter<std::string>("out_disparity_image_topic", "/disparity_image");
 
-    // 	Minimum possible disparity value. Normally, it is zero but sometimes rectification algorithms
-    // can shift images, so this parameter needs to be adjusted accordingly.
-    this->declare_parameter<int>("min_disparity", 0);
+    // 	the linear size of the blocks compared by the algorithm. 
+    //The size should be odd (as the block is centered at the current pixel). 
+    //Larger block size implies smoother, though less accurate disparity map. 
+    //Smaller block size gives more detailed disparity map, but there is higher chance 
+    //for algorithm to find a wrong correspondence.
+    this->declare_parameter<int>("block_size", 21);
     
     // 	Maximum disparity minus minimum disparity. The value is always greater than zero. 
     //In the current implementation, this parameter must be divisible by 16.
-    this->declare_parameter<int>("num_disparities", 128);
+    this->declare_parameter<int>("num_disparities", 64);
     
-    // The first parameter controlling the disparity smoothness. See below.
-    this->declare_parameter<int>("P1", 10);
+    this->declare_parameter<int>("pre_filter_cap", 0); 
+    this->declare_parameter<int>("pre_filter_size", 0); 
+    this->declare_parameter<int>("pre_filter_type", 0); 
 
-    // The second parameter controlling the disparity smoothness. The larger the values are, 
-    //the smoother the disparity is. P1 is the penalty on the disparity change by plus or minus 1 
-    //between neighbor pixels. P2 is the penalty on the disparity change by more than 1 between neighbor pixels.
-    // The algorithm requires P2 > P1 . See stereo_match.cpp sample where some reasonably good P1 and P2 values are shown (like 8*number_of_image_channels*blockSize*blockSize and 32*number_of_image_channels*blockSize*blockSize , respectively).
-    this->declare_parameter<int>("P2", 120);
+    this->declare_parameter<int>("texture_threshold", 0);
 
-
-    //Margin in percentage by which the best (minimum) computed cost function value should "win" 
-    //the second best value to consider the found match correct. Normally, a value within the 
-    //5-15 range is good enough.
-    this->declare_parameter<int>("uniqueness_ratio", 5);
-
-    // Truncation value for the prefiltered image pixels. The algorithm first computes 
-    //x-derivative at each pixel and clips its value by [-preFilterCap, preFilterCap] interval. 
-    //The result values are passed to the Birchfield-Tomasi pixel cost function.
-    this->declare_parameter<int>("pre_filter_cap", 100); 
-
+    
+  
     //Maximum size of smooth disparity regions to consider their noise speckles and invalidate. 
     //Set it to 0 to disable speckle filtering. Otherwise, set it somewhere in the 50-200 range.
-    this->declare_parameter<int>("speckle_window_size", 100);
+    //this->declare_parameter<int>("speckle_window_size", 0);
 
     // Maximum disparity variation within each connected component. 
     //If you do speckle filtering, set the parameter to a positive value,
     // it will be implicitly multiplied by 16. Normally, 1 or 2 is good enough.
-    this->declare_parameter<int>("speckle_range", 32);
+    //this->declare_parameter<int>("speckle_range", 0);
 
 
 
@@ -86,18 +77,19 @@ namespace stereo_computation
       std::bind(&StereoComputationNode::cameraInfoCallback, this, std::placeholders::_1));
 
     
-    stereoSGM_ = cv::cuda::createStereoSGM(
-      get_parameter("min_disparity").as_int(),
+    stereoBM_ = cv::cuda::createStereoBM(
       get_parameter("num_disparities").as_int(),
-      get_parameter("P1").as_int(),
-      get_parameter("P2").as_int(),
-      get_parameter("uniqueness_ratio").as_int(),
-      cv::cuda::StereoSGM::MODE_HH4
+      get_parameter("block_size").as_int()
     );
 
-    stereoSGM_->setPreFilterCap(get_parameter("pre_filter_cap").as_int());
-    stereoSGM_->setSpeckleWindowSize(get_parameter("speckle_window_size").as_int());
-    stereoSGM_->setSpeckleRange(get_parameter("speckle_range").as_int());
+    //stereoBM_->setPreFilterCap(get_parameter("pre_filter_cap").as_int());
+    //stereoBM_->setPreFilterSize(get_parameter("pre_filter_size").as_int());
+    //stereoBM_->setPreFilterType(get_parameter("pre_filter_type").as_int());
+    stereoBM_->setTextureThreshold(get_parameter("texture_threshold").as_int());
+
+    //stereoBM_->setSpeckleWindowSize(get_parameter("speckle_window_size").as_int());
+    //stereoBM_->setSpeckleRange(get_parameter("speckle_range").as_int());
+
 
     // Publisher
     depth_image_pub_ = this->create_publisher<sensor_msgs::msg::Image>(out_depth_image_topic_, 10);
@@ -116,7 +108,7 @@ namespace stereo_computation
 
     // Compute disparity on the GPU.
     cv::cuda::GpuMat disparity;
-    stereoSGM_->compute(image_left, image_right, disparity);
+    stereoBM_->compute(image_left, image_right, disparity);
 
     // Create colored disparity image for visualization.
     cv::cuda::GpuMat disparity_color;
@@ -173,36 +165,39 @@ namespace stereo_computation
     {
       const auto &name = p.get_name();
 
-      if (name == "P1")
+
+
+      if (name == "texture_threshold")
       {
-        stereoSGM_->setP1(p.as_int());
+        stereoBM_->setTextureThreshold(p.as_int());
       }
 
-      if (name == "P2")
-      {
-        stereoSGM_->setP2(p.as_int());
-      }
-
-      if (name == "uniqueness_ratio")
-      {
-        stereoSGM_->setUniquenessRatio(p.as_int());
-      }
 
       if (name == "pre_filter_cap")
       {
-        stereoSGM_->setPreFilterCap(p.as_int());
+        stereoBM_->setPreFilterCap(p.as_int());
       }
 
-      if (name == "speckle_window_size")
+      if (name == "pre_filter_size")
       {
-        stereoSGM_->setSpeckleWindowSize(p.as_int());
+        stereoBM_->setPreFilterSize(p.as_int());
       }
 
-      if (name == "speckle_range")
+      if (name == "pre_filter_type")
       {
-        stereoSGM_->setSpeckleRange(p.as_int());
+        stereoBM_->setPreFilterType(p.as_int());
       }
-      
+
+      //if (name == "speckle_window_size")
+      //{
+      //  stereoBM_->setSpeckleWindowSize(p.as_int());
+      //}
+//
+      //if (name == "speckle_range")
+      //{
+      //  stereoBM_->setSpeckleRange(p.as_int());
+      //}
+
     }
     return result;
   }

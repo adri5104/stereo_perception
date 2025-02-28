@@ -40,11 +40,14 @@ def generate_launch_description():
                 {"in_camera_info_topic": "/kitti/camera_gray_right/camera_info"},
                 {"out_depth_image_topic": "perception_pipeline/depth_image"},
                 {"out_disparity_image_topic": "perception_pipeline/disparity"},
-                {"block_size": 15},
+                {"block_size": 19},
                 {"num_disparities": 128},
-                {"pre_filter_cap": 100},
-                {"speckle_window_size": 100},
-                {"speckle_range": 32},
+                {"pre_filter_cap": 0},
+                {"pre_filter_size": 0},
+                {"pre_filter_type": 0},
+                {"texture_threshold": 2}
+                #{"speckle_window_size": 0},
+                #{"speckle_range": 0 },
                 ],
             ),
             
