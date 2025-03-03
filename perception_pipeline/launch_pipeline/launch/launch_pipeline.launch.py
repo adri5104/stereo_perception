@@ -67,6 +67,41 @@ def generate_launch_description():
               ],
         ),
 
+        #launch_ros.actions.Node(
+        #    package='kalman_filter',
+        #    executable='kalman_filter_node',
+        #    name='kalman_filter_node',
+        #    output='screen',
+        #    parameters=[
+        #        {'optical_flow_topic': '/perception_pipeline/optical_flow'},
+        #        {'depth_topic': "/device_0/sensor_0/Depth_0/image/data"},
+        #        {'camera_info_topic': '/perception_pipeline/camera_info_sync'},
+        #        {'camera_frame_tf_topic': '/perception_pipeline/camera_frame_tf'},
+        #        {'color_image_topic':"/device_0/sensor_1/Color_0/image/data"}, 
+        #        {'debug_image_topic_':'/debug/debug_image'},
+        #        {'output_6d_topic' : '/perception_pipeline/output_6d'},
+        #        {'debug_markers_topic' : '/debug/image_6d_markers'},
+        #        {'grid_size' : 15},
+        #        {'use_ego_motion' : True},
+        #        {'sigma2_x_system' : 4.0},
+        #        {'sigma2_y_system' : 4.0},
+        #        {'sigma2_z_system' : 1.0},
+        #        {'sigma2_flow_y_measurement' : 2.0},
+        #        {'sigma2_flow_x_measurement' : 2.0},
+        #        {'sigma2_depth_system' : 1.0},
+        #        {'sigma2_tx_measurement' : 10.0},
+        #        {'sigma2_ty_measurement' : 10.0},
+        #        {'sigma2_tz_measurement' : 10.0},
+        #        {'sigma2_theta_measurement' : 10.0},
+        #        {'sigma2_psi_system' : 10.0},
+        #        {'min_depth' : 2.0},
+        #        {'max_depth' : 20.0},
+        #        {'min_height_' :-2.0},
+        #        {'max_height' : 4.0},
+        #    ],
+        #    ros_arguments= ["--log-level", "info"] 
+        #),
+        
         launch_ros.actions.Node(
             package='kalman_filter',
             executable='kalman_filter_node',
@@ -83,12 +118,12 @@ def generate_launch_description():
                 {'debug_markers_topic' : '/debug/image_6d_markers'},
                 {'grid_size' : 15},
                 {'use_ego_motion' : True},
-                {'sigma2_x_system' : 4.0},
-                {'sigma2_y_system' : 4.0},
-                {'sigma2_z_system' : 1.0},
-                {'sigma2_flow_y_measurement' : 2.0},
-                {'sigma2_flow_x_measurement' : 2.0},
-                {'sigma2_depth_system' : 1.0},
+                {'sigma2_x_system' : 10.0},
+                {'sigma2_y_system' : 10.0},
+                {'sigma2_z_system' : 0.1},
+                {'sigma2_flow_y_measurement' : 3.0},
+                {'sigma2_flow_x_measurement' : 3.0},
+                {'sigma2_depth_system' : 0.5},
                 {'sigma2_tx_measurement' : 10.0},
                 {'sigma2_ty_measurement' : 10.0},
                 {'sigma2_tz_measurement' : 10.0},
@@ -101,6 +136,8 @@ def generate_launch_description():
             ],
             ros_arguments= ["--log-level", "info"] 
         ),
+        
+        
         
         launch_ros.actions.Node(
             package='foxglove_bridge',
@@ -124,7 +161,7 @@ def generate_launch_description():
             {'minPts': 10},
             {'pos_weight': 0.045},
             {'vel_weight': 1.0},
-            {'vel_threshold': 1.0},
+            {'vel_threshold': 0.5},
             
           ],
           

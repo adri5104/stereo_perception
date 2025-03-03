@@ -173,10 +173,6 @@ WorldPointErrorCode WorldPoint::computeKalmanStep(
     x_new_pred = A_new * x_old_ ;
   }
   
-   
- 		
-  
-
   // Compute the priori estimate covariance matrix
   P_new_pred = A_new * P_old_ * A_new.t() + Q_new;
 
@@ -210,7 +206,7 @@ WorldPointErrorCode WorldPoint::computeKalmanStep(
   // Perform 3 sigma test
   Mat tmp = s_new.t() * S_new_inv * s_new;
 	double epsilonSquared = tmp.at<double>(0,0);
-	if (sqrt(epsilonSquared) > 4.0) 
+	if (sqrt(epsilonSquared) > 3.0) 
   { 
     //cout << "3 sigma test failed" << endl;
     //cout << "age: " << age_ << endl;
