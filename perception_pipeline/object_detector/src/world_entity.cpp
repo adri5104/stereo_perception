@@ -9,16 +9,18 @@ namespace perception_pipeline
 namespace object_detector
 {
   WorldEntity::WorldEntity() :
+    id_(-1),
     points_(),
     velocities_(),
     centroid_(Eigen::Vector3f::Zero()),
     velocity_(Eigen::Vector3f::Zero()),
     bounding_box_(),
     bounding_box_computed_(false),
-    centroid_velocity_computed_(false){}
+    centroid_velocity_computed_(false){
+  } 
 
   void WorldEntity::addPoint(const pcl::PointXYZ& point, const Eigen::Vector3f& velocity)
-  {
+  { 
     points_.push_back(point);
     velocities_.push_back(velocity);
   }
@@ -92,31 +94,58 @@ namespace object_detector
     bounding_box_computed_ = true;
   }
 
+  void WorldEntity::compute() 
+  {
+    computeCentroidAndVelocity();
+    computeBoundingBox();
+  }
+
   // getters
-  Eigen::Vector3f WorldEntity::getCentroid() 
+  Eigen::Vector3f WorldEntity::getCentroid() const
   {
     if (!centroid_velocity_computed_)
-      computeCentroidAndVelocity();
+    {
+      std::cerr << "Centroid and velocity not computed yet!" << std::endl;
+      return Eigen::Vector3f::Zero();
+    }
+
     return centroid_;
   }
 
-  Eigen::Vector3f WorldEntity::getVelocity() 
+  Eigen::Vector3f WorldEntity::getVelocity() const 
   { 
     if (!centroid_velocity_computed_)
-      computeCentroidAndVelocity();
+    {
+      std::cerr << "Centroid and velocity not computed yet!" << std::endl;
+      return Eigen::Vector3f::Zero();
+    }
     return velocity_;
   }
 
-  std::vector<pcl::PointXYZ> WorldEntity::getPoints() 
+  std::vector<pcl::PointXYZ> WorldEntity::getPoints() const 
   {
     return points_;
   }
 
-  std::vector<pcl::PointXYZ> WorldEntity::getBoundingBox() 
+  std::vector<pcl::PointXYZ> WorldEntity::getBoundingBox() const 
   { 
     if(!bounding_box_computed_)
-      computeBoundingBox();
+    {
+      std::cerr << "Bounding box not computed yet!" << std::endl;
+      return std::vector<pcl::PointXYZ>();
+    }
     return bounding_box_;
+  }
+
+  int WorldEntity::getId() const  
+  {
+    return id_;
+  }
+
+  // setters
+  void WorldEntity::setId(int id) 
+  {
+    id_ = id;
   }
 
 } // namespace object_detector

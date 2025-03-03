@@ -40,6 +40,7 @@ find_package(CUDA REQUIRED)
 find_package(message_filters REQUIRED)
 find_package(kalman_filter REQUIRED)
 find_package(Armadillo REQUIRED)
+find_package(stereo_perception_msgs REQUIRED)
 
 if(ROS_VERSION STREQUAL "humble")
     find_package(mlpack REQUIRED)
@@ -68,6 +69,7 @@ set(INCLUDE_DIRS
     ${rclcpp_INCLUDE_DIRS}
     ${PCL_INCLUDE_DIRS}  
     ${CUDA_INCLUDE_DIRS}  
+    ${stereo_perception_msgs_INCLUDE_DIRS}
 )
 
 # C++ Source files
@@ -95,6 +97,7 @@ if(ROS_VERSION STREQUAL "humble")
       kalman_filter
       Armadillo
       mlpack
+      stereo_perception_msgs
   )
 else()
 set(MODULE_LIBS
@@ -109,6 +112,7 @@ PCL
 message_filters
 kalman_filter
 Armadillo
+stereo_perception_msgs
 )
 endif()
 

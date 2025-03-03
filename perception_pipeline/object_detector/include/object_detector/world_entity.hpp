@@ -8,6 +8,7 @@
 #define WORLD_ENTITY_HPP
 
 #include <vector>
+#include<set>
 #include <pcl/point_types.h>
 #include <pcl/point_cloud.h>
 #include <Eigen/Dense>
@@ -24,7 +25,6 @@ public:
 
   /**
    * @brief Construct a new World Entity object
-   * 
    */
   WorldEntity();
 
@@ -37,16 +37,30 @@ public:
   void addPoint(const pcl::PointXYZ& point, const Eigen::Vector3f& velocity);
 
 
+  /**
+   * @brief Compute the centroid, velocity and bounding box of the entity
+   * 
+   */
+  void compute();
+
+
   // Getters
-  Eigen::Vector3f getCentroid();
-  Eigen::Vector3f getVelocity();
-  std::vector<pcl::PointXYZ> getPoints();
-  std::vector<pcl::PointXYZ> getBoundingBox();
+  Eigen::Vector3f getCentroid() const;
+  Eigen::Vector3f getVelocity() const;
+  std::vector<pcl::PointXYZ> getPoints() const;
+  std::vector<pcl::PointXYZ> getBoundingBox() const;
+  int getId() const;
+
+  // Setters
+  void setId(int id);
   
 
 private:
   void computeCentroidAndVelocity();
   void computeBoundingBox();
+
+  /// ID of the entity
+  int id_;
 
   /// points that belong to the entity
   std::vector<pcl::PointXYZ> points_;

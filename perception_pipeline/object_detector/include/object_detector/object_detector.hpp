@@ -77,15 +77,12 @@ class ObjectDetector
      */
     objectDetectorErrorCode update(const cv::Mat& image_6d);
 
-    
-
-
     /**
      * @brief Get the clusters detected by the object detector.
      * 
-     * @return std::vector<WorldEntity> List of detected object clusters.
+     * @return const std::vector<WorldEntity>& List of detected object clusters.
      */
-    std::vector<WorldEntity> getClusters() const { return clusters_; }
+    const std::vector<WorldEntity>& getClusters() const;
     
   private:
 
@@ -135,6 +132,7 @@ class ObjectDetector
 
     /// Detected object clusters
     std::vector<WorldEntity> clusters_;
+    bool clusters_computed_;
 
     float eps_;
     int minPts_;

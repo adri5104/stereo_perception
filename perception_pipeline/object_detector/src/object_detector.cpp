@@ -24,6 +24,7 @@ namespace object_detector
 
 ObjectDetector::ObjectDetector(float eps, int minPts, float pos_weight, float vel_weight, float vel_threshold) :
   input_6d_image_(cv::cuda::GpuMat()),
+  clusters_computed_(false),
   eps_(eps),
   minPts_(minPts),
   pos_weight_(pos_weight),
@@ -60,9 +61,23 @@ objectDetectorErrorCode ObjectDetector::update(const cv::Mat& image_6d)
   // Now do CPU-based DBSCAN
   clusters_ = applyDBSCAN(eps_, minPts_, pos_weight_, vel_weight_);
 
+  // Compute the bounding boxes and velocities
+  for (auto& cluster : clusters_) {
+    cluster.compute();
+  }
+  clusters_computed_ = true;
+
   return objectDetectorErrorCode::OK;
 }
 
+const std::vector<WorldEntity>& ObjectDetector::getClusters() const
+{ 
+  if (!clusters_computed_) {
+    std::cerr << "Clusters not computed yet!" << std::endl;
+    return std::vector<WorldEntity>();
+  }
+  return clusters_;
+}
 
 std::vector<WorldEntity> ObjectDetector::applyDBSCAN(float eps, int minPts, float pos_weight, float vel_weight)
 {
@@ -99,7 +114,9 @@ std::vector<WorldEntity> ObjectDetector::applyDBSCAN(float eps, int minPts, floa
     pcl::PointXYZ point(x,y,z);
     Eigen::Vector3f velocity(vx,vy,vz);
     cluster_map[lbl].addPoint(point, velocity);
+    cluster_map[lbl].setId(lbl);
   }
+
   for(auto& [cid, entity] : cluster_map) {
     clusters.push_back(entity);
   }

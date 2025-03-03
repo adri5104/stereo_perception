@@ -117,7 +117,7 @@ def generate_launch_description():
                 {'output_6d_topic' : '/perception_pipeline/output_6d'},
                 {'debug_markers_topic' : '/debug/image_6d_markers'},
                 {'grid_size' : 15},
-                {'use_ego_motion' : True},
+                {'use_ego_motion' : False},
                 {'sigma2_x_system' : 10.0},
                 {'sigma2_y_system' : 10.0},
                 {'sigma2_z_system' : 0.1},
@@ -157,6 +157,7 @@ def generate_launch_description():
           parameters=[
             {'input_6d_topic': '/perception_pipeline/output_6d'},
             {'output_markers_topic' : '/perception_pipeline/output_markers'},
+            {'output_clusters_topic' : '/perception_pipeline/output_clusters'},
             {'eps': 0.1},
             {'minPts': 10},
             {'pos_weight': 0.045},

@@ -21,6 +21,10 @@
 #include "object_detector/object_detector.hpp"
 #include "object_detector/world_entity.hpp"
 
+#include "stereo_perception_msgs/msg/clustered_object.hpp"
+#include "stereo_perception_msgs/msg/clustered_object_array.hpp"
+
+
 namespace perception_pipeline
 {
 namespace object_detector
@@ -54,15 +58,50 @@ namespace object_detector
      */
     cv::Mat rosImageToCvMat(const sensor_msgs::msg::Image::SharedPtr msg);
 
+    /**
+     * @brief Helper function to convert a pcl::PointXYZ to a geometry_msgs::msg::Point
+     * 
+     * @param pcl_point 
+     * @return geometry_msgs::msg::Point 
+     */
     geometry_msgs::msg::Point pclPointToGeometryMsgPoint(const pcl::PointXYZ& pcl_point);
 
-    void publishClusters(std::vector<WorldEntity>& clusters);
+    /**
+     * @brief gets the bounding box marker for a cluster
+     * 
+     * @param cluster 
+     * @return visualization_msgs::msg::Marker  
+     */
+    visualization_msgs::msg::Marker clusterToBoundingBoxMarker(const WorldEntity& cluster);
+
+    /**
+     * @brief gets the bounding box marker for a cluster
+     * 
+     * @param cluster 
+     * @return visualization_msgs::msg::Marker  
+     */
+    visualization_msgs::msg::Marker clusterToArrowMarker(const WorldEntity& cluster);
+
+    /**
+     * @brief Publishes the clusters as markers
+     * 
+     * @param clusters 
+     */
+    void publishClustersMarkers(const std::vector<WorldEntity>& clusters);
+
+    /**
+     * @brief Publishes the clusters as a stereo_perception_msgs::msg::ClusteredObjectArray
+     * 
+     * @param clusters 
+     */
+    void publishClusters(const std::vector<WorldEntity>& clusters);
 
     /// Object detector instance
     std::unique_ptr<ObjectDetector> object_detector_;
 
     // Publishers
     rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr output_markers_pub_;
+    rclcpp::Publisher<stereo_perception_msgs::msg::ClusteredObjectArray>::SharedPtr output_clusters_pub_;
 
     // Subscribers
     rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr input_6d_sub_;
@@ -70,6 +109,7 @@ namespace object_detector
     // Parameters
     std::string input_6d_topic_;
     std::string output_markers_topic_;
+    std::string output_clusters_topic_;
   };
 } // namespace object_detector
 } // namespace perception_pipeline
