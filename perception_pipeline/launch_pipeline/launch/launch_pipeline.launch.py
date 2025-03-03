@@ -117,7 +117,7 @@ def generate_launch_description():
                 {'output_6d_topic' : '/perception_pipeline/output_6d'},
                 {'debug_markers_topic' : '/debug/image_6d_markers'},
                 {'grid_size' : 15},
-                {'use_ego_motion' : False},
+                {'use_ego_motion' : True},
                 {'sigma2_x_system' : 10.0},
                 {'sigma2_y_system' : 10.0},
                 {'sigma2_z_system' : 0.1},
@@ -136,8 +136,6 @@ def generate_launch_description():
             ],
             ros_arguments= ["--log-level", "info"] 
         ),
-        
-        
         
         launch_ros.actions.Node(
             package='foxglove_bridge',

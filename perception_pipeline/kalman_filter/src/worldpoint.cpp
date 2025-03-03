@@ -31,10 +31,7 @@ WorldPoint::WorldPoint(Mat &C, Mat &T, double min_depth, double max_depth, doubl
 {
 }
 
-WorldPoint::~WorldPoint(void)
-{
-
-}
+WorldPoint::~WorldPoint(void) {}
 
 WorldPointErrorCode WorldPoint::initKalmanFilter(const double &u, const double &v, const double &depth,Mat &occupancyGrid)
 {
@@ -65,7 +62,7 @@ WorldPointErrorCode WorldPoint::initKalmanFilter(const double &u, const double &
 }
 
 WorldPointErrorCode WorldPoint::computeKalmanStep(
-  const Mat& input_depth,													///< Method that runs a complete Kalmanstep with all necessary computations. Returns integer depending on the condition of the state vector
+  const Mat& input_depth,													
   const Mat& input_flow,
   const Mat& A_new,
   const Mat& D_new,
@@ -163,18 +160,19 @@ WorldPointErrorCode WorldPoint::computeKalmanStep(
   // A. Prediction step
 
   // Compute the priori estimate
-
   if (use_var_ego_)
   {
-    x_new_pred = A_new * x_old_ +  u_new;
+    x_new_pred = G_new * x_old_ +  u_new;
+    P_new_pred = G_new * P_old_ * G_new.t() + Q_new;
   }
   else
   {
     x_new_pred = A_new * x_old_ ;
+    P_new_pred = A_new * P_old_ * A_new.t() + Q_new;
   }
   
   // Compute the priori estimate covariance matrix
-  P_new_pred = A_new * P_old_ * A_new.t() + Q_new;
+  
 
   // B. Update step
   // Compute the Jacobian matrix of the measurement model

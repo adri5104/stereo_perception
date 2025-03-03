@@ -108,70 +108,31 @@ KalmanCore::~KalmanCore(void)
 
 KalmanCoreErrorCode KalmanCore::updateSyncedData(const Mat& optical_flow, const Mat& depth, const Mat& color_image, const Mat& egomotion)
 { 
-  static int counter = 0;
-  counter++;
-
-  if (optical_flow.empty() )
-  {
-    return KalmanCoreErrorCode::BAD_OPTICAL_FLOW_IMAGE_ERROR;
-  }
-
-  if (depth.empty() )
-  {
-    return KalmanCoreErrorCode::BAD_DEPTH_IMAGE_ERROR;
-  }
-
-  if (color_image.empty() )
-  {
-    return KalmanCoreErrorCode::BAD_COLOR_IMAGE_ERROR;
-  }
-
-  if (include_ego_motion_)
-  {
-    if (egomotion.empty() )
-    {
-      return KalmanCoreErrorCode::BAD_EGOMOTION_ERROR;
-    }
-
-    input_egomotion_sync_ = egomotion;
-  }
+  if (optical_flow.empty()) return KalmanCoreErrorCode::BAD_OPTICAL_FLOW_IMAGE_ERROR;
+  if (depth.empty()) return KalmanCoreErrorCode::BAD_DEPTH_IMAGE_ERROR;
+  if (color_image.empty()) return KalmanCoreErrorCode::BAD_COLOR_IMAGE_ERROR;
+  if (include_ego_motion_ && egomotion.empty()) return KalmanCoreErrorCode::BAD_EGOMOTION_ERROR;
 
   input_optical_flow_sync_ = optical_flow;
   input_depth_sync_ = depth;
   input_color_image_sync_ = color_image;
+  if (include_ego_motion_) input_egomotion_sync_ = egomotion;
 
-  // Do the prediction process
   return predict(input_optical_flow_sync_, input_depth_sync_, input_color_image_sync_);
 }
 
 KalmanCoreErrorCode KalmanCore::updateSyncedData(const Mat& optical_flow, const Mat& depth, const Mat& color_image)
 { 
-  if (camera_parameters_set_ == false)
-  {
-    return KalmanCoreErrorCode::CAMERA_PARAMETERS_NOT_SET_ERROR;
-  }
-
-  if (optical_flow.empty() )
-  {
-    return KalmanCoreErrorCode::BAD_OPTICAL_FLOW_IMAGE_ERROR;
-  }
-
-  if (depth.empty() )
-  {
-    return KalmanCoreErrorCode::BAD_DEPTH_IMAGE_ERROR;
-  }
-
-  if (color_image.empty() )
-  {
-    return KalmanCoreErrorCode::BAD_COLOR_IMAGE_ERROR;
-  }
+  if (!camera_parameters_set_) return KalmanCoreErrorCode::CAMERA_PARAMETERS_NOT_SET_ERROR;
+  if (optical_flow.empty()) return KalmanCoreErrorCode::BAD_OPTICAL_FLOW_IMAGE_ERROR;
+  if (depth.empty()) return KalmanCoreErrorCode::BAD_DEPTH_IMAGE_ERROR;
+  if (color_image.empty()) return KalmanCoreErrorCode::BAD_COLOR_IMAGE_ERROR;
 
   include_ego_motion_ = false;
   input_optical_flow_sync_ = optical_flow;
   input_depth_sync_ = depth;
   input_color_image_sync_ = color_image;
 
-  // Do the prediction process
   return predict(input_optical_flow_sync_, input_depth_sync_, input_color_image_sync_);
 }
 
@@ -217,23 +178,15 @@ KalmanCoreErrorCode KalmanCore::predict(Mat input_optical_flow, Mat input_depth,
   
   if(first_time_)
   {
-    // Set the world points
     KalmanCoreErrorCode result = setNewWorldPoints(occupancy_grid, output_6d, output_debug_image);
-    if(result != KalmanCoreErrorCode::OK)
-    {
-      return result;
-    }
+    if(result != KalmanCoreErrorCode::OK) return result;
     first_time_ = false;
   }
   else
   { 
-    // Compute the Kalman matrices
     computeKalmanMatrices();
-
-    // Buffer values
-    Mat z		= Mat::zeros(3,1,CV_64FC1);
-    Mat x		= Mat::zeros(6,1,CV_64FC1);
-
+    Mat z	= Mat::zeros(3,1,CV_64FC1);
+    Mat x	= Mat::zeros(6,1,CV_64FC1);
     int pos_u	= 0;
     int pos_v	= 0;
 
@@ -241,7 +194,7 @@ KalmanCoreErrorCode KalmanCore::predict(Mat input_optical_flow, Mat input_depth,
     WorldPointErrorCode result;
     for(auto it = worldpoints_.begin(); it != worldpoints_.end();)
     { 
-      auto& wp = *it;     // Read old measurement value
+      auto& wp = *it;     
       wp->getZ(z);
    
       // Predict the state
@@ -303,8 +256,7 @@ KalmanCoreErrorCode KalmanCore::predict(Mat input_optical_flow, Mat input_depth,
       }
     }
     
-    // Print the number of worldpoints
-    cout << "[Kalman] Number of worldpoints: " << worldpoints_.size() << endl;
+
 
     // Refill gaps with new WorldPoints
     // We iterate over the depth image and create a new WorldPoint for each valid depth value
