@@ -1,5 +1,5 @@
 /**
- * @file kalman_core.cpp
+ * @file worldpoint.cpp
  * @author adrian.rieker@tum.de
  * @brief 
  * @version 
@@ -14,7 +14,14 @@
 namespace perception_pipeline {
 namespace kalman_filter {
 
-WorldPoint::WorldPoint(Mat &C, Mat &T, double min_depth, double max_depth, double min_height, double max_height, double fx, double fy, double cx, double cy,  bool &useVarEgo, int gridSize)
+WorldPoint::WorldPoint(
+  Mat &C, 
+  Mat &T, 
+  double min_depth, double max_depth, 
+  double min_height, double max_height, 
+  double fx, double fy, double cx, double cy,  
+  bool &useVarEgo, 
+  int gridSize)
 : C_(C), 
   T_(T), 
   min_depth_(min_depth),
@@ -33,14 +40,17 @@ WorldPoint::WorldPoint(Mat &C, Mat &T, double min_depth, double max_depth, doubl
 
 WorldPoint::~WorldPoint(void) {}
 
-WorldPointErrorCode WorldPoint::initKalmanFilter(const double &u, const double &v, const double &depth,Mat &occupancyGrid)
+WorldPointErrorCode WorldPoint::initKalmanFilter(
+  const double &u, 
+  const double &v, 
+  const double &depth,
+  Mat &occupancyGrid)
 {
   // Initialize measurement vector
   z_old_ = Mat::zeros(3, 1, CV_64FC1);
   z_old_.at<double>(0,0) = u;
   z_old_.at<double>(1,0) = v;
   z_old_.at<double>(2,0) = depth;
-
 
   // Initialize statevector
 	x_old_ = Mat::zeros(6, 1, CV_64FC1);				
@@ -49,7 +59,6 @@ WorldPointErrorCode WorldPoint::initKalmanFilter(const double &u, const double &
 	Mat tmp2 = x_old_.rowRange(0,3);						
 	tmp.rowRange(0,3).copyTo(tmp2);	
 
-  
   // Initialize variances with 10 [m^2 respectively m^2/s^2]
   P_old_ = Mat::eye(6, 6, CV_64FC1) * 10;
 
@@ -67,15 +76,14 @@ WorldPointErrorCode WorldPoint::computeKalmanStep(
   const Mat& A_new,
   const Mat& D_new,
   const Mat& Q_new_w,
-  const Mat& G_new,
   const Mat& u_new,
   const Mat& para_rot,
   const double& term1,
   const double& term2,
   const double& term3,
   const double& term4,
-  Mat& occupancy_grid,
-  const double& delta_time)
+  const double& timediff,
+  Mat& occupancy_grid)
 {
   // Initializations
   Mat x_new_pred = Mat::zeros(6, 1, CV_64FC1);
@@ -89,7 +97,7 @@ WorldPointErrorCode WorldPoint::computeKalmanStep(
   Mat P_new_pred = Mat::zeros(6, 6, CV_64FC1); // Priori estimate covariance matrix
   Mat P_new = Mat::zeros(6, 6, CV_64FC1); // Posterior estimate covariance matrix
   Mat K_new = Mat::zeros(6, 3, CV_64FC1); // Kalman gain matrix
-  Mat J_new = Mat::zeros(3, 3, CV_64FC1); // Jacobian matrix of the egomotion
+  Mat J_new = Mat::zeros(6, 6, CV_64FC1); // Jacobian matrix of the egomotion
   Mat H_new = Mat::zeros(3, 6, CV_64FC1); // Jacobian matrix of the measurement model
   Mat S_new = Mat::zeros(3, 3, CV_64FC1); // Innovation covariance matrix
   Mat S_new_inv = Mat::zeros(3, 3, CV_64FC1); // Inverse of the innovation covariance matrix
@@ -148,32 +156,74 @@ WorldPointErrorCode WorldPoint::computeKalmanStep(
 
 	if (use_var_ego_)
   {
-    Q_new = D_new * Q_new_w * D_new.t();     
+    // Compute the Jacobian matrix of the egomotion
+
+    // Retrieve the egomotion precomputed values
+    double stheta = para_rot.at<double>(0,0);
+    double ctheta = para_rot.at<double>(1,0);
+    double sphi = para_rot.at<double>(2,0);
+    double cphi = para_rot.at<double>(3,0);
+    double spsi = para_rot.at<double>(4,0);
+    double cpsi = para_rot.at<double>(5,0);
+    double x_old = x_old_.at<double>(0,0);
+    double y_old = x_old_.at<double>(1,0);
+    double z_old = x_old_.at<double>(2,0);
+    double vx_old = x_old_.at<double>(3,0);
+    double vy_old = x_old_.at<double>(4,0);
+    double vz_old = x_old_.at<double>(5,0);
+
+    double term5 = y_old*sphi + timediff*vy_old*sphi + z_old*cphi*cpsi - x_old*cphi*spsi + timediff*vz_old*cphi*cpsi - timediff*vx_old*cphi*spsi;
+    double term6 = vy_old*sphi + vz_old*cphi*cpsi - vx_old*cphi*spsi;
+
+    // Columns 1 until 3
+		Mat tmp	 = J_new.colRange(0,3).rowRange(0,3);
+		Mat tmp2 = Mat::eye(3,3,CV_64FC1);
+		tmp2.copyTo(tmp);
+
+    // Line 1 
+		J_new.at<double>(0,3) = -x_old*term4 - z_old*term1 - timediff*vx_old*term4 - timediff*vz_old*term1 - y_old*cphi*ctheta - timediff*vy_old*cphi*ctheta;
+		J_new.at<double>(0,4) = stheta * term5;
+		J_new.at<double>(0,5) = z_old*term2 - x_old*term3 - timediff*vx_old*term3 + timediff*vz_old*term2;
+
+		// Line 2
+		J_new.at<double>(1,3) = x_old*term2 + z_old*term3 + timediff*vx_old*term2 + timediff*vz_old*term3 - y_old*cphi*stheta - timediff*vy_old*cphi*stheta;
+		J_new.at<double>(1,4) = -ctheta * term5;
+		J_new.at<double>(1,5) = z_old*term4 - x_old*term1 - timediff*vx_old*term1 + timediff*vz_old*term4;
+
+		// Line 3
+		J_new.at<double>(2,3) = 0;
+		J_new.at<double>(2,4) = y_old*cphi - z_old*cpsi*sphi + x_old*sphi*spsi + timediff*vy_old*cphi - timediff*vz_old*cpsi*sphi + timediff*vx_old*sphi*spsi;
+		J_new.at<double>(2,5) = -cphi * (x_old*cpsi + z_old*spsi + timediff*vz_old*spsi + timediff*vx_old*cpsi);
+
+		// Line 4
+		J_new.at<double>(3,3) = -vx_old*term4 - vz_old*term1 - vy_old*cphi*ctheta;
+		J_new.at<double>(3,4) = stheta*term6;
+		J_new.at<double>(3,5) = vz_old*term2 - vx_old*term3;
+
+		// Line 5
+		J_new.at<double>(4,3) = vx_old*term2 + vz_old*term3 - vy_old*cphi*stheta;
+		J_new.at<double>(4,4) = -ctheta*term6;
+		J_new.at<double>(4,5) = vz_old*term4 - vx_old*term1;
+
+		// Line 6
+		J_new.at<double>(5,3) = 0;
+		J_new.at<double>(5,4) = vy_old*cphi - vz_old*cpsi*sphi + vx_old*sphi*spsi;
+		J_new.at<double>(5,5) = -cphi * (vx_old*cpsi + vz_old*spsi);
+
+    Q_new = D_new * Q_new_w * D_new.t() + J_new * C_ * J_new.t();     
   }
   else
   {
-		Q_new = D_new * Q_new_w * D_new.t();
+		Q_new = D_new * Q_new_w * D_new.t() ;
   }
 
   // Kalman core algorithm
 
   // A. Prediction step
-
-  // Compute the priori estimate
-  if (use_var_ego_)
-  {
-    x_new_pred = G_new * x_old_ +  u_new;
-    P_new_pred = G_new * P_old_ * G_new.t() + Q_new;
-  }
-  else
-  {
-    x_new_pred = A_new * x_old_ ;
-    P_new_pred = A_new * P_old_ * A_new.t() + Q_new;
-  }
+  x_new_pred = A_new * x_old_ ;
+  P_new_pred = A_new * P_old_ * A_new.t() + Q_new;
   
-  // Compute the priori estimate covariance matrix
   
-
   // B. Update step
   // Compute the Jacobian matrix of the measurement model
   double x_pred = x_new_pred.at<double>(0,0);	

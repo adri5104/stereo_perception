@@ -20,7 +20,9 @@ namespace kalman_filter
   sync_input_time_old_(Clock::now()),
   time_diff_(0.0),
   include_ego_motion_(false),
+  use_ego_var_(false),
   grid_size_worldpoints_(10),
+  debug_image_grid_(false),
   fx_(421.37701),
   fy_(421.37701),
   cx_(424.7990),
@@ -38,7 +40,6 @@ namespace kalman_filter
   u_new_(Mat::zeros(6, 1, CV_64FC1)),
   D_new_(Mat::zeros(6, 6, CV_64FC1)),
   Q_new_w_(Mat::zeros(6, 6, CV_64FC1)),
-  G_new_(Mat::zeros(6, 6, CV_64FC1)),
   para_rot_(Mat::zeros(6, 1, CV_64FC1))
 {
   // Initialize variances
@@ -64,11 +65,16 @@ namespace kalman_filter
 
 KalmanCore::KalmanCore(
   Mat sigma_system, Mat C, Mat T, double min_depth, double max_depth, double min_height, double max_height,
-  bool useVarEgo, int gridSize) : 
+  bool include_ego_motion,
+  bool use_var_ego,
+  int gridSize,
+  bool debug_image_grid) : 
   sync_input_time_old_(Clock::now()),
   time_diff_(0.0),
-  include_ego_motion_(useVarEgo),
+  include_ego_motion_(include_ego_motion),
+  use_ego_var_(use_var_ego),
   grid_size_worldpoints_(gridSize),
+  debug_image_grid_(debug_image_grid),
   fx_(421.37701), fy_(421.37701), cx_(424.7990), cy_(231.86268),
   camera_parameters_set_(false),
   min_depth_(min_depth), max_depth_(max_depth),
@@ -79,7 +85,6 @@ KalmanCore::KalmanCore(
   u_new_(Mat::zeros(6, 1, CV_64FC1)),
   D_new_(Mat::zeros(6, 6, CV_64FC1)),
   Q_new_w_(Mat::zeros(6, 6, CV_64FC1)),
-  G_new_(Mat::zeros(6, 6, CV_64FC1)),
   para_rot_(Mat::zeros(6, 1, CV_64FC1))
 {
   cout << "[KalmanCore] =================================================================" << endl;
@@ -93,6 +98,8 @@ KalmanCore::KalmanCore(
   cout << "[KalmanCore] Valid height [min max] = [" << min_height_ << " " << max_height_ << "]" << endl;
   cout << "[KalmanCore] Grid size = " << grid_size_worldpoints_ << endl; 
   cout << "[KalmanCore] Use ego motion = " << (include_ego_motion_? "Yes" : "No") << endl; 
+  cout << "[KalmanCore] Use ego motion covariance = " << (use_ego_var_? "Yes" : "No") << endl;
+  cout << "[KalmanCore] =================================================================" << endl << endl;
   
 
   worldpoints_.clear();
@@ -160,20 +167,24 @@ KalmanCoreErrorCode KalmanCore::predict(Mat input_optical_flow, Mat input_depth,
                                input_color_image.cols / grid_size_worldpoints_, CV_8UC1);
 
   // Draw lines on visual debug output if needed
-  //for (int row = grid_size_worldpoints_; row < input_color_image.rows; row += grid_size_worldpoints_)
-  //{
-  //  cv::line(output_debug_image, 
-  //          cv::Point(0, row), 
-  //          cv::Point(input_color_image.cols, row), 
-  //          cv::Scalar(255, 0, 0), 1);
-  //}
-  //for (int col = grid_size_worldpoints_; col < input_color_image.cols; col += grid_size_worldpoints_)
-  //{
-  //  cv::line(output_debug_image, 
-  //          cv::Point(col, 0), 
-  //          cv::Point(col, input_color_image.rows), 
-  //          cv::Scalar(255, 0, 0), 1);
-  //}
+  if (debug_image_grid_)
+  {
+    for (int row = grid_size_worldpoints_; row < input_color_image.rows; row += grid_size_worldpoints_)
+    {
+      cv::line(output_debug_image, 
+              cv::Point(0, row), 
+              cv::Point(input_color_image.cols, row), 
+              cv::Scalar(255, 0, 0), 1);
+    }
+    for (int col = grid_size_worldpoints_; col < input_color_image.cols; col += grid_size_worldpoints_)
+    {
+      cv::line(output_debug_image, 
+              cv::Point(col, 0), 
+              cv::Point(col, input_color_image.rows), 
+              cv::Scalar(255, 0, 0), 1);
+    }
+  }
+
   time_diff_ = calculateTimeDifference(sync_input_time_old_);
   
   if(first_time_)
@@ -203,16 +214,15 @@ KalmanCoreErrorCode KalmanCore::predict(Mat input_optical_flow, Mat input_depth,
                                      A_new_, 
                                      D_new_, 
                                      Q_new_w_, 
-                                     G_new_, 
                                      u_new_, 
                                      para_rot_, 
                                      term1, 
                                      term2, 
                                      term3, 
                                      term4, 
-                                     occupancy_grid, 
-                                     time_diff_);
+                                     time_diff_,
       
+                                     occupancy_grid);
       // Read current pixel position
 			wp->getZ(z);
       pos_u = static_cast<int>(std::floor(z.at<double>(0,0)));
@@ -255,9 +265,7 @@ KalmanCoreErrorCode KalmanCore::predict(Mat input_optical_flow, Mat input_depth,
 
       }
     }
-    
-
-
+  
     // Refill gaps with new WorldPoints
     // We iterate over the depth image and create a new WorldPoint for each valid depth value
     for (int row = 0; row < occupancy_grid.rows; row ++) 
@@ -374,8 +382,6 @@ KalmanCoreErrorCode KalmanCore::computeKalmanMatrices()
 {
 	Mat A_new_w	= Mat::zeros(6, 6, CV_64FC1);
 
-	// --- Precomputations ---
-
 	// Filling A_new_w (Transition matrix)
   A_new_ = Mat::eye(6, 6, CV_64FC1);
   Mat scaled_identity = Mat::eye(3, 3, CV_64FC1) * time_diff_;
@@ -427,7 +433,33 @@ KalmanCoreErrorCode KalmanCore::computeKalmanMatrices()
 	// Compute jacobian for statetransformation G 
   if (include_ego_motion_)
   {
-    computeJacobianMatrix();
+    double Phi		= asin(input_egomotion_sync_.at<double>(2,1));
+    double sPhi		= sin(Phi);
+    double cPhi		= cos(Phi);
+    double Psi		= acos(input_egomotion_sync_.at<double>(2,2) / cPhi);
+    double sPsi		= sin(Psi);
+    double cPsi		= cos(Psi);
+    double Theta	= acos(input_egomotion_sync_.at<double>(1,1) / cPhi);
+    double sTheta	= sin(Theta);
+    double cTheta	= cos(Theta);
+
+    // Fill vector for egomotion
+    para_rot_.at<double>(0,0) = sTheta;
+    para_rot_.at<double>(1,0) = cTheta;
+    para_rot_.at<double>(2,0) = sPhi;
+    para_rot_.at<double>(3,0) = cPhi;
+    para_rot_.at<double>(4,0) = sPsi;
+    para_rot_.at<double>(5,0) = cPsi;
+
+    // Precalculate terms for J 
+    term1 = sPsi*sTheta - cPsi*cTheta*sPhi;
+    term2 = cPsi*cTheta - sPhi*sPsi*sTheta;
+    term3 = cTheta*sPsi + cPsi*sPhi*sTheta;
+    term4 = cPsi*sTheta + cTheta*sPhi*sPsi;
+    double term5   = -cPhi * sTheta;	
+    double term6   = -cPhi * sPsi;		
+    double term7   = cPhi * cTheta;
+    double term8   = cPhi * cPsi;
   }
 
   return KalmanCoreErrorCode::OK;
@@ -480,79 +512,6 @@ double KalmanCore::calculateTimeDifference(TimePoint& lastTime)
   lastTime = currentTime; // Update the last time
   return duration;
 }
-
-void KalmanCore::computeJacobianMatrix()
-{
-  double Phi		= asin(input_egomotion_sync_.at<double>(2,1));
-	double cPhi		= cos(Phi);
-	double Psi		= acos(input_egomotion_sync_.at<double>(2,2) / cPhi);
-	double Theta	= acos(input_egomotion_sync_.at<double>(1,1) / cPhi);
-
-	double sPhi		= sin(Phi);
-	double cTheta	= cos(Theta);
-	double sTheta	= sin(Theta);
-	double cPsi		= cos(Psi);
-	double sPsi		= sin(Psi);
-
-	// Fill vector for egomotion
-	para_rot_.at<double>(0,0) = sTheta;
-	para_rot_.at<double>(1,0) = cTheta;
-	para_rot_.at<double>(2,0) = sPhi;
-	para_rot_.at<double>(3,0) = cPhi;
-	para_rot_.at<double>(4,0) = sPsi;
-	para_rot_.at<double>(5,0) = cPsi;
-
-	// Precalculate terms for forming G_new
-	term1 = sPsi*sTheta - cPsi*cTheta*sPhi;
-	term2 = cPsi*cTheta - sPhi*sPsi*sTheta;
-	term3 = cTheta*sPsi + cPsi*sPhi*sTheta;
-	term4 = cPsi*sTheta + cTheta*sPhi*sPsi;
-	double term5   = -cPhi * sTheta;	
-	double term6   = -cPhi * sPsi;		
-	double term7   = cPhi * cTheta;
-	double term8   = cPhi * cPsi;
-
-	// Form G_new
-	// Row 1
-	G_new_.at<double>(0,0) = term2;
-	G_new_.at<double>(0,1) = term5;
-	G_new_.at<double>(0,2) = term3;
-	G_new_.at<double>(0,3) = time_diff_ * term2;
-	G_new_.at<double>(0,4) = -time_diff_ * cPhi * sTheta;
-	G_new_.at<double>(0,5) = time_diff_ * term3;
-
-	// Row 2
-	G_new_.at<double>(1,0) = term4;
-	G_new_.at<double>(1,1) = term7;
-	G_new_.at<double>(1,2) = term1;
-	G_new_.at<double>(1,3) = time_diff_ * term4;
-	G_new_.at<double>(1,4) = time_diff_ * cPhi * cTheta;
-	G_new_.at<double>(1,5) = time_diff_ * term1;
-
-	// Row 3
-	G_new_.at<double>(2,0) = term6;
-	G_new_.at<double>(2,1) = sPhi;
-	G_new_.at<double>(2,2) = term8;
-	G_new_.at<double>(2,3) = -time_diff_ * cPhi * sPsi;
-	G_new_.at<double>(2,4) = time_diff_ * sPhi;
-	G_new_.at<double>(2,5) = time_diff_ * cPhi * cPsi;
-
-	// Row 4
-	G_new_.at<double>(3,3) = term2;
-	G_new_.at<double>(3,4) = term5;
-	G_new_.at<double>(3,5) = term3;
-
-	// Row 5
-	G_new_.at<double>(4,3) = term4;
-	G_new_.at<double>(4,4) = term7;
-	G_new_.at<double>(4,5) = term1;
-
-	// Row 6
-	G_new_.at<double>(5,3) = term6;
-	G_new_.at<double>(5,4) = sPhi;
-	G_new_.at<double>(5,5) = term8;
-}
-
 
 // Setters
 void KalmanCore::setIncludeEgoMotion(bool includeEgoMotion)

@@ -108,11 +108,22 @@ public:
    * @param max_depth maximum depth value of the depth image
    * @param min_height minimum height value considered for the worldpoints
    * @param max_height maximum height value considered for the worldpoints
-   * @param useVarEgo include ego motion estimation
+   * @param include_ego_motion flag for using egomotion compensation
+   * @param use_var_ego flag for using the covariance matrix of the egomotion
    * @param gridSize grid size for the worldpoints in pixels
+   * @param debug_image_grid flag for drawing grid lines on the debug image
    */
-  KalmanCore(Mat sigma_system, Mat C, Mat T, double min_depth, double max_depth, double min_height, double max_height,bool useVarEgo, int gridSize);
-
+  KalmanCore(
+    Mat sigma_system, 
+    Mat C, 
+    Mat T, 
+    double min_depth,  double max_depth, 
+    double min_height, double max_height,
+    bool include_ego_motion, 
+    bool use_var_ego,
+    int gridSize,
+    bool debug_image_grid
+  );
   /**
    * @brief Default destructor for the KalmanCore class.
    */
@@ -247,57 +258,48 @@ private:
    */
   OutVec formatOutput(Vec6f x, int validity);
 
-  void computeJacobianMatrix();
-  
-  // Vector containing references to tracked WorldPoints
-  std::vector<unique_ptr<WorldPoint>> worldpoints_;
+  std::vector<unique_ptr<WorldPoint>> worldpoints_; ///< Current WorldPoints
 
-  // Input attributes
-  Mat input_optical_flow_sync_;
-  Mat input_depth_sync_;
-  Mat input_color_image_sync_;
-  Mat input_egomotion_sync_;
-
-  // Time attributes
-  TimePoint sync_input_time_old_;
-  double time_diff_;
-
-  // Output attributes
-  Mat output_6d_; // Output matrix with 
-  Mat output_debug_image_; // Debug image
+  Mat input_optical_flow_sync_;    ///< Input optical flow image
+  Mat input_depth_sync_;           ///< Input depth image
+  Mat input_color_image_sync_;     ///< Input color image
+  Mat input_egomotion_sync_;       ///< Input egomotion matrix
 
 
+  TimePoint sync_input_time_old_; ///< Timepoint of the last frame
+  double time_diff_;              ///< Time difference between frames
 
-  // Config parameters
-  bool include_ego_motion_;	// Flag for incorporating the egomotion covariance matrix
-  int grid_size_worldpoints_;	// Size of the grid cells in pixels
+  Mat output_6d_;          ///< 6D output image
+  Mat output_debug_image_; ///< output Debug image
 
-  // Camera parameters
-  double fx_;
-  double fy_;
-  double cx_;
-  double cy_;
-  bool camera_parameters_set_;
-  double min_depth_;
-  double max_depth_;
-  double min_height_;
-  double max_height_;
+  bool include_ego_motion_;	  ///< Flag for incorporating the egomotion 
+  bool use_ego_var_;           ///< Flag for using the covariance matrix of the egomotion
+  int grid_size_worldpoints_;	///< Size of the grid cells in pixels
+  bool debug_image_grid_;     ///< Flag for drawing grid lines on the debug image
 
-  // Kalman filter parameters 
-  bool first_time_;	// Flag for first time execution  
-  Mat C_; // Covariance matrix of the egomotion
-  Mat T_ ;// Covariance matrix of the measurement model
-  Mat sigma_system_;
-  Mat	A_new_;		// Transition matrix
-  Mat	u_new_;		// Egomotion translation vector
-  Mat	D_new_;		// Matrix containing the rotation matrix of the egomotion
-  Mat	Q_new_w_;	// Covariance matrix of discrete-time process
-  Mat	G_new_;		// Jacobian for state transformation  
-  Mat	para_rot_;	// Parametervector with some precomputed values (sin/cos) for rotation of egomotion 
-  double term1;		// Value needed for computation of Jacobimatrices
-  double term2;		// Value needed for computation of Jacobimatrices
-  double term3;		// Value needed for computation of Jacobimatrices
-  double term4;		// Value needed for computation of Jacobimatrices
+  double fx_;                  ///< Focal length x
+  double fy_;                  ///< Focal length y
+  double cx_;                  ///< Principal point x
+  double cy_;                  ///< Principal point y
+  bool camera_parameters_set_; ///< Flag for camera parameters set
+  double min_depth_;           ///< Minimum depth value in meters
+  double max_depth_;           ///< Maximum depth value in meters
+  double min_height_;          ///< Minimum height value in meters
+  double max_height_;          ///< Maximum height value in meters
+
+  bool first_time_;	 ///< Flag for first time execution
+  Mat C_;            ///< Covariance matrix of the egomotion  
+  Mat T_ ;           ///< Covariance matrix of the measurement model
+  Mat sigma_system_; ///< Covariance matrix of the system model
+  Mat	A_new_;		     ///< Transition matrix
+  Mat	u_new_;		     ///< Egomotion translation vector
+  Mat	D_new_;		     ///< Matrix containing the rotation matrix of the egomotion
+  Mat	Q_new_w_;	     ///< Covariance matrix of discrete-time process
+  Mat	para_rot_;     ///< Parametervector with some precomputed values (sin/cos) for rotation of egomotion 
+  double term1;		   ///< sPsi*sTheta - cPsi*cTheta*sPhi;
+  double term2;		   ///< cPsi*cTheta - sPhi*sPsi*sTheta;
+  double term3;		   ///< cTheta*sPsi + cPsi*sPhi*sTheta;
+  double term4;		   ///< cPsi*sTheta + cTheta*sPhi*sPsi;
 
 };
 

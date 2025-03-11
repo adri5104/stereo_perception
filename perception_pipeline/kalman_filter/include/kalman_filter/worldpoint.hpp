@@ -101,17 +101,16 @@ class WorldPoint
      * @param input_depth input depth image in mm
      * @param input_flow input optical flow image in pixels
      * @param A_new input state transition matrix
-     * @param D_new 
-     * @param Q_new_w 
-     * @param G_new 
-     * @param u_new 
-     * @param para_rot 
-     * @param term1 
-     * @param term2 
-     * @param term3 
-     * @param term4 
-     * @param occupancy_grid 
-     * @param delta_time 
+     * @param D_new input egomotion rotation matrix
+     * @param Q_new_w input covariance matrix of discrete-time process
+     * @param u_new input egomotion translation vector
+     * @param para_rot parameter including the sin and cos of the three euler angles (Theta, Phi, Psi)
+     * @param term1 sPsi*sTheta - cPsi*cTheta*sPhi;
+     * @param term2 cPsi*cTheta - sPhi*sPsi*sTheta;
+     * @param term3 cTheta*sPsi + cPsi*sPhi*sTheta;
+     * @param term4 cPsi*sTheta + cTheta*sPhi*sPsi;
+     * @param timediff time difference between the current and the last frame
+     * @param occupancy_grid The occupancy grid.
      * @return WorldPointErrorCode 
      */
     WorldPointErrorCode	 computeKalmanStep(
@@ -120,15 +119,14 @@ class WorldPoint
               const Mat& A_new,
               const Mat& D_new,
               const Mat& Q_new_w,
-              const Mat& G_new,
               const Mat& u_new,
               const Mat& para_rot,
               const double& term1,
               const double& term2,
               const double& term3,
               const double& term4,
-              Mat& occupancy_grid,
-              const double& delta_time);
+              const double& timediff,
+              Mat& occupancy_grid);
 
 
     /**

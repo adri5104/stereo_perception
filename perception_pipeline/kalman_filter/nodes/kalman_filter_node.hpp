@@ -156,7 +156,9 @@ private:
 
   // Kalman filter parameters
   bool use_ego_motion_;
+  bool use_ego_var_;
   int grid_size_;
+  bool debug_image_grid_;
   double sigma2_x_system_;
   double sigma2_y_system_;
   double sigma2_z_system_;

@@ -40,7 +40,9 @@
 
     // Kalman filter parameters
     this->declare_parameter<int>("grid_size", 10);
+    this->declare_parameter<bool>("debug_image_grid", false);
     this->declare_parameter<bool>("use_ego_motion", false);
+    this->declare_parameter<bool>("use_ego_var", false);
 
     // Covariance of system model 
     this->declare_parameter<double>("sigma2_x_system", 10);
@@ -86,7 +88,9 @@
     
     // Kalman filter parameters
     use_ego_motion_ = this->get_parameter("use_ego_motion").as_bool();
+    use_ego_var_ = this->get_parameter("use_ego_var").as_bool();
     grid_size_ = this->get_parameter("grid_size").as_int();
+    debug_image_grid_ = this->get_parameter("debug_image_grid").as_bool();
     sigma2_x_system_ = this->get_parameter("sigma2_x_system").as_double();
     sigma2_y_system_ = this->get_parameter("sigma2_y_system").as_double();
     sigma2_z_system_ = this->get_parameter("sigma2_z_system").as_double();
@@ -134,7 +138,9 @@
       min_depth_, max_depth_,
       min_height_, max_height_, 
       use_ego_motion_,
-      grid_size_
+      use_ego_var_,
+      grid_size_,
+      debug_image_grid_
     );   
     
     // Create message_filters subscribers
