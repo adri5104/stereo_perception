@@ -1,4 +1,8 @@
 Datasets/
+build/
+log/
+install/
+.vscode/
 
 # Ignore LaTeX auxiliary files
 *.aux
