@@ -3,9 +3,9 @@ camerainfo_publisher:
     color_image_pub_topic: "/rgb/image_rect_color"
     depth_image_pub_topic: "/depth_registered/image_rect"
     camera_info_pub_topic: "/perception_pipeline/camera_info_sync"
-    color_image_sub_topic: "left/image_raw"
-    depth_image_sub_topic: "depth/image_raw"
-    camera_info_sub_topic: "left/camera_info"
+    color_image_sub_topic: "/device_0/sensor_1/Color_0/image/data"
+    depth_image_sub_topic: "/device_0/sensor_0/Depth_0/image/data"
+    camera_info_sub_topic: "/device_0/sensor_0/Depth_0/info/camera_info"
     publish_color_image: true
     publish_depth_image: true
 
@@ -61,12 +61,6 @@ kalman_filter_node:
     min_height_: -2.0
     max_height: 4.0
 
-foxglove_bridge:
-  ros__parameters:
-    # Note that in your original snippet the parameter was spelled with a colon
-    # "send_buffer_limit:"
-    # That may have been a typo – correct it if necessary
-    send_buffer_limit: 1000000000
 
 object_detector_node:
   ros__parameters:

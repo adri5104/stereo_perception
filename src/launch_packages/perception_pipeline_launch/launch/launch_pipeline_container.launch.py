@@ -5,13 +5,9 @@ import launch_ros.actions
 
 def generate_launch_description():
 
-    # Adjust this if your config file is stored elsewhere
-    config_file_path = os.path.join(
-        'home',
-        'ubuntu',
-        'config',
-        'perception_pipeline_params.yaml'
-    )
+    config_file_path = "/home/ubuntu/config/perception_pipeline_params.yaml"
+
+    
 
     return launch.LaunchDescription([
         
