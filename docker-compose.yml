@@ -1,0 +1,20 @@
+
+services:
+  perception_pipeline:
+
+    image: gitlab.lrz.de:5005/teleoperiertes_fahren/research_brecht/stereo_perception/perception_pipeline:deploy
+    container_name: perception_pipeline
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+    # Allocate a TTY and keep stdin open (like -it in docker run)
+    stdin_open: true
+    tty: true
+
+    volumes:
+      - ./scripts/docker/dk_perception_pipeline/deploy_image/config:/home/ubuntu/config

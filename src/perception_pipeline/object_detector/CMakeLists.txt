@@ -161,7 +161,6 @@ install(TARGETS ${PROJECT_NAME}_cuda
 # Install launch files and nodes
 install(DIRECTORY
   nodes
-  launch
   DESTINATION share/${PROJECT_NAME}
 )
 

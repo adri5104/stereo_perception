@@ -132,7 +132,7 @@ RUN cmake -D CMAKE_BUILD_TYPE=RELEASE \
 RUN make -j$(nproc) VERBOSE=1 && make install && ldconfig
 
 # ==============================
-# 🔹 Stage 3: Final Image with ROS 2 Humble
+# Stage 3: Final Image with ROS 2 Humble
 # ==============================
 
 FROM osrf/ros:humble-desktop AS final
@@ -194,15 +194,31 @@ ENV PATH="/usr/local/cuda/bin:${PATH}"
 ENV LD_LIBRARY_PATH="/usr/local/cuda/lib64:${LD_LIBRARY_PATH}"
 ENV CUDA_HOME="/usr/local/cuda"
 
+RUN sudo mkdir -p /home/ubuntu/perception_pipeline_ws/src
+RUN chown -R ubuntu:ubuntu /home/ubuntu/perception_pipeline_ws
 
 # Switch back to the ubuntu user
 USER ubuntu
 RUN sudo apt install -y libmlpack-dev
 
+# ==============================
+# Stage 4: Build Perception Pipeline
+# ==============================
+FROM final AS deploy
+
 # Copy source files
-RUN sudo mkdir -p /perception_pipeline_ws/src
+COPY --chown=ubuntu:ubuntu ./src /home/ubuntu/perception_pipeline_ws/src
+WORKDIR /home/ubuntu/perception_pipeline_ws/
 
+# Build the workspace
+RUN /bin/bash -c "source /opt/ros/humble/setup.bash && colcon build --symlink-install --packages-up-to perception_pipeline_launch --parallel-workers $(nproc) --cmake-args -DCMAKE_CUDA_ARCHITECTURES=86"
 
+# Source the workspace
+RUN echo "source /home/ubuntu/perception_pipeline_ws/install/setup.bash" >> ~/.bashrc
 
 # Set entrypoint
-#ENTRYPOINT ["/entrypoint.sh"]
+COPY --chown=ubuntu:ubuntu ./scripts/docker/dk_perception_pipeline/deploy_image/entrypoint.sh /home/ubuntu/perception_pipeline_ws/entrypoint.sh
+RUN chmod +x /home/ubuntu/perception_pipeline_ws/entrypoint.sh
+ENTRYPOINT ["/home/ubuntu/perception_pipeline_ws/entrypoint.sh"]
+CMD ["bash"]
+

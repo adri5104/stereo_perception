@@ -194,26 +194,30 @@ ENV PATH="/usr/local/cuda/bin:${PATH}"
 ENV LD_LIBRARY_PATH="/usr/local/cuda/lib64:${LD_LIBRARY_PATH}"
 ENV CUDA_HOME="/usr/local/cuda"
 
+RUN sudo mkdir -p /home/ubuntu/perception_pipeline_ws/src
+RUN chown -R ubuntu:ubuntu /home/ubuntu/perception_pipeline_ws
 
 # Switch back to the ubuntu user
 USER ubuntu
 
-# Copy source files
-RUN sudo mkdir -p /perception_pipeline_ws/src
-COPY . /perception_pipeline_ws/src
-RUN sudo chown -R ubuntu:ubuntu /perception_pipeline_ws
-
-# Define entry point
-CMD ["bash"]
-
-# Copy the entrypoint script into the container
-COPY entrypoint.sh /entrypoint.sh
-
-# Give execution permissions
-RUN sudo chmod +x /entrypoint.sh
 
 # Install mlpack dependency 
 RUN sudo apt install -y libmlpack-dev
 
-# Set entrypoint
-#ENTRYPOINT ["/entrypoint.sh"]
+
+
+# ==============================
+# Stage 4: Build Perception Pipeline
+# ==============================
+FROM final AS dev
+
+# Copy source files
+COPY --chown=ubuntu:ubuntu ./src /home/ubuntu/perception_pipeline_ws/src
+WORKDIR /home/ubuntu/perception_pipeline_ws/
+
+# Build the workspace
+#RUN /bin/bash -c "source /opt/ros/humble/setup.bash && colcon build --symlink-install --packages-up-to perception_pipeline_launch --parallel-workers $(nproc) --cmake-args -DCMAKE_CUDA_ARCHITECTURES=86"
+
+# Source the workspace
+#RUN echo "source /home/ubuntu/perception_pipeline_ws/install/setup.bash" >> ~/.bashrc
+

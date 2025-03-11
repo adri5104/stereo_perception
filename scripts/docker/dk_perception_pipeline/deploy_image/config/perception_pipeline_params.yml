@@ -1,0 +1,80 @@
+camerainfo_publisher:
+  ros__parameters:
+    color_image_pub_topic: "/rgb/image_rect_color"
+    depth_image_pub_topic: "/depth_registered/image_rect"
+    camera_info_pub_topic: "/perception_pipeline/camera_info_sync"
+    color_image_sub_topic: "left/image_raw"
+    depth_image_sub_topic: "depth/image_raw"
+    camera_info_sub_topic: "left/camera_info"
+    publish_color_image: true
+    publish_depth_image: true
+
+
+optical_flow_computation:
+  ros__parameters:
+    pyr_scale: 0.5
+    levels: 6
+    winsize: 15
+    iterations: 10
+    poly_n: 5
+    poly_sigma: 1.5
+    flags: 0
+
+visual_odometry_node:
+  ros__parameters:
+    color_image_topic: "/device_0/sensor_1/Color_0/image/data"
+    depth_image_topic: "/device_0/sensor_0/Depth_0/image/data"
+    camera_info_topic: "/perception_pipeline/camera_info_sync"
+    odometry_debug_topic: "/debug/odometry_keypoints"
+    camera_frame_tf_topic: "/perception_pipeline/camera_frame_tf"
+    max_depth_odom: 20.0
+    min_depth_odom: 0.1
+    odometry_debug_image: true
+
+kalman_filter_node:
+  ros__parameters:
+    optical_flow_topic: "/perception_pipeline/optical_flow"
+    depth_topic: "/device_0/sensor_0/Depth_0/image/data"
+    camera_info_topic: "/perception_pipeline/camera_info_sync"
+    camera_frame_tf_topic: "/perception_pipeline/camera_frame_tf"
+    color_image_topic: "/device_0/sensor_1/Color_0/image/data"
+    debug_image_topic_: "/debug/debug_image"  # If your node code uses this exact param name
+    output_6d_topic: "/perception_pipeline/output_6d"
+    debug_markers_topic: "/debug/image_6d_markers"
+    grid_size: 15
+    debug_image_grid: true
+    use_ego_motion: true
+    use_ego_var: true
+    sigma2_x_system: 10.0
+    sigma2_y_system: 10.0
+    sigma2_z_system: 0.1
+    sigma2_flow_y_measurement: 3.0
+    sigma2_flow_x_measurement: 3.0
+    sigma2_depth_system: 0.5
+    sigma2_tx_measurement: 10.0
+    sigma2_ty_measurement: 10.0
+    sigma2_tz_measurement: 10.0
+    sigma2_theta_measurement: 10.0
+    sigma2_psi_system: 10.0
+    min_depth: 2.0
+    max_depth: 20.0
+    min_height_: -2.0
+    max_height: 4.0
+
+foxglove_bridge:
+  ros__parameters:
+    # Note that in your original snippet the parameter was spelled with a colon
+    # "send_buffer_limit:"
+    # That may have been a typo – correct it if necessary
+    send_buffer_limit: 1000000000
+
+object_detector_node:
+  ros__parameters:
+    input_6d_topic: "/perception_pipeline/output_6d"
+    output_markers_topic: "/perception_pipeline/output_markers"
+    output_clusters_topic: "/perception_pipeline/output_clusters"
+    eps: 0.1
+    minPts: 10
+    pos_weight: 0.045
+    vel_weight: 1.0
+    vel_threshold: 0.5

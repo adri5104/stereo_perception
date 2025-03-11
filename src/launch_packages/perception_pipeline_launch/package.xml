@@ -12,7 +12,7 @@
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
 
-  <depend>camerainfo_publiser</depend>
+  <depend>camerainfo_publisher</depend>
   <depend>optical_flow_computation</depend>
   <depend>stereo_computation</depend>
   <depend>visual_odometry</depend>
