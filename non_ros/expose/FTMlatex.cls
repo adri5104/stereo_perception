@@ -4548,8 +4548,8 @@
 \newcommand{\FTMlayoutSetIndent}{%
     \ifdefined\optEnglish%
         % English
-    	\parindent0.0em%
-    	\parskip0.5em%
+    	\parindent0.5em%
+    	\parskip0.0em%
     \else%
         % German
     	\parindent0em%
