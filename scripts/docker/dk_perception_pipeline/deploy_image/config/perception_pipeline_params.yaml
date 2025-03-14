@@ -1,13 +1,13 @@
 camerainfo_publisher:
   ros__parameters:
-    color_image_pub_topic: "/rgb/image_rect_color"
-    depth_image_pub_topic: "/depth_registered/image_rect"
+    color_image_pub_topic: "/device_0/sensor_1/Color_0/image/data"
+    depth_image_pub_topic: "/edgar/sensor/camera/framos/frontleft/depth/image_rect_raw"
     camera_info_pub_topic: "/perception_pipeline/camera_info_sync"
-    color_image_sub_topic: "/device_0/sensor_1/Color_0/image/data"
-    depth_image_sub_topic: "/device_0/sensor_0/Depth_0/image/data"
-    camera_info_sub_topic: "/device_0/sensor_0/Depth_0/info/camera_info"
+    color_image_sub_topic: "/edgar/sensor/camera/framos/frontleft/color/image_raw"
+    depth_image_sub_topic: "/edgar/sensor/camera/framos/frontleft/depth/image_rect_rawa"
+    camera_info_sub_topic: "/edgar/sensor/camera/framos/frontleft/color/camera_info"
     publish_color_image: true
-    publish_depth_image: true
+    publish_depth_image: false
 
 
 optical_flow_computation:
@@ -22,9 +22,9 @@ optical_flow_computation:
 
 visual_odometry_node:
   ros__parameters:
-    color_image_topic: "/device_0/sensor_1/Color_0/image/data"
-    depth_image_topic: "/device_0/sensor_0/Depth_0/image/data"
-    camera_info_topic: "/perception_pipeline/camera_info_sync"
+    color_image_topic: "/edgar/sensor/camera/framos/frontleft/color/image_raw"
+    depth_image_topic: "/edgar/sensor/camera/framos/frontleft/depth/image_rect_raw"
+    camera_info_topic: "/edgar/sensor/camera/framos/frontleft/color/camera_info"
     odometry_debug_topic: "/debug/odometry_keypoints"
     camera_frame_tf_topic: "/perception_pipeline/camera_frame_tf"
     max_depth_odom: 20.0
@@ -34,15 +34,15 @@ visual_odometry_node:
 kalman_filter_node:
   ros__parameters:
     optical_flow_topic: "/perception_pipeline/optical_flow"
-    depth_topic: "/device_0/sensor_0/Depth_0/image/data"
-    camera_info_topic: "/perception_pipeline/camera_info_sync"
+    depth_topic: "/edgar/sensor/camera/framos/frontleft/depth/image_rect_raw"
+    camera_info_topic: "/edgar/sensor/camera/framos/frontleft/color/camera_info"
     camera_frame_tf_topic: "/perception_pipeline/camera_frame_tf"
-    color_image_topic: "/device_0/sensor_1/Color_0/image/data"
+    color_image_topic: "/edgar/sensor/camera/framos/frontleft/color/image_raw"
     debug_image_topic_: "/debug/debug_image"  # If your node code uses this exact param name
     output_6d_topic: "/perception_pipeline/output_6d"
     debug_markers_topic: "/debug/image_6d_markers"
     grid_size: 15
-    debug_image_grid: true
+    debug_image_grid: false
     use_ego_motion: true
     use_ego_var: true
     sigma2_x_system: 10.0
