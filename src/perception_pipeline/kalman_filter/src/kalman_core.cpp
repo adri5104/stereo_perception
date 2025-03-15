@@ -155,20 +155,16 @@ void KalmanCore::setCameraParameters(double fx, double fy, double cx, double cy)
 
 KalmanCoreErrorCode KalmanCore::predict(Mat input_optical_flow, Mat input_depth, Mat input_color_image)
 { 
-  // Create output matrices
-  // 6D output matrix (x, y, z, vx, vy, vz, validitiy)
-  Mat output_6d		= Mat::zeros(input_color_image.rows,	input_color_image.cols,	CV_MAKETYPE(CV_32F, OUT6D_C));
 
-  // Debug image
-	Mat output_debug_image = input_color_image;
+  Mat output_6d = Mat::zeros(input_color_image.rows, input_color_image.cols, CV_MAKETYPE(CV_32F, OUT6D_C));
+  Mat output_debug_image = input_color_image.clone();  
+  Mat occupancy_grid = Mat::zeros(
+      input_color_image.rows / grid_size_worldpoints_,
+      input_color_image.cols / grid_size_worldpoints_,
+      CV_8UC1
+  );
 
-  // Occupancy map
-  Mat occupancy_grid = Mat::zeros(input_color_image.rows / grid_size_worldpoints_, 
-                               input_color_image.cols / grid_size_worldpoints_, CV_8UC1);
-
-  // Draw lines on visual debug output if needed
-  if (debug_image_grid_)
-  {
+  if (debug_image_grid_) {
     for (int row = grid_size_worldpoints_; row < input_color_image.rows; row += grid_size_worldpoints_)
     {
       cv::line(output_debug_image, 
@@ -186,129 +182,174 @@ KalmanCoreErrorCode KalmanCore::predict(Mat input_optical_flow, Mat input_depth,
   }
 
   time_diff_ = calculateTimeDifference(sync_input_time_old_);
+
   
-  if(first_time_)
-  {
+  if (first_time_) {
     KalmanCoreErrorCode result = setNewWorldPoints(occupancy_grid, output_6d, output_debug_image);
-    if(result != KalmanCoreErrorCode::OK) return result;
+    if (result != KalmanCoreErrorCode::OK) return result;
     first_time_ = false;
+    output_6d_ = output_6d;
+    output_debug_image_ = output_debug_image;
+    return KalmanCoreErrorCode::OK;
   }
-  else
-  { 
-    computeKalmanMatrices();
-    Mat z	= Mat::zeros(3,1,CV_64FC1);
-    Mat x	= Mat::zeros(6,1,CV_64FC1);
-    int pos_u	= 0;
-    int pos_v	= 0;
 
-    // Iterate over all worldpoints
-    WorldPointErrorCode result;
-    for(auto it = worldpoints_.begin(); it != worldpoints_.end();)
-    { 
-      auto& wp = *it;     
-      wp->getZ(z);
-   
-      // Predict the state
-      result = wp->computeKalmanStep(input_depth, 
-                                     input_optical_flow, 
-                                     A_new_, 
-                                     D_new_, 
-                                     Q_new_w_, 
-                                     u_new_, 
-                                     para_rot_, 
-                                     term1, 
-                                     term2, 
-                                     term3, 
-                                     term4, 
-                                     time_diff_,
-      
-                                     occupancy_grid);
-      // Read current pixel position
-			wp->getZ(z);
-      pos_u = static_cast<int>(std::floor(z.at<double>(0,0)));
-      pos_v = static_cast<int>(std::floor(z.at<double>(1,0)));
-    
-      switch (result)
-      {
-        case WorldPointErrorCode::OK:
+  computeKalmanMatrices();
 
-          // Check if there is already a world point at the new position
-          if(output_6d.at<OutVec>(pos_v, pos_u)[OUT6D_VAL_IDX] != 1.0)
-          {
-            wp->getX(x);
-            output_6d.at<OutVec>(pos_v, pos_u) = formatOutput(x, 1);
-            output_debug_image.at<Vec3b>(pos_v, pos_u) = Vec3b(0, 255, 0);
-            it++;
-          }
-          else
-          {
-            it = worldpoints_.erase(it);
-          }
-        break;
-        case WorldPointErrorCode::BAD_DEPTH_VALUE_ERROR:
-          // We paint the point yellow
-          output_debug_image.at<Vec3b>(pos_v, pos_u) = Vec3b(0, 255, 255);
-          it = worldpoints_.erase(it);
-        break;
-        case WorldPointErrorCode::NEW_MEASUREMENT_OUT_OF_BOUNDS_ERROR:
-          it = worldpoints_.erase(it);
-        break;
-        case WorldPointErrorCode::MEASUREMENT_OUT_OF_HEIGHT_BOUNDS_ERROR:
-        case WorldPointErrorCode::THREE_SIGMA_TEST_FAILED:
-        case WorldPointErrorCode::UNABLE_TO_GET_OPT_FLW_MSMT:
-        case WorldPointErrorCode::DIVISION_BY_ZERO_ERROR:
-        case WorldPointErrorCode::UNKNOWN_ERROR:
-          // We paint the point red
-          output_debug_image.at<Vec3b>(pos_v, pos_u) = Vec3b(0, 0, 255);
-          it = worldpoints_.erase(it);
-        break;
+  // ---------------------------------------------------------------
+  //  A: Parallel processing of existing worldpoints
+  // ---------------------------------------------------------------
 
+  // Copy of current worldpoints
+  std::vector<WorldPoint*> current_wps;
+  current_wps.reserve(worldpoints_.size());
+  for (auto &wp : worldpoints_) {
+    current_wps.push_back(wp.get());
+  }
+
+  // Vector for the results
+  std::vector<WPResult> results(current_wps.size());
+
+  // Paralell processing of each wp
+  #pragma omp parallel for
+  for (int i = 0; i < (int)current_wps.size(); i++) {
+
+    //int tid = omp_get_thread_num();
+    //std::cout << "[Iteration " << i << "] running in thread " << tid << std::endl;
+    auto &wp = *current_wps[i];
+
+    WPResult local;
+    local.keep = true;  // default
+
+    // 1) Compute kalman step
+    WorldPointErrorCode wperr = wp.computeKalmanStep(
+        input_depth,
+        input_optical_flow,
+        A_new_, D_new_, Q_new_w_, u_new_,
+        para_rot_,
+        term1, term2, term3, term4, 
+        time_diff_,
+        occupancy_grid
+    );
+    local.error = wperr;
+
+    // 2) store position after predition 
+    cv::Mat z = cv::Mat::zeros(3,1, CV_64FC1);
+    wp.getZ(z);
+    local.pos_u = static_cast<int>(std::floor(z.at<double>(0,0)));
+    local.pos_v = static_cast<int>(std::floor(z.at<double>(1,0)));
+
+    // 3) Depending on the error we keep or not the wp
+    switch (wperr) {
+      case WorldPointErrorCode::OK: {
+        cv::Mat x = cv::Mat::zeros(6,1, CV_64FC1);
+        wp.getX(x);
+        local.out_vec = formatOutput(x, 1.0f);
+        local.keep = true;   // still havent checked collision
+        break;
+      }
+      case WorldPointErrorCode::BAD_DEPTH_VALUE_ERROR:
+      case WorldPointErrorCode::NEW_MEASUREMENT_OUT_OF_BOUNDS_ERROR:
+      case WorldPointErrorCode::MEASUREMENT_OUT_OF_HEIGHT_BOUNDS_ERROR:
+      case WorldPointErrorCode::THREE_SIGMA_TEST_FAILED:
+      case WorldPointErrorCode::UNABLE_TO_GET_OPT_FLW_MSMT:
+      case WorldPointErrorCode::DIVISION_BY_ZERO_ERROR:
+      case WorldPointErrorCode::UNKNOWN_ERROR:
+      default: {
+        local.keep = false;
       }
     }
-  
-    // Refill gaps with new WorldPoints
-    // We iterate over the depth image and create a new WorldPoint for each valid depth value
-    for (int row = 0; row < occupancy_grid.rows; row ++) 
-    {
-      for (int col = 0; col < occupancy_grid.cols; col ++) 
+
+    // Store the value in results vector
+    results[i] = local;
+  } // end #pragma omp parallel for
+
+
+  // ---------------------------------------------------------------
+  // B: Sequential part 
+  // ---------------------------------------------------------------
+  std::vector<std::unique_ptr<WorldPoint>> new_worldpoints;
+  new_worldpoints.reserve(worldpoints_.size());
+
+  // Sequential for
+  for (int i = 0; i < (int)current_wps.size(); i++) {
+    auto &r = results[i];
+    auto &wp_ptr = worldpoints_[i];  // unique_ptr<WorldPoint>&
+
+    const int u = r.pos_u;
+    const int v = r.pos_v;
+
+    if (r.keep) {
+      if (u < 0 || u >= output_6d.cols || v < 0 || v >= output_6d.rows) {
+        continue;
+      }
+
+      auto &existing = output_6d.at<OutVec>(v, u);
+      if (existing[OUT6D_VAL_IDX] == 1.0f) {
+        continue;
+      }
+
+      existing = r.out_vec;
+      output_debug_image.at<Vec3b>(v, u) = Vec3b(0, 255, 0);
+
+      new_worldpoints.push_back(std::move(wp_ptr));
+    }
+    else {
+      if (u >= 0 && u < output_debug_image.cols && 
+          v >= 0 && v < output_debug_image.rows) 
       {
-        int points = occupancy_grid.at<uchar>(row, col);
-        if(points == 0)
+        switch(r.error) {
+          case WorldPointErrorCode::BAD_DEPTH_VALUE_ERROR:
+            output_debug_image.at<Vec3b>(v, u) = Vec3b(0, 255, 255); 
+            break;
+          default:
+            output_debug_image.at<Vec3b>(v, u) = Vec3b(0, 0, 255);
+            break;
+        }
+      }
+    }
+  }
+
+
+  worldpoints_ = std::move(new_worldpoints);
+
+  // ---------------------------------------------------------------
+  // Fill gaps (sequential)
+  // ---------------------------------------------------------------
+  for (int row = 0; row < occupancy_grid.rows; row++)
+  {
+    for (int col = 0; col < occupancy_grid.cols; col++)
+    {
+      int points = occupancy_grid.at<uchar>(row, col);
+      if (points == 0)
+      {
+        int new_u = static_cast<int>(col * grid_size_worldpoints_ + grid_size_worldpoints_ / 2);
+        int new_v = static_cast<int>(row * grid_size_worldpoints_ + grid_size_worldpoints_ / 2);
+        if (new_u >= input_depth_sync_.cols)
+          new_u = input_depth_sync_.cols - 1;
+        if (new_v >= input_depth_sync_.rows)
+          new_v = input_depth_sync_.rows - 1;
+
+        double depth = static_cast<double>(input_depth_sync_.at<u_int16_t>(new_v, new_u)) / 1000.0;
+        if (depth < max_depth_ && depth > min_depth_)
         {
-          int new_u = static_cast<int>(col*grid_size_worldpoints_ + grid_size_worldpoints_/2);
-          int new_v = static_cast<int>(row*grid_size_worldpoints_ + grid_size_worldpoints_/2);
-          if (new_u >= input_depth_sync_.cols) 
-          { new_u = input_depth_sync_.cols - 1; }
-          if (new_v >= input_depth_sync_.rows)
-          { new_v = input_depth_sync_.rows - 1; }
+          worldpoints_.emplace_back(std::make_unique<WorldPoint>(
+              C_, T_,
+              min_depth_, max_depth_,
+              min_height_, max_height_,
+              fx_, fy_, cx_, cy_,
+              include_ego_motion_,
+              grid_size_worldpoints_));
 
-          // Get depth 
-          double depth = static_cast<double>(input_depth_sync_.at<u_int16_t>(new_v, new_u));
-          depth = depth / 1000;  // Convert to meters
-          
-          if (depth < max_depth_ && depth > min_depth_)
-          {
-            //Create a new WorldPoint
-            worldpoints_.emplace_back(std::make_unique<WorldPoint>(
-                C_, T_,
-                min_depth_, max_depth_, 
-                min_height_, max_height_,
-                fx_, fy_, cx_, cy_, 
-                include_ego_motion_, 
-                grid_size_worldpoints_));
+          worldpoints_.back()->initKalmanFilter(
+              static_cast<double>(new_u),
+              static_cast<double>(new_v),
+              depth,
+              occupancy_grid);
 
-            worldpoints_.back()->initKalmanFilter(
-                static_cast<double>(new_u),
-                static_cast<double>(new_v),
-                depth,
-                occupancy_grid);
-
-            worldpoints_.back()->getX(x);
-
-          // Update the output matrices
+          Mat x = Mat::zeros(6,1,CV_64FC1);
+          worldpoints_.back()->getX(x);
           output_debug_image.at<cv::Vec3b>(new_v, new_u) = cv::Vec3b(0, 255, 0);
           output_6d.at<OutVec>(new_v, new_u) = formatOutput(x, 1);
-          }  
         }
       }
     }
@@ -316,6 +357,7 @@ KalmanCoreErrorCode KalmanCore::predict(Mat input_optical_flow, Mat input_depth,
 
   output_6d_ = output_6d;
   output_debug_image_ = output_debug_image;
+
   return KalmanCoreErrorCode::OK;
 }
 
