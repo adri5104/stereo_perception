@@ -7,8 +7,6 @@ def generate_launch_description():
 
     config_file_path = "/home/ubuntu/config/perception_pipeline_params.yaml"
 
-    
-
     return launch.LaunchDescription([
         
         launch_ros.actions.Node(
@@ -59,5 +57,15 @@ def generate_launch_description():
             name='object_detector_node',
             output='screen',
             parameters=[config_file_path],
+        ),
+        
+        launch_ros.actions.Node(
+            package='foxglove_bridge',
+            executable='foxglove_bridge',
+            name='foxglove_bridge',
+            output='screen',
+            parameters=[
+                {'send_buffer_limit:': 1000000000 },
+            ],
         ),
     ])
