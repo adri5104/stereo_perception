@@ -33,10 +33,6 @@ def generate_launch_description():
             executable='optical_flow_computation',
             name='optical_flow_computation',  # so it matches the YAML top-level key
             output='screen',
-            remappings=[
-                ('left/image_raw', '/device_0/sensor_1/Color_0/image/data'),   
-                ('/optical_flow', 'perception_pipeline/optical_flow'),
-            ],
             parameters=[config_file_path],
         ),
         

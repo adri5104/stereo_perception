@@ -12,6 +12,8 @@ camerainfo_publisher:
 
 optical_flow_computation:
   ros__parameters:
+    image_topic: "/device_0/sensor_1/Color_0/image/data"
+    optical_flow_topic: "/perception_pipeline/optical_flow"
     pyr_scale: 0.5
     levels: 6
     winsize: 15

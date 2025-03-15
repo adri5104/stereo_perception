@@ -37,11 +37,9 @@ def generate_launch_description():
         launch_ros.actions.Node(
             package='optical_flow_computation', 
             executable='optical_flow_computation',
-            remappings=[
-                ('left/image_raw', '/device_0/sensor_1/Color_0/image/data'),   
-                ('/optical_flow', 'perception_pipeline/optical_flow'),
-            ],
             parameters=[{
+                'image_topic': '/device_0/sensor_1/Color_0/image/data',
+                'optical_flow_topic': '/perception_pipeline/optical_flow',
                 'pyr_scale': 0.5  , 
                 'levels': 6,
                 'winsize': 15 , #35
