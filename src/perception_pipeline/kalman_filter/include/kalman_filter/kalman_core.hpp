@@ -17,6 +17,8 @@
 #include <chrono>
 #include <unordered_set>
 #include <opencv2/opencv.hpp>
+#include <omp.h>
+
 
 #include "kalman_filter/worldpoint.hpp"
 
@@ -82,6 +84,15 @@ inline  std::string getErrorMessage(KalmanCoreErrorCode code) {
 using Clock = std::chrono::high_resolution_clock;
 using TimePoint = std::chrono::time_point<Clock>;
 using Seconds = std::chrono::duration<double>;
+
+
+// Define an alias for the auxiliary struct to store the result of each wp
+using WPResult = struct {
+  bool keep;           // erase or not
+  int pos_u, pos_v;    // final pos
+  cv::Vec<float, 7> out_vec;  // x,y,z,vx,vy,vz, validity
+  WorldPointErrorCode error;  // to assign color in debug image
+};
 
 /**
  * @class KalmanCore

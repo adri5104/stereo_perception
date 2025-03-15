@@ -34,6 +34,10 @@ private:
     rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr optical_flow_debug_arrows_pub_;
     cv::Mat prev_image_;
 
+    // Parameters for topic names
+    std::string image_topic_;
+    std::string optical_flow_topic_;
+
     // Parameters for Farneback Optical Flow
     double pyr_scale_;
     int levels_;
