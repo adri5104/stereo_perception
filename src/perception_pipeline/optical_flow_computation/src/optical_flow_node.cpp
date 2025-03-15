@@ -19,9 +19,12 @@ OpticalFlowNode::OpticalFlowNode()
     poly_sigma_ = this->declare_parameter<double>("poly_sigma", 1.2);
     flags_ = this->declare_parameter<int>("flags", 0);
 
+    image_topic_ = this->declare_parameter<std::string>("image_topic", "/left/image_raw");
+    optical_flow_topic_ = this->declare_parameter<std::string>("optical_flow_topic", "/optical_flow");
+
     // Subscriber to camera image topic
     image_sub_ = this->create_subscription<sensor_msgs::msg::Image>(
-        "/left/image_raw", 10,
+        image_topic_, 10,
         std::bind(&OpticalFlowNode::imageCallback, this, std::placeholders::_1));
 
     // Publisher for optical flow
@@ -32,7 +35,7 @@ OpticalFlowNode::OpticalFlowNode()
         "/debug/arrows", 10);
       
     optical_flow_pub_ = this->create_publisher<sensor_msgs::msg::Image>(
-        "/optical_flow", 10);
+        optical_flow_topic_, 10);
 
     RCLCPP_INFO(this->get_logger(), "OpticalFlowNode initialized with parameters:");
     RCLCPP_INFO(this->get_logger(), "  pyr_scale: %.2f", pyr_scale_);
@@ -41,6 +44,9 @@ OpticalFlowNode::OpticalFlowNode()
     RCLCPP_INFO(this->get_logger(), "  iterations: %d", iterations_);
     RCLCPP_INFO(this->get_logger(), "  poly_n: %d", poly_n_);
     RCLCPP_INFO(this->get_logger(), "  poly_sigma: %.2f", poly_sigma_);
+    RCLCPP_INFO(this->get_logger(), "  flags: %d", flags_);
+    RCLCPP_INFO(this->get_logger(), "  image_topic: %s", image_topic_.c_str());
+    RCLCPP_INFO(this->get_logger(), "  optical_flow_topic: %s", optical_flow_topic_.c_str());
     //RCLCPP_INFO(this->get_logger(), "  %s", cv::getBuildInformation() .c_str());
 
     
