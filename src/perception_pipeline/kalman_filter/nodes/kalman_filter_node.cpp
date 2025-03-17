@@ -86,6 +86,11 @@
       RCLCPP_INFO(this->get_logger(), "debug_image_topic: '%s'", debug_image_topic_.c_str());
     RCLCPP_INFO(this->get_logger(), "debug_markers_topic: '%s'", debug_markers_topic_.c_str());
     
+    // Time variables
+    first_time_ = true;
+    time_diff_ = 0.0;
+    last_time_ = this->now();
+
     // Kalman filter parameters
     use_ego_motion_ = this->get_parameter("use_ego_motion").as_bool();
     use_ego_var_ = this->get_parameter("use_ego_var").as_bool();
@@ -129,6 +134,7 @@
     C_.at<double>(3,3) = sigma2_theta_measurement_;
     C_.at<double>(4,4) = sigma2_phi_measurement_;
     C_.at<double>(5,5) = sigma2_psi_system_;
+
 
     kalman_core_ = std::make_unique<KalmanCore> 
     ( 
@@ -218,9 +224,26 @@
     odometry_matrix.at<double>(2, 3) = frame_tf_msg->transform.translation.z;
     odometry_matrix.at<double>(3, 3) = 1.0;
 
+    // Compute delta time
+    if (first_time_)
+    {
+      time_diff_ = 0.05;
+      last_time_ = this->now();
+      first_time_ = false;  
+    }
+    else
+    {
+      time_diff_ = calculateDeltaTime(last_time_);
+      last_time_ = this->now();
+    }
 
     // Update the Kalman filter
-    KalmanCoreErrorCode result = kalman_core_->updateSyncedData(flow_image, depth_image, color_image, odometry_matrix);
+    KalmanCoreErrorCode result = kalman_core_->updateSyncedData(
+      flow_image, 
+      depth_image, 
+      color_image, 
+      odometry_matrix,
+      time_diff_);
 
     // Retrieve outputs
     cv::Mat output_6d, output_debug_image;
@@ -234,7 +257,6 @@
     std_msgs::msg::Header header;
     header.stamp = this->now();
     header.frame_id = "camera_optical_frame";
-
 
     // Convert to sensor_msgs
     sensor_msgs::msg::Image::SharedPtr output_6d_msg =
@@ -390,6 +412,13 @@
 
       
       return marker_array;
+  }
+
+  double KalmanFilterNode::calculateDeltaTime(rclcpp::Time& last_time)
+  {
+    rclcpp::Time current_time = this->now();
+    rclcpp::Duration delta_time = current_time - last_time;
+    return delta_time.seconds();
   }
 
   rcl_interfaces::msg::SetParametersResult 

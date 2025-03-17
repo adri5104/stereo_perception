@@ -21,6 +21,8 @@
 
 
 #include "kalman_filter/worldpoint.hpp"
+#include <rclcpp/clock.hpp>
+#include <rclcpp/time.hpp>
 
 using namespace cv;
 using namespace std;
@@ -168,10 +170,15 @@ public:
    * @param depth The depth image.
    * @param color_image The color image.
    * @param egomotion The egomotion matrix.
+   * @param time_diff The time difference between frames.
    * @return KalmanCoreErrorCode Error code.
    */
   KalmanCoreErrorCode updateSyncedData(
-    const Mat& optical_flow, const Mat& depth, const Mat& color_image, const Mat& egomotion);
+    const Mat& optical_flow, 
+    const Mat& depth, 
+    const Mat& color_image, 
+    const Mat& egomotion, 
+    double time_diff);
   
   /**
    * @brief Update step using synchronized optical flow and depth data.
@@ -179,10 +186,14 @@ public:
    * @param optical_flow The optical flow image (CV_32FC2 or similar).
    * @param depth The depth image.
    * @param color_image The color image.
+   * @param time_diff The time difference between frames.
    * @return KalmanCoreErrorCode Error code.
    */
   KalmanCoreErrorCode updateSyncedData(
-    const Mat& optical_flow, const Mat& depth, const Mat& color_image);
+    const Mat& optical_flow,
+    const Mat& depth, 
+    const Mat& color_image, 
+    double time_diff);
   
 
   /**
@@ -234,7 +245,11 @@ private:
   /**
    * @brief Predict the next state of the Kalman Filter.
    */
-  KalmanCoreErrorCode predict(Mat input_optical_flow, Mat input_depth, Mat input_color_image);
+  KalmanCoreErrorCode predict(
+    Mat input_optical_flow, 
+    Mat input_depth, 
+    Mat input_color_image,
+    double time_diff);
 
   /**
    * @brief Set and initialize the WorldPoints according to the grid defined by the user.
@@ -276,8 +291,6 @@ private:
   Mat input_color_image_sync_;     ///< Input color image
   Mat input_egomotion_sync_;       ///< Input egomotion matrix
 
-
-  TimePoint sync_input_time_old_; ///< Timepoint of the last frame
   double time_diff_;              ///< Time difference between frames
 
   Mat output_6d_;          ///< 6D output image

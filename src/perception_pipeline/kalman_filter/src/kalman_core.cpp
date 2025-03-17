@@ -17,7 +17,6 @@ namespace perception_pipeline
 namespace kalman_filter
 {
   KalmanCore::KalmanCore() :
-  sync_input_time_old_(Clock::now()),
   time_diff_(0.0),
   include_ego_motion_(false),
   use_ego_var_(false),
@@ -69,7 +68,6 @@ KalmanCore::KalmanCore(
   bool use_var_ego,
   int gridSize,
   bool debug_image_grid) : 
-  sync_input_time_old_(Clock::now()),
   time_diff_(0.0),
   include_ego_motion_(include_ego_motion),
   use_ego_var_(use_var_ego),
@@ -113,7 +111,12 @@ KalmanCore::~KalmanCore(void)
   }
 }
 
-KalmanCoreErrorCode KalmanCore::updateSyncedData(const Mat& optical_flow, const Mat& depth, const Mat& color_image, const Mat& egomotion)
+KalmanCoreErrorCode KalmanCore::updateSyncedData(
+  const Mat& optical_flow, 
+  const Mat& depth, 
+  const Mat& color_image, 
+  const Mat& egomotion,
+  double time_diff)
 { 
   if (optical_flow.empty()) return KalmanCoreErrorCode::BAD_OPTICAL_FLOW_IMAGE_ERROR;
   if (depth.empty()) return KalmanCoreErrorCode::BAD_DEPTH_IMAGE_ERROR;
@@ -123,12 +126,17 @@ KalmanCoreErrorCode KalmanCore::updateSyncedData(const Mat& optical_flow, const 
   input_optical_flow_sync_ = optical_flow;
   input_depth_sync_ = depth;
   input_color_image_sync_ = color_image;
+  time_diff_ = time_diff;
   if (include_ego_motion_) input_egomotion_sync_ = egomotion;
 
-  return predict(input_optical_flow_sync_, input_depth_sync_, input_color_image_sync_);
+  return predict(input_optical_flow_sync_, input_depth_sync_, input_color_image_sync_, time_diff_);
 }
 
-KalmanCoreErrorCode KalmanCore::updateSyncedData(const Mat& optical_flow, const Mat& depth, const Mat& color_image)
+KalmanCoreErrorCode KalmanCore::updateSyncedData(
+  const Mat& optical_flow, 
+  const Mat& depth, 
+  const Mat& color_image,
+  double time_diff)
 { 
   if (!camera_parameters_set_) return KalmanCoreErrorCode::CAMERA_PARAMETERS_NOT_SET_ERROR;
   if (optical_flow.empty()) return KalmanCoreErrorCode::BAD_OPTICAL_FLOW_IMAGE_ERROR;
@@ -139,8 +147,9 @@ KalmanCoreErrorCode KalmanCore::updateSyncedData(const Mat& optical_flow, const 
   input_optical_flow_sync_ = optical_flow;
   input_depth_sync_ = depth;
   input_color_image_sync_ = color_image;
+  time_diff_ = time_diff;
 
-  return predict(input_optical_flow_sync_, input_depth_sync_, input_color_image_sync_);
+  return predict(input_optical_flow_sync_, input_depth_sync_, input_color_image_sync_, time_diff_);
 }
 
 void KalmanCore::setCameraParameters(double fx, double fy, double cx, double cy)
@@ -153,7 +162,7 @@ void KalmanCore::setCameraParameters(double fx, double fy, double cx, double cy)
 }
 
 
-KalmanCoreErrorCode KalmanCore::predict(Mat input_optical_flow, Mat input_depth, Mat input_color_image)
+KalmanCoreErrorCode KalmanCore::predict(Mat input_optical_flow, Mat input_depth, Mat input_color_image, double time_diff)
 { 
 
   Mat output_6d = Mat::zeros(input_color_image.rows, input_color_image.cols, CV_MAKETYPE(CV_32F, OUT6D_C));
@@ -180,9 +189,6 @@ KalmanCoreErrorCode KalmanCore::predict(Mat input_optical_flow, Mat input_depth,
               cv::Scalar(255, 0, 0), 1);
     }
   }
-
-  time_diff_ = calculateTimeDifference(sync_input_time_old_);
-
   
   if (first_time_) {
     KalmanCoreErrorCode result = setNewWorldPoints(occupancy_grid, output_6d, output_debug_image);
@@ -545,14 +551,6 @@ OutVec KalmanCore::formatOutput(Vec6f x, int validity)
   }
   
   return output;
-}
-
-double KalmanCore::calculateTimeDifference(TimePoint& lastTime) 
-{
-  TimePoint currentTime = Clock::now();
-  auto duration = std::chrono::duration_cast<Seconds>(currentTime - lastTime).count();
-  lastTime = currentTime; // Update the last time
-  return duration;
 }
 
 // Setters

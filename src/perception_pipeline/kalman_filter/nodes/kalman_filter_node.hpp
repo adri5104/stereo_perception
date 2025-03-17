@@ -108,7 +108,17 @@ private:
    */
   cv::Mat imageMsgToMat(const sensor_msgs::msg::Image::ConstSharedPtr & msg);
 
-  
+  /**
+   * @brief Helper function to calculate the time difference between two time points
+   * 
+   * @param last_time 
+   * @return double 
+   */
+  double calculateDeltaTime(rclcpp::Time& last_time);
+  bool first_time_;
+  double time_diff_; // Time difference between frames
+  rclcpp::Time last_time_; // Last time point for time difference calculation
+
 
   // KalmanCore
   std::unique_ptr<KalmanCore> kalman_core_;
