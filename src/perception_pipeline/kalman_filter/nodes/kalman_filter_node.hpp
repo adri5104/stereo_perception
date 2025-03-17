@@ -185,7 +185,7 @@ private:
   double min_depth_;
   double max_depth_;
   double min_height_;
-  double max_height_;
+  double camera_ground_distance_;
   cv::Mat C_;
   cv::Mat T_;
   cv::Mat sigma_system_;

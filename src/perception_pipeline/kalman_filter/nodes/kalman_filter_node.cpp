@@ -66,7 +66,7 @@
     this->declare_parameter<double>("min_depth", 0.1);
     this->declare_parameter<double>("max_depth", 15.0);
     this->declare_parameter<double>("min_height", 0.0);
-    this->declare_parameter<double>("max_height", 4.0);
+    this->declare_parameter<double>("camera_ground_distance", 4.0);
 
     // Read parameters
     optical_flow_topic_ = this->get_parameter("optical_flow_topic").as_string();
@@ -112,7 +112,7 @@
     min_depth_ = this->get_parameter("min_depth").as_double();
     max_depth_ = this->get_parameter("max_depth").as_double();
     min_height_ = this->get_parameter("min_height").as_double();
-    max_height_ = this->get_parameter("max_height").as_double();
+    camera_ground_distance_ = this->get_parameter("camera_ground_distance").as_double();
     C_ = cv::Mat::zeros(6, 6, CV_64FC1);
     T_ = cv::Mat::zeros(3, 3, CV_64FC1);
     sigma_system_ = cv::Mat::zeros(3, 3, CV_64FC1);   
@@ -142,7 +142,7 @@
       C_,
       T_,
       min_depth_, max_depth_,
-      min_height_, max_height_, 
+      min_height_, camera_ground_distance_, 
       use_ego_motion_,
       use_ego_var_,
       grid_size_,
@@ -341,14 +341,15 @@
 
         geometry_msgs::msg::Point end;
         end.x = vec[0] + delta_time * vec[3];
-        end.y = vec[1];
-        end.z = vec[2];
+        end.y = vec[1] + delta_time * vec[4];
+        end.z = vec[2] + delta_time * vec[5];
+    
 
         marker.points.reserve(2);
         marker.points.push_back(start);
         marker.points.push_back(end);
 
-        marker.scale.x = 0.03;
+        marker.scale.x = 0.035;
         marker.scale.y = 0.04;
 
         marker.color.r = 0.0f;
@@ -454,10 +455,10 @@
         kalman_core_->setMinHeight(min_height_);
       }
 
-      if (name == "max_height") 
+      if (name == "camera_ground_distance") 
       {
-        max_height_ = param.as_double();
-        kalman_core_->setMaxHeight(max_height_);
+        camera_ground_distance_ = param.as_double();
+        kalman_core_->setMaxHeight(camera_ground_distance_);
       }
 
       if (name == "use_ego_motion") 

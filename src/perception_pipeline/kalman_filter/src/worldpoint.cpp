@@ -60,7 +60,7 @@ WorldPointErrorCode WorldPoint::initKalmanFilter(
 	tmp.rowRange(0,3).copyTo(tmp2);	
 
   // Initialize variances with 10 [m^2 respectively m^2/s^2]
-  P_old_ = Mat::eye(6, 6, CV_64FC1) * 10;
+  P_old_ = Mat::eye(6, 6, CV_64FC1) * 1;
 
   // Increase occupancy grid value
   occupancyGrid.at<uchar>
@@ -132,8 +132,6 @@ WorldPointErrorCode WorldPoint::computeKalmanStep(
   // Check if new pixel coordinates are within the image
   if (new_u > 0 && new_u < input_depth.cols && new_v > 0 && new_v < input_depth.rows)
   {
-    // Check if depth value has a valid value
-    // Convert to meters first
     double new_depth = static_cast<double>(input_depth.at<uint16_t>(new_v, new_u)) / 1000.0; // Convert cm to m
   
     if (new_depth > min_depth_ && new_depth < max_depth_)
@@ -230,10 +228,7 @@ WorldPointErrorCode WorldPoint::computeKalmanStep(
 	double y_pred = x_new_pred.at<double>(1,0);	
 	double z_pred = x_new_pred.at<double>(2,0);
   
-  
-
   if(z_pred == 0 || std::isnan(z_pred)) z_pred = 0.00001;
-
 
   H_new.at<double>(0,0) = f_x_ / z_pred;
 	H_new.at<double>(0,2) = -(f_x_*x_pred)/(z_pred*z_pred);
@@ -256,8 +251,6 @@ WorldPointErrorCode WorldPoint::computeKalmanStep(
 	double epsilonSquared = tmp.at<double>(0,0);
 	if (sqrt(epsilonSquared) > 3.0) 
   { 
-    //cout << "3 sigma test failed" << endl;
-    //cout << "age: " << age_ << endl;
     return WorldPointErrorCode::THREE_SIGMA_TEST_FAILED; 
   }
 
@@ -281,8 +274,6 @@ WorldPointErrorCode WorldPoint::computeKalmanStep(
   x_old_ = x_new;
   P_old_ = P_new;
   z_old_ = z_new;
-
-
 
   return WorldPointErrorCode::OK;
 }

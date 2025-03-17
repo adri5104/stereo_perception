@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
-import launch
+import launch 
 import launch_ros.actions
 
 def generate_launch_description():
+    use_sim_time = False
     
     return launch.LaunchDescription([
       
@@ -15,6 +16,7 @@ def generate_launch_description():
             arguments=['0', '0', '0',  # Translation (set appropriately if needed)
                        '0.707', '0', '0', '0.707',  # Rotation (90° around X-axis)
                        'world', 'camera_optical_frame_initial'],  # Frame IDs
+            parameters=[{'use_sim_time': use_sim_time}],
         ),
         
         launch_ros.actions.Node(
@@ -31,6 +33,7 @@ def generate_launch_description():
               {"camera_info_sub_topic": "/device_0/sensor_0/Depth_0/info/camera_info"},
               {"publish_color_image": True},
               {"publish_depth_image": True},
+              {'use_sim_time': use_sim_time}
             ]  
         ),
         
@@ -47,6 +50,7 @@ def generate_launch_description():
                 'poly_n': 5,
                 'poly_sigma': 1.5   ,
                 'flags': 0,
+                'use_sim_time': use_sim_time
             }],
         ),
         
@@ -62,6 +66,7 @@ def generate_launch_description():
                 {'max_depth_odom' : 20.0},
                 {'min_depth_odom' : 0.1},
                 {'odometry_debug_image' : True},
+                {'use_sim_time': use_sim_time}
               ],
         ),
 
@@ -80,39 +85,30 @@ def generate_launch_description():
                 {'debug_image_topic_':'/debug/debug_image'},
                 {'output_6d_topic' : '/perception_pipeline/output_6d'},
                 {'debug_markers_topic' : '/debug/image_6d_markers'},
-                {'grid_size' : 10},
+                {'grid_size' : 8},
                 {'debug_image_grid' : False},
                 {'use_ego_motion' : False},
                 {'use_ego_var' : False},
                 {'sigma2_x_system' : 10.0},
                 {'sigma2_y_system' : 10.0},
-                {'sigma2_z_system' : 0.1},
+                {'sigma2_z_system' : 10.0},
                 {'sigma2_flow_y_measurement' : 3.0},
                 {'sigma2_flow_x_measurement' : 3.0},
-                {'sigma2_depth_system' : 0.5},
+                {'sigma2_depth_system' : 0.5  },
                 {'sigma2_tx_measurement' : 10.0},
                 {'sigma2_ty_measurement' : 10.0},
                 {'sigma2_tz_measurement' : 10.0},
                 {'sigma2_theta_measurement' : 10.0},
                 {'sigma2_psi_system' : 10.0},
-                {'min_depth' : 2.0},
-                {'max_depth' : 20.0},
-                {'min_height_' :-1.0},
-                {'max_height' : 2.0},
+                {'min_depth' : 1.0},
+                {'max_depth' : 10.0},
+                {'min_height_' :-3.0},
+                {'camera_ground_distance' : 2.0},
+                {'use_sim_time': use_sim_time}
             ],
             ros_arguments= ["--log-level", "info"] 
         ),
-        
-        launch_ros.actions.Node(
-            package='foxglove_bridge',
-            executable='foxglove_bridge',
-            name='foxglove_bridge',
-            output='screen',
-            parameters=[
-                {'send_buffer_limit:': 1000000000 },
-            ],
-        ),
-        
+                
         launch_ros.actions.Node(
           package='object_detector',
           executable='object_detector_node',
@@ -122,11 +118,12 @@ def generate_launch_description():
             {'input_6d_topic': '/perception_pipeline/output_6d'},
             {'output_markers_topic' : '/perception_pipeline/output_markers'},
             {'output_clusters_topic' : '/perception_pipeline/output_clusters'},
-            {'eps': 0.06},
-            {'minPts': 10},
-            {'pos_weight': 0.045},
-            {'vel_weight': 1.0},
-            {'vel_threshold': 0.5},
+            {'eps': 0.3},
+            {'minPts': 7},
+            {'pos_weight': 1.0},
+            {'vel_weight': 0.02},
+            {'vel_threshold': 0.2},
+            {'use_sim_time': use_sim_time}
             
           ],
           
