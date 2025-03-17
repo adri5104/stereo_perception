@@ -162,7 +162,11 @@ void KalmanCore::setCameraParameters(double fx, double fy, double cx, double cy)
 }
 
 
-KalmanCoreErrorCode KalmanCore::predict(Mat input_optical_flow, Mat input_depth, Mat input_color_image, double time_diff)
+KalmanCoreErrorCode KalmanCore::predict(
+  const Mat& input_optical_flow, 
+  const Mat& input_depth, 
+  const Mat& input_color_image, 
+  double time_diff)
 { 
 
   Mat output_6d = Mat::zeros(input_color_image.rows, input_color_image.cols, CV_MAKETYPE(CV_32F, OUT6D_C));

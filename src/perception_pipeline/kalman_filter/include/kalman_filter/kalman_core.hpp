@@ -246,9 +246,9 @@ private:
    * @brief Predict the next state of the Kalman Filter.
    */
   KalmanCoreErrorCode predict(
-    Mat input_optical_flow, 
-    Mat input_depth, 
-    Mat input_color_image,
+    const Mat& input_optical_flow, 
+    const Mat& input_depth, 
+    const Mat& input_color_image,
     double time_diff);
 
   /**

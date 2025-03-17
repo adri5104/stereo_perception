@@ -165,6 +165,8 @@
 
     // Register the synchronized callback
     sync_->registerCallback(&KalmanFilterNode::updateSync, this);
+    sync_->setMaxIntervalDuration(rclcpp::Duration::from_seconds(0.1));
+
 
     // Camera info subscription (standard rclcpp subscription)
     camera_info_sub_ = this->create_subscription<sensor_msgs::msg::CameraInfo>(
@@ -296,123 +298,72 @@
   }
 
 
-  visualization_msgs::msg::MarkerArray KalmanFilterNode::createMarkers(
-      const cv::Mat &image_6d, 
-      double delta_time) 
+  visualization_msgs::msg::MarkerArray KalmanFilterNode::createMarkers(const cv::Mat &image_6d, double delta_time) {
+
+  visualization_msgs::msg::MarkerArray marker_array;
+
+  if (image_6d.empty() || image_6d.type() != OUT6D_TYPE) {
+    RCLCPP_WARN(this->get_logger(), "createMarkers: Empty or incorrect image type (type=%d).", image_6d.type());
+    return marker_array;
+  }
+
+  // Clear previous markers
+  visualization_msgs::msg::Marker clear_markers;
+  clear_markers.action = visualization_msgs::msg::Marker::DELETEALL;
+  marker_array.markers.push_back(clear_markers);
+
+  const int rows = image_6d.rows;
+  const int cols = image_6d.cols;
+
+  // Pre-calculate approximate total markers to avoid dynamic resizing overhead
+  marker_array.markers.reserve(rows * cols / 4); // approximation
+
+  #pragma omp parallel
   {
-      visualization_msgs::msg::MarkerArray marker_array;
+    visualization_msgs::msg::MarkerArray local_markers;
+    #pragma omp for nowait collapse(2)
+    for (int i = 0; i < rows; ++i) {
+      for (int j = 0; j < cols; ++j) {
+        const OutVec &vec = image_6d.at<OutVec>(i, j);
+        if (vec[OUT6D_VAL_IDX] != 1.0f) continue;
 
-      try {
-          // Validate that both matrices are not empty and have compatible dimensions
-          if (image_6d.empty()) {
-              RCLCPP_ERROR(this->get_logger(), "Input image is empty.");
-              return marker_array;
-          }
+        visualization_msgs::msg::Marker marker;
+        marker.header.frame_id = "camera_optical_frame";
+        marker.header.stamp = this->now();
+        marker.id = i * cols + j; // unique ID, no contention
+        marker.type = visualization_msgs::msg::Marker::ARROW;
+        marker.action = visualization_msgs::msg::Marker::ADD;
+        
+        geometry_msgs::msg::Point start;
+        start.x = vec[0];
+        start.y = vec[1];
+        start.z = vec[2];
 
-          // Ensure the input matrix types are as expected
-          if (image_6d.type() != OUT6D_TYPE) {
-              RCLCPP_ERROR(this->get_logger(), "image_6d invalid type. Type = %d", image_6d.type());
-              return marker_array;
-          }
+        geometry_msgs::msg::Point end;
+        end.x = vec[0] + delta_time * vec[3];
+        end.y = vec[1];
+        end.z = vec[2];
 
-          OutVec x; // 6D state vector
-          int id = 0;  // Unique ID for each marker
-          int total = 0;
-          
+        marker.points.reserve(2);
+        marker.points.push_back(start);
+        marker.points.push_back(end);
 
-          // First, clear old markers by publishing a DELETE action
-          visualization_msgs::msg::Marker clear_marker;
-          clear_marker.header.frame_id = "camera_optical_frame";  // Adjust the frame as needed
-          clear_marker.header.stamp = this->now();
-          clear_marker.ns = "cluster_points";
-          clear_marker.action = visualization_msgs::msg::Marker::DELETEALL;  // Deletes all previously published markers
-          marker_array.markers.push_back(clear_marker);
+        marker.scale.x = 0.03;
+        marker.scale.y = 0.04;
 
-          // Iterate over all valid points in parallel
-          #pragma omp parallel for collapse(2)
-          for (int i = 0; i < image_6d.rows; i++) {
-              for (int j = 0; j < image_6d.cols; j++) {
-                  try {
-                      // Create thread-local variables
-                      OutVec x;
-                      visualization_msgs::msg::Marker marker;
+        marker.color.r = 0.0f;
+        marker.color.g = 1.0f;
+        marker.color.b = 0.0f;
+        marker.color.a = 1.0f;
 
-                      // Check if there is a valid point
-                      float valid = image_6d.at<OutVec>(i, j)[OUT6D_VAL_IDX];
-                      #pragma omp atomic
-                      total++;
-                      if (valid != 1.0) {
-                          continue;
-                      }
-
-                      // Extract the state vector safely
-                      x = image_6d.at<OutVec>(i, j);
-
-                      // Create a new arrow marker
-                      marker.header.frame_id = "camera_optical_frame";
-                      marker.header.stamp = this->now();
-                      marker.ns = "kalman_arrows";
-                      
-                      int local_id;
-                      #pragma omp atomic capture
-                      local_id = id++;
-
-                      marker.id = local_id;
-                      marker.type = visualization_msgs::msg::Marker::ARROW;
-                      marker.action = visualization_msgs::msg::Marker::ADD;
-            
-                      // Start point of the arrow
-                      geometry_msgs::msg::Point start;
-                      start.x = x[0];
-                      start.y = x[1];
-                      start.z = x[2];
-
-                      // End point of the arrow
-                      geometry_msgs::msg::Point end;
-                      end.x = x[0] + delta_time * x[3];
-                      end.y = x[1] + delta_time * x[4];
-                      end.z = x[2] + delta_time * x[5];
-
-                      marker.points.push_back(start);
-                      marker.points.push_back(end);
-
-                      // Set arrow color and size
-                      marker.scale.x = 0.02; // Thickness of the arrow shaft
-                      marker.scale.y = 0.04; // Thickness of the arrow head
-                      marker.scale.z = 0.0;
-
-                      marker.color.r = 1.0;
-                      marker.color.g = 0.0;
-                      marker.color.b = 0.0;
-                      marker.color.a = 1.0;
-
-                      // Add the marker to the MarkerArray
-                      #pragma omp critical
-                      {
-                          marker_array.markers.push_back(marker);
-                      }
-          } catch (const cv::Exception &e) {
-              #pragma omp critical
-              RCLCPP_ERROR(this->get_logger(), "OpenCV exception at pixel (%d, %d): %s", i, j, e.what());
-              continue;
-          } catch (const std::exception &e) {
-              #pragma omp critical
-              RCLCPP_ERROR(this->get_logger(), "Standard exception at pixel (%d, %d): %s", i, j, e.what());
-              continue;
-          }
+        #pragma omp critical
+        marker_array.markers.push_back(std::move(marker));
       }
-  }
-      } catch (const cv::Exception &e) {
-          RCLCPP_ERROR(this->get_logger(), "OpenCV exception in createMarkers: %s", e.what());
-      } catch (const std::exception &e) {
-          RCLCPP_ERROR(this->get_logger(), "Standard exception in createMarkers: %s", e.what());
-      } catch (...) {
-          RCLCPP_ERROR(this->get_logger(), "Unknown error in createMarkers.");
-      }
+    }
 
-      
-      return marker_array;
   }
+  return marker_array;
+}
 
   double KalmanFilterNode::calculateDeltaTime(rclcpp::Time& last_time)
   {
