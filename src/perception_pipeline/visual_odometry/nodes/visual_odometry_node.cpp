@@ -20,6 +20,10 @@ namespace visual_odometry
     this->declare_parameter("apply_statistical_filtering", true);
     this->declare_parameter("apply_expotential_smoothing", true);
     this->declare_parameter("exponential_alpha", 0.1);
+    this->declare_parameter("publish_path", true);
+    this->declare_parameter("path_topic", "/path");
+    this->declare_parameter("publish_odom", true);
+    this->declare_parameter("odom_topic", "/odom");
 
     this->get_parameter("color_image_topic", color_image_topic_);
     this->get_parameter("depth_image_topic", depth_image_topic_);
@@ -29,12 +33,25 @@ namespace visual_odometry
     this->get_parameter("max_depth_odom", max_depth_odom_);
     this->get_parameter("min_depth_odom", min_depth_odom_);
     this->get_parameter("odometry_debug_image", odometry_debug_image_);
+    this->get_parameter("publish_path", publish_path_);
+    this->get_parameter("path_topic", path_topic_);
+    this->get_parameter("publish_odom", publish_odom_);
+    this->get_parameter("odom_topic", odom_topic_);
 
+    RCLCPP_INFO(this->get_logger(), "================== Visual Odometry Node Parameters ==================");
     RCLCPP_INFO(this->get_logger(), "color_image_topic: '%s'", color_image_topic_.c_str());
     RCLCPP_INFO(this->get_logger(), "depth_image_topic: '%s'", depth_image_topic_.c_str());
     RCLCPP_INFO(this->get_logger(), "camera_info_topic: '%s'", camera_info_topic_.c_str());
     RCLCPP_INFO(this->get_logger(), "camera_frame_tf_topic: '%s'", camera_frame_tf_topic_.c_str());
     RCLCPP_INFO(this->get_logger(), "odometry_debug_topic: '%s'", odometry_debug_topic_.c_str());
+    RCLCPP_INFO(this->get_logger(), "max_depth_odom: '%f'", max_depth_odom_);
+    RCLCPP_INFO(this->get_logger(), "min_depth_odom: '%f'", min_depth_odom_);
+    RCLCPP_INFO(this->get_logger(), "odometry_debug_image: '%d'", odometry_debug_image_);
+    RCLCPP_INFO(this->get_logger(), "publish_path: '%d'", publish_path_);
+    RCLCPP_INFO(this->get_logger(), "path_topic: '%s'", path_topic_.c_str());
+    RCLCPP_INFO(this->get_logger(), "publish_odom: '%d'", publish_odom_);
+    RCLCPP_INFO(this->get_logger(), "odom_topic: '%s'", odom_topic_.c_str());
+    RCLCPP_INFO(this->get_logger(), "======================================================================");
   
     // Create VisualOdometry object
     visual_odometry_ = std::make_unique<VisualOdometry>(
@@ -45,8 +62,6 @@ namespace visual_odometry
       get_parameter("exponential_alpha").as_double(),
       get_parameter("apply_expotential_smoothing").as_bool());
       
-
-
     // Create message_filters
     color_sub_.subscribe(this, color_image_topic_);
     depth_sub_.subscribe(this, depth_image_topic_);
@@ -67,6 +82,13 @@ namespace visual_odometry
     camera_frame_tf_pub_ = this->create_publisher<geometry_msgs::msg::TransformStamped>(camera_frame_tf_topic_, 10);
     if (odometry_debug_image_)
       debug_pub_ = this->create_publisher<sensor_msgs::msg::Image>(odometry_debug_topic_, 10);
+    if (publish_path_)
+    {
+      path_pub_ = this->create_publisher<nav_msgs::msg::Path>(path_topic_, 10);
+      path_msg_.header.frame_id = "camera_optical_frame_initial";
+    }
+    if (publish_odom_)
+      odom_pub_ = this->create_publisher<nav_msgs::msg::Odometry>(odom_topic_, 10);
 
     // Create camera_info subscriber
     camera_info_sub_ = this->create_subscription<sensor_msgs::msg::CameraInfo>(
@@ -101,7 +123,6 @@ namespace visual_odometry
     visual_odometry_->updateSync(color_image, depth_image);
 
     // Retrieve output
-    
     cv::Mat translation, rotation, covariance, debug_image;
     visual_odometry_->getOutput(translation, rotation, covariance, debug_image);
 
@@ -181,6 +202,41 @@ namespace visual_odometry
       sensor_msgs::msg::Image::SharedPtr debug_image_msg = cv_bridge::CvImage(
         color_msg->header, "bgr8", debug_image).toImageMsg();
       debug_pub_->publish(*debug_image_msg);
+    }
+
+    if (publish_odom_)
+    {
+      // Publish odometry
+      nav_msgs::msg::Odometry odom_msg;
+      odom_msg.header.stamp = color_msg->header.stamp;
+      odom_msg.header.frame_id = "camera_optical_frame_initial";
+      odom_msg.child_frame_id = "camera_optical_frame";
+      odom_msg.pose.pose.position.x = absolute_translation.x();
+      odom_msg.pose.pose.position.y = 0.0;
+      odom_msg.pose.pose.position.z = absolute_translation.z();
+      odom_msg.pose.pose.orientation.x = absolute_quat.x();
+      odom_msg.pose.pose.orientation.y = absolute_quat.y();
+      odom_msg.pose.pose.orientation.z = absolute_quat.z();
+      odom_msg.pose.pose.orientation.w = absolute_quat.w();
+      odom_pub_->publish(odom_msg);
+    }
+
+    if (publish_path_)
+    {
+      // Publish path
+      path_msg_.header.stamp = color_msg->header.stamp;
+      geometry_msgs::msg::PoseStamped pose_msg;
+      pose_msg.header.stamp = color_msg->header.stamp;
+      pose_msg.header.frame_id = "camera_optical_frame_initial";
+      pose_msg.pose.position.x = absolute_translation.x();
+      pose_msg.pose.position.y = 0.0;
+      pose_msg.pose.position.z = absolute_translation.z();
+      pose_msg.pose.orientation.x = absolute_quat.x();
+      pose_msg.pose.orientation.y = absolute_quat.y();
+      pose_msg.pose.orientation.z = absolute_quat.z();
+      pose_msg.pose.orientation.w = absolute_quat.w();
+      path_msg_.poses.push_back(pose_msg);
+      path_pub_->publish(path_msg_);
     }
   }
 

@@ -20,6 +20,7 @@ WorldPoint::WorldPoint(
   double min_depth, double max_depth, 
   double min_height, double max_height, 
   double fx, double fy, double cx, double cy,  
+  bool &includeEgoMotion,
   bool &useVarEgo, 
   int gridSize)
 : C_(C), 
@@ -28,6 +29,7 @@ WorldPoint::WorldPoint(
   max_depth_(max_depth),
   min_height_(min_height),
   max_height_(max_height),
+  include_ego_motion_(includeEgoMotion),
   use_var_ego_(useVarEgo), 
   grid_size_worldpoints(gridSize),
   age_(0),
@@ -88,10 +90,8 @@ WorldPointErrorCode WorldPoint::computeKalmanStep(
   // Initializations
   Mat x_new_pred = Mat::zeros(6, 1, CV_64FC1);
   Mat x_new = Mat::zeros(6, 1, CV_64FC1);
-
   Mat z_new_pred = Mat::zeros(3, 1, CV_64FC1);
   Mat z_new = Mat::zeros(3, 1, CV_64FC1);
-
   Mat s_new = Mat::zeros(3, 1, CV_64FC1); // 3x1 innovation vector
   Mat Q_new = Mat::zeros(6, 6, CV_64FC1); // Process noise covariance matrix
   Mat P_new_pred = Mat::zeros(6, 6, CV_64FC1); // Priori estimate covariance matrix
@@ -152,10 +152,9 @@ WorldPointErrorCode WorldPoint::computeKalmanStep(
     return WorldPointErrorCode::NEW_MEASUREMENT_OUT_OF_BOUNDS_ERROR;
   }
 
-	if (use_var_ego_)
+	if (use_var_ego_ && include_ego_motion_)
   {
     // Compute the Jacobian matrix of the egomotion
-
     // Retrieve the egomotion precomputed values
     double stheta = para_rot.at<double>(0,0);
     double ctheta = para_rot.at<double>(1,0);
@@ -218,7 +217,14 @@ WorldPointErrorCode WorldPoint::computeKalmanStep(
   // Kalman core algorithm
 
   // A. Prediction step
-  x_new_pred = A_new * x_old_  + u_new;
+  if (include_ego_motion_)  
+  { 
+    x_new_pred = A_new * x_old_ - u_new;
+  }
+  else
+  { 
+    x_new_pred = A_new * x_old_;
+  }
   P_new_pred = A_new * P_old_ * A_new.t() + Q_new;
   
   

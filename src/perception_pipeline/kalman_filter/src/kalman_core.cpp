@@ -35,6 +35,7 @@ namespace kalman_filter
   C_(Mat::zeros(6, 6, CV_64FC1)),
   T_(Mat::zeros(3, 3, CV_64FC1)),
   sigma_system_(Mat::zeros(3, 3, CV_64FC1)),
+  A_new_w_(Mat::zeros(6, 6, CV_64FC1)),
   A_new_(Mat::zeros(6, 6, CV_64FC1)),
   u_new_(Mat::zeros(6, 1, CV_64FC1)),
   D_new_(Mat::zeros(6, 6, CV_64FC1)),
@@ -79,6 +80,7 @@ KalmanCore::KalmanCore(
   min_height_(min_height), max_height_(max_height),
   first_time_(true),
   C_(C), T_(T),sigma_system_(sigma_system), 
+  A_new_w_(Mat::zeros(6, 6, CV_64FC1)),
   A_new_(Mat::zeros(6, 6, CV_64FC1)),
   u_new_(Mat::zeros(6, 1, CV_64FC1)),
   D_new_(Mat::zeros(6, 6, CV_64FC1)),
@@ -234,7 +236,7 @@ KalmanCoreErrorCode KalmanCore::predict(
     WorldPointErrorCode wperr = wp.computeKalmanStep(
         input_depth,
         input_optical_flow,
-        A_new_, D_new_, Q_new_w_, u_new_,
+        A_new_w_, D_new_, Q_new_w_, u_new_,
         para_rot_,
         term1, term2, term3, term4, 
         time_diff_,
@@ -348,6 +350,7 @@ KalmanCoreErrorCode KalmanCore::predict(
               min_height_, max_height_,
               fx_, fy_, cx_, cy_,
               include_ego_motion_,
+              use_ego_var_,
               grid_size_worldpoints_));
 
           worldpoints_.back()->initKalmanFilter(
@@ -408,7 +411,8 @@ KalmanCoreErrorCode KalmanCore::setNewWorldPoints(Mat &occupancy_grid, Mat &outp
         min_depth_, max_depth_, 
         min_height_, max_height_,
         fx_, fy_, cx_, cy_, 
-        include_ego_motion_, 
+        include_ego_motion_,
+        use_ego_var_, 
         grid_size_worldpoints_));
 
       worldpoints_.back()->initKalmanFilter(
@@ -454,11 +458,11 @@ KalmanCoreErrorCode KalmanCore::computeKalmanMatrices()
     u_new_.at<double>(2,0) = input_egomotion_sync_.at<double>(2,3);
 
     // Compute the new state transition matrix A_new
-    A_new_w = A_new_ * D_new_;
+    A_new_w_ = D_new_* A_new_;
   }
   else
   {
-    A_new_w = A_new_;
+    A_new_w_ = A_new_;
   }
 
 	// Compute and fill Q_new_w

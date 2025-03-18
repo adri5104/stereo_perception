@@ -73,10 +73,17 @@ class WorldPoint
      * @param fy Focal length y.
      * @param cx Principal point x.
      * @param cy Principal point y.
+     * @param includeEgoMotion Flag for using egomotion compensation.
      * @param useVarEgo Use the covariance matrix of the egomotion.
      * @param gridSize Grid size in pixels
      */
-    WorldPoint(Mat &C, Mat &T, double min_depth, double max_depth, double min_height, double max_height, double fx, double fy, double cx, double cy,  bool &useVarEgo, int gridSize);
+    WorldPoint(
+      Mat &C, Mat &T, 
+      double min_depth, double max_depth,
+      double min_height, double max_height,
+      double fx, double fy, double cx, double cy, 
+      bool &includeEgoMotion, bool &useVarEgo,
+      int gridSize);
 
     /**
      * @brief Destructor for the WorldPoint class.
@@ -204,6 +211,7 @@ class WorldPoint
 	  
 	  Mat	C_;	 // Reference to the covariance matrix of the egomotion
 	  Mat	T_;	 // Reference to the covariance matrix of the measurement model
+    bool include_ego_motion_;	// Flag for incorporating the egomotion
 	  bool use_var_ego_;	// Flag for using the covariance matrix of the egomotion
 	  double grid_size_worldpoints;	// Size of the grid for the worldpoints
     int	age_; // Number of iterations the object has already been passed through

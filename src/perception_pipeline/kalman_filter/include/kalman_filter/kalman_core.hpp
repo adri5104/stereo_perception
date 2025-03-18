@@ -315,6 +315,7 @@ private:
   Mat C_;            ///< Covariance matrix of the egomotion  
   Mat T_ ;           ///< Covariance matrix of the measurement model
   Mat sigma_system_; ///< Covariance matrix of the system model
+  Mat A_new_w_;	     ///< State transition matrix 
   Mat	A_new_;		     ///< Transition matrix
   Mat	u_new_;		     ///< Egomotion translation vector
   Mat	D_new_;		     ///< Matrix containing the rotation matrix of the egomotion

@@ -83,7 +83,7 @@
     RCLCPP_INFO(this->get_logger(), "camera_frame_tf_topic: '%s'", camera_frame_tf_topic_.c_str());
     RCLCPP_INFO(this->get_logger(), "color_image_topic: '%s'", color_image_topic_.c_str());
     RCLCPP_INFO(this->get_logger(), "output_6d_topic: '%s'", output_6d_topic_.c_str());
-      RCLCPP_INFO(this->get_logger(), "debug_image_topic: '%s'", debug_image_topic_.c_str());
+    RCLCPP_INFO(this->get_logger(), "debug_image_topic: '%s'", debug_image_topic_.c_str());
     RCLCPP_INFO(this->get_logger(), "debug_markers_topic: '%s'", debug_markers_topic_.c_str());
     
     // Time variables
@@ -340,9 +340,9 @@
         start.z = vec[2];
 
         geometry_msgs::msg::Point end;
-        end.x = vec[0] + delta_time * vec[3];
-        end.y = vec[1] + delta_time * vec[4];
-        end.z = vec[2] + delta_time * vec[5];
+        end.x = vec[0] +  delta_time *vec[3];
+        end.y = vec[1] +  delta_time *vec[4];
+        end.z = vec[2] +  delta_time *vec[5];
     
 
         marker.points.reserve(2);
