@@ -218,7 +218,7 @@ WorldPointErrorCode WorldPoint::computeKalmanStep(
   // Kalman core algorithm
 
   // A. Prediction step
-  x_new_pred = A_new * x_old_ ;
+  x_new_pred = A_new * x_old_  + u_new;
   P_new_pred = A_new * P_old_ * A_new.t() + Q_new;
   
   
