@@ -340,9 +340,9 @@
         start.z = vec[2];
 
         geometry_msgs::msg::Point end;
-        end.x = vec[0] +  delta_time *vec[3];
-        end.y = vec[1] +  delta_time *vec[4];
-        end.z = vec[2] +  delta_time *vec[5];
+        end.x = vec[0] + delta_time * vec[3];
+        end.y = vec[1] + delta_time * vec[4];
+        end.z = vec[2] + delta_time * vec[5];
     
 
         marker.points.reserve(2);
