@@ -1,0 +1,60 @@
+
+
+\begin{tikzpicture}[node distance=0.5cm and 2cm, auto]
+
+  % Primera fila: óvalos de entrada (fuera del contenedor, en azul claro)
+  \node[draw, ellipse, fill=blue!20] (params) {Left cam. parameters};
+  \node[draw, ellipse, fill=blue!20, right=3cm of params] (limg) {Left image};
+  \node[draw, ellipse, fill=blue!20, right=3cm of limg] (rimg) {Right image};
+
+  % Segunda fila: rectángulos de cómputo (dentro del contenedor, en verde)
+  \node[draw, rectangle, fill=green!20, minimum width=3cm, minimum height=1cm, below=0.7cm of params] (optflow) {Optical flow computation};
+  \node[draw, rectangle, fill=green!20, minimum width=3cm, minimum height=1cm, below=0.7cm of limg] (visodom) {Visual odometry computation};
+  \node[draw, rectangle, fill=green!20, minimum width=3cm, minimum height=1cm, below=0.7cm of rimg] (depth) {Depth computation};
+  
+  % Flechas desde la primera fila a la segunda
+  \draw[->, thick] (limg) -- (optflow);
+  \draw[->, thick] (limg) -- (visodom);
+  \draw[->, thick] (params) -- (visodom);
+  \draw[->, thick] (limg) -- (depth);
+  \draw[->, thick] (params) -- (depth);
+  \draw[->, thick] (rimg) -- (depth);
+
+  % Tercera fila: óvalos de salida de los cómputos (dentro del contenedor, en amarillo claro)
+  \node[draw, ellipse, fill=yellow!20, below=0.5cm of optflow] (oflow) {Opt. flow image};
+  \node[draw, ellipse, fill=yellow!20, below=0.5cm of visodom] (vo) {Visual odometry};
+  \node[draw, ellipse, fill=yellow!20, below=0.5cm of depth] (dimage) {Depth image};
+  
+  % Flechas desde los rectángulos a los óvalos correspondientes
+  \draw[->, thick] (optflow) -- (oflow);
+  \draw[->, thick] (visodom) -- (vo);
+  \draw[->, thick] (depth) -- (dimage);
+  
+  % Cuarta fila: kalman filter (rectángulo, dentro del contenedor, en verde)
+  \node[draw, rectangle, fill=green!20, minimum width=3cm, minimum height=1cm, below=0.5cm of vo] (kalman) {6D Kalman Filter algorithm};
+  
+  % Flechas desde los óvalos de salida a kalman filter
+  \draw[->, thick] (oflow) -- (kalman);
+  \draw[->, thick] (vo) -- (kalman);
+  \draw[->, thick] (dimage) -- (kalman);
+  
+  % Flecha curvada desde "left camera parameters" a "kalman filter"
+  \draw[->, thick] (params.south east) .. controls +(1.5, -0.5) and +(-1.5, 0.5) .. (kalman.north west);
+  
+  % Quinta fila: óvalo "6d image" (dentro del contenedor, en amarillo claro)
+  \node[draw, ellipse, fill=yellow!20, below=0.5cm of kalman] (sixd) {6D image};
+  \draw[->, thick] (kalman) -- (sixd);
+  
+  % Sexta fila: rectángulo "Clustering" (dentro del contenedor, en verde)
+  \node[draw, rectangle, fill=green!20, minimum width=3cm, minimum height=1cm, below=0.5cm of sixd] (clustering) {Clustering algorithm};
+  \draw[->, thick] (sixd) -- (clustering);
+  
+  % Detected objects: óvalo fuera del contenedor (en azul claro), ubicado abajo
+  \node[draw, ellipse, fill=blue!20, below=0.7cm of clustering] (detected) {Detected objects};
+  \draw[->, thick] (clustering) -- (detected);
+  
+  % Contenedor: agrupa los nodos del pipeline (excepto la primera fila y "detected objects")
+  \node[draw, dotted, inner sep=0.5cm, fit=(optflow) (visodom) (depth) (oflow) (vo) (dimage) (kalman) (sixd) (clustering)] (perception) {};
+  \node[anchor=south east, inner sep=2mm] at (perception.south east) {perception pipeline};
+  
+\end{tikzpicture}

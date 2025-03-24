@@ -4,7 +4,7 @@
 FTMstudentthesis%		baseclass
 ,optArial%				font setting (alternative fonts for debugging purposes: optHelvetica, optCharter)
 ,optBiber%				bibliography tool (alternative: optBibtex)
-,optGerman%				[optional] deutsche Vorlage: optGerman, english version: optEnglish
+,optEnglish%				[optional] deutsche Vorlage: optGerman, english version: optEnglish
 %,optTikzExternalize%	[optional] compiles faster for large tikz images
 %,optHideTodos%			[optional] disables the todonotespackage and hides any todos and missingfigures
 %,optGroupedAbbreviation%	[optional] gruppieren der Abkürzungen nach Buchstaben	
@@ -18,7 +18,10 @@ FTMstudentthesis%		baseclass
 \graphicspath{{figures/}}%
 \addbibresource{source/bibliography/literature.bib}%
 \addbibresource{source/bibliography/bibliographyTest.bib}%
+\addbibresource{source/bibliography/mybibliography.bib}%
 \include{source/lists/abbreviations}% Definition of Acronyms
+\DeclareUnicodeCharacter{2063}{}
+
 %
 %
 \begin{document}%
@@ -30,14 +33,14 @@ FTMstudentthesis%		baseclass
 %\FTMstudentthesisTitlePageFTMDesignDiplomarbeit{Hier steht der Titel der Arbeit, der auch zweizeilig sein kann}{Hier kommt der englische Titel hin, der dann wohl auch zweizeilig sein muss}{Dipl.-Ing. Max Mustermann, B.Sc. \vskip0pt Musterweg 20 \vskip0pt 80999 München}{\FTMnamesProfLienkamp}{\FTMnamesStaffPonn}{\FTMutilsDate{31}{08}{2021}}{./figures/ImagePDF}%
 %\FTMstudentthesisTitlePageFTMDesignBachelorsThesis{Hier steht der Titel der Arbeit, der auch zweizeilig sein kann}{Hier kommt der englische Titel hin, der dann wohl auch zweizeilig sein muss}{Dipl.-Ing. Max Mustermann, B.Sc. \vskip0pt Musterweg 20 \vskip0pt 80999 München}{\FTMnamesProfLienkamp}{\FTMnamesStaffPonn}{\FTMutilsDate{31}{08}{2021}}{./figures/ImagePDF}%
 %\FTMstudentthesisTitlePageFTMDesignSemesterThesis{Hier steht der Titel der Arbeit, der auch zweizeilig sein kann}{Hier kommt der englische Titel hin, der dann wohl auch zweizeilig sein muss}{Dipl.-Ing. Max Mustermann, B.Sc. \vskip0pt Musterweg 20 \vskip0pt 80999 München}{\FTMnamesProfLienkamp}{\FTMnamesStaffPonn}{\FTMutilsDate{31}{08}{2021}}{./figures/ImagePDF}%
-\FTMstudentthesisTitlePageFTMDesignMastersThesis{Hier steht der Titel der Arbeit, der auch zweizeilig sein kann}{Hier kommt der englische Titel hin, der dann wohl auch zweizeilig sein muss}{Dipl.-Ing. Max Mustermann, B.Sc. \vskip0pt Musterweg 20 \vskip0pt 80999 München}{\FTMnamesProfLienkamp}{Max Musterbetreuer, M.Sc.}{\FTMutilsDate{01}{10}{2021}}{./figures/ImagePDF}%
+\FTMstudentthesisTitlePageFTMDesignMastersThesis{Stereo Camera-Based Environment Perception for Automated Vehicles}{Stereokamera-Basierte Umfeldwahrnemung für automatisierte Fahrzeuge}{Adrian Rieker, B.Sc. \vskip0pt Schleißheimer Str. 126 \vskip0pt 80797 München}{\FTMnamesProfLienkamp}{David Brecht, M.Sc.}{\FTMutilsDate{01}{07}{2025}}{./figures/ImagePDF}%
 %
 %
 %% ========================
 %% --- Student's Thesis ---
 %% ========================
 \include{source/frame/conceptualformulation}%
-\FTMstudentthesisForms{Frau}{Forename}{Lastname}{\FTMutilsDate{1}{4}{2021}}{\FTMutilsDate{1}{1}{1994}}{Semester}{2021}{, B.Sc.}
+\FTMstudentthesisForms{Herr}{Adrian}{Rieker}{\FTMutilsDate{1}{7}{2025}}{\FTMutilsDate{14}{08}{2000}}{Masterthesis}{2025}{, B.Sc.}
 % Explanation:
 % \FTMstudentthesisForms{Herr/Frau}{Forename}{Lastname}{Submission date}{Date of birth}{Type of Thesis}{Current year}{Your title (optional)}
 %
@@ -54,15 +57,16 @@ FTMstudentthesis%		baseclass
 %% ------- Main Text -------
 %% =========================
 \FTMMainText%
-\include{source/manual}%
-\include{source/chapter01}%
-\include{source/chapter02}%
-\include{source/chapter03}%
-\include{source/chapter04}%
-\include{source/chapter05}%
-\include{source/chapter06}%
-%
-%
+
+
+
+\include{source/1_introduction}
+\include{source/2_state_of_art}
+\include{source/3_methodology}
+\include{source/4_results}
+\include{source/5_discussion}
+\include{source/6_summary}
+
 %% =========================
 %% ------ LOF/LOT/Bib ------
 %% =========================
