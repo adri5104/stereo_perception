@@ -38,9 +38,9 @@ namespace kalman_filter
   A_new_w_(Mat::zeros(6, 6, CV_64FC1)),
   A_new_(Mat::zeros(6, 6, CV_64FC1)),
   u_new_(Mat::zeros(6, 1, CV_64FC1)),
+  rot_new_(),
   D_new_(Mat::zeros(6, 6, CV_64FC1)),
-  Q_new_w_(Mat::zeros(6, 6, CV_64FC1)),
-  para_rot_(Mat::zeros(6, 1, CV_64FC1))
+  Q_new_w_(Mat::zeros(6, 6, CV_64FC1))
 {
   // Initialize variances
   // Set covariance matrix of system model
@@ -83,9 +83,9 @@ KalmanCore::KalmanCore(
   A_new_w_(Mat::zeros(6, 6, CV_64FC1)),
   A_new_(Mat::zeros(6, 6, CV_64FC1)),
   u_new_(Mat::zeros(6, 1, CV_64FC1)),
+  rot_new_(),
   D_new_(Mat::zeros(6, 6, CV_64FC1)),
-  Q_new_w_(Mat::zeros(6, 6, CV_64FC1)),
-  para_rot_(Mat::zeros(6, 1, CV_64FC1))
+  Q_new_w_(Mat::zeros(6, 6, CV_64FC1))
 {
   cout << "[KalmanCore] =================================================================" << endl;
   cout << "[KalmanCore] =============== KalmanCore object created =======================" << endl;
@@ -236,10 +236,8 @@ KalmanCoreErrorCode KalmanCore::predict(
     WorldPointErrorCode wperr = wp.computeKalmanStep(
         input_depth,
         input_optical_flow,
-        A_new_w_, D_new_, Q_new_w_, u_new_,
-        para_rot_,
-        term1, term2, term3, term4, 
-        time_diff_,
+        A_new_, D_new_, Q_new_w_, u_new_,
+        rot_new_,
         occupancy_grid
     );
     local.error = wperr;
@@ -249,6 +247,8 @@ KalmanCoreErrorCode KalmanCore::predict(
     wp.getZ(z);
     local.pos_u = static_cast<int>(std::floor(z.at<double>(0,0)));
     local.pos_v = static_cast<int>(std::floor(z.at<double>(1,0)));
+
+   
 
     // 3) Depending on the error we keep or not the wp
     switch (wperr) {
@@ -436,87 +436,58 @@ KalmanCoreErrorCode KalmanCore::setNewWorldPoints(Mat &occupancy_grid, Mat &outp
 
 KalmanCoreErrorCode KalmanCore::computeKalmanMatrices()
 {
-	Mat A_new_w	= Mat::zeros(6, 6, CV_64FC1);
+	A_new_= Mat::zeros(6, 6, CV_64FC1); 
 
-	// Filling A_new_w (Transition matrix)
-  A_new_ = Mat::eye(6, 6, CV_64FC1);
+	// Filling A_new_w (Transition matrix in world coordinates)
+  A_new_w_ = Mat::eye(6, 6, CV_64FC1);
   Mat scaled_identity = Mat::eye(3, 3, CV_64FC1) * time_diff_;
-  Mat A_new_submatrix = A_new_.colRange(3, 6).rowRange(0, 3);
+  Mat A_new_submatrix = A_new_w_.colRange(3, 6).rowRange(0, 3);
   scaled_identity.copyTo(A_new_submatrix);
   
   if (include_ego_motion_)
   {
-    // Filling D_new_  (Egomotion rotation matrix)
-    Mat tmp = D_new_.colRange(0,3).rowRange(0,3);		
-    input_egomotion_sync_.colRange(0,3).rowRange(0,3).copyTo(tmp);	
-    tmp		= D_new_.colRange(3,6).rowRange(3,6);		
-    input_egomotion_sync_.colRange(0,3).rowRange(0,3).copyTo(tmp);	
+    // Compute rvec from egomotion input
+    Mat rvec;
+    Rodrigues(input_egomotion_sync_.rowRange(0,3).colRange(0,3), rvec);
 
-    // Filling u_new_ (Egomotion translation vector)
+    // Compute R and dRdrvec
+    Mat R, dRdr;
+    Rodrigues(rvec, R, dRdr);
+
+    // Save rotation data 
+    rot_new_.rvec = rvec;
+    rot_new_.R = R;
+    rot_new_.dRdr = dRdr;
+
+    // Build D_new with R
+    D_new_ = Mat::zeros(6, 6, CV_64FC1);
+    R.copyTo(D_new_.rowRange(0,3).colRange(0,3));
+    R.copyTo(D_new_.rowRange(3,6).colRange(3,6)); 
+    // Build u_new with input_egomotion_sync_
+    u_new_ = Mat::zeros(6, 1, CV_64FC1);
     u_new_.at<double>(0,0) = input_egomotion_sync_.at<double>(0,3);
     u_new_.at<double>(1,0) = input_egomotion_sync_.at<double>(1,3);
     u_new_.at<double>(2,0) = input_egomotion_sync_.at<double>(2,3);
 
-    // Compute the new state transition matrix A_new
-    A_new_w_ = D_new_* A_new_;
+    
+
+
+    A_new_ = D_new_ * A_new_w_;
   }
   else
   {
-    A_new_w_ = A_new_;
+    A_new_ = A_new_w_;
   }
 
-	// Compute and fill Q_new_w
-  // Precompute commonly used values for clarity
-  Mat scaled_sigma_1 = (1.0 / 3.0) * time_diff_ * time_diff_ * sigma_system_;
-  Mat scaled_sigma_2 = 0.5 * time_diff_ * sigma_system_;
+  // Compute Q_new_w (Covariance matrix of discrete-time process without egomotion)
+  cv::Mat scaled_sigma_1 = (1.0 / 3.0) * time_diff_ * time_diff_ * sigma_system_;
+  cv::Mat scaled_sigma_2 = 0.5 * time_diff_ * sigma_system_;
 
-  // Fill the top-left block (3x3) of Q_new_w
-  Mat Q_top_left = Q_new_w_.colRange(0, 3).rowRange(0, 3);
-  scaled_sigma_1.copyTo(Q_top_left);
-
-  // Fill the top-right block (3x3) of Q_new_w
-  Mat Q_top_right = Q_new_w_.colRange(3, 6).rowRange(0, 3);
-  scaled_sigma_2.copyTo(Q_top_right);
-
-  // Fill the bottom-left block (3x3) of Q_new_w
-  Mat Q_bottom_left = Q_new_w_.colRange(0, 3).rowRange(3, 6);
-  scaled_sigma_2.copyTo(Q_bottom_left);
-
-  // Fill the bottom-right block (3x3) of Q_new_w
-  Mat Q_bottom_right = Q_new_w_.colRange(3, 6).rowRange(3, 6);
-  sigma_system_.copyTo(Q_bottom_right);
-
-	// Compute jacobian for statetransformation G 
-  if (include_ego_motion_)
-  {
-    double Phi		= asin(input_egomotion_sync_.at<double>(2,1));
-    double sPhi		= sin(Phi);
-    double cPhi		= cos(Phi);
-    double Psi		= acos(input_egomotion_sync_.at<double>(2,2) / cPhi);
-    double sPsi		= sin(Psi);
-    double cPsi		= cos(Psi);
-    double Theta	= acos(input_egomotion_sync_.at<double>(1,1) / cPhi);
-    double sTheta	= sin(Theta);
-    double cTheta	= cos(Theta);
-
-    // Fill vector for egomotion
-    para_rot_.at<double>(0,0) = sTheta;
-    para_rot_.at<double>(1,0) = cTheta;
-    para_rot_.at<double>(2,0) = sPhi;
-    para_rot_.at<double>(3,0) = cPhi;
-    para_rot_.at<double>(4,0) = sPsi;
-    para_rot_.at<double>(5,0) = cPsi;
-
-    // Precalculate terms for J 
-    term1 = sPsi*sTheta - cPsi*cTheta*sPhi;
-    term2 = cPsi*cTheta - sPhi*sPsi*sTheta;
-    term3 = cTheta*sPsi + cPsi*sPhi*sTheta;
-    term4 = cPsi*sTheta + cTheta*sPhi*sPsi;
-    double term5   = -cPhi * sTheta;	
-    double term6   = -cPhi * sPsi;		
-    double term7   = cPhi * cTheta;
-    double term8   = cPhi * cPsi;
-  }
+  Q_new_w_ = cv::Mat::zeros(6, 6, CV_64FC1);
+  scaled_sigma_1.copyTo(Q_new_w_.rowRange(0, 3).colRange(0, 3));
+  scaled_sigma_2.copyTo(Q_new_w_.rowRange(0, 3).colRange(3, 6));
+  scaled_sigma_2.copyTo(Q_new_w_.rowRange(3, 6).colRange(0, 3));
+  sigma_system_.copyTo(Q_new_w_.rowRange(3, 6).colRange(3, 6));
 
   return KalmanCoreErrorCode::OK;
 }

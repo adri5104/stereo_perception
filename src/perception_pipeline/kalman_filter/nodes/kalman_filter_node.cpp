@@ -52,15 +52,15 @@
     // Covariance of measurement model
     this->declare_parameter<double>("sigma2_flow_y_measurement", 10);
     this->declare_parameter<double>("sigma2_flow_x_measurement", 10);
-    this->declare_parameter<double>("sigma2_depth_system", 10);
+    this->declare_parameter<double>("sigma2_depth_measurement", 10);
 
     // Covariance of ego motion estimation
     this->declare_parameter<double>("sigma2_tx_measurement", 10);
     this->declare_parameter<double>("sigma2_ty_measurement", 10);
     this->declare_parameter<double>("sigma2_tz_measurement", 10);
-    this->declare_parameter<double>("sigma2_theta_measurement", 10);
-    this->declare_parameter<double>("sigma2_phi_measurement", 10);
-    this->declare_parameter<double>("sigma2_psi_system", 10);
+    this->declare_parameter<double>("sigma2_rx_measurement", 10);
+    this->declare_parameter<double>("sigma2_ry_measurement", 10);
+    this->declare_parameter<double>("sigma2_rz_measurement", 10);
 
     // Camera parameters
     this->declare_parameter<double>("min_depth", 0.1);
@@ -96,18 +96,21 @@
     use_ego_var_ = this->get_parameter("use_ego_var").as_bool();
     grid_size_ = this->get_parameter("grid_size").as_int();
     debug_image_grid_ = this->get_parameter("debug_image_grid").as_bool();
+
     sigma2_x_system_ = this->get_parameter("sigma2_x_system").as_double();
     sigma2_y_system_ = this->get_parameter("sigma2_y_system").as_double();
     sigma2_z_system_ = this->get_parameter("sigma2_z_system").as_double();
+
     sigma2_flow_y_measurement_ = this->get_parameter("sigma2_flow_y_measurement").as_double();
     sigma2_flow_x_measurement_ = this->get_parameter("sigma2_flow_x_measurement").as_double();
-    sigma2_depth_system_ = this->get_parameter("sigma2_depth_system").as_double();
+    sigma2_depth_measurement_ = this->get_parameter("sigma2_depth_measurement").as_double();
+
     sigma2_tx_measurement_ = this->get_parameter("sigma2_tx_measurement").as_double();
     sigma2_ty_measurement_ = this->get_parameter("sigma2_ty_measurement").as_double();
     sigma2_tz_measurement_ = this->get_parameter("sigma2_tz_measurement").as_double();
-    sigma2_theta_measurement_ = this->get_parameter("sigma2_theta_measurement").as_double();
-    sigma2_phi_measurement_ = this->get_parameter("sigma2_phi_measurement").as_double();
-    sigma2_psi_system_ = this->get_parameter("sigma2_psi_system").as_double();
+    sigma2_rx_measurement_ = this->get_parameter("sigma2_rx_measurement").as_double();
+    sigma2_ry_measurement_ = this->get_parameter("sigma2_ry_measurement").as_double();
+    sigma2_rz_measurement_ = this->get_parameter("sigma2_rz_measurement").as_double();
 
     min_depth_ = this->get_parameter("min_depth").as_double();
     max_depth_ = this->get_parameter("max_depth").as_double();
@@ -125,15 +128,15 @@
     // Set covariance matrix of measurement model
     T_.at<double>(0,0) = sigma2_flow_y_measurement_;
     T_.at<double>(1,1) = sigma2_flow_x_measurement_;
-    T_.at<double>(2,2) = sigma2_depth_system_;                    
+    T_.at<double>(2,2) = sigma2_depth_measurement_;                    
 
     // Set covariance matrix of egomotion
     C_.at<double>(0,0) = sigma2_tx_measurement_;
     C_.at<double>(1,1) = sigma2_ty_measurement_;
     C_.at<double>(2,2) = sigma2_tz_measurement_;
-    C_.at<double>(3,3) = sigma2_theta_measurement_;
-    C_.at<double>(4,4) = sigma2_phi_measurement_;
-    C_.at<double>(5,5) = sigma2_psi_system_;
+    C_.at<double>(3,3) = sigma2_rx_measurement_;
+    C_.at<double>(4,4) = sigma2_ry_measurement_;
+    C_.at<double>(5,5) = sigma2_rz_measurement_;
 
 
     kalman_core_ = std::make_unique<KalmanCore> 
@@ -167,16 +170,15 @@
     sync_->registerCallback(&KalmanFilterNode::updateSync, this);
     sync_->setMaxIntervalDuration(rclcpp::Duration::from_seconds(0.1));
 
-
     // Camera info subscription (standard rclcpp subscription)
     camera_info_sub_ = this->create_subscription<sensor_msgs::msg::CameraInfo>(
       camera_info_topic_, 10,
       std::bind(&KalmanFilterNode::cameraInfoCallback, this, std::placeholders::_1));
 
     // Publishers
-    debug_image_pub_ = this->create_publisher<sensor_msgs::msg::Image>(debug_image_topic_, 10);
-    output_6d_pub_   = this->create_publisher<sensor_msgs::msg::Image>(output_6d_topic_, 10);
-    debug_markers_pub_   = this->create_publisher<visualization_msgs::msg::MarkerArray>(debug_markers_topic_, 10);
+    debug_image_pub_ = this->create_publisher<sensor_msgs::msg::Image>(debug_image_topic_, 100);
+    output_6d_pub_   = this->create_publisher<sensor_msgs::msg::Image>(output_6d_topic_, 100);
+    debug_markers_pub_   = this->create_publisher<visualization_msgs::msg::MarkerArray>(debug_markers_topic_, 100);
 
     // Parameter reconfigure handler
     param_reconfigure_handler_ = this->add_on_set_parameters_callback(
@@ -340,10 +342,10 @@
         start.z = vec[2];
 
         geometry_msgs::msg::Point end;
-        end.x = vec[0] + delta_time * vec[3];
-        end.y = vec[1] + delta_time * vec[4];
-        end.z = vec[2] + delta_time * vec[5];
-    
+        end.x = vec[0] +   vec[3];
+        end.y = vec[1] +   vec[4];
+        end.z = vec[2] +   vec[5];
+  
 
         marker.points.reserve(2);
         marker.points.push_back(start);
@@ -400,40 +402,40 @@
 
       if (name == "sigma2_flow_y_measurement" || 
           name == "sigma2_flow_x_measurement" || 
-          name == "sigma2_depth_system")
+          name == "sigma2_depth_measurement")
       {
         if (name == "sigma2_flow_y_measurement") sigma2_flow_y_measurement_ = param.as_double();
         if (name == "sigma2_flow_x_measurement") sigma2_flow_x_measurement_ = param.as_double();
-        if (name == "sigma2_depth_system") sigma2_depth_system_ = param.as_double();
+        if (name == "sigma2_depth_measurement") sigma2_depth_measurement_ = param.as_double();
 
         T_ = cv::Mat::zeros(3, 3, CV_64FC1);
         T_.at<double>(0, 0) = sigma2_flow_y_measurement_;
         T_.at<double>(1, 1) = sigma2_flow_x_measurement_;
-        T_.at<double>(2, 2) = sigma2_depth_system_;
+        T_.at<double>(2, 2) = sigma2_depth_measurement_;
         kalman_core_->setT(T_);
       }
 
       if (name == "sigma2_tx_measurement" ||
           name == "sigma2_ty_measurement" || 
           name == "sigma2_tz_measurement" || 
-          name == "sigma2_theta_measurement" || 
-          name == "sigma2_phi_measurement" || 
-          name == "sigma2_psi_system")
+          name == "sigma2_rx_measurement_" || 
+          name == "sigma2_ry_measurement_" || 
+          name == "sigma2_rz_measurement_")
       {
         if (name == "sigma2_tx_measurement") sigma2_tx_measurement_ = param.as_double();
         if (name == "sigma2_ty_measurement") sigma2_ty_measurement_ = param.as_double();
         if (name == "sigma2_tz_measurement") sigma2_tz_measurement_ = param.as_double();
-        if (name == "sigma2_theta_measurement") sigma2_theta_measurement_ = param.as_double();
-        if (name == "sigma2_phi_measurement") sigma2_phi_measurement_ = param.as_double();
-        if (name == "sigma2_psi_system") sigma2_psi_system_ = param.as_double();
+        if (name == "sigma2_rx_measurement_") sigma2_rx_measurement_ = param.as_double();
+        if (name == "sigma2_ry_measurement_") sigma2_ry_measurement_ = param.as_double();
+        if (name == "sigma2_rz_measurement_") sigma2_rz_measurement_ = param.as_double();
 
         C_ = cv::Mat::zeros(6, 6, CV_64FC1);
         C_.at<double>(0, 0) = sigma2_tx_measurement_;
         C_.at<double>(1, 1) = sigma2_ty_measurement_;
         C_.at<double>(2, 2) = sigma2_tz_measurement_;
-        C_.at<double>(3, 3) = sigma2_theta_measurement_;
-        C_.at<double>(4, 4) = sigma2_phi_measurement_;
-        C_.at<double>(5, 5) = sigma2_psi_system_;
+        C_.at<double>(3, 3) = sigma2_rx_measurement_;
+        C_.at<double>(4, 4) = sigma2_ry_measurement_;
+        C_.at<double>(5, 5) = sigma2_rz_measurement_;
         kalman_core_->setC(C_);
       }
 

@@ -14,6 +14,7 @@
 
 #include <iostream>
 #include <opencv2/opencv.hpp>
+#include <kalman_filter/utils.hpp>
 namespace perception_pipeline {
 namespace kalman_filter {
 
@@ -107,35 +108,23 @@ class WorldPoint
      * 
      * @param input_depth input depth image in mm
      * @param input_flow input optical flow image in pixels
-     * @param A_new input state transition matrix
-     * @param D_new input egomotion rotation matrix
-     * @param Q_new_w input covariance matrix of discrete-time process
+     * @param A_new input state transition matrix in camera coordinates
+     * @param D_new input system rotation matrix
+     * @param Q_new_w input covariance matrix of discrete-time process in world coordinates
      * @param u_new input egomotion translation vector
-     * @param para_rot parameter including the sin and cos of the three euler angles (Theta, Phi, Psi)
-     * @param term1 sPsi*sTheta - cPsi*cTheta*sPhi;
-     * @param term2 cPsi*cTheta - sPhi*sPsi*sTheta;
-     * @param term3 cTheta*sPsi + cPsi*sPhi*sTheta;
-     * @param term4 cPsi*sTheta + cTheta*sPhi*sPsi;
-     * @param timediff time difference between the current and the last frame
+     * @param rot_new struct containing the egomotion rotation data (rvec, R, dRdr)
      * @param occupancy_grid The occupancy grid.
      * @return WorldPointErrorCode 
      */
     WorldPointErrorCode	 computeKalmanStep(
               const Mat& input_depth,													///< Method that runs a complete Kalmanstep with all necessary computations. Returns integer depending on the condition of the state vector
-              const Mat& ,
+              const Mat& input_flow,
               const Mat& A_new,
               const Mat& D_new,
               const Mat& Q_new_w,
               const Mat& u_new,
-              const Mat& para_rot,
-              const double& term1,
-              const double& term2,
-              const double& term3,
-              const double& term4,
-              const double& timediff,
+              const EgoMotionRotationData& rot_new,
               Mat& occupancy_grid);
-
-
     /**
      * @brief Function for computing world coordinates out of pixel values (3D reprojection).
      * 
@@ -205,22 +194,38 @@ class WorldPoint
     double min_depth_ ;
     double min_height_;
     double max_height_;
-    Mat	z_old_;	// Old measurement vector			
-	  Mat	x_old_;	// Old state vector
-	  Mat	P_old_;	// Old state covariance matrix				
+
+    Mat	z_old_;	///< Old measurement vector			
+	  Mat	x_old_;	///< Old state vector
+	  Mat	P_old_;	///< Old state covariance matrix				
 	  
-	  Mat	C_;	 // Reference to the covariance matrix of the egomotion
-	  Mat	T_;	 // Reference to the covariance matrix of the measurement model
-    bool include_ego_motion_;	// Flag for incorporating the egomotion
-	  bool use_var_ego_;	// Flag for using the covariance matrix of the egomotion
-	  double grid_size_worldpoints;	// Size of the grid for the worldpoints
-    int	age_; // Number of iterations the object has already been passed through
+	  Mat	C_;	 ///< Reference to the covariance matrix of the egomotion
+	  Mat	T_;	 ///< Reference to the covariance matrix of the measurement model
+    bool include_ego_motion_;	///< Flag for incorporating the egomotion
+	  bool use_var_ego_;	///< Flag for using the covariance matrix of the egomotion
+	  double grid_size_worldpoints;	///< Size of the grid for the worldpoints
+    int	age_; ///< Number of iterations the object has already been passed through
+
+    // Kalman filter matrices
+    Mat x_new_pred_; ///< Prior state vector
+    Mat x_new_; ///< Posterior state vector
+    Mat z_new_pred_; ///< Prior measurement vector
+    Mat z_new_; ///< Posterior measurement vector
+    Mat s_new_; ///< Innovation vector
+    Mat Q_new_; ///< Process noise covariance matrix
+    Mat P_new_pred_; ///< Prior state covariance matrix
+    Mat P_new_; ///< Posterior state covariance matrix
+    Mat K_new_; ///< Kalman gain matrix
+    Mat J_new_; ///< Jacobian matrix of the egomotion
+    Mat H_new_; ///< Jacobian matrix of the measurement model
+    Mat S_new_; ///< Innovation covariance matrix
+    Mat S_new_inv_; ///< Inverse of the innovation covariance matrix
 
     // Camera parameters
-    double f_x_; // Focal length x
-    double f_y_; // Focal length y
-    double c_x_; // Principal point x
-    double c_y_; // Principal point y
+    double f_x_; ///< Focal length x
+    double f_y_; ///< Focal length y
+    double c_x_; ///< Principal point x
+    double c_y_; ///< Principal point y
 
     WorldPointErrorCode errorCode; // Error code for the Kalman filter
  

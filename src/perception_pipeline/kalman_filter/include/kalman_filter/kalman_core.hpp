@@ -21,6 +21,7 @@
 
 
 #include "kalman_filter/worldpoint.hpp"
+#include "kalman_filter/utils.hpp"
 #include <rclcpp/clock.hpp>
 #include <rclcpp/time.hpp>
 
@@ -96,6 +97,8 @@ using WPResult = struct {
   WorldPointErrorCode error;  // to assign color in debug image
 };
 
+
+
 /**
  * @class KalmanCore
  * @brief This class implements the pure logic of a Kalman Filter, 
@@ -169,7 +172,7 @@ public:
    * @param optical_flow The optical flow image (CV_32FC2 or similar).
    * @param depth The depth image.
    * @param color_image The color image.
-   * @param egomotion The egomotion matrix.
+   * @param egomotion The egomotion matrix in the format [R|t].
    * @param time_diff The time difference between frames.
    * @return KalmanCoreErrorCode Error code.
    */
@@ -289,7 +292,7 @@ private:
   Mat input_optical_flow_sync_;    ///< Input optical flow image
   Mat input_depth_sync_;           ///< Input depth image
   Mat input_color_image_sync_;     ///< Input color image
-  Mat input_egomotion_sync_;       ///< Input egomotion matrix
+  Mat input_egomotion_sync_;       ///< Input egomotion vector [tx, ty, tz, theta, phi, psi]
 
   double time_diff_;              ///< Time difference between frames
 
@@ -315,17 +318,12 @@ private:
   Mat C_;            ///< Covariance matrix of the egomotion  
   Mat T_ ;           ///< Covariance matrix of the measurement model
   Mat sigma_system_; ///< Covariance matrix of the system model
-  Mat A_new_w_;	     ///< State transition matrix 
-  Mat	A_new_;		     ///< Transition matrix
+  Mat A_new_w_;	     ///< State transition matrix in world coordinates
+  Mat	A_new_;		     ///< Transition matrix in camera coordinates
   Mat	u_new_;		     ///< Egomotion translation vector
+  EgoMotionRotationData rot_new_ ; ///< Egomotion rotation data
   Mat	D_new_;		     ///< Matrix containing the rotation matrix of the egomotion
   Mat	Q_new_w_;	     ///< Covariance matrix of discrete-time process
-  Mat	para_rot_;     ///< Parametervector with some precomputed values (sin/cos) for rotation of egomotion 
-  double term1;		   ///< sPsi*sTheta - cPsi*cTheta*sPhi;
-  double term2;		   ///< cPsi*cTheta - sPhi*sPsi*sTheta;
-  double term3;		   ///< cTheta*sPsi + cPsi*sPhi*sTheta;
-  double term4;		   ///< cPsi*sTheta + cTheta*sPhi*sPsi;
-
 };
 
 } // namespace kalman_filter

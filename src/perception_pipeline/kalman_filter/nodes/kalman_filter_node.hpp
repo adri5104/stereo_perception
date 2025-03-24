@@ -174,13 +174,13 @@ private:
   double sigma2_z_system_;
   double sigma2_flow_y_measurement_;
   double sigma2_flow_x_measurement_;
-  double sigma2_depth_system_;
+  double sigma2_depth_measurement_;
   double sigma2_tx_measurement_;
   double sigma2_ty_measurement_;
   double sigma2_tz_measurement_;
-  double sigma2_theta_measurement_;
-  double sigma2_phi_measurement_;
-  double sigma2_psi_system_;
+  double sigma2_rx_measurement_;
+  double sigma2_ry_measurement_;
+  double sigma2_rz_measurement_;
 
   double min_depth_;
   double max_depth_;
