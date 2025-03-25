@@ -90,30 +90,80 @@ def generate_launch_description():
                 {'debug_image_topic_':'/debug/debug_image'},
                 {'output_6d_topic' : '/perception_pipeline/output_6d'},
                 {'debug_markers_topic' : '/debug/image_6d_markers'},
-                {'grid_size' : 12},
+                {'grid_size' : 10},
                 {'debug_image_grid' : False},
                 {'use_ego_motion' : True},
                 {'use_ego_var' : True},
-                {'sigma2_x_system' : 0.1},
-                {'sigma2_y_system' : 0.1},
-                {'sigma2_z_system' : 0.01},
-                {'sigma2_flow_y_measurement' : 0.04},
-                {'sigma2_flow_x_measurement' : 0.04},
+                {'sigma2_x_system' : 0.0001},
+                {'sigma2_y_system' : 0.001},
+                {'sigma2_z_system' : 0.00001},
+                {'sigma2_flow_y_measurement' : 1.0},
+                {'sigma2_flow_x_measurement' : 1.0},
                 {'sigma2_depth_measurement' : 0.1},
-                {'sigma2_tx_measurement' : 0.005 },
-                {'sigma2_ty_measurement' : 0.005 },
-                {'sigma2_tz_measurement' : 0.005 },
+                {'sigma2_tx_measurement' : 0.01 },
+                {'sigma2_ty_measurement' : 0.00000001 },
+                {'sigma2_tz_measurement' : 0.1 },
                 {'sigma2_rx_measurement' : 0.001 },
                 {'sigma2_ry_measurement' : 0.001 },
                 {'sigma2_rz_measurement' : 0.001 },
-                {'min_depth' : 1.0},
-                {'max_depth' : 10.0},
+                {'min_depth' : 3.0},
+                {'max_depth' : 11.0},
                 {'min_height_' :-3.0},
-                {'camera_ground_distance' : 1.5},
+                {'camera_ground_distance' : 1.3},
                 {'use_sim_time': use_sim_time}
             ],
             ros_arguments= ["--log-level", "info"] 
         ),
+        
+        
+        
+        # Best values so far
+        
+        #launch_ros.actions.Node(
+        #    package='kalman_filter',
+        #    executable='kalman_filter_node',
+        #    name='kalman_filter_node',
+        #    output='screen',
+        #    parameters=[
+        #        {'optical_flow_topic': '/perception_pipeline/optical_flow'},
+        #        {'depth_topic': "/device_0/sensor_0/Depth_0/image/data"},
+        #        {'camera_info_topic': '/perception_pipeline/camera_info_sync'},
+        #        {'camera_frame_tf_topic': '/perception_pipeline/camera_frame_tf'},
+        #        {'color_image_topic':"/device_0/sensor_1/Color_0/image/data"}, 
+        #        {'debug_image_topic_':'/debug/debug_image'},
+        #        {'output_6d_topic' : '/perception_pipeline/output_6d'},
+        #        {'debug_markers_topic' : '/debug/image_6d_markers'},
+        #        {'grid_size' : 12},
+        #        {'debug_image_grid' : False},
+        #        {'use_ego_motion' : True},
+        #        {'use_ego_var' : True},
+        #        {'sigma2_x_system' : 0.001},
+        #        {'sigma2_y_system' : 0.001},
+        #        {'sigma2_z_system' : 0.0001},
+        #        {'sigma2_flow_y_measurement' : 1.0},
+        #        {'sigma2_flow_x_measurement' : 1.0},
+        #        {'sigma2_depth_measurement' : 0.1},
+        #        {'sigma2_tx_measurement' : 0.1 },
+        #        {'sigma2_ty_measurement' : 0.1 },
+        #        {'sigma2_tz_measurement' : 0.1 },
+        #        {'sigma2_rx_measurement' : 0.001 },
+        #        {'sigma2_ry_measurement' : 0.001 },
+        #        {'sigma2_rz_measurement' : 0.001 },
+        #        {'min_depth' : 1.0},
+        #        {'max_depth' : 10.0},
+        #        {'min_height_' :-3.0},
+        #        {'camera_ground_distance' : 1.5},
+        #        {'use_sim_time': use_sim_time}
+        #    ],
+        #    ros_arguments= ["--log-level", "info"] 
+        #),
+        
+        
+        
+        
+        
+        
+        
         #        
         #launch_ros.actions.Node(
         #  package='object_detector',
@@ -143,11 +193,11 @@ def generate_launch_description():
             {'input_6d_topic': '/perception_pipeline/output_6d'},
             {'output_markers_topic' : '/perception_pipeline/output_markers'},
             {'output_clusters_topic' : '/perception_pipeline/output_clusters'},
-            {'eps': 2.0},
-            {'minPts': 2},
+            {'eps': 1.0},
+            {'minPts': 3},
             {'pos_weight': 0.7},
-            {'vel_weight': 0.00},
-            {'vel_threshold': 0.3},
+            {'vel_weight': 0.0001},
+            {'vel_threshold': 0.7},
             {'use_sim_time': use_sim_time}
             
           ],
