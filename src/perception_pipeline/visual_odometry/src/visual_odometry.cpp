@@ -317,6 +317,8 @@ rvec.at<double>(2) = applyMovingAverage(yaw_window_, rz);
 
 // Convert rotation vector to rotation matrix
 cv::Rodrigues(rvec, rotation_);
+//std::cout << "Rotation matrix: " << rotation_ << std::endl;
+//std::cout << "Rotation vector " << rvec << std::endl;
 translation_ = tvec.clone();
 
 // If exponential smoothing is enabled, apply it directly

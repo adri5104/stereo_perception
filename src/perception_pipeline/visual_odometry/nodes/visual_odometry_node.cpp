@@ -257,7 +257,13 @@ namespace visual_odometry
 
 int main(int argc, char **argv) {
     rclcpp::init(argc, argv);
-    rclcpp::spin(std::make_shared<perception_pipeline::visual_odometry::VisualOdometryNode>());
+
+
+    auto node = std::make_shared<perception_pipeline::visual_odometry::VisualOdometryNode>();
+    rclcpp::executors::MultiThreadedExecutor executor;
+    executor.add_node(node);
+    executor.spin();
+
     rclcpp::shutdown();
     return 0;
 }
