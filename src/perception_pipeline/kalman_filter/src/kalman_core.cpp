@@ -107,10 +107,6 @@ KalmanCore::KalmanCore(
 
 KalmanCore::~KalmanCore(void)
 {
-  for (auto& wp: worldpoints_)
-  {
-    wp.reset();
-  }
 }
 
 KalmanCoreErrorCode KalmanCore::updateSyncedData(
@@ -248,8 +244,6 @@ KalmanCoreErrorCode KalmanCore::predict(
     local.pos_u = static_cast<int>(std::floor(z.at<double>(0,0)));
     local.pos_v = static_cast<int>(std::floor(z.at<double>(1,0)));
 
-   
-
     // 3) Depending on the error we keep or not the wp
     switch (wperr) {
       case WorldPointErrorCode::OK: {
@@ -320,7 +314,6 @@ KalmanCoreErrorCode KalmanCore::predict(
       }
     }
   }
-
 
   worldpoints_ = std::move(new_worldpoints);
 
@@ -446,18 +439,21 @@ KalmanCoreErrorCode KalmanCore::computeKalmanMatrices()
   
   if (include_ego_motion_)
   {
-    // Compute rvec from egomotion input
     Mat rvec;
     Rodrigues(input_egomotion_sync_.rowRange(0,3).colRange(0,3), rvec);
 
-    // Compute R and dRdrvec
     Mat R, dRdr;
     Rodrigues(rvec, R, dRdr);
-
-    // Save rotation data 
+    // Save rotation data
     rot_new_.rvec = rvec;
     rot_new_.R = R;
     rot_new_.dRdr = dRdr;
+
+    //std::cout << "Input R: " << inputR << std::endl;
+    //std::cout << "R: " << R << std::endl;
+    //std::cout << "dRdr: " << dRdr << std::endl;
+    //std::cout << "rvec: " << rvec << std::endl;
+
 
     // Build D_new with R
     D_new_ = Mat::zeros(6, 6, CV_64FC1);
@@ -468,9 +464,6 @@ KalmanCoreErrorCode KalmanCore::computeKalmanMatrices()
     u_new_.at<double>(0,0) = input_egomotion_sync_.at<double>(0,3);
     u_new_.at<double>(1,0) = input_egomotion_sync_.at<double>(1,3);
     u_new_.at<double>(2,0) = input_egomotion_sync_.at<double>(2,3);
-
-    
-
 
     A_new_ = D_new_ * A_new_w_;
   }

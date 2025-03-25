@@ -168,7 +168,7 @@
 
     // Register the synchronized callback
     sync_->registerCallback(&KalmanFilterNode::updateSync, this);
-    sync_->setMaxIntervalDuration(rclcpp::Duration::from_seconds(0.1));
+    sync_->setMaxIntervalDuration(rclcpp::Duration::from_seconds(0.05));
 
     // Camera info subscription (standard rclcpp subscription)
     camera_info_sub_ = this->create_subscription<sensor_msgs::msg::CameraInfo>(
@@ -176,9 +176,9 @@
       std::bind(&KalmanFilterNode::cameraInfoCallback, this, std::placeholders::_1));
 
     // Publishers
-    debug_image_pub_ = this->create_publisher<sensor_msgs::msg::Image>(debug_image_topic_, 100);
-    output_6d_pub_   = this->create_publisher<sensor_msgs::msg::Image>(output_6d_topic_, 100);
-    debug_markers_pub_   = this->create_publisher<visualization_msgs::msg::MarkerArray>(debug_markers_topic_, 100);
+    debug_image_pub_ = this->create_publisher<sensor_msgs::msg::Image>(debug_image_topic_, 5);
+    output_6d_pub_   = this->create_publisher<sensor_msgs::msg::Image>(output_6d_topic_, 5);
+    debug_markers_pub_   = this->create_publisher<visualization_msgs::msg::MarkerArray>(debug_markers_topic_, 2);
 
     // Parameter reconfigure handler
     param_reconfigure_handler_ = this->add_on_set_parameters_callback(
@@ -216,6 +216,10 @@
       frame_tf_msg->transform.rotation.z,
       frame_tf_msg->transform.rotation.w);
     tf2::Matrix3x3 m(q);
+
+    
+    // We invert the rotation matrix to get the transformation from camera to world
+    //m = m.inverse();  
 
     // Fill the matrix
     for (int i = 0; i < 3; ++i) {
@@ -491,6 +495,8 @@
   {
     rclcpp::init(argc, argv);
     auto node = std::make_shared<perception_pipeline::kalman_filter::KalmanFilterNode>();
+
+    //rclcpp::spin(node);
     rclcpp::executors::MultiThreadedExecutor executor;
     executor.add_node(node);
     executor.spin();

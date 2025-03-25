@@ -284,7 +284,11 @@ geometry_msgs::msg::Point ObjectDetectorNode::pclPointToGeometryMsgPoint(const p
 int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
-  rclcpp::spin(std::make_shared<perception_pipeline::object_detector::ObjectDetectorNode>());
+
+  auto node = std::make_shared<perception_pipeline::object_detector::ObjectDetectorNode>();
+  rclcpp::executors::MultiThreadedExecutor executor;
+  executor.add_node(node);
+  executor.spin();
   rclcpp::shutdown();
   return 0;
 }   

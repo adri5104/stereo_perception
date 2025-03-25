@@ -1,12 +1,8 @@
 /**
  * @file worldpoint.cpp
  * @author adrian.rieker@tum.de
- * @brief 
- * @version 
- * @date 
- * 
- * 
- * 
+   * @brief This class implements the Kalman filter for a single world point
+ *
  */
 
 #include "kalman_filter/worldpoint.hpp"
@@ -23,29 +19,22 @@ WorldPoint::WorldPoint(
   bool &includeEgoMotion,
   bool &useVarEgo, 
   int gridSize)
-: C_(C), 
-  T_(T), 
-  min_depth_(min_depth),
-  max_depth_(max_depth),
-  min_height_(min_height),
-  max_height_(max_height),
-  include_ego_motion_(includeEgoMotion),
-  use_var_ego_(useVarEgo), 
+: C_(C),  T_(T), 
+  min_depth_(min_depth),   max_depth_(max_depth),
+  min_height_(min_height), max_height_(max_height),
+  include_ego_motion_(includeEgoMotion), use_var_ego_(useVarEgo), 
   grid_size_worldpoints(gridSize),
   age_(0),
-  f_x_(fx),
-  f_y_(fy),
-  c_x_(cx),
-  c_y_(cy)
+  f_x_(fx), f_y_(fy), c_x_(cx), c_y_(cy)
 {
 }
 
 WorldPoint::~WorldPoint(void) {}
 
 WorldPointErrorCode WorldPoint::initKalmanFilter(
-  const double &u, 
-  const double &v, 
-  const double &depth,
+  const double &u,      // pixel coordinate u 
+  const double &v,      // pixel coordinate v
+  const double &depth,  // depth value
   Mat &occupancyGrid)
 {
   // Initialize measurement vector
@@ -58,38 +47,36 @@ WorldPointErrorCode WorldPoint::initKalmanFilter(
 	x_old_ = Mat::zeros(6, 1, CV_64FC1);				
 	Mat tmp = Mat::zeros(4, 1, CV_64FC1);
 	projectPixelToWorld(u, v, depth, tmp);							
-	Mat tmp2 = x_old_.rowRange(0,3);						
-	tmp.rowRange(0,3).copyTo(tmp2);	
-
-  // Initialize variances with 10 for velocity and 0.1 for position
-  P_old_ = Mat::eye(6, 6, CV_64FC1);
-  P_old_.at<double>(0,0) = 10;
-  P_old_.at<double>(1,1) = 10;
-  P_old_.at<double>(2,2) = 10;
-  P_old_.at<double>(3,3) = 10;
-  P_old_.at<double>(4,4) = 10;
-  P_old_.at<double>(5,5) = 10;
+	tmp.rowRange(0,3).copyTo(x_old_.rowRange(0,3));	
   
-
+  // Initialize variances with 10
+  P_old_ = Mat::eye(6, 6, CV_64FC1);
+  P_old_.at<double>(0,0) = 1;
+  P_old_.at<double>(1,1) = 1;
+  P_old_.at<double>(2,2) = 1;
+  P_old_.at<double>(3,3) = 1;
+  P_old_.at<double>(4,4) = 1;
+  P_old_.at<double>(5,5) = 1;
+  
   // Increase occupancy grid value
   occupancyGrid.at<uchar>
     (static_cast<int>(std::floor(v / static_cast<double>(grid_size_worldpoints))), 
      static_cast<int>(std::floor(u / static_cast<double>(grid_size_worldpoints)))) += 1;
 
   // Allocate memory for the Kalman filter matrices
-  x_new_pred_ = Mat::zeros(6, 1, CV_64FC1);    // Priori state vector
-  x_new_ = Mat::zeros(6, 1, CV_64FC1);         // Posterior state vector
-  z_new_pred_ = Mat::zeros(3, 1, CV_64FC1);    // Priori measurement vector
-  z_new_ = Mat::zeros(3, 1, CV_64FC1);         // Posterior measurement vector
-  s_new_ = Mat::zeros(3, 1, CV_64FC1);         // 3x1 innovation vector
-  Q_new_ = Mat::zeros(6, 6, CV_64FC1);         // Process noise covariance matrix
-  P_new_pred_ = Mat::zeros(6, 6 , CV_64FC1);    // Priori estimate covariance matrix
-  P_new_ = Mat::zeros(6, 6, CV_64FC1);         // Posterior estimate covariance matrix
-  K_new_ = Mat::zeros(6, 3, CV_64FC1);         // Kalman gain matrix
-  J_new_ = Mat::zeros(6, 6, CV_64FC1);         // Jacobian matrix of the egomotion
-  H_new_ = Mat::zeros(3, 6, CV_64FC1);         // Jacobian matrix of the measurement model
-  S_new_ = Mat::zeros(3, 3, CV_64FC1);         // Innovation covariance matrix
-  S_new_inv_ = Mat::zeros(3, 3, CV_64FC1);     // Inverse of the innovation covariance matrix
+  x_new_pred_ = Mat::zeros(6, 1, CV_64FC1);  // Priori state vector
+  x_new_      = Mat::zeros(6, 1, CV_64FC1);  // Posterior state vector
+  z_new_pred_ = Mat::zeros(3, 1, CV_64FC1);  // Priori measurement vector
+  z_new_      = Mat::zeros(3, 1, CV_64FC1);  // Posterior measurement vector
+  s_new_      = Mat::zeros(3, 1, CV_64FC1);  // 3x1 innovation vector
+  Q_new_      = Mat::zeros(6, 6, CV_64FC1);  // Process noise covariance matrix
+  P_new_pred_ = Mat::zeros(6, 6, CV_64FC1);  // Priori estimate covariance matrix
+  P_new_      = Mat::zeros(6, 6, CV_64FC1);  // Posterior estimate covariance matrix
+  K_new_      = Mat::zeros(6, 3, CV_64FC1);  // Kalman gain matrix
+  J_new_      = Mat::zeros(6, 6, CV_64FC1);  // Jacobian matrix of the egomotion
+  H_new_      = Mat::zeros(3, 6, CV_64FC1);  // Jacobian matrix of the measurement model
+  S_new_      = Mat::zeros(3, 3, CV_64FC1);  // Innovation covariance matrix
+  S_new_inv_  = Mat::zeros(3, 3, CV_64FC1);  // Inverse of the innovation covariance matrix
   
   return WorldPointErrorCode::OK;
 }
@@ -151,49 +138,64 @@ WorldPointErrorCode WorldPoint::computeKalmanStep(
   }
 
   // Prediction step
+
   // Compute the process noise covariance matrix
 	if (use_var_ego_ && include_ego_motion_)
-  { 
-    Mat v = A_new * x_old_;
-    Mat v_pos = v.rowRange(0,3);
-    Mat v_vel = v.rowRange(3,6);
+  {
+    // 1. Predicción del estado utilizando la matriz de transición A_new
+    Mat v = A_new * x_old_;  // Vector de estado predicho
+    Mat v_pos = v.rowRange(0, 3);  // Posición (X, Y, Z)
+    Mat v_vel = v.rowRange(3, 6);  // Velocidad (X, Y, Z)
 
-    // Compute the Jacobian matrix of the egomotion
-    Mat J_pos = Mat::zeros(3, 3, CV_64FC1);
-    Mat J_vel = Mat::zeros(3, 3, CV_64FC1);
-    for (int i = 0; i < 3; i++)
-    { 
-      for (int j = 0; j < 3; j++)
-      {
-        int idx = 3 * i + j;
-        for (int k = 0; k < 3; k++)
-        {
-          J_pos.at<double>(i,k) += rot_new.dRdr.at<double>(idx,k) * v_pos.at<double>(j);
-          J_vel.at<double>(i,k) += rot_new.dRdr.at<double>(idx,k) * v_vel.at<double>(j);
+    // 2. Cálculo de la matriz Jacobiana de la egomotion
+    // Usamos directamente la matriz derivada dRdr de rot_new.
+    Mat J_pos = Mat::zeros(3, 3, CV_64FC1);  // Inicialización de la matriz Jacobiana para posición
+    Mat J_vel = Mat::zeros(3, 3, CV_64FC1);  // Inicialización de la matriz Jacobiana para velocidad
+
+
+
+    // Asumiendo dRdr es 9x3 (derivadas de la matriz de rotación fila a fila)
+    for (int i = 0; i < 3; ++i) {        // filas de R
+      for (int j = 0; j < 3; ++j) {      // columnas de R
+        int idx = 3 * i + j;            // posición en la matriz R (flattened row-wise)
+        for (int k = 0; k < 3; ++k) {   // derivadas respecto a rvec
+          double dR = rot_new.dRdr.at<double>(idx, k);
+          J_pos.at<double>(i, k) += dR * v_pos.at<double>(j, 0);
+          J_vel.at<double>(i, k) += dR * v_vel.at<double>(j, 0);
         }
       }
     }
 
+    // 3. Actualización de la matriz Jacobiana total J_new_
     J_new_ = Mat::zeros(6, 6, CV_64FC1);
-    J_new_(cv::Range(0,3), cv::Range(0,3)) = cv::Mat::eye(3,3,CV_64F);
-    J_pos.copyTo(J_new_(cv::Range(0,3), cv::Range(3,6)));
-    J_vel.copyTo(J_new_(cv::Range(3,6), cv::Range(3,6)));
+    J_new_(Range(0, 3), Range(0, 3)) = Mat::eye(3, 3, CV_64FC1);  // Derivada respecto a tvec
 
-    Q_new_ = D_new * Q_new_w * D_new.t() + J_new_ * C_ * J_new_.t();
+    // Añadimos contribución de rvec
+    J_new_(Range(0, 3), Range(3, 6)) = J_pos;
+    J_new_(Range(3, 6), Range(3, 6)) = J_vel;
     
-    //std::cout << "age: " << age_ << std::endl << "Q_new: " << Q_new_ << std::endl; 
+    
+  
+    // 4. Calculamos la nueva covarianza del proceso Q_new_
+    Q_new_ = D_new * Q_new_w * D_new.t() + J_new_ * C_ * J_new_.t();
+   
   }
   else
   {
-		Q_new_ = D_new * Q_new_w * D_new.t() ;
+    if (include_ego_motion_)
+    {
+      Q_new_ = D_new * Q_new_w * D_new.t() + C_;
+    }
+    else
+    {
+      Q_new_ = Q_new_w;
+    }
   }
-
-  // Kalman core algorithm
 
   // A. Prediction step
   if (include_ego_motion_)  
   { 
-    x_new_pred_ = A_new * x_old_ +u_new;
+    x_new_pred_ = A_new * x_old_  + u_new;
   }
   else
   {
@@ -226,7 +228,7 @@ WorldPointErrorCode WorldPoint::computeKalmanStep(
 
   // Compute innovation covariance matrix and it's inverse
 	S_new_	  = T_ + H_new_ * P_new_pred_ * H_new_.t();
-	S_new_inv_ = S_new_.inv();
+	cv::invert(S_new_, S_new_inv_, DECOMP_SVD);
 
   // Perform 3 sigma test
   Mat tmp = s_new_.t() * S_new_inv_ * s_new_;
@@ -261,14 +263,8 @@ WorldPointErrorCode WorldPoint::computeKalmanStep(
   //std::cout << "age: " << age_ << std::endl;
   //std::cout << "x: " << x_new_ << std::endl;
   //std::cout << "D_new: " << D_new << std::endl;
-  
-
-  
-  
-
   return WorldPointErrorCode::OK;
 }
-
 
 void WorldPoint::projectPixelToWorld(
   const double &u, const double &v, const double &depth, Mat &coordinates)
@@ -302,12 +298,12 @@ void WorldPoint::projectWorldToPixel(
 
 void WorldPoint::getX(Mat &x)
 {
-  x = x_old_;
+  x_old_.copyTo(x);
 }
 
 void WorldPoint::getZ(Mat &z)
 {
-  z = z_old_;
+  z_old_.copyTo(z);
 }
 
 int WorldPoint::getAge()
