@@ -92,7 +92,7 @@ namespace stereo_computation
       get_parameter("P1").as_int(),
       get_parameter("P2").as_int(),
       get_parameter("uniqueness_ratio").as_int(),
-      cv::cuda::StereoSGM::MODE_HH4
+      cv::cuda::StereoSGM::MODE_HH
     );
 
     stereoSGM_->setPreFilterCap(get_parameter("pre_filter_cap").as_int());
@@ -140,8 +140,8 @@ namespace stereo_computation
 
     // Publish the depth image as MONO8.
     cv_bridge::CvImage depth_msg;
-    depth_msg.header = left_image_msg->header;
-    depth_msg.encoding = sensor_msgs::image_encodings::TYPE_32FC1;
+    depth_msg.header = left_image_msg->header;  
+    depth_msg.encoding = sensor_msgs::image_encodings::TYPE_16UC1;
     depth_msg.image = depth_cpu;
     depth_image_pub_->publish(*depth_msg.toImageMsg());
   } 
