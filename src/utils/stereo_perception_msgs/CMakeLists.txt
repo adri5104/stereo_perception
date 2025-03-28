@@ -18,6 +18,7 @@ ament_export_dependencies(rosidl_default_runtime)
 rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/ClusteredObject.msg"
   "msg/ClusteredObjectArray.msg"
+  "msg/BoundingBox.msg"
   DEPENDENCIES sensor_msgs geometry_msgs std_msgs visualization_msgs
 )
 

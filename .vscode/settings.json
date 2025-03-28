@@ -81,6 +81,9 @@
     "regex": "cpp",
     "future": "cpp",
     "shared_mutex": "cpp",
-    "stdfloat": "cpp"
+    "stdfloat": "cpp",
+    "csetjmp": "cpp",
+    "ranges": "cpp",
+    "valarray": "cpp"
   }
 }
