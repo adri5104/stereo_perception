@@ -1,0 +1,187 @@
+
+% ====================================================================
+% ================== Introduction ====================================
+% ====================================================================
+\chapter{Introduction}
+\label{chap:Introduction}
+
+
+% =====================================================================
+% ================== State of the Art =================================
+% =====================================================================
+\chapter{State of the Art}
+\label{chap:StateOfTheArt}
+
+
+\section{Perception Systems for Autonomous Vehicles}
+\label{sec:PerceptionSystemsForAutonomousVehicles}
+  
+\section{Algorithms for moving object detection}
+\label{sec:AlgorithmsForMovingObjectDetection}
+
+
+\section{State of the Art in the FTM}
+\label{sec:StateOfTheArtInTheFTM}
+
+
+\section{Stereo camera technology}
+\label{sec:StereoCameraTechnology}
+
+
+\section{Methods for software containerization}
+\label{sec:MethodsForSoftwareContainerization}
+
+\section{Requirements for the Thesis}
+\label{sec:RequirementsForTheThesis}
+
+
+% =====================================================================
+% ================== Methods and Implementation ====================
+% ===================================================================
+\chapter{Methods and Implementation}
+\label{chap:MethodsAndImplementation}
+
+    - High level explanation on how the work will be structured. 
+    - What the perception and criticallity pipeline are
+    - Go through each component. 
+
+\section{System Architecture}
+\label{sec:SystemArchitecture}
+
+\subsection{Perception pipeline}
+\label{sec:PerceptionPipeline}
+
+\subsection{Criticallity pipeline}
+\label{sec:CriticallityPipeline}
+
+\section{Perception pipeline: Stereo image computation}
+\label{sec:PerceptionPipelineStereoImageComputation}
+
+% - Why this component exists
+% - Explain SGM algorithm
+% - Explain how it was implemented using CUDA
+
+\section{Perception pipeline: Optical flow computation}
+\label{sec:PerceptionPipelineOpticalFlowComputation}
+
+% - Why this component exists and what is does 
+% - Explain concept of optical flow, sparse optical flow, dense optical flow
+% - Briefly explain available algorithms
+% - Explain how it was implemented using CUDA and Farneback algorithm
+
+\section{Perception pipeline: Ego motion estimation}
+\label{sec:PerceptionPipelineEgoMotionEstimation}
+
+% - Brief explanation of concept of odometry and visual odometry
+% - Explain why its important for this work
+% - Explain differnences between monocular and stereo odometry
+
+\subsection{Reference frame selection}
+\label{sec:ReferenceFrameSelection}
+
+% - Explain how the reference frame is selected
+% - Explain how the ego motion is computed
+
+\subsection{Implementation}
+\label{sec:Implementation}
+
+% - Explain how the ego motion is computed
+
+
+\section{Perception pipeline: Kalman filter}
+\label{sec:PerceptionPipelineKalmanFilter}
+
+% - Explain what a Kalman filter is, why sensor fusion is important in this work
+
+\subsection{Kalman filter algorithm}
+\label{sec:KalmanFilterAlgorithm}
+
+% - Explain how the Kalman filter works
+
+\subsection{Mathematical model}
+\label{sec:MathematicalModel}
+
+% - Explain the mathematical model used in this work
+
+\subsection{Implementation}
+\label{sec:ImplementationKalmanFilter}
+
+% - Explain how the Kalman filter was implemented
+% - Mention to multithreading and how it was used to improve performance
+
+
+\section{Perception pipeline: Object detection}
+\label{sec:PerceptionPipelineObjectDetection}
+
+% - Explain what object detection is and why clustering is important
+% - Comparison between clustering algorithms
+
+\subsection{DBSCAN clustering}
+\label{sec:DBSCANClustering}
+
+% - Explain how the DBSCAN algorithm works
+
+\subsection{Implementation}
+\label{sec:ImplementationDBSCAN}
+
+% - Explain how the DBSCAN algorithm was implemented
+
+\section{Criticallity pipeline: TTC computation}
+\label{sec:CriticallityPipelineTTCComputation}
+
+% Explain different critically metrics
+
+% ====================================================================
+% ================== Experiments and Results =========================
+% ====================================================================
+\chapter{Experiments and Results}
+\label{chap:ExperimentsAndResults}
+
+% - Introduction to the chapter
+% - Explain how the experiments were conducted
+% - Explain how the results were evaluated
+
+\section{Camera hardware selection}
+\label{sec:CameraHardwareSelection}
+
+% - Explain how the camera was selected
+
+\section{Experimental setup}
+\label{sec:ExperimentalSetup}
+
+% - Explain how the experiments were conducted
+
+\section{Perception pipeline evaluation}
+\label{sec:PerceptionPipelineEvaluation}
+
+\subsection{Stereo image computation}
+\label{sec:StereoImageComputation}
+
+% - Explain how the stereo image computation was evaluated
+\subsection{Optical flow computation}
+\label{sec:OpticalFlowComputation}
+% - Explain how the optical flow computation was evaluated
+
+\subsection{Ego motion estimation}
+\label{sec:EgoMotionEstimation}  
+% - Explain how the ego motion estimation was evaluated
+
+\subsection{Kalman filter}
+\label{sec:KalmanFilterEvaluation}
+% - Explain how the Kalman filter was evaluated
+
+\subsection{Object detection}
+\label{sec:ObjectDetectionEvaluation}
+% - Explain how the object detection was evaluated
+
+\section{Criticallity pipeline evaluation}
+\label{sec:CriticallityPipelineEvaluation}
+
+
+% ====================================================================
+% ================== Discussion ======================================
+% ====================================================================
+\chapter{Summary and Conclusion}
+\label{chap:SummaryAndConclusion}- High level explanation on how the work will be structured. 
+- What the perception and criticallity pipeline are
+- Go through each component. 
