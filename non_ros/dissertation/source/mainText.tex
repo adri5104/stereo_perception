@@ -470,7 +470,10 @@ data exchange and eliminates potential bottlenecks associated with inter-contain
 This containerization strategy also simplifies integration with the research platform, facilitating
 easier deployment, logging, and testing within a controlled and reproducible environment.
 
+\todo{Explain how it was built: OpenCV, CUDA, ROS2, etc.}
 
+
+\newpage
 \section{Perception pipeline: Stereo image computation}
 \label{sec:PerceptionPipelineStereoImageComputation}
 
@@ -479,18 +482,20 @@ rectified stereo images and its calibration parameters. This component is partic
 working with datasets or sensors that provide raw stereo image pairs but no precomputed depth information. Although this
 module is not used in the final deployment of the system on the EDGAR research vehicle, since its
 stereo camera setup provides depth images directly—it plays a crucial role in training, testing, and
-benchmarking the system using external datasets.
+benchmarking the system using external datasets. It can also be used in the future to integrate other
+stereo camera sets that do not provide depth images.
 
-\subsection{Mathematical Background: Pinhole Camera Model}
+\subsection{Mathematical Background: Pinhole Camera Model and Disparity}
 
 In stereo vision, depth estimation relies on the triangulation of corresponding points in a pair of 
 images captured from slightly different viewpoints. The pinhole camera model (figure: \ref{fig:pinhole_camera_model}) is commonly used to describe the 
 relationship between 3D world coordinates and 2D image coordinates. In this model, a 3D point $\mathbf{P} = (X, Y, Z)$ 
 is projected onto the image plane as a 2D point $\mathbf{p} = (x, y)$ using the camera's intrinsic parameters (\cite{pin_hole_camera_model}).
+These parameters include the focal length $f$ and the principal point $(c_x, c_y)$, which define the camera's optical center and field of view.
 
 \begin{figure}[H]
   \centering
-  \resizebox{1.0\textwidth}{!}{\includegraphics{figures/pinhole_camera.png}}
+  \resizebox{0.4\textwidth}{!}{\includegraphics{figures/pinhole_camera.png}}
   \caption{Pinhole camera model. Source: Nvidia \label{fig:pinhole_camera_model}}
 \end{figure}%
 
@@ -518,85 +523,754 @@ The relationship between the 3D point and its 2D projection is given by:
 
 where $f_x$ and $f_y$ are the focal lengths in pixels, and $(c_x, c_y)$ is the principal point.
 
-Disparity refers to the horizontal displacement between corresponding points in the left and right images.
-For rectified stereo images, disparity $d$ is defined as:
+In a typical stereo setup, the two cameras are displaced horizontally along the x-axis, with their 
+optical axes kept parallel. This physical separation between the cameras is known as the 
+\textbf{baseline} $B$, as seen in the figure \ref{fig:stereo_camera_setup_disparity} left. The baseline is a key parameter in stereo vision, as it directly influences 
+the triangulation accuracy: a larger baseline improves depth resolution, especially for distant 
+objects, but also increases the difficulty of finding correct correspondences due to greater viewpoint differences.
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}{0.343\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figures/framos_stereo_setup.jpg}
+  \end{minipage}
+  \hfill
+  \begin{minipage}{0.62\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figures/disparity_map.png}
+  \end{minipage}
+ \caption{Stereo camera setup (left) and disparity concept (right). Source: Framos, \cite{disp_map_figure}.}
+\label{fig:stereo_camera_setup_disparity}
+\end{figure}
+
+
+Thanks to this horizontal arrangement, the correspondence search simplifies to a one-dimensional 
+problem along the image rows. After rectification, corresponding points between the two images lie 
+along the same horizontal line (epipolar line), and the \textbf{disparity} $d$ (figure \ref{fig:stereo_camera_setup_disparity} right) between corresponding 
+points is defined as:
 
 \begin{equation}
   d = x_{\text{left}} - x_{\text{right}}
-  \end{equation}
-  
-  The depth $Z$ of a point can then be computed using the formula:
-  
-  \begin{equation}
-  Z = \frac{f \cdot B}{d}
 \end{equation}
   
-where $f$ is the focal length and $B$ is the baseline distance between the two camera centers.
+Disparity is inversely proportional to the depth of the observed point. The relation between disparity 
+and depth $Z$ is given by:
+  
+\begin{equation}
+Z = \frac{f \cdot B}{d}
+\end{equation}
 
 \subsection{Stereo Matching Algorithms}
 
-Several algorithms exist for computing disparity maps from stereo image pairs. The most common ones include:
+Stereo matching algorithms are responsible for computing the disparity map between a pair of 
+rectified stereo images. Given that disparity directly relates to depth, these algorithms are a 
+critical component of the stereo vision pipeline. Their main task is to find, for each pixel in the 
+left image, the corresponding pixel in the right image along the same horizontal line.
+
+Several approaches exist to solve this correspondence problem, each with different trade-offs 
+between computational complexity, robustness, and accuracy. Some of the most common implemented stereo
+matching algorithms include:
 
 \begin{itemize}
-  \item \textbf{Block Matching (BM):} A local method that compares fixed-size blocks between the left and right images. While computationally efficient, it often struggles with textureless regions and depth discontinuities.
-  
-  \item \textbf{Graph Cuts (GC):} A global optimization method that models the disparity estimation as an energy minimization problem. It provides accurate results but is computationally intensive.
-  
-  \item \textbf{Semi-Global Matching (SGM):} An algorithm that balances accuracy and computational efficiency by aggregating matching costs along multiple paths through the image.
+  \item \textbf{Block Matching (BM):} A local method that compares fixed-size blocks between the left and right images. While computationally efficient, it often struggles with textureless regions and depth discontinuities (\cite{disparity_block_matching}). 
+  \item \textbf{Semi-Global Matching (SGM):} An algorithm that balances accuracy and computational efficiency by aggregating matching costs along multiple paths through the image (\cite{disparity_sgm}).
 \end{itemize}
 
-Comparative studies have shown that SGM offers a good trade-off between accuracy and performance, making it suitable for real-time applications where both speed and quality are essential.
-\subsection*{Semi-Global Matching (SGM)}
+Comparative studies (\cite{disparity_survey}) have shown that SGM offers a good trade-off between accuracy and performance, making it suitable for real-time applications where both speed and quality are essential.
 
-SGM aims to minimize a global energy function by aggregating matching costs along multiple 1D paths in
-different directions. The energy function $E(D)$ for a disparity map $D$ is defined as:
+
+\subsection{Semi-Global Matching (SGM)}
+\label{sec:SGM}
+
+Semi-Global Matching (SGM) is a stereo matching algorithm that offers a compromise between the 
+accuracy of global optimization methods and the computational efficiency of local methods. It was first
+introduced by Hirschmüller~\cite{disparity_sgm} and has become widely implemented in real-time 
+applications.
+
+The underlying principle in SGM is to minimize a global energy function that imposes continuity in the
+disparity map, having strong depth discontinuities along object boundaries. The energy function $E(D)$
+for a disparity map $D$ is defined as:
 
 \begin{equation}
-E(D) = \sum_{\mathbf{p}} \left( C(\mathbf{p}, D_{\mathbf{p}}) + \sum_{\mathbf{q} \in \mathcal{N}_{\mathbf{p}}} P_1 \cdot \delta_{|D_{\mathbf{p}} - D_{\mathbf{q}}| = 1} + P_2 \cdot \delta_{|D_{\mathbf{p}} - D_{\mathbf{q}}| > 1} \right)
+E(D) = \sum_{\mathbf{p}} \left( C(\mathbf{p}, D_{\mathbf{p}}) + \sum_{\mathbf{q} \in \mathcal{N}_{\mathbf{p}}} 
+P_1 \cdot \delta\left( |D_{\mathbf{p}} - D_{\mathbf{q}}| = 1 \right) + P_2 \cdot \delta\left( |D_{\mathbf{p}} - D_{\mathbf{q}}| > 1 \right) \right)
 \end{equation}
 
 where:
 \begin{itemize}
-  \item $C(\mathbf{p}, D_{\mathbf{p}})$ is the matching cost for pixel $\mathbf{p}$ at disparity $D_{\mathbf{p}}$.
+  \item $C(\mathbf{p}, D_{\mathbf{p}})$ is the matching cost at pixel $\mathbf{p}$ for disparity $D_{\mathbf{p}}$.
   \item $\mathcal{N}_{\mathbf{p}}$ denotes the set of neighboring pixels.
   \item $P_1$ and $P_2$ are penalty terms for disparity changes of 1 and greater than 1, respectively.
   \item $\delta$ is the Kronecker delta function.
 \end{itemize}
 
-SGM aggregates these costs along multiple directions (typically 4 or 8), resulting in a smooth and accurate disparity map that preserves sharp edges and handles textureless regions effectively.
+The algorithm operates in two main steps:
 
-\textbf{\todo{Include a diagram illustrating cost aggregation paths in SGM.}}
+\textbf{1. Cost computation:}  
+For each possible disparity, a matching cost calculation happens between the left picture plus 
+the right picture at each pixel. This calculation uses methods like the Sum of Absolute Differences 
+or measurements that use census transform.
 
-\subsection{CUDA-based ROS2 Implementation}
+\textbf{2. Cost aggregation:}  
+SGM does not do a full 2D global optimization. That process demands a lot of computation, so it 
+is not practical for systems that need to run in real time. SGM comes close to global reasoning when 
+it combines costs along several 1D paths. Costs are put together along either 4 or 8 directions from
+each pixel. A dynamic programming method finds the lowest local cost in each direction. 
+It also adds penalties for significant changes in disparity.
 
-To achieve real-time performance, the SGM algorithm is implemented using OpenCV's CUDA module, specifically the \texttt{cv::cuda::StereoSGM} class. This implementation leverages GPU acceleration to parallelize the computation of disparity maps, significantly reducing processing time.
+Once the cost values are added together from all directions, the disparity picked for each pixel is the one that has the lowest combined cost.
 
-Key features of the CUDA-based SGM implementation include:
 
-\begin{itemize}
-  \item Utilization of 4 or 8 path directions for cost aggregation, configurable via the \texttt{mode} parameter.
-  \item Use of the Center-Symmetric Census Transform (CSCT) with a $9 \times 7$ window for robust matching cost computation.
-  \item Efficient memory management and parallel processing to handle high-resolution images in real-time.
-\end{itemize}
+This balance between accuracy and computational efficiency makes SGM highly attractive for embedded 
+and real-time applications. 
 
-This implementation enables the use of stereo datasets during development and evaluation while ensuring that the overall system remains suitable for real-time deployment when paired with direct depth image sources.
+\subsection{ROS2 Implementation}
+\label{sec:ROS2Implementation}
 
-\textbf{\todo{Include a diagram showing the pipeline of the CUDA-based SGM implementation.}}
+The SGM algorithm has been integrated into the pipeline with a dedicated ROS2 package called 
+\texttt{stereo\_computation}.It contains a node that subscribes to three topics: the rectified left and right 
+camera images, and the camera info topic of the left camera. 
+After receiving synchronized input, the node computes both the disparity map and the depth map, 
+which are then published on two separate ROS2 topics for downstream processing.
 
+The stereo matching algorithm was implemented using the OpenCV library. In particular, the 
+\texttt{cv::cuda::StereoSGM} class was chosen to compute the disparity map. This class offers a 
+CUDA-accelerated version of the Semi-Global Matching algorithm, enabling the computations to be 
+performed directly on the GPU. Taking advantage of GPU acceleration is crucial to meet the real-time 
+performance requirements of the perception pipeline.
+
+The OpenCV implementation of SGM is highly optimized and designed to exploit the parallel 
+architecture of modern GPUs, significantly reducing the runtime compared to CPU-based methods. 
+After computing the disparity map, the depth map is generated by applying the classical 
+pinhole camera equation:
+
+\begin{equation}
+Z = \frac{f \cdot B}{d}
+\end{equation}
+
+where $Z$ is the depth value, $f$ is the focal length of the camera, $B$ is the baseline distance 
+between the two cameras, and $d$ is the disparity.
+
+This node architecture ensures modularity within the perception pipeline and allows easy 
+integration with other modules, such as the Kalman filtering and object detection components. 
+Furthermore, by publishing both the disparity and depth images, the system maintains flexibility 
+for future extensions or algorithm improvements that may require direct access to raw disparity data.
+
+To make the tuning and implementation easier, the following ROS2 parameters were added to the node:
+
+\begin{table}[H]
+  \begin{tabular}{|l|l|}
+  \hline
+  ROS2 parameter               & Definition                                                                    \\ \hline
+  in\_left\_image\_topic       & Topic name for the left input grayscale image                                 \\ \hline
+  in\_right\_image\_topic      & Topic name for the right input grayscale image                                \\ \hline
+  in\_camera\_info\_topic      & Topic name for the camera calibration information                             \\ \hline
+  out\_depth\_image\_topic     & Output topic for the computed depth image                                     \\ \hline
+  out\_disparity\_image\_topic & Output topic for the computed disparity image                                 \\ \hline
+  min\_disparity               & Minimum disparity to consider for the disparity calculation                   \\ \hline
+  num\_disparities             & Number of disparities (disparity range) to compute                            \\ \hline
+  P1                           & Control parameter for the SGM algorithm (penalty for small disparity changes) \\ \hline
+  P2                           & Control parameter for the SGM algorithm (penalty for small disparity changes) \\ \hline
+  uniqueness\_ratio            & Threshold for uniqueness of matching points (higher means stricter matching)  \\ \hline
+  speckle\_window\_size        & Size of the window used for speckle filtering                                 \\ \hline
+  speckle\_range               & Maximum disparity range for speckle filtering                                 \\ \hline
+  pre\_filter\_cap             & Pre-filtering parameter for the image to improve disparity computation        \\ \hline
+  use\_sim\_time               & Flag to use simulation time instead of system time                            \\ \hline
+  \end{tabular}
+  \end{table}
+and the node can be added to a launch file as seen in the following example:
+
+\begin{lstlisting}[language=FTMpython,style=PythonStyleFTM,caption={Stereo computation launch},label={code:scl}]
+  launch_ros.actions.Node(
+              package='stereo_computation', 
+              executable='stereo_computation_node',
+              output='screen',
+              parameters=[
+                {"in_left_image_topic": input_gray_left_topic},
+                {"in_right_image_topic": input_gray_right_topic},
+                {"in_camera_info_topic": input_camera_info_topic},
+                {"out_depth_image_topic": "perception_pipeline/depth_image"},
+                {"out_disparity_image_topic": "perception_pipeline/disparity"},
+                {"min_disparity": 0},
+                {"num_disparities": 256},
+                {"P1": 30},
+                {"P2": 200},
+                {"uniqueness_ratio": 15},
+                {"speckle_window_size": 50},
+                {"speckle_range": 2},
+                {"pre_filter_cap": 31},
+                {"use_sim_time": use_sim_time}
+                ],
+            ),
+\end{lstlisting}%
+
+\newpage
 \section{Perception pipeline: Optical flow computation}
 \label{sec:PerceptionPipelineOpticalFlowComputation}
 
-% - Why this component exists and what is does 
-% - Explain concept of optical flow, sparse optical flow, dense optical flow
-% - Briefly explain available algorithms
-% - Explain how it was implemented using CUDA and Farneback algorithm
+This section describes the optical flow computation module within the perception pipeline.
+This module is responsible for estimating the relative motion of the pixels of the image between
+two consecutive frames.
 
+\subsection{Optical flow concept}
+\label{sec:OpticalFlowConcept}
+The concept of Optical Flow, first introduced by James Gibson in the 1950s (\cite{optical_flow_concept}) 
+refers to the displacements of intensity patterns.  In our case it represents the relative motion 
+of the pixels between two consequtive frames of a video stream. The output is  a 2D vector field where 
+each vector describes the position of a pixel or a small region in the current frame relative to its 
+position in the previous frame.
+
+This module is crucial for estimating the information of how the pixels in the image are moving, which is
+one of the essential inputs to the Kalman Filter stage. 
+
+\begin{figure}[H]
+  \centering
+  \resizebox{0.6\textwidth}{!}{\includegraphics{figures/opt_flw_concept.png}}
+  \caption{Optical flow}
+  \label{fig:optical_flow_concept}
+\end{figure}%
+
+Optical flow estimation relies on the assumotion that the brightness of a pixel remains constant
+over time \cite{optical_flow_review_2025,optical_flow_computation_survey}, which allows the system to track the movement of objects based on the changes in pixel
+intensity.  Mathematically, this assumption leads to the optical flow constraint equation:
+\begin{equation}
+  I_x u + I_y v + I_t = 0
+\end{equation}  
+
+Where: 
+
+\begin{itemize}
+  \item $I_x$ and $I_y$ are the spatial gradients of the image intensity in the x and y directions.
+  \item $I_t$ is the temporal gradient of the image intensity (the difference between two consecutive frames).
+  \item $u$ and $v$ are the optical flow components in the x and y directions.
+\end{itemize}
+
+Since there is one equation and two unknowns, the optical flow constraint equation is underdetermined.
+To solve this problem, additional constraints or assumptions are needed, leading to different 
+optical flow algorithms.
+
+\subsection{Optical flow algorithms}
+\label{sec:OpticalFlowAlgorithms}
+
+Optical flow methods can be classified into two main categories: sparse and dense optical flow.
+
+\textbf{Sparse optical flow} methods focus on estimating motion vectors at a discrete set of 
+key points in the image. These points are typically features such as corners or edges that 
+can be tracked reliably across frames. In contrast, \textbf{dense optical flow} methods aim 
+to estimate a motion vector for every pixel in the image, providing a complete 2D 
+displacement field.
+
+\begin{figure}[H]
+  \centering
+  \resizebox{0.8\textwidth}{!}{\includegraphics{figures/sparse_vs_coarse_opt_flw.jpg}}
+  \caption{Sparse vs dense optical flow. Source: \cite{figure_sparse_vs_dense_opf_flw}}
+  \label{fig:sparse_vs_dense_optical_flow}
+\end{figure}%
+
+Recently, deep learning-based methods have gained popularity and demonstrated impressive
+performance for optical flow estimation. Models such as FlowNet~\cite{opt_flw_flownet} and
+RAFT~\cite{opt_flw_raft} leverage convolutional neural networks (CNNs) to learn spatial and temporal
+features from large datasets, enabling them to predict optical flow fields with high accuracy. However,
+these methods often require significant computational resources and may suffer from poor
+generalization to unseen environments.
+
+For these reasons, and due to the necessity of robustness and real-time performance, this work focuses
+on traditional deterministic optical flow algorithms. These classical methods also offer the advantage
+of being widely implemented and optimized in existing libraries, which significantly accelerates
+development and integration time.
+
+Some of the most common optical flow algorithms include \cite{optical_flow_estimation_survey,opt_flw_old_survey}: 
+
+\begin{itemize}
+  \item \textbf{Lucas-Kanade method~\cite{flow_lucas_kanade}:}
+  
+  Introduces in 1981 by Lucas and Kanade, this os a sparse optical flow method based on the assumption
+  of constant optical flow within a small local neighborhood. It solves the optical flow constraint
+  equation using a least-squares approach. This method is simple and computationally efficient, but it is 
+  sensitive to large motions and requires good texture in the tracked regions.
+
+  \item \textbf{Horn-Schunck method~\cite{opt_flw_schunck}:}
+  
+  Proposed by Horn and Schunck, this method computed dense optical flow by introducing a global smoothness
+  constraint. It formulates flow estimation as the minimization of an enegy function that combines the 
+  brightness constancy constraint and a smoothness term. While robust to moredate noise and capable of estimating
+  full dense flow, the method can oversmooth motion boundaries and struggles with large displacements.
+
+  \item \textbf{TV-L1 method~\cite{opt_flw_tv_l1}:} 
+  
+  This approach refines the variational method of Horn and Schunck by introducing a total variation (TV) 
+  regularization term and an L1 norm for the data term. The resulting algorithm is more robust and was 
+  implemented in the previous work of Bauer \cite{previous_tfm_bauer}. Nevertheless, it is computationally
+  expensive and may not be the best choice for real-time applications.
+
+  \item \textbf{Farneback method~\cite{opf_flw_farneback}:}
+  Farneback introduced a dense optical flow method based on local polynomial expansions. The idea is to 
+  approximate the neighborhood of each pixel ith a quadratic polynomial and then estimate how the polynomials
+  change between frames. 
+
+  This method offers a good trade-off between accuracy and computational efficiency. When accelerated using
+  GPUs (e.g. via OpenCV CUDA modules), it can achieve real-time performance even on high-resolution images.
+\end{itemize}
+
+In this work, the Farneback method has been selected due to its computational efficiency, robustness for medium-range motions,
+and the availability of an optimized CUDA implementation.
+
+\subsection{Farneback algorithm}
+\label{sec:FarnebackAlgorithm}
+
+The Farneback optical flow method is a dense flow estimation algorithm based on polynomial
+expansion of local image neighborhoods. Its core idea is to approximate the intensity variation in
+a small image region using a quadratic polynomial, and then infer the motion between frames by
+analyzing how these polynomials deform over time.
+
+The first step is to approximate the image intensity function $I(x, y)$ in a local neighborhood
+using a second-order Taylor expansion:
+\begin{equation}
+I(x, y) \approx x^T A x + b^T x + c
+\end{equation}
+where:
+\begin{itemize}
+  \item $x = (x, y)^T$ represents the spatial coordinates,
+  \item $A$ is a symmetric $2\times2$ matrix encoding the second-order spatial derivatives,
+  \item $b$ is a $2\times1$ vector representing the first-order spatial derivatives,
+  \item $c$ is a scalar term corresponding to the local intensity offset.
+\end{itemize}
+
+This local polynomial approximation can be efficiently computed over the entire image using
+Gaussian-weighted least squares fitting, a process known as polynomial expansion.
+
+When the scene undergoes a pure translation $d = (d_x, d_y)^T$ between two consecutive frames,
+the transformed intensity function $I'(x)$ can be related to the original by:
+\begin{equation}
+I'(x) = I(x - d)
+\end{equation}
+
+Substituting the polynomial approximation yields:
+\begin{equation}
+I'(x) \approx (x - d)^T A (x - d) + b^T (x - d) + c
+\end{equation}
+
+Expanding the right-hand side leads to:
+\begin{equation}
+I'(x) \approx x^T A x + (b - 2Ad)^T x + (d^T A d - b^T d + c)
+\end{equation}
+
+Comparing terms, we observe that:
+\begin{align}
+A' &= A \\
+  b' &= b - 2Ad \\
+  c' &= d^T A d - b^T d + c
+\end{align}
+where $A'$ and $b'$ represent the new polynomial coefficients after displacement.
+
+Thus, the displacement $d$ can be estimated by solving the linear system:
+\begin{equation}
+2A d = b - b'
+\end{equation}
+assuming that $A$ is non-singular and well-conditioned.
+
+In practice, direct estimation is complicated by noise, local deformations, and the limited validity of
+polynomial approximations. To address these issues, the following refinements are applied:
+\begin{itemize}
+  \item Estimate the displacement over a local window using Gaussian weighting to prioritize central pixels.
+  \item Aggregate local estimates using weighted least squares to improve robustness against noise.
+  \item Employ a multi-scale coarse-to-fine pyramid approach to capture both small and large displacements effectively.
+\end{itemize}
+
+\subsubsection*{Coarse-to-fine pyramid approach}
+
+Large displacements between frames can cause local matching failures if only a single resolution
+is used. To handle this, the Farneback method employs a coarse-to-fine multi-scale pyramid strategy
+\cite{opt_flw_coarse_to_fine}.
+
+\begin{figure}[H]
+  \centering
+  \resizebox{0.8\textwidth}{!}{\includegraphics{figures/pyramid.png}}
+  \caption{Coarse-to-fine pyramid approach. Source: Matlab}
+  \label{fig:opf_flw_pyramid}
+\end{figure}%
+
+In the pyramid approach:
+\begin{itemize}
+  \item The original images are repeatedly downsampled by a scaling factor (typically 0.5), producing
+  several lower-resolution versions.
+  \item Optical flow is first estimated at the coarsest (smallest) scale, where large motions appear reduced
+  and easier to estimate.
+  \item The initial flow estimate is then propagated to the next finer scale, where it is refined using the
+  higher-resolution image data.
+  \item This process continues until the finest scale (the original resolution) is reached, producing a dense
+  and detailed optical flow field.
+\end{itemize}
+
+The pyramid-based coarse-to-fine strategy is crucial for ensuring that large motions do not overwhelm the local
+polynomial approximation, maintaining both the accuracy and robustness of the Farneback method.
+
+This hierarchical refinement significantly enhances the capability of the algorithm to deal with large
+inter-frame displacements, dynamic scenes, and varying object velocities.
+
+\subsection{Implementation}
+\label{sec:ImplementationOpticalFlow}
+
+This algorithm has been implemented in a ROS2 package called \texttt{optical\_flow\_computation}.
+This package contains a node responsible for computing the optical flow between two consecutive images.
+The node subscribes to two topics: the first for the left image and the second for the right image.
+Once it receives both images, it computes the optical flow and publishes the result on an output topic.
+
+Regarding the algorithm implementation, the \texttt{cv::cuda::FarnebackOpticalFlow} class from OpenCV
+was used. This class provides a CUDA-accelerated version of the Farneback algorithm, allowing computations
+to be performed directly on the GPU. The OpenCV implementation of the Farneback algorithm is highly optimized
+and designed to leverage the parallel architecture of modern GPUs, significantly reducing execution time compared
+to CPU-based methods. This class is included in the header \texttt{opencv2/cudaoptflow.hpp}, which generally
+requires manually building OpenCV with CUDA support.
+
+\begin{figure}[H]
+  \centering
+  \resizebox{0.2\textwidth}{!}{\includegraphics{figures/cuda_opt_flw.png}}
+  \caption{CUDA Farneback class. Source: OpenCV}
+  \label{fig:opf_flw_cuda}
+\end{figure}%
+
+To facilitate tuning and configuration, the following ROS2 parameters were added to the node:
+
+\begin{table}[H]
+  \begin{tabular}{|l|l|}
+  \hline
+  ROS2 parameter       & Definition \\ \hline
+  image\_topic         & Input topic name for raw RGB images used in optical flow estimation \\ \hline
+  optical\_flow\_topic & Output topic name where the computed optical flow is published \\ \hline
+  pyr\_scale           & Scaling factor between pyramid levels \\ \hline
+  levels               & Number of pyramid layers, including the original image \\ \hline
+  winsize              & Averaging window size for smoothing derivatives; larger values improve robustness but may oversmooth motion boundaries \\ \hline
+  iterations           & Number of iterations at each pyramid level; higher values improve convergence in complex motion areas \\ \hline
+  poly\_n              & Size of the pixel neighborhood used for polynomial expansion \\ \hline
+  poly\_sigma          & Standard deviation of the Gaussian used to smooth derivatives before polynomial expansion \\ \hline
+  flags                & Operation flags passed to the Farneback function \\ \hline
+  use\_sim\_time       & Boolean indicating whether to use simulation time (\texttt{/clock}) instead of system time \\ \hline
+  \end{tabular}
+  \caption{ROS2 parameters for the optical flow computation node}
+  \label{tab:opf_flw_ros2_params}
+\end{table}
+
+The node can be added to a launch file as shown in the following example:
+
+\begin{lstlisting}[language=FTMpython,style=PythonStyleFTM,caption={Optical flow computation launch},label={code:opf_flw_launch}]
+launch_ros.actions.Node(
+            package='optical_flow_computation', 
+            executable='optical_flow_node',
+            output='screen',
+            parameters=[
+              {"image_topic": input_gray_left_topic},
+              {"optical_flow_topic": "perception_pipeline/optical_flow"},
+              {"pyr_scale": 0.5},
+              {"levels": 3},
+              {"winsize": 15},
+              {"iterations": 3},
+              {"poly_n": 5},
+              {"poly_sigma": 1.2},
+              {"flags": 0},
+              {"use_sim_time": use_sim_time}
+              ],
+          ),
+\end{lstlisting}%
+
+The output image is published on the topic \texttt{/perception\_pipeline/optical\_flow}. This image is published
+as a \texttt{sensor\_msgs/Image} message with a \texttt{32FC2} encoding format, representing a 32-bit floating-point
+optical flow image with two channels. The first channel corresponds to the displacement along the x-axis,
+and the second channel corresponds to the displacement along the y-axis.
+
+In addition to the flow image, two debug images are published on the \texttt{/debug} topic to facilitate debugging
+and result visualization. One debug image shows the original image with optical flow vectors superimposed,
+and the other displays an RGB image where the intensity represents the magnitude of the optical flow vector
+and the color represents its direction.
+
+\begin{figure}[H]%
+  \centering%
+  \begin{minipage}{0.5\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figures/debug_arrows.png}
+  \end{minipage}\hfill
+  \begin{minipage}{0.5\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figures/debug_colored_image.png}
+  \end{minipage}
+  \caption{Optical flow debug images. Left: Optical flow vectors superimposed on the original image. Right: RGB image where the intensity represents the magnitude and the color represents the direction of the optical flow vector. Source: own work} 
+  \label{fig:opt_flw_debug}%
+\end{figure}%
+
+These additional debug outputs greatly facilitate the qualitative evaluation of the optical flow results and enable faster identification of potential errors during the development and testing phases.
+
+
+\newpage
 \section{Perception pipeline: Ego motion estimation}
 \label{sec:PerceptionPipelineEgoMotionEstimation}
 
-% - Brief explanation of concept of odometry and visual odometry
-% - Explain why its important for this work
-% - Explain differnences between monocular and stereo odometry
+In the context of autonomous and automated vehicles, estimating the ego motion is crucial to
+understand how the vehicle is moving in the environment. In the scope of this work, ego motion is
+defined as the relative motion of the vehicle with respect to the environment. Specifically, the
+information needed is the 3D position of the camera in one frame, relative to the previous frame.
+This information is essential for the Kalman Filter, since the optical flow output is relative to the
+camera frame, and the Kalman Filter requires knowledge of the camera's position in the world frame
+to properly compensate for its motion.
+
+For this purpose, visual odometry (VO) techniques are used to estimate the required information
+using the stereo setup input. Incorporating the depth information from the stereo camera allows the
+direct recovery of metric information, providing robustness and accuracy.
+
+This section describes the concept behind visual odometry, the coordinate systems used, the specific
+algorithmic approach that was implemented, and the implementation details.
+
+\subsection{Visual odometry concept}
+\label{sec:VisualOdometryConcept}
+
+Visual odometry (VO) refers to the process of estimating the motion of a camera by analyzing a
+sequence of images it captures. Originally introduced by Moravec~\cite{vo_moravec} and later
+formalized by Nist\'er et al.~\cite{vo_nister}, VO has become a fundamental technique for mobile
+robotics and autonomous driving~\cite{visual_odometry_review}.
+
+The core idea behind VO is to track visual features across consecutive frames and infer the relative
+motion of the camera from these observations. The estimated motion provides a continuous estimate
+of the vehicle trajectory without relying on external localization systems.
+
+Visual odometry methods are generally categorized based on the type of input and processing
+approach used:
+\begin{itemize}
+  \item \textbf{Monocular VO:} Utilizes a single camera as input. It is cost-effective but suffers from
+  scale ambiguity, meaning that the absolute scale of the motion (e.g., in meters) cannot be determined
+  without additional information. Monocular VO is often used in conjunction with other sensors
+  (e.g., IMU) to resolve this ambiguity~\cite{visual_odometry_review}.
+
+  \item \textbf{Stereo VO:} Utilizes two synchronized cameras to estimate depth through triangulation,
+  which allows direct recovery of metric scale. This removes the scale ambiguity present in monocular
+  systems, enabling more accurate and robust motion estimation. Stereo VO is especially beneficial
+  in environments where monocular methods struggle, such as in low-texture areas or during large
+  baseline movements, thanks to the additional geometric constraints provided by the known baseline
+  distance between the cameras~\cite{visual_odometry_review}.
+\end{itemize}
+
+Processing approaches are typically divided into two categories:
+\begin{itemize}
+  \item \textbf{Feature-based methods:} Extract and match features (e.g., corners, edges) across frames,
+  estimating motion from the displacement of these features.
+
+  \item \textbf{Direct methods:} Directly use pixel intensities to estimate motion without explicit
+  feature extraction.
+\end{itemize}
+
+Recently, \textbf{deep learning-based visual odometry} approaches have emerged, leveraging
+convolutional and recurrent neural networks to estimate motion directly from image sequences.
+These methods aim to improve robustness under challenging conditions, such as illumination
+changes and textureless environments~\cite{visual_odometry_review}.
+
+This work adopts a \textbf{stereo feature-based} approach, leveraging the depth information from the
+stereo setup and using feature matching to estimate motion robustly. This choice provides a good
+balance between computational efficiency and robustness against noise, dynamic environments, and
+varying lighting conditions.
+
+\subsection{Reference frames and coordinate systems}
+\label{sec:ReferenceFramesCoordinateSystems}
+
+In this work, several coordinate frames are used to represent the motion of the camera:
+\begin{itemize}
+\item \textbf{Previous camera frame:} The coordinate frame attached to the camera at the previous time
+step.
+\item \textbf{Current camera frame:} The coordinate frame attached to the camera at the current time step.
+\item \textbf{Initial camera frame:} The fixed world reference frame, corresponding to the camera pose at
+the start of the sequence.
+\end{itemize}
+
+The visual odometry algorithm estimates the relative motion between the previous and current camera
+frames. This relative transform is then accumulated over time to estimate the pose of the camera with
+respect to the initial frame.
+
+The coordinate system follows the standard ROS convention for cameras:
+\begin{itemize}
+\item The \textbf{z-axis} points forward, along the optical axis.
+\item The \textbf{x-axis} points to the right of the camera.
+\item The \textbf{y-axis} points downwards.
+\end{itemize}
+
+It is important to note that this convention differs from the standard world coordinate system,
+where typically the x-axis points forward, the y-axis points to the left, and the z-axis points upwards.
+In our setup, the z-axis aligns with the camera's optical axis (forward), while the x- and y-axes are
+oriented relative to the image plane.
+
+\subsection{Implemented algorithm}
+\label{sec:VisualOdometryAlgorithm}
+
+
+
+\subsubsection{Overview of the algorithm}
+\label{sec:OverviewAlgorithm}
+
+The visual odometry algorithm implemented in this work follows a feature-based stereo approach. It
+estimates the relative motion of the camera by detecting and matching visual features between
+consecutive frames, reconstructing their 3D positions using the depth image, and solving the camera
+pose using a Perspective-n-Point (PnP) algorithm with RANSAC for outlier rejection.
+
+A schematic overview of the algorithm steps is presented in Algorithm~\ref{alg:visual_odometry}.
+
+\begin{algorithm}[H]
+  \caption{Stereo Visual Odometry Pipeline}
+  \label{alg:visual_odometry}
+  \begin{algorithmic}[1]
+  \Require Grayscale images $I_{k-1}$, $I_k$, and depth image $D_{k-1}$
+  \Ensure Estimated relative pose $(R, t)$ between frames
+  \State Detect ORB features in $I_{k-1}$ and $I_k$ using GPU acceleration
+  \State Match ORB features between $I_{k-1}$ and $I_k$
+  \State Reproject matched keypoints from $I_{k-1}$ into 3D using $D_{k-1}$
+  \State Solve PnP with RANSAC using 3D-2D correspondences
+  \State Refine the pose estimation with standard solvePnP using inliers
+  \State Estimate covariance based on reprojection residuals
+  \State Apply statistical filtering and optional exponential smoothing
+  \State Output $(R, t)$, covariance matrix, and debug images
+\end{algorithmic}
+\end{algorithm}
+  
+\subsubsection{Feature detection and matching}
+\label{sec:FeatureDetectionMatching}
+
+Feature detection and matching constitute the first step in the visual odometry pipeline. In this work,
+ORB (Oriented FAST and Rotated BRIEF) \cite{vo_orb} features are employed due to their balance between
+computational efficiency and robustness.
+
+ORB is a binary feature descriptor that builds upon two classical methods: FAST (Features from
+Accelerated Segment Test) \cite{vo_fast} for keypoint detection and BRIEF (Binary Robust Independent Elementary
+Features) \cite{vo_brief} for descriptor computation. 
+
+FAST is a corner detection algorithm that rapidly identifies points in the image with significant intensity
+change compared to their surroundings. BRIEF, on the other hand, generates a binary string descriptor
+by comparing the intensity of random pairs of pixels in a small patch around the keypoint.
+
+ORB enhances these methods by introducing rotation and scale invariance. The orientation of each
+keypoint is computed to make BRIEF descriptors rotation-invariant, and a multi-scale pyramid is used
+to handle changes in scale. As a result, ORB features are suitable for real-time applications while
+maintaining robustness to changes in viewpoint, illumination, and scale.
+
+After detecting keypoints, a descriptor is computed for each one. A descriptor is a compact
+representation of the local image neighborhood around a keypoint, designed to allow efficient and
+robust matching of features across frames.
+
+The feature extraction and matching process is performed on the GPU using OpenCV's CUDA modules.
+This allows real-time processing even at high image resolutions.
+
+The steps involved are:
+\begin{itemize}
+  \item Detect ORB features separately in the previous and current grayscale images.
+  \item Compute binary descriptors for each detected feature.
+  \item Match descriptors between the previous and current frames using brute-force Hamming distance.
+  \item Extract the coordinates of matched keypoints for subsequent motion estimation.
+\end{itemize}
+
+GPU acceleration significantly speeds up both feature detection and descriptor matching, enabling the
+pipeline to meet real-time requirements.
+% ORB features extracted and matched using GPU acceleration.
+
+\subsubsection{3D-2D correspondences}
+\label{sec:3D2DCorrespondences}
+
+\subsubsection{3D-2D correspondences}
+\label{sec:3D2DCorrespondences}
+
+Once the feature matching step is completed, the next task is to establish 3D-2D correspondences
+between the previous and current frames. This is necessary for estimating the camera motion through
+Perspective-n-Point (PnP) techniques.
+
+For each matched keypoint in the previous frame, the corresponding depth value is retrieved from the
+depth image associated with that frame. If the depth value is within a valid range, the 2D keypoint is
+reprojected into a 3D point using the intrinsic parameters of the stereo camera.
+
+The reprojection follows the standard pinhole camera model:
+
+\begin{equation}
+X = (u - c_x) \cdot \frac{d}{f_x}, \quad
+Y = (v - c_y) \cdot \frac{d}{f_y}, \quad
+Z = d
+\end{equation}
+
+where $(u, v)$ are the pixel coordinates of the keypoint, $(c_x, c_y)$ are the coordinates of the principal
+point, $(f_x, f_y)$ are the focal lengths in pixels, and $d$ is the depth value.
+
+This process results in a set of valid 3D points extracted from the previous frame, and their corresponding
+2D projections detected in the current frame. These 3D-2D pairs are later used to estimate the relative
+pose of the camera.
+
+If the depth value is invalid (e.g., missing or outside the valid range), the corresponding match is
+discarded to avoid introducing noise into the motion estimation process.
+
+
+% Reprojection of 2D features to 3D points using depth, then matching to current frame.
+
+\subsubsection{Motion estimation using PnP and RANSAC}
+\label{sec:MotionEstimationPnP}
+
+% Initial estimation with RANSAC, refinement with standard solvePnP.
+
+\subsubsection{Covariance estimation}
+\label{sec:CovarianceEstimation}
+
+% Estimation of pose uncertainty based on reprojection residuals.
+
+\subsubsection{Motion filtering and smoothing}
+\label{sec:MotionFilteringSmoothing}
+
+% Statistical filtering and optional exponential smoothing of translation and rotation.
+
+\subsubsection{Outputs}
+\label{sec:OutputsVisualOdometry}
+
+% Translation, rotation, covariance, and debug images.
+\subsection{ROS2 Implementation}
+\label{sec:ImplementationVisualOdometry}
+
+% Implementation details
+% - ROS2 node structure
+% - Topics subscribed and published
+% - Debug outputs
+% - TF and Odometry publishing
+
+\subsection{Parameter tuning and outputs}
+\label{sec:ParameterTuningOutputs}
+
+% Overview of configurable parameters
+% Table with main parameters
+% Explanation of published topics and output messages
+
+
+\subsection{Reference frames and coordinate systems}
+\label{sec:ReferenceFramesCoordinateSystems}
+
+% Explain which frames are used (previous camera frame, current camera frame, initial frame)
+% Indicate axis conventions (e.g., z-forward)
+% Placeholder for figure showing frames and transforms
+
+\subsection{Visual odometry algorithm}
+\label{sec:VisualOdometryAlgorithm}
+
+% Detailed explanation of your VO algorithm
+% - Feature detection and matching (CUDA ORB)
+% - Reprojection to 3D
+% - Motion estimation with PnP + RANSAC
+% - Covariance estimation
+% - Statistical filtering and smoothing
+
+\subsection{Implementation}
+\label{sec:ImplementationVisualOdometry}
+
+% Implementation details
+% - ROS2 node structure
+% - Topics subscribed and published
+% - Debug outputs
+% - TF and Odometry publishing
+
+\subsection{Parameter tuning and outputs}
+\label{sec:ParameterTuningOutputs}
+
+% Overview of configurable parameters
+% Table with main parameters
+% Explanation of published topics and output messages
+
+
 
 \subsection{Reference frame selection}
 \label{sec:ReferenceFrameSelection}
