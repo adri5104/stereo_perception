@@ -1142,6 +1142,12 @@ FAST is a corner detection algorithm that rapidly identifies points in the image
 change compared to their surroundings. BRIEF, on the other hand, generates a binary string descriptor
 by comparing the intensity of random pairs of pixels in a small patch around the keypoint.
 
+\begin{figure}[H]
+  \centering
+  \resizebox{0.4\textwidth}{!}{\includegraphics{figures/FAST.jpg}}
+  \caption{FAST algorithm. Source: \cite{IntroductionFAST}}
+\end{figure}%
+
 ORB enhances these methods by introducing rotation and scale invariance. The orientation of each
 keypoint is computed to make BRIEF descriptors rotation-invariant, and a multi-scale pyramid is used
 to handle changes in scale. As a result, ORB features are suitable for real-time applications while
@@ -1166,8 +1172,6 @@ GPU acceleration significantly speeds up both feature detection and descriptor m
 pipeline to meet real-time requirements.
 % ORB features extracted and matched using GPU acceleration.
 
-\subsubsection{3D-2D correspondences}
-\label{sec:3D2DCorrespondences}
 
 \subsubsection{3D-2D correspondences}
 \label{sec:3D2DCorrespondences}
@@ -1199,25 +1203,140 @@ If the depth value is invalid (e.g., missing or outside the valid range), the co
 discarded to avoid introducing noise into the motion estimation process.
 
 
-% Reprojection of 2D features to 3D points using depth, then matching to current frame.
-
 \subsubsection{Motion estimation using PnP and RANSAC}
 \label{sec:MotionEstimationPnP}
 
-% Initial estimation with RANSAC, refinement with standard solvePnP.
+Once 3D-2D correspondences are available, the relative camera motion between two frames can be 
+estimated by solving the Perspective-n-Point (PnP) problem~\cite{vo_pnp_survey}. The goal is to compute the rotation 
+$\mathbf{R}$ and translation $\mathbf{t}$ that map the 3D points observed in the previous frame to 
+their 2D projections in the current image.
+
+\begin{figure}[H]
+  \centering
+  \resizebox{0.4\textwidth}{!}{\includegraphics{figures/PnP.jpg}}
+  \caption{Perspectective-n-Point (PnP) problem. Source: \cite{vo_pnp_opencv}}
+  \label{fig:pnp}
+\end{figure}%
+
+Given a set of $n$ correspondences $\{ (\mathbf{X}_i, \mathbf{x}_i) \}$, where $\mathbf{X}_i$ are 3D 
+points in the previous frame and $\mathbf{x}_i$ their 2D image projections in the current frame, 
+PnP finds a transformation that minimizes the reprojection error under the pinhole camera model:
+
+\begin{equation}
+\begin{bmatrix}
+u \\ v \\ 1
+\end{bmatrix}
+\sim
+\mathbf{K}
+\begin{bmatrix}
+\mathbf{R} & \mathbf{t}
+\end{bmatrix}
+\begin{bmatrix}
+X \\ Y \\ Z \\ 1
+\end{bmatrix}
+\end{equation}
+
+Here, $\mathbf{K}$ is the camera intrinsic matrix, and $\mathbf{R}, \mathbf{t}$ represent the relative 
+pose of the current frame with respect to the previous one. The symbol $\sim$ denotes equality up to 
+scale in homogeneous coordinates.
+
+In practice, 3D-2D correspondences may include mismatches or noisy observations. To robustly estimate 
+the pose in the presence of such outliers, RANSAC (Random Sample Consensus) is used in conjunction 
+with PnP.
+
+RANSAC operates by randomly selecting minimal subsets of correspondences, solving the PnP problem for 
+each subset, and evaluating how many correspondences agree with the estimated pose. The solution with 
+the highest number of inliers is selected, and the pose is then refined using all inliers to minimize 
+the overall reprojection error.
+
+In this work, the function \texttt{cv::solvePnPRansac} from OpenCV is used to perform motion estimation. 
+This function takes as input the 3D points from the previous frame, their 2D projections in the current 
+frame, and the camera intrinsics, and returns the estimated rotation and translation vectors.
+
+The steps involved are:
+\begin{enumerate}
+  \item Project 3D points from the previous frame into the current image using candidate pose.
+  \item Measure the reprojection error against actual 2D keypoints.
+  \item Select inliers whose error is below a given threshold.
+  \item Repeat for several random subsets and select the best solution.
+  \item Refine the pose using all inliers.
+\end{enumerate}
+
+The resulting output consists of:
+\begin{itemize}
+  \item \texttt{rvec} a rotation vector in axis-angle form.
+  \item \texttt{tvec} a 3D translation vector.
+\end{itemize}
+
+The \texttt{rvec} returned by \texttt{solvePnPRansac} is a Rodrigues rotation vector or axis-angle rotation vector, 
+a compact 3×1 representation of rotation. The direction of the vector indicates the axis of rotation, while its 
+magnitude represents the rotation angle in radians around that axis. This vector can be converted to a rotation matrix
+using the Rodrigues formula.
+
+This matrix describes the transformation from the previous camera frame to the current one, and can 
+be used for pose chaining, trajectory estimation, or visual odometry back-end integration.
+
 
 \subsubsection{Covariance estimation}
 \label{sec:CovarianceEstimation}
 
-% Estimation of pose uncertainty based on reprojection residuals.
+After estimating the camera pose using PnP and RANSAC, it is often useful to quantify the uncertainty 
+associated with this estimate. This is particularly relevant when integrating the pose into filtering 
+frameworks, such as an Extended Kalman Filter (EKF), where a covariance is required.
+
+In this work, the pose covariance is approximated based on the reprojection residuals of the inlier 
+correspondences identified by RANSAC. Once the best pose has been selected, all 3D points are projected 
+onto the image using the estimated transform, and the residual reprojection errors are computed as:
+
+\begin{equation}
+\mathbf{e}_i = \mathbf{x}_i^{\text{observed}} - \mathbf{x}_i^{\text{projected}}(R, t)
+\end{equation}
+
+The residuals are stacked and used to compute a sample covariance matrix:
+
+\begin{equation}
+\Sigma = \frac{1}{N-1} \sum_{i=1}^N (\mathbf{e}_i - \bar{\mathbf{e}})(\mathbf{e}_i - \bar{\mathbf{e}})^T
+\end{equation}
+
+
+Although this approach does not yield an exact pose covariance, it provides a reasonable and fast 
+approximation that reflects the quality of the inlier set and the geometric configuration of the 
+matched points.
+
 
 \subsubsection{Motion filtering and smoothing}
 \label{sec:MotionFilteringSmoothing}
 
-% Statistical filtering and optional exponential smoothing of translation and rotation.
+The pose estimates obtained via PnP are subject to noise due to imperfect keypoint matching, depth
+errors, or small instabilities in the feature geometry. To improve the consistency of the estimated
+trajectory, a filtering and smoothing step is applied.
+Two approaches are combined:
+\begin{itemize}
+  \item \textbf{Statistical filtering} To detect and remove outliers in both translation and rotation
+  components based on deviation from a local history.
+  \item \textbf{Exponential smoothing} To smooth the motion estimate over time using a weighted moving
+  average.
+\end{itemize}
 
-\subsubsection{Outputs}
-\label{sec:OutputsVisualOdometry}
+Every component of the translation and rotation vector is  separately. A sliding window is stored for each component to compute its mean and
+standard deviation. New values that exceed a fixed threshold or deviate significantly from the mean 
+are replaced with the mean.
+
+Once filtered, the values are smoothed using exponential smoothing:
+
+\begin{equation}
+s_t = \alpha x_t + (1 - \alpha) s_{t-1}
+\end{equation}
+
+where $s_t$ is the smoothed value at time $t$, $x_t$ is the current value, and $\alpha$ is a smoothing
+factor between 0 and 1.
+
+Rotation vectors are smoothed component-wise in Rodrigues form. Although this is a simplification
+compared to quaternion-based smoothing on $SO(3)$, it performs well in practice for small motions.
+
+After filtering and smoothing, the pose is converted to a 4x4 transformation matrix and stored as the
+final motion estimate for the current frame. 
+
 
 % Translation, rotation, covariance, and debug images.
 \subsection{ROS2 Implementation}
