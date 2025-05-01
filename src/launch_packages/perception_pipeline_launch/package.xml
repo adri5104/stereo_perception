@@ -20,6 +20,7 @@
   <depend>object_detector</depend>
   <depend>stereo_perception_msgs</depend>
   <depend>ttc_calculator</depend>
+  <depend>disparity_to_depth</depend>
 
   <exec_depend>ros2launch</exec_depend>
 
