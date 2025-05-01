@@ -139,18 +139,17 @@ namespace visual_odometry
     inverse_rotation.copyTo(inverse_relative_transform(cv::Rect(0, 0, 3, 3)));
     inverse_translation.copyTo(inverse_relative_transform(cv::Rect(3, 0, 1, 3)));
 
-    // Accumulate the global transform
-    camera_tf_accumulated_ = camera_tf_accumulated_ * inverse_relative_transform;
-
-    // **Publish relative transform (previous -> current camera frame)**
-    geometry_msgs::msg::TransformStamped transform_msg;
     
-    transform_msg.header.stamp = color_msg->header.stamp;
-    transform_msg.header.frame_id = "previous_camera_frame";
-    transform_msg.child_frame_id = "current_camera_frame";
-    transform_msg.transform.translation.x = translation.at<double>(0);
-    transform_msg.transform.translation.y = translation.at<double>(1);
-    transform_msg.transform.translation.z = translation.at<double>(2);
+
+    // Transform from camera_optical_frame_previous to camera_optical_frame
+    geometry_msgs::msg::TransformStamped tf_local;
+    
+    tf_local.header.stamp = color_msg->header.stamp;
+    tf_local.header.frame_id = "camera_optical_frame_previous";
+    tf_local.child_frame_id = "camera_optical_frame";
+    tf_local.transform.translation.x = translation.at<double>(0);
+    tf_local.transform.translation.y = translation.at<double>(1);
+    tf_local.transform.translation.z = translation.at<double>(2);
     tf2::Matrix3x3 tf_rotation(
       rotation.at<double>(0, 0), rotation.at<double>(0, 1), rotation.at<double>(0, 2),
       rotation.at<double>(1, 0), rotation.at<double>(1, 1), rotation.at<double>(1, 2),
@@ -158,66 +157,63 @@ namespace visual_odometry
     );
     tf2::Quaternion tf_quat;
     tf_rotation.getRotation(tf_quat);
-    transform_msg.transform.rotation.x = tf_quat.x();
-    transform_msg.transform.rotation.y = tf_quat.y();
-    transform_msg.transform.rotation.z = tf_quat.z();
-    transform_msg.transform.rotation.w = tf_quat.w();
-    camera_frame_tf_pub_->publish(transform_msg);
+    tf_local.transform.rotation.x = tf_quat.x();
+    tf_local.transform.rotation.y = tf_quat.y();
+    tf_local.transform.rotation.z = tf_quat.z();
+    tf_local.transform.rotation.w = tf_quat.w();
 
-    
-    // Broadcast absolute transform (initial -> current camera frame)
-    tf2::Vector3 absolute_translation(
+    // Transform from camera_optical_frame_initial to camera_optical_frame_previous
+    tf2::Vector3 abs_translation(
         camera_tf_accumulated_.at<double>(0, 3),
         camera_tf_accumulated_.at<double>(1, 3),
         camera_tf_accumulated_.at<double>(2, 3)
     );
 
-    tf2::Matrix3x3 absolute_rotation(
+    tf2::Matrix3x3 abs_rotation(
         camera_tf_accumulated_.at<double>(0, 0), camera_tf_accumulated_.at<double>(0, 1), camera_tf_accumulated_.at<double>(0, 2),
         camera_tf_accumulated_.at<double>(1, 0), camera_tf_accumulated_.at<double>(1, 1), camera_tf_accumulated_.at<double>(1, 2),
         camera_tf_accumulated_.at<double>(2, 0), camera_tf_accumulated_.at<double>(2, 1), camera_tf_accumulated_.at<double>(2, 2)
     );
 
-    tf2::Quaternion absolute_quat;
-    absolute_rotation.getRotation(absolute_quat);
+    tf2::Quaternion abs_quat;
+    abs_rotation.getRotation(abs_quat);
 
-    geometry_msgs::msg::TransformStamped absolute_tf_msg;
-    absolute_tf_msg.header.stamp = color_msg->header.stamp;
-    absolute_tf_msg.header.frame_id = "camera_optical_frame_initial";   
-    absolute_tf_msg.child_frame_id = "camera_optical_frame";
+    geometry_msgs::msg::TransformStamped tf_global;
+    tf_global.header.stamp = color_msg->header.stamp;
+    tf_global.header.frame_id = "camera_optical_frame_initial";   
+    tf_global.child_frame_id = "camera_optical_frame_previous";
 
-    absolute_tf_msg.transform.translation.x = absolute_translation.x();
-    absolute_tf_msg.transform.translation.y = 0.0;
-    absolute_tf_msg.transform.translation.z = absolute_translation.z();
-    absolute_tf_msg.transform.rotation.x = absolute_quat.x();
-    absolute_tf_msg.transform.rotation.y = absolute_quat.y();
-    absolute_tf_msg.transform.rotation.z = absolute_quat.z();
-    absolute_tf_msg.transform.rotation.w = absolute_quat.w();
+    tf_global.transform.translation.x = abs_translation.x();
+    tf_global.transform.translation.y = 0.0; 
+    tf_global.transform.translation.z = abs_translation.z();
+    tf_global.transform.rotation.x = abs_quat.x();
+    tf_global.transform.rotation.y = abs_quat.y();
+    tf_global.transform.rotation.z = abs_quat.z();
+    tf_global.transform.rotation.w = abs_quat.w();
+    
+    // Publish the transforms in TF topic and dedicated topic
+    camera_frame_tf_pub_->publish(tf_local);
 
-    tf_broadcaster_->sendTransform(absolute_tf_msg);
+    std::vector<geometry_msgs::msg::TransformStamped> transforms;
+    transforms.push_back(tf_local);
+    transforms.push_back(tf_global);
+    tf_broadcaster_->sendTransform(transforms);
 
-    // Publish debug image
-    if (odometry_debug_image_)
-    {
-      sensor_msgs::msg::Image::SharedPtr debug_image_msg = cv_bridge::CvImage(
-        color_msg->header, "bgr8", debug_image).toImageMsg();
-      debug_pub_->publish(*debug_image_msg);
-    }
-
+    // Publish odometry
     if (publish_odom_)
     {
       // Publish odometry
       nav_msgs::msg::Odometry odom_msg;
       odom_msg.header.stamp = color_msg->header.stamp;
       odom_msg.header.frame_id = "camera_optical_frame_initial";
-      odom_msg.child_frame_id = "camera_optical_frame";
-      odom_msg.pose.pose.position.x = absolute_translation.x();
+      odom_msg.child_frame_id = "camera_optical_frame_previous";
+      odom_msg.pose.pose.position.x = abs_translation.x();
       odom_msg.pose.pose.position.y = 0.0;
-      odom_msg.pose.pose.position.z = absolute_translation.z();
-      odom_msg.pose.pose.orientation.x = absolute_quat.x();
-      odom_msg.pose.pose.orientation.y = absolute_quat.y();
-      odom_msg.pose.pose.orientation.z = absolute_quat.z();
-      odom_msg.pose.pose.orientation.w = absolute_quat.w();
+      odom_msg.pose.pose.position.z = abs_translation.z();
+      odom_msg.pose.pose.orientation.x = abs_quat.x();
+      odom_msg.pose.pose.orientation.y = abs_quat.y();
+      odom_msg.pose.pose.orientation.z = abs_quat.z();
+      odom_msg.pose.pose.orientation.w = abs_quat.w();
       odom_pub_->publish(odom_msg);
     }
 
@@ -228,16 +224,27 @@ namespace visual_odometry
       geometry_msgs::msg::PoseStamped pose_msg;
       pose_msg.header.stamp = color_msg->header.stamp;
       pose_msg.header.frame_id = "camera_optical_frame_initial";
-      pose_msg.pose.position.x = absolute_translation.x();
+      pose_msg.pose.position.x = abs_translation.x();
       pose_msg.pose.position.y = 0.0;
-      pose_msg.pose.position.z = absolute_translation.z();
-      pose_msg.pose.orientation.x = absolute_quat.x();
-      pose_msg.pose.orientation.y = absolute_quat.y();
-      pose_msg.pose.orientation.z = absolute_quat.z();
-      pose_msg.pose.orientation.w = absolute_quat.w();
+      pose_msg.pose.position.z = abs_translation.z();
+      pose_msg.pose.orientation.x = abs_quat.x();
+      pose_msg.pose.orientation.y = abs_quat.y();
+      pose_msg.pose.orientation.z = abs_quat.z();
+      pose_msg.pose.orientation.w = abs_quat.w();
       path_msg_.poses.push_back(pose_msg);
       path_pub_->publish(path_msg_);
     }
+
+    // Publish debug image
+    if (odometry_debug_image_)
+    {
+      sensor_msgs::msg::Image::SharedPtr debug_image_msg = cv_bridge::CvImage(
+        color_msg->header, "bgr8", debug_image).toImageMsg();
+      debug_pub_->publish(*debug_image_msg);
+    }
+
+    // Accumulate the global transform (camera_optical_frame_initial -> camera_optical_frame_previous)
+    camera_tf_accumulated_ = camera_tf_accumulated_ * inverse_relative_transform;
   }
 
   cv::Mat VisualOdometryNode::imageMsgToMat(const sensor_msgs::msg::Image::ConstSharedPtr & msg)
