@@ -194,7 +194,7 @@ namespace visual_odometry
     tf_global.transform.rotation.w = abs_quat.w();
     
     // Publish the transforms in TF topic and dedicated topic
-    //camera_frame_tf_pub_->publish(tf_local);
+    camera_frame_tf_pub_->publish(tf_local);
     std::vector<geometry_msgs::msg::TransformStamped> transforms;
     transforms.push_back(tf_local);
     transforms.push_back(tf_global);
