@@ -163,176 +163,176 @@ void VisualOdometry::estimateMotion(const std::vector<cv::Point2f>& prev_points,
   const std::vector<cv::Point2f>& curr_points, 
   const cv::Mat& prev_depth)
 {
-std::vector<cv::Point3f> points3D;
-std::vector<cv::Point2f> valid_curr_points;
+  std::vector<cv::Point3f> points3D;
+  std::vector<cv::Point2f> valid_curr_points;
 
-// Debug image (optional)
-if (create_debug_image_)
-{
-debug_image_ = cv::Mat::zeros(prev_depth.size(), CV_8UC3);
-}
+  // Debug image (optional)
+  if (create_debug_image_)
+  {
+    debug_image_ = cv::Mat::zeros(prev_depth.size(), CV_8UC3);
+  }
 
-// Reproject points to 3D, filtering by min/max depth
-for (size_t i = 0; i < prev_points.size(); ++i)
-{
-const cv::Point2f& pt2d = prev_points[i];
+  // Reproject points to 3D, filtering by min/max depth
+  for (size_t i = 0; i < prev_points.size(); ++i)
+  {
+    const cv::Point2f& pt2d = prev_points[i];
 
-// Safety check in case keypoints lie out of bounds
-if (pt2d.x < 0 || pt2d.x >= prev_depth.cols || pt2d.y < 0 || pt2d.y >= prev_depth.rows)
-continue;
+    // Safety check in case keypoints lie out of bounds
+    if (pt2d.x < 0 || pt2d.x >= prev_depth.cols || pt2d.y < 0 || pt2d.y >= prev_depth.rows)
+      continue;
 
-float depth = prev_depth.at<float>(static_cast<int>(pt2d.y), static_cast<int>(pt2d.x));
-if (depth > min_depth_ && depth < max_depth_)
-{
-// Valid depth: reproject to 3D
-cv::Point3f pt3d = reprojectTo3D(pt2d, depth);
-points3D.push_back(pt3d);
-valid_curr_points.push_back(curr_points[i]);
+    float depth = prev_depth.at<float>(static_cast<int>(pt2d.y), static_cast<int>(pt2d.x));
+      if (depth > min_depth_ && depth < max_depth_)
+      {
+        // Valid depth: reproject to 3D
+        cv::Point3f pt3d = reprojectTo3D(pt2d, depth);
+        points3D.push_back(pt3d);
+        valid_curr_points.push_back(curr_points[i]);
 
-// (Optional) Draw valid keypoints in green
-if (create_debug_image_)
-{
-cv::circle(debug_image_, curr_points[i], 2, cv::Scalar(0, 255, 0), -1);
-}
-}
-else
-{
-// (Optional) Draw invalid keypoints in red
-if (create_debug_image_)
-{
-cv::circle(debug_image_, curr_points[i], 2, cv::Scalar(0, 0, 255), -1);
-}
-}
-}
+        // (Optional) Draw valid keypoints in green
+        if (create_debug_image_)
+        {
+          cv::circle(debug_image_, curr_points[i], 2, cv::Scalar(0, 255, 0), -1);
+        }
+      }
+      else
+      {
+        // (Optional) Draw invalid keypoints in red
+        if (create_debug_image_)
+        {
+          cv::circle(debug_image_, curr_points[i], 2, cv::Scalar(0, 0, 255), -1);
+        }
+      }
+  }
 
-// Early exit if not enough points to even attempt solvePnP
-if (points3D.size() < 6)
-{
-std::cerr << "[VisualOdometry.cpp] Not enough valid points for motion estimation.\n";
-return;
-}
+  // Early exit if not enough points to even attempt solvePnP
+  if (points3D.size() < 6)
+  {
+    std::cerr << "[VisualOdometry.cpp] Not enough valid points for motion estimation.\n";
+    return;
+  }
 
-// (1) First Pass: Use solvePnPRansac to get initial pose + inlier mask
-cv::Mat rvec, tvec, inliers;
-bool success = cv::solvePnPRansac(
-points3D,          // 3D points
-valid_curr_points, // 2D points
-camera_matrix_,
-cv::noArray(),     // no distortion
-rvec,
-tvec,
-false,             // useExtrinsicGuess = false
-500,               // iterationsCount
-5.0,               // reprojectionError threshold (pixels)
-0.99,              // confidence
-inliers
-);
+  // (1) First Pass: Use solvePnPRansac to get initial pose + inlier mask
+  cv::Mat rvec, tvec, inliers;
+  bool success = cv::solvePnPRansac(
+    points3D,          // 3D points
+    valid_curr_points, // 2D points
+    camera_matrix_,
+    cv::noArray(),     // no distortion
+    rvec,
+    tvec,
+    false,             // useExtrinsicGuess = false
+    500,               // iterationsCount
+    5.0,               // reprojectionError threshold (pixels)
+    0.99,              // confidence
+    inliers
+  );
 
-if (!success || inliers.rows < 6)
-{
-// If solvePnPRansac fails or inliers are too few, skip updating pose
-std::cerr << "[VisualOdometry.cpp] solvePnPRansac failed or not enough inliers.\n";
-return;
-}
+  if (!success || inliers.rows < 6)
+  {
+    // If solvePnPRansac fails or inliers are too few, skip updating pose
+    std::cerr << "[VisualOdometry.cpp] solvePnPRansac failed or not enough inliers.\n";
+    return;
+  }
 
-// (2) Gather inliers for a second pass solvePnP
-std::vector<cv::Point3f> inlier_3D; 
-std::vector<cv::Point2f> inlier_2D;
-inlier_3D.reserve(inliers.rows);
-inlier_2D.reserve(inliers.rows);
+  // (2) Gather inliers for a second pass solvePnP
+  std::vector<cv::Point3f> inlier_3D; 
+  std::vector<cv::Point2f> inlier_2D;
+  inlier_3D.reserve(inliers.rows);
+  inlier_2D.reserve(inliers.rows);
 
-for (int i = 0; i < inliers.rows; ++i)
-{
-int idx = inliers.at<int>(i, 0);
-inlier_3D.push_back(points3D[idx]);
-inlier_2D.push_back(valid_curr_points[idx]);
-}
+  for (int i = 0; i < inliers.rows; ++i)
+  {
+    int idx = inliers.at<int>(i, 0);
+    inlier_3D.push_back(points3D[idx]);
+    inlier_2D.push_back(valid_curr_points[idx]);
+  }
 
-// (3) Second Pass: Refine the pose with a standard solvePnP using only inliers
-//     Provide the previous rvec, tvec as the initial guess
-cv::solvePnP(
-inlier_3D, 
-inlier_2D, 
-camera_matrix_, 
-cv::noArray(), 
-rvec, 
-tvec, 
-true,                   // useExtrinsicGuess = true
-cv::SOLVEPNP_ITERATIVE // e.g. Levenberg–Marquardt
-);
+  // (3) Second Pass: Refine the pose with a standard solvePnP using only inliers
+  //     Provide the previous rvec, tvec as the initial guess
+  cv::solvePnP(
+    inlier_3D, 
+    inlier_2D, 
+    camera_matrix_, 
+    cv::noArray(), 
+    rvec, 
+    tvec, 
+    true,                   // useExtrinsicGuess = true
+    cv::SOLVEPNP_ITERATIVE // e.g. Levenberg–Marquardt
+  );
 
-// **Covariance Estimation** (unchanged from your original logic)
-cv::Mat residuals(inliers.rows, 1, CV_64F);
-for (int i = 0; i < inliers.rows; ++i)
-{
-int idx = inliers.at<int>(i, 0);
-std::vector<cv::Point3f> single_point{ points3D[idx] };
-std::vector<cv::Point2f> projected_points;
-cv::projectPoints(single_point, rvec, tvec, camera_matrix_, cv::noArray(), projected_points);
-cv::Point2f projected_point = projected_points[0];
-residuals.at<double>(i) = cv::norm(projected_point - valid_curr_points[idx]);
-}
-double var_translation = cv::mean(residuals)[0];
-double var_rotation = var_translation / 10.0; // simple heuristic
-cv::Mat cov = cv::Mat::zeros(6, 6, CV_64F);
-cov.at<double>(0, 0) = var_translation; // tx
-cov.at<double>(1, 1) = var_translation; // ty
-cov.at<double>(2, 2) = var_translation; // tz
-cov.at<double>(3, 3) = var_rotation;    // roll
-cov.at<double>(4, 4) = var_rotation;    // pitch
-cov.at<double>(5, 5) = var_rotation;    // yaw
-covariance_ = cov.clone();
+  // Covariance Estimation
+  cv::Mat residuals(inliers.rows, 1, CV_64F);
+  for (int i = 0; i < inliers.rows; ++i)
+  {
+    int idx = inliers.at<int>(i, 0);
+    std::vector<cv::Point3f> single_point{ points3D[idx] };
+    std::vector<cv::Point2f> projected_points;
+    cv::projectPoints(single_point, rvec, tvec, camera_matrix_, cv::noArray(), projected_points);
+    cv::Point2f projected_point = projected_points[0];
+    residuals.at<double>(i) = cv::norm(projected_point - valid_curr_points[idx]);
+  }
+  double var_translation = cv::mean(residuals)[0];
+  double var_rotation = var_translation / 10.0; // simple heuristic
+  cv::Mat cov = cv::Mat::zeros(6, 6, CV_64F);
+  cov.at<double>(0, 0) = var_translation; // tx
+  cov.at<double>(1, 1) = var_translation; // ty
+  cov.at<double>(2, 2) = var_translation; // tz
+  cov.at<double>(3, 3) = var_rotation;    // roll
+  cov.at<double>(4, 4) = var_rotation;    // pitch
+  cov.at<double>(5, 5) = var_rotation;    // yaw
+  covariance_ = cov.clone();
 
-// (Optional) Statistical Filtering & Smoothing
-if (apply_statistical_filtering_)
-{
-// Decompose translation vector
-double tx = tvec.at<double>(0);
-double ty = tvec.at<double>(1);
-double tz = tvec.at<double>(2);
+  // (Optional) Statistical Filtering & Smoothing
+  if (apply_statistical_filtering_)
+  {
+    // Decompose translation vector
+    double tx = tvec.at<double>(0);
+    double ty = tvec.at<double>(1);
+    double tz = tvec.at<double>(2);
 
-// Decompose rotation vector
-double rx = rvec.at<double>(0);
-double ry = rvec.at<double>(1);
-double rz = rvec.at<double>(2);
+    // Decompose rotation vector
+    double rx = rvec.at<double>(0);
+    double ry = rvec.at<double>(1);
+    double rz = rvec.at<double>(2);
 
-// Filter each component
-tx = filterOutlier(tx, translation_x_window_, max_translation_threshold_);
-ty = filterOutlier(ty, translation_y_window_, max_translation_threshold_);
-tz = filterOutlier(tz, translation_z_window_, max_translation_threshold_);
+    // Filter each component
+    tx = filterOutlier(tx, translation_x_window_, max_translation_threshold_);
+    ty = filterOutlier(ty, translation_y_window_, max_translation_threshold_);
+    tz = filterOutlier(tz, translation_z_window_, max_translation_threshold_);
 
-rx = filterOutlier(rx, roll_window_, max_rotation_threshold_);
-ry = filterOutlier(ry, pitch_window_, max_rotation_threshold_);
-rz = filterOutlier(rz, yaw_window_, max_rotation_threshold_);
+    rx = filterOutlier(rx, roll_window_, max_rotation_threshold_);
+    ry = filterOutlier(ry, pitch_window_, max_rotation_threshold_);
+    rz = filterOutlier(rz, yaw_window_, max_rotation_threshold_);
 
-// Apply moving average or other smoothing
-tvec.at<double>(0) = applyMovingAverage(translation_x_window_, tx);
-tvec.at<double>(1) = applyMovingAverage(translation_y_window_, ty);
-tvec.at<double>(2) = applyMovingAverage(translation_z_window_, tz);
+    // Apply moving average or other smoothing
+    tvec.at<double>(0) = applyMovingAverage(translation_x_window_, tx);
+    tvec.at<double>(1) = applyMovingAverage(translation_y_window_, ty);
+    tvec.at<double>(2) = applyMovingAverage(translation_z_window_, tz);
 
-rvec.at<double>(0) = applyMovingAverage(roll_window_, rx);
-rvec.at<double>(1) = applyMovingAverage(pitch_window_, ry);
-rvec.at<double>(2) = applyMovingAverage(yaw_window_, rz);
-}
+    rvec.at<double>(0) = applyMovingAverage(roll_window_, rx);
+    rvec.at<double>(1) = applyMovingAverage(pitch_window_, ry);
+    rvec.at<double>(2) = applyMovingAverage(yaw_window_, rz);
+  }
 
-// Convert rotation vector to rotation matrix
-cv::Rodrigues(rvec, rotation_);
-//std::cout << "Rotation matrix: " << rotation_ << std::endl;
-//std::cout << "Rotation vector " << rvec << std::endl;
-translation_ = tvec.clone();
+  // Convert rotation vector to rotation matrix
+  cv::Rodrigues(rvec, rotation_);
+  //std::cout << "Rotation matrix: " << rotation_ << std::endl;
+  //std::cout << "Rotation vector " << rvec << std::endl;
+  translation_ = tvec.clone();
 
-// If exponential smoothing is enabled, apply it directly
-if (apply_expotential_smoothing_)
-{
-// Note: direct matrix blending for rotation can be sub-optimal.
-// For now, we do as in your code. Alternatively, apply smoothing on rvec or quaternion.
-translation_ = exponential_alpha_ * translation_ + (1.0 - exponential_alpha_) * translation_prev;
-rotation_ = exponential_alpha_ * rotation_ + (1.0 - exponential_alpha_) * rotation_prev;
-}
+  // If exponential smoothing is enabled, apply it directly
+  if (apply_expotential_smoothing_)
+  {
+  // Note: direct matrix blending for rotation can be sub-optimal.
+  // For now, we do as in your code. Alternatively, apply smoothing on rvec or quaternion.
+  translation_ = exponential_alpha_ * translation_ + (1.0 - exponential_alpha_) * translation_prev;
+  rotation_ = exponential_alpha_ * rotation_ + (1.0 - exponential_alpha_) * rotation_prev;
+  }
 
-// Update previous translation and rotation
-translation_prev = translation_.clone();
-rotation_prev = rotation_.clone();
+  // Update previous translation and rotation
+  translation_prev = translation_.clone();
+  rotation_prev = rotation_.clone();
 }
 
 
@@ -426,12 +426,11 @@ double VisualOdometry::filterOutlier(double new_value, std::deque<double>& windo
   }
 
   void VisualOdometry::getOutput(cv::Mat& translation, cv::Mat& rotation, cv::Mat& covariance, cv::Mat& debug) const
-  {
+  { 
     translation = translation_.clone();
     rotation = rotation_.clone();
     debug = debug_image_.clone();
     covariance = covariance_.clone();
-
   }
 
   // setters
