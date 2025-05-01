@@ -17,7 +17,6 @@ namespace perception_pipeline
 namespace kalman_filter
 {
   KalmanCore::KalmanCore() :
-  sync_input_time_old_(Clock::now()),
   time_diff_(0.0),
   include_ego_motion_(false),
   use_ego_var_(false),
@@ -36,11 +35,12 @@ namespace kalman_filter
   C_(Mat::zeros(6, 6, CV_64FC1)),
   T_(Mat::zeros(3, 3, CV_64FC1)),
   sigma_system_(Mat::zeros(3, 3, CV_64FC1)),
+  A_new_w_(Mat::zeros(6, 6, CV_64FC1)),
   A_new_(Mat::zeros(6, 6, CV_64FC1)),
   u_new_(Mat::zeros(6, 1, CV_64FC1)),
+  rot_new_(),
   D_new_(Mat::zeros(6, 6, CV_64FC1)),
-  Q_new_w_(Mat::zeros(6, 6, CV_64FC1)),
-  para_rot_(Mat::zeros(6, 1, CV_64FC1))
+  Q_new_w_(Mat::zeros(6, 6, CV_64FC1))
 {
   // Initialize variances
   // Set covariance matrix of system model
@@ -69,7 +69,6 @@ KalmanCore::KalmanCore(
   bool use_var_ego,
   int gridSize,
   bool debug_image_grid) : 
-  sync_input_time_old_(Clock::now()),
   time_diff_(0.0),
   include_ego_motion_(include_ego_motion),
   use_ego_var_(use_var_ego),
@@ -81,11 +80,12 @@ KalmanCore::KalmanCore(
   min_height_(min_height), max_height_(max_height),
   first_time_(true),
   C_(C), T_(T),sigma_system_(sigma_system), 
+  A_new_w_(Mat::zeros(6, 6, CV_64FC1)),
   A_new_(Mat::zeros(6, 6, CV_64FC1)),
   u_new_(Mat::zeros(6, 1, CV_64FC1)),
+  rot_new_(),
   D_new_(Mat::zeros(6, 6, CV_64FC1)),
-  Q_new_w_(Mat::zeros(6, 6, CV_64FC1)),
-  para_rot_(Mat::zeros(6, 1, CV_64FC1))
+  Q_new_w_(Mat::zeros(6, 6, CV_64FC1))
 {
   cout << "[KalmanCore] =================================================================" << endl;
   cout << "[KalmanCore] =============== KalmanCore object created =======================" << endl;
@@ -107,13 +107,14 @@ KalmanCore::KalmanCore(
 
 KalmanCore::~KalmanCore(void)
 {
-  for (auto& wp: worldpoints_)
-  {
-    wp.reset();
-  }
 }
 
-KalmanCoreErrorCode KalmanCore::updateSyncedData(const Mat& optical_flow, const Mat& depth, const Mat& color_image, const Mat& egomotion)
+KalmanCoreErrorCode KalmanCore::updateSyncedData(
+  const Mat& optical_flow, 
+  const Mat& depth, 
+  const Mat& color_image, 
+  const Mat& egomotion,
+  double time_diff)
 { 
   if (optical_flow.empty()) return KalmanCoreErrorCode::BAD_OPTICAL_FLOW_IMAGE_ERROR;
   if (depth.empty()) return KalmanCoreErrorCode::BAD_DEPTH_IMAGE_ERROR;
@@ -123,12 +124,17 @@ KalmanCoreErrorCode KalmanCore::updateSyncedData(const Mat& optical_flow, const 
   input_optical_flow_sync_ = optical_flow;
   input_depth_sync_ = depth;
   input_color_image_sync_ = color_image;
+  time_diff_ = time_diff;
   if (include_ego_motion_) input_egomotion_sync_ = egomotion;
 
-  return predict(input_optical_flow_sync_, input_depth_sync_, input_color_image_sync_);
+  return predict(input_optical_flow_sync_, input_depth_sync_, input_color_image_sync_, time_diff_);
 }
 
-KalmanCoreErrorCode KalmanCore::updateSyncedData(const Mat& optical_flow, const Mat& depth, const Mat& color_image)
+KalmanCoreErrorCode KalmanCore::updateSyncedData(
+  const Mat& optical_flow, 
+  const Mat& depth, 
+  const Mat& color_image,
+  double time_diff)
 { 
   if (!camera_parameters_set_) return KalmanCoreErrorCode::CAMERA_PARAMETERS_NOT_SET_ERROR;
   if (optical_flow.empty()) return KalmanCoreErrorCode::BAD_OPTICAL_FLOW_IMAGE_ERROR;
@@ -139,8 +145,9 @@ KalmanCoreErrorCode KalmanCore::updateSyncedData(const Mat& optical_flow, const 
   input_optical_flow_sync_ = optical_flow;
   input_depth_sync_ = depth;
   input_color_image_sync_ = color_image;
+  time_diff_ = time_diff;
 
-  return predict(input_optical_flow_sync_, input_depth_sync_, input_color_image_sync_);
+  return predict(input_optical_flow_sync_, input_depth_sync_, input_color_image_sync_, time_diff_);
 }
 
 void KalmanCore::setCameraParameters(double fx, double fy, double cx, double cy)
@@ -153,7 +160,11 @@ void KalmanCore::setCameraParameters(double fx, double fy, double cx, double cy)
 }
 
 
-KalmanCoreErrorCode KalmanCore::predict(Mat input_optical_flow, Mat input_depth, Mat input_color_image)
+KalmanCoreErrorCode KalmanCore::predict(
+  const Mat& input_optical_flow, 
+  const Mat& input_depth, 
+  const Mat& input_color_image, 
+  double time_diff)
 { 
 
   Mat output_6d = Mat::zeros(input_color_image.rows, input_color_image.cols, CV_MAKETYPE(CV_32F, OUT6D_C));
@@ -180,9 +191,6 @@ KalmanCoreErrorCode KalmanCore::predict(Mat input_optical_flow, Mat input_depth,
               cv::Scalar(255, 0, 0), 1);
     }
   }
-
-  time_diff_ = calculateTimeDifference(sync_input_time_old_);
-
   
   if (first_time_) {
     KalmanCoreErrorCode result = setNewWorldPoints(occupancy_grid, output_6d, output_debug_image);
@@ -225,9 +233,7 @@ KalmanCoreErrorCode KalmanCore::predict(Mat input_optical_flow, Mat input_depth,
         input_depth,
         input_optical_flow,
         A_new_, D_new_, Q_new_w_, u_new_,
-        para_rot_,
-        term1, term2, term3, term4, 
-        time_diff_,
+        rot_new_,
         occupancy_grid
     );
     local.error = wperr;
@@ -309,7 +315,6 @@ KalmanCoreErrorCode KalmanCore::predict(Mat input_optical_flow, Mat input_depth,
     }
   }
 
-
   worldpoints_ = std::move(new_worldpoints);
 
   // ---------------------------------------------------------------
@@ -338,6 +343,7 @@ KalmanCoreErrorCode KalmanCore::predict(Mat input_optical_flow, Mat input_depth,
               min_height_, max_height_,
               fx_, fy_, cx_, cy_,
               include_ego_motion_,
+              use_ego_var_,
               grid_size_worldpoints_));
 
           worldpoints_.back()->initKalmanFilter(
@@ -398,7 +404,8 @@ KalmanCoreErrorCode KalmanCore::setNewWorldPoints(Mat &occupancy_grid, Mat &outp
         min_depth_, max_depth_, 
         min_height_, max_height_,
         fx_, fy_, cx_, cy_, 
-        include_ego_motion_, 
+        include_ego_motion_,
+        use_ego_var_, 
         grid_size_worldpoints_));
 
       worldpoints_.back()->initKalmanFilter(
@@ -422,87 +429,58 @@ KalmanCoreErrorCode KalmanCore::setNewWorldPoints(Mat &occupancy_grid, Mat &outp
 
 KalmanCoreErrorCode KalmanCore::computeKalmanMatrices()
 {
-	Mat A_new_w	= Mat::zeros(6, 6, CV_64FC1);
+	A_new_= Mat::zeros(6, 6, CV_64FC1); 
 
-	// Filling A_new_w (Transition matrix)
-  A_new_ = Mat::eye(6, 6, CV_64FC1);
+	// Filling A_new_w (Transition matrix in world coordinates)
+  A_new_w_ = Mat::eye(6, 6, CV_64FC1);
   Mat scaled_identity = Mat::eye(3, 3, CV_64FC1) * time_diff_;
-  Mat A_new_submatrix = A_new_.colRange(3, 6).rowRange(0, 3);
+  Mat A_new_submatrix = A_new_w_.colRange(3, 6).rowRange(0, 3);
   scaled_identity.copyTo(A_new_submatrix);
   
   if (include_ego_motion_)
   {
-    // Filling D_new_  (Egomotion rotation matrix)
-    Mat tmp = D_new_.colRange(0,3).rowRange(0,3);		
-    input_egomotion_sync_.colRange(0,3).rowRange(0,3).copyTo(tmp);	
-    tmp		= D_new_.colRange(3,6).rowRange(3,6);		
-    input_egomotion_sync_.colRange(0,3).rowRange(0,3).copyTo(tmp);	
+    Mat rvec;
+    Rodrigues(input_egomotion_sync_.rowRange(0,3).colRange(0,3), rvec);
 
-    // Filling u_new_ (Egomotion translation vector)
+    Mat R, dRdr;
+    Rodrigues(rvec, R, dRdr);
+    // Save rotation data
+    rot_new_.rvec = rvec;
+    rot_new_.R = R;
+    rot_new_.dRdr = dRdr;
+
+    //std::cout << "Input R: " << inputR << std::endl;
+    //std::cout << "R: " << R << std::endl;
+    //std::cout << "dRdr: " << dRdr << std::endl;
+    //std::cout << "rvec: " << rvec << std::endl;
+
+
+    // Build D_new with R
+    D_new_ = Mat::zeros(6, 6, CV_64FC1);
+    R.copyTo(D_new_.rowRange(0,3).colRange(0,3));
+    R.copyTo(D_new_.rowRange(3,6).colRange(3,6)); 
+    // Build u_new with input_egomotion_sync_
+    u_new_ = Mat::zeros(6, 1, CV_64FC1);
     u_new_.at<double>(0,0) = input_egomotion_sync_.at<double>(0,3);
     u_new_.at<double>(1,0) = input_egomotion_sync_.at<double>(1,3);
     u_new_.at<double>(2,0) = input_egomotion_sync_.at<double>(2,3);
 
-    // Compute the new state transition matrix A_new
-    A_new_w = A_new_ * D_new_;
+    A_new_ = D_new_ * A_new_w_;
   }
   else
   {
-    A_new_w = A_new_;
+    A_new_ = A_new_w_;
   }
 
-	// Compute and fill Q_new_w
-  // Precompute commonly used values for clarity
-  Mat scaled_sigma_1 = (1.0 / 3.0) * time_diff_ * time_diff_ * sigma_system_;
-  Mat scaled_sigma_2 = 0.5 * time_diff_ * sigma_system_;
+  // Compute Q_new_w (Covariance matrix of discrete-time process without egomotion)
+  cv::Mat scaled_sigma_1 = (1.0 / 3.0) * time_diff_ * time_diff_ * sigma_system_;
+  cv::Mat scaled_sigma_2 = 0.5 * time_diff_ * sigma_system_;
 
-  // Fill the top-left block (3x3) of Q_new_w
-  Mat Q_top_left = Q_new_w_.colRange(0, 3).rowRange(0, 3);
-  scaled_sigma_1.copyTo(Q_top_left);
-
-  // Fill the top-right block (3x3) of Q_new_w
-  Mat Q_top_right = Q_new_w_.colRange(3, 6).rowRange(0, 3);
-  scaled_sigma_2.copyTo(Q_top_right);
-
-  // Fill the bottom-left block (3x3) of Q_new_w
-  Mat Q_bottom_left = Q_new_w_.colRange(0, 3).rowRange(3, 6);
-  scaled_sigma_2.copyTo(Q_bottom_left);
-
-  // Fill the bottom-right block (3x3) of Q_new_w
-  Mat Q_bottom_right = Q_new_w_.colRange(3, 6).rowRange(3, 6);
-  sigma_system_.copyTo(Q_bottom_right);
-
-	// Compute jacobian for statetransformation G 
-  if (include_ego_motion_)
-  {
-    double Phi		= asin(input_egomotion_sync_.at<double>(2,1));
-    double sPhi		= sin(Phi);
-    double cPhi		= cos(Phi);
-    double Psi		= acos(input_egomotion_sync_.at<double>(2,2) / cPhi);
-    double sPsi		= sin(Psi);
-    double cPsi		= cos(Psi);
-    double Theta	= acos(input_egomotion_sync_.at<double>(1,1) / cPhi);
-    double sTheta	= sin(Theta);
-    double cTheta	= cos(Theta);
-
-    // Fill vector for egomotion
-    para_rot_.at<double>(0,0) = sTheta;
-    para_rot_.at<double>(1,0) = cTheta;
-    para_rot_.at<double>(2,0) = sPhi;
-    para_rot_.at<double>(3,0) = cPhi;
-    para_rot_.at<double>(4,0) = sPsi;
-    para_rot_.at<double>(5,0) = cPsi;
-
-    // Precalculate terms for J 
-    term1 = sPsi*sTheta - cPsi*cTheta*sPhi;
-    term2 = cPsi*cTheta - sPhi*sPsi*sTheta;
-    term3 = cTheta*sPsi + cPsi*sPhi*sTheta;
-    term4 = cPsi*sTheta + cTheta*sPhi*sPsi;
-    double term5   = -cPhi * sTheta;	
-    double term6   = -cPhi * sPsi;		
-    double term7   = cPhi * cTheta;
-    double term8   = cPhi * cPsi;
-  }
+  Q_new_w_ = cv::Mat::zeros(6, 6, CV_64FC1);
+  scaled_sigma_1.copyTo(Q_new_w_.rowRange(0, 3).colRange(0, 3));
+  scaled_sigma_2.copyTo(Q_new_w_.rowRange(0, 3).colRange(3, 6));
+  scaled_sigma_2.copyTo(Q_new_w_.rowRange(3, 6).colRange(0, 3));
+  sigma_system_.copyTo(Q_new_w_.rowRange(3, 6).colRange(3, 6));
 
   return KalmanCoreErrorCode::OK;
 }
@@ -545,14 +523,6 @@ OutVec KalmanCore::formatOutput(Vec6f x, int validity)
   }
   
   return output;
-}
-
-double KalmanCore::calculateTimeDifference(TimePoint& lastTime) 
-{
-  TimePoint currentTime = Clock::now();
-  auto duration = std::chrono::duration_cast<Seconds>(currentTime - lastTime).count();
-  lastTime = currentTime; // Update the last time
-  return duration;
 }
 
 // Setters

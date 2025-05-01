@@ -108,7 +108,17 @@ private:
    */
   cv::Mat imageMsgToMat(const sensor_msgs::msg::Image::ConstSharedPtr & msg);
 
-  
+  /**
+   * @brief Helper function to calculate the time difference between two time points
+   * 
+   * @param last_time 
+   * @return double 
+   */
+  double calculateDeltaTime(rclcpp::Time& last_time);
+  bool first_time_;
+  double time_diff_; // Time difference between frames
+  rclcpp::Time last_time_; // Last time point for time difference calculation
+
 
   // KalmanCore
   std::unique_ptr<KalmanCore> kalman_core_;
@@ -164,18 +174,18 @@ private:
   double sigma2_z_system_;
   double sigma2_flow_y_measurement_;
   double sigma2_flow_x_measurement_;
-  double sigma2_depth_system_;
+  double sigma2_depth_measurement_;
   double sigma2_tx_measurement_;
   double sigma2_ty_measurement_;
   double sigma2_tz_measurement_;
-  double sigma2_theta_measurement_;
-  double sigma2_phi_measurement_;
-  double sigma2_psi_system_;
+  double sigma2_rx_measurement_;
+  double sigma2_ry_measurement_;
+  double sigma2_rz_measurement_;
 
   double min_depth_;
   double max_depth_;
   double min_height_;
-  double max_height_;
+  double camera_ground_distance_;
   cv::Mat C_;
   cv::Mat T_;
   cv::Mat sigma_system_;

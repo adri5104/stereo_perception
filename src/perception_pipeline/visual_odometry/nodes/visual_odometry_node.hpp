@@ -17,6 +17,7 @@
 #include <geometry_msgs/msg/twist.hpp>
 #include <geometry_msgs/msg/transform_stamped.hpp>
 #include <nav_msgs/msg/odometry.hpp>
+#include <nav_msgs/msg/path.hpp>
 #include <tf2_ros/transform_broadcaster.h>
 #include <tf2/LinearMath/Quaternion.h>  
 #include <tf2/LinearMath/Matrix3x3.h>   
@@ -97,6 +98,8 @@ namespace visual_odometry
       // Publishers 
       rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr debug_pub_;
       rclcpp::Publisher<geometry_msgs::msg::TransformStamped>::SharedPtr camera_frame_tf_pub_;
+      rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_pub_;
+      rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr path_pub_;
 
       /// Synchronizer
       std::unique_ptr<message_filters::Synchronizer<SyncPolicy>> sync_;
@@ -114,6 +117,11 @@ namespace visual_odometry
       std::string camera_info_topic_; ///< Camera info topic
       std::string odometry_debug_topic_; ///< Debug image topic
       std::string camera_frame_tf_topic_; ///< Camera frame transform between two consewuence frames
+      bool publish_path_; ///< Publish path
+      std::string path_topic_; ///< Path topic
+      nav_msgs::msg::Path path_msg_; ///< Path message
+      bool publish_odom_; ///< Publish odometry
+      std::string odom_topic_; ///< Odometry topic
       double max_depth_odom_;
       double min_depth_odom_;
       bool odometry_debug_image_;

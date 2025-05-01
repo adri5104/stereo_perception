@@ -47,10 +47,7 @@ namespace visual_odometry
        * @param debug debug image
        */
       void getOutput(cv::Mat& translation, cv::Mat& rotation, cv::Mat& covariance, cv::Mat& debug) const;
-
-
-       // Setters
-      
+ 
       /**
        * @brief Set the Camera Parameters object
        * 

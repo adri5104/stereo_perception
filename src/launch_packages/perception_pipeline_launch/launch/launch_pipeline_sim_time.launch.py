@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
-import launch 
+import launch
 import launch_ros.actions
 
 def generate_launch_description():
-    use_sim_time = False
+    use_sim_time = True
     
     return launch.LaunchDescription([
       
@@ -87,19 +87,20 @@ def generate_launch_description():
                 {'debug_markers_topic' : '/debug/image_6d_markers'},
                 {'grid_size' : 8},
                 {'debug_image_grid' : False},
-                {'use_ego_motion' : False},
+                {'use_ego_motion' :  False},
                 {'use_ego_var' : False},
                 {'sigma2_x_system' : 10.0},
                 {'sigma2_y_system' : 10.0},
                 {'sigma2_z_system' : 10.0},
                 {'sigma2_flow_y_measurement' : 3.0},
                 {'sigma2_flow_x_measurement' : 3.0},
-                {'sigma2_depth_system' : 0.5  },
-                {'sigma2_tx_measurement' : 10.0},
-                {'sigma2_ty_measurement' : 10.0},
-                {'sigma2_tz_measurement' : 10.0},
-                {'sigma2_theta_measurement' : 10.0},
-                {'sigma2_psi_system' : 10.0},
+                {'sigma2_depth_measurement' : 0.5},
+                {'sigma2_tx_measurement' : 0.0},
+                {'sigma2_ty_measurement' : 0.0},
+                {'sigma2_tz_measurement' : 0.0},
+                {'sigma2_rx_measurement' : 0.0},
+                {'sigma2_ry_measurement' : 0.0},
+                {'sigma2_rz_measurement' : 0.0},
                 {'min_depth' : 1.0},
                 {'max_depth' : 10.0},
                 {'min_height_' :-3.0},

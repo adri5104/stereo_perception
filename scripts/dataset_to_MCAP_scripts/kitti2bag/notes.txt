@@ -176,3 +176,15 @@ topic == '/device_0/sensor_0/Depth_0/image/metadata' or \
 topic == '/device_0/sensor_0/option/Depth_Units/value' or \
 topic == '/device_0/sensor_0/option/Depth_Units/description' "
 rosbags-convert  Datasets/FramosDepthCamera/range_test/test1f.bag --dst Datasets/FramosDepthCamera/range_test/test1f
+
+Driving test: 
+
+rosbag filter  Datasets/FramosDepthCamera/driving_test/test3.bag Datasets/FramosDepthCamera/driving_test/test3f.bag "\
+topic == '/device_0/sensor_0/Depth_0/image/data' or \
+topic == '/device_0/sensor_0/Depth_0/info/camera_info' or \
+topic == '/device_0/sensor_1/Color_0/image/data' or \
+topic == '/device_0/sensor_1/Color_0/info/camera_info' or \
+topic == '/device_0/sensor_0/Depth_0/image/metadata' or \
+topic == '/device_0/sensor_0/option/Depth_Units/value' or \
+topic == '/device_0/sensor_0/option/Depth_Units/description' "
+rosbags-convert  Datasets/FramosDepthCamera/range_test/test1f.bag --dst Datasets/FramosDepthCamera/range_test/test1f

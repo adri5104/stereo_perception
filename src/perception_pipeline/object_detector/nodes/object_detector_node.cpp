@@ -260,6 +260,18 @@ void ObjectDetectorNode::publishClusters(const std::vector<WorldEntity>& cluster
         obj.velocity.y = cluster.getVelocity().y();
         obj.velocity.z = cluster.getVelocity().z();
         obj.bb_marker = clusterToBoundingBoxMarker(cluster);
+
+        auto corners = cluster.getBoundingBox();
+        stereo_perception_msgs::msg::BoundingBox bb;
+        for (const auto& pt : corners)
+        {
+            geometry_msgs::msg::Point corner;
+            corner.x = pt.x;
+            corner.y = pt.y;
+            corner.z = pt.z;
+            bb.corners.push_back(corner);
+        }
+        obj.bounding_box = bb;
         msg.objects.push_back(obj);
     }
 
@@ -284,7 +296,11 @@ geometry_msgs::msg::Point ObjectDetectorNode::pclPointToGeometryMsgPoint(const p
 int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
-  rclcpp::spin(std::make_shared<perception_pipeline::object_detector::ObjectDetectorNode>());
+
+  auto node = std::make_shared<perception_pipeline::object_detector::ObjectDetectorNode>();
+  rclcpp::executors::MultiThreadedExecutor executor;
+  executor.add_node(node);
+  executor.spin();
   rclcpp::shutdown();
   return 0;
 }   

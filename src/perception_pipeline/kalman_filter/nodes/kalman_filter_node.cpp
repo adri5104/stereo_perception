@@ -52,21 +52,21 @@
     // Covariance of measurement model
     this->declare_parameter<double>("sigma2_flow_y_measurement", 10);
     this->declare_parameter<double>("sigma2_flow_x_measurement", 10);
-    this->declare_parameter<double>("sigma2_depth_system", 10);
+    this->declare_parameter<double>("sigma2_depth_measurement", 10);
 
     // Covariance of ego motion estimation
     this->declare_parameter<double>("sigma2_tx_measurement", 10);
     this->declare_parameter<double>("sigma2_ty_measurement", 10);
     this->declare_parameter<double>("sigma2_tz_measurement", 10);
-    this->declare_parameter<double>("sigma2_theta_measurement", 10);
-    this->declare_parameter<double>("sigma2_phi_measurement", 10);
-    this->declare_parameter<double>("sigma2_psi_system", 10);
+    this->declare_parameter<double>("sigma2_rx_measurement", 10);
+    this->declare_parameter<double>("sigma2_ry_measurement", 10);
+    this->declare_parameter<double>("sigma2_rz_measurement", 10);
 
     // Camera parameters
     this->declare_parameter<double>("min_depth", 0.1);
     this->declare_parameter<double>("max_depth", 15.0);
     this->declare_parameter<double>("min_height", 0.0);
-    this->declare_parameter<double>("max_height", 4.0);
+    this->declare_parameter<double>("camera_ground_distance", 4.0);
 
     // Read parameters
     optical_flow_topic_ = this->get_parameter("optical_flow_topic").as_string();
@@ -83,31 +83,39 @@
     RCLCPP_INFO(this->get_logger(), "camera_frame_tf_topic: '%s'", camera_frame_tf_topic_.c_str());
     RCLCPP_INFO(this->get_logger(), "color_image_topic: '%s'", color_image_topic_.c_str());
     RCLCPP_INFO(this->get_logger(), "output_6d_topic: '%s'", output_6d_topic_.c_str());
-      RCLCPP_INFO(this->get_logger(), "debug_image_topic: '%s'", debug_image_topic_.c_str());
+    RCLCPP_INFO(this->get_logger(), "debug_image_topic: '%s'", debug_image_topic_.c_str());
     RCLCPP_INFO(this->get_logger(), "debug_markers_topic: '%s'", debug_markers_topic_.c_str());
     
+    // Time variables
+    first_time_ = true;
+    time_diff_ = 0.0;
+    last_time_ = this->now();
+
     // Kalman filter parameters
     use_ego_motion_ = this->get_parameter("use_ego_motion").as_bool();
     use_ego_var_ = this->get_parameter("use_ego_var").as_bool();
     grid_size_ = this->get_parameter("grid_size").as_int();
     debug_image_grid_ = this->get_parameter("debug_image_grid").as_bool();
+
     sigma2_x_system_ = this->get_parameter("sigma2_x_system").as_double();
     sigma2_y_system_ = this->get_parameter("sigma2_y_system").as_double();
     sigma2_z_system_ = this->get_parameter("sigma2_z_system").as_double();
+
     sigma2_flow_y_measurement_ = this->get_parameter("sigma2_flow_y_measurement").as_double();
     sigma2_flow_x_measurement_ = this->get_parameter("sigma2_flow_x_measurement").as_double();
-    sigma2_depth_system_ = this->get_parameter("sigma2_depth_system").as_double();
+    sigma2_depth_measurement_ = this->get_parameter("sigma2_depth_measurement").as_double();
+
     sigma2_tx_measurement_ = this->get_parameter("sigma2_tx_measurement").as_double();
     sigma2_ty_measurement_ = this->get_parameter("sigma2_ty_measurement").as_double();
     sigma2_tz_measurement_ = this->get_parameter("sigma2_tz_measurement").as_double();
-    sigma2_theta_measurement_ = this->get_parameter("sigma2_theta_measurement").as_double();
-    sigma2_phi_measurement_ = this->get_parameter("sigma2_phi_measurement").as_double();
-    sigma2_psi_system_ = this->get_parameter("sigma2_psi_system").as_double();
+    sigma2_rx_measurement_ = this->get_parameter("sigma2_rx_measurement").as_double();
+    sigma2_ry_measurement_ = this->get_parameter("sigma2_ry_measurement").as_double();
+    sigma2_rz_measurement_ = this->get_parameter("sigma2_rz_measurement").as_double();
 
     min_depth_ = this->get_parameter("min_depth").as_double();
     max_depth_ = this->get_parameter("max_depth").as_double();
     min_height_ = this->get_parameter("min_height").as_double();
-    max_height_ = this->get_parameter("max_height").as_double();
+    camera_ground_distance_ = this->get_parameter("camera_ground_distance").as_double();
     C_ = cv::Mat::zeros(6, 6, CV_64FC1);
     T_ = cv::Mat::zeros(3, 3, CV_64FC1);
     sigma_system_ = cv::Mat::zeros(3, 3, CV_64FC1);   
@@ -120,15 +128,16 @@
     // Set covariance matrix of measurement model
     T_.at<double>(0,0) = sigma2_flow_y_measurement_;
     T_.at<double>(1,1) = sigma2_flow_x_measurement_;
-    T_.at<double>(2,2) = sigma2_depth_system_;                    
+    T_.at<double>(2,2) = sigma2_depth_measurement_;                    
 
     // Set covariance matrix of egomotion
     C_.at<double>(0,0) = sigma2_tx_measurement_;
     C_.at<double>(1,1) = sigma2_ty_measurement_;
     C_.at<double>(2,2) = sigma2_tz_measurement_;
-    C_.at<double>(3,3) = sigma2_theta_measurement_;
-    C_.at<double>(4,4) = sigma2_phi_measurement_;
-    C_.at<double>(5,5) = sigma2_psi_system_;
+    C_.at<double>(3,3) = sigma2_rx_measurement_;
+    C_.at<double>(4,4) = sigma2_ry_measurement_;
+    C_.at<double>(5,5) = sigma2_rz_measurement_;
+
 
     kalman_core_ = std::make_unique<KalmanCore> 
     ( 
@@ -136,7 +145,7 @@
       C_,
       T_,
       min_depth_, max_depth_,
-      min_height_, max_height_, 
+      min_height_, camera_ground_distance_, 
       use_ego_motion_,
       use_ego_var_,
       grid_size_,
@@ -159,6 +168,7 @@
 
     // Register the synchronized callback
     sync_->registerCallback(&KalmanFilterNode::updateSync, this);
+    sync_->setMaxIntervalDuration(rclcpp::Duration::from_seconds(0.05));
 
     // Camera info subscription (standard rclcpp subscription)
     camera_info_sub_ = this->create_subscription<sensor_msgs::msg::CameraInfo>(
@@ -166,9 +176,9 @@
       std::bind(&KalmanFilterNode::cameraInfoCallback, this, std::placeholders::_1));
 
     // Publishers
-    debug_image_pub_ = this->create_publisher<sensor_msgs::msg::Image>(debug_image_topic_, 10);
-    output_6d_pub_   = this->create_publisher<sensor_msgs::msg::Image>(output_6d_topic_, 10);
-    debug_markers_pub_   = this->create_publisher<visualization_msgs::msg::MarkerArray>(debug_markers_topic_, 10);
+    debug_image_pub_ = this->create_publisher<sensor_msgs::msg::Image>(debug_image_topic_, 5);
+    output_6d_pub_   = this->create_publisher<sensor_msgs::msg::Image>(output_6d_topic_, 5);
+    debug_markers_pub_   = this->create_publisher<visualization_msgs::msg::MarkerArray>(debug_markers_topic_, 2);
 
     // Parameter reconfigure handler
     param_reconfigure_handler_ = this->add_on_set_parameters_callback(
@@ -207,6 +217,10 @@
       frame_tf_msg->transform.rotation.w);
     tf2::Matrix3x3 m(q);
 
+    
+    // We invert the rotation matrix to get the transformation from camera to world
+    //m = m.inverse();  
+
     // Fill the matrix
     for (int i = 0; i < 3; ++i) {
       for (int j = 0; j < 3; ++j) {
@@ -218,9 +232,26 @@
     odometry_matrix.at<double>(2, 3) = frame_tf_msg->transform.translation.z;
     odometry_matrix.at<double>(3, 3) = 1.0;
 
+    // Compute delta time
+    if (first_time_)
+    {
+      time_diff_ = 0.05;
+      last_time_ = this->now();
+      first_time_ = false;  
+    }
+    else
+    {
+      time_diff_ = calculateDeltaTime(last_time_);
+      last_time_ = this->now();
+    }
 
     // Update the Kalman filter
-    KalmanCoreErrorCode result = kalman_core_->updateSyncedData(flow_image, depth_image, color_image, odometry_matrix);
+    KalmanCoreErrorCode result = kalman_core_->updateSyncedData(
+      flow_image, 
+      depth_image, 
+      color_image, 
+      odometry_matrix,
+      time_diff_);
 
     // Retrieve outputs
     cv::Mat output_6d, output_debug_image;
@@ -234,7 +265,6 @@
     std_msgs::msg::Header header;
     header.stamp = this->now();
     header.frame_id = "camera_optical_frame";
-
 
     // Convert to sensor_msgs
     sensor_msgs::msg::Image::SharedPtr output_6d_msg =
@@ -274,122 +304,79 @@
   }
 
 
-  visualization_msgs::msg::MarkerArray KalmanFilterNode::createMarkers(
-      const cv::Mat &image_6d, 
-      double delta_time) 
-  {
-      visualization_msgs::msg::MarkerArray marker_array;
+  visualization_msgs::msg::MarkerArray KalmanFilterNode::createMarkers(const cv::Mat &image_6d, double delta_time) {
 
-      try {
-          // Validate that both matrices are not empty and have compatible dimensions
-          if (image_6d.empty()) {
-              RCLCPP_ERROR(this->get_logger(), "Input image is empty.");
-              return marker_array;
-          }
+  visualization_msgs::msg::MarkerArray marker_array;
 
-          // Ensure the input matrix types are as expected
-          if (image_6d.type() != OUT6D_TYPE) {
-              RCLCPP_ERROR(this->get_logger(), "image_6d invalid type. Type = %d", image_6d.type());
-              return marker_array;
-          }
-
-          OutVec x; // 6D state vector
-          int id = 0;  // Unique ID for each marker
-          int total = 0;
-          
-
-          // First, clear old markers by publishing a DELETE action
-          visualization_msgs::msg::Marker clear_marker;
-          clear_marker.header.frame_id = "camera_optical_frame";  // Adjust the frame as needed
-          clear_marker.header.stamp = this->now();
-          clear_marker.ns = "cluster_points";
-          clear_marker.action = visualization_msgs::msg::Marker::DELETEALL;  // Deletes all previously published markers
-          marker_array.markers.push_back(clear_marker);
-
-          // Iterate over all valid points in parallel
-          #pragma omp parallel for collapse(2)
-          for (int i = 0; i < image_6d.rows; i++) {
-              for (int j = 0; j < image_6d.cols; j++) {
-                  try {
-                      // Create thread-local variables
-                      OutVec x;
-                      visualization_msgs::msg::Marker marker;
-
-                      // Check if there is a valid point
-                      float valid = image_6d.at<OutVec>(i, j)[OUT6D_VAL_IDX];
-                      #pragma omp atomic
-                      total++;
-                      if (valid != 1.0) {
-                          continue;
-                      }
-
-                      // Extract the state vector safely
-                      x = image_6d.at<OutVec>(i, j);
-
-                      // Create a new arrow marker
-                      marker.header.frame_id = "camera_optical_frame";
-                      marker.header.stamp = this->now();
-                      marker.ns = "kalman_arrows";
-                      
-                      int local_id;
-                      #pragma omp atomic capture
-                      local_id = id++;
-
-                      marker.id = local_id;
-                      marker.type = visualization_msgs::msg::Marker::ARROW;
-                      marker.action = visualization_msgs::msg::Marker::ADD;
-            
-                      // Start point of the arrow
-                      geometry_msgs::msg::Point start;
-                      start.x = x[0];
-                      start.y = x[1];
-                      start.z = x[2];
-
-                      // End point of the arrow
-                      geometry_msgs::msg::Point end;
-                      end.x = x[0] + delta_time * x[3];
-                      end.y = x[1] + delta_time * x[4];
-                      end.z = x[2] + delta_time * x[5];
-
-                      marker.points.push_back(start);
-                      marker.points.push_back(end);
-
-                      // Set arrow color and size
-                      marker.scale.x = 0.02; // Thickness of the arrow shaft
-                      marker.scale.y = 0.04; // Thickness of the arrow head
-                      marker.scale.z = 0.0;
-
-                      marker.color.r = 1.0;
-                      marker.color.g = 0.0;
-                      marker.color.b = 0.0;
-                      marker.color.a = 1.0;
-
-                      // Add the marker to the MarkerArray
-                      #pragma omp critical
-                      {
-                          marker_array.markers.push_back(marker);
-                      }
-          } catch (const cv::Exception &e) {
-              #pragma omp critical
-              RCLCPP_ERROR(this->get_logger(), "OpenCV exception at pixel (%d, %d): %s", i, j, e.what());
-              continue;
-          } catch (const std::exception &e) {
-              #pragma omp critical
-              RCLCPP_ERROR(this->get_logger(), "Standard exception at pixel (%d, %d): %s", i, j, e.what());
-              continue;
-          }
-      }
+  if (image_6d.empty() || image_6d.type() != OUT6D_TYPE) {
+    RCLCPP_WARN(this->get_logger(), "createMarkers: Empty or incorrect image type (type=%d).", image_6d.type());
+    return marker_array;
   }
-      } catch (const cv::Exception &e) {
-          RCLCPP_ERROR(this->get_logger(), "OpenCV exception in createMarkers: %s", e.what());
-      } catch (const std::exception &e) {
-          RCLCPP_ERROR(this->get_logger(), "Standard exception in createMarkers: %s", e.what());
-      } catch (...) {
-          RCLCPP_ERROR(this->get_logger(), "Unknown error in createMarkers.");
-      }
 
-      
-      return marker_array;
+  // Clear previous markers
+  visualization_msgs::msg::Marker clear_markers;
+  clear_markers.action = visualization_msgs::msg::Marker::DELETEALL;
+  marker_array.markers.push_back(clear_markers);
+
+  const int rows = image_6d.rows;
+  const int cols = image_6d.cols;
+
+  // Pre-calculate approximate total markers to avoid dynamic resizing overhead
+  marker_array.markers.reserve(rows * cols / 4); // approximation
+
+  #pragma omp parallel
+  {
+    visualization_msgs::msg::MarkerArray local_markers;
+    #pragma omp for nowait collapse(2)
+    for (int i = 0; i < rows; ++i) {
+      for (int j = 0; j < cols; ++j) {
+        const OutVec &vec = image_6d.at<OutVec>(i, j);
+        if (vec[OUT6D_VAL_IDX] != 1.0f) continue;
+
+        visualization_msgs::msg::Marker marker;
+        marker.header.frame_id = "camera_optical_frame";
+        marker.header.stamp = this->now();
+        marker.id = i * cols + j; // unique ID, no contention
+        marker.type = visualization_msgs::msg::Marker::ARROW;
+        marker.action = visualization_msgs::msg::Marker::ADD;
+        
+        geometry_msgs::msg::Point start;
+        start.x = vec[0];
+        start.y = vec[1];
+        start.z = vec[2];
+
+        geometry_msgs::msg::Point end;
+        end.x = vec[0] +   vec[3];
+        end.y = vec[1] +   vec[4];
+        end.z = vec[2] +   vec[5];
+  
+
+        marker.points.reserve(2);
+        marker.points.push_back(start);
+        marker.points.push_back(end);
+
+        marker.scale.x = 0.035;
+        marker.scale.y = 0.04;
+
+        marker.color.r = 0.0f;
+        marker.color.g = 1.0f;
+        marker.color.b = 0.0f;
+        marker.color.a = 1.0f;
+
+        #pragma omp critical
+        marker_array.markers.push_back(std::move(marker));
+      }
+    }
+
+  }
+  return marker_array;
+}
+
+  double KalmanFilterNode::calculateDeltaTime(rclcpp::Time& last_time)
+  {
+    rclcpp::Time current_time = this->now();
+    rclcpp::Duration delta_time = current_time - last_time;
+    return delta_time.seconds();
   }
 
   rcl_interfaces::msg::SetParametersResult 
@@ -419,40 +406,40 @@
 
       if (name == "sigma2_flow_y_measurement" || 
           name == "sigma2_flow_x_measurement" || 
-          name == "sigma2_depth_system")
+          name == "sigma2_depth_measurement")
       {
         if (name == "sigma2_flow_y_measurement") sigma2_flow_y_measurement_ = param.as_double();
         if (name == "sigma2_flow_x_measurement") sigma2_flow_x_measurement_ = param.as_double();
-        if (name == "sigma2_depth_system") sigma2_depth_system_ = param.as_double();
+        if (name == "sigma2_depth_measurement") sigma2_depth_measurement_ = param.as_double();
 
         T_ = cv::Mat::zeros(3, 3, CV_64FC1);
         T_.at<double>(0, 0) = sigma2_flow_y_measurement_;
         T_.at<double>(1, 1) = sigma2_flow_x_measurement_;
-        T_.at<double>(2, 2) = sigma2_depth_system_;
+        T_.at<double>(2, 2) = sigma2_depth_measurement_;
         kalman_core_->setT(T_);
       }
 
       if (name == "sigma2_tx_measurement" ||
           name == "sigma2_ty_measurement" || 
           name == "sigma2_tz_measurement" || 
-          name == "sigma2_theta_measurement" || 
-          name == "sigma2_phi_measurement" || 
-          name == "sigma2_psi_system")
+          name == "sigma2_rx_measurement_" || 
+          name == "sigma2_ry_measurement_" || 
+          name == "sigma2_rz_measurement_")
       {
         if (name == "sigma2_tx_measurement") sigma2_tx_measurement_ = param.as_double();
         if (name == "sigma2_ty_measurement") sigma2_ty_measurement_ = param.as_double();
         if (name == "sigma2_tz_measurement") sigma2_tz_measurement_ = param.as_double();
-        if (name == "sigma2_theta_measurement") sigma2_theta_measurement_ = param.as_double();
-        if (name == "sigma2_phi_measurement") sigma2_phi_measurement_ = param.as_double();
-        if (name == "sigma2_psi_system") sigma2_psi_system_ = param.as_double();
+        if (name == "sigma2_rx_measurement_") sigma2_rx_measurement_ = param.as_double();
+        if (name == "sigma2_ry_measurement_") sigma2_ry_measurement_ = param.as_double();
+        if (name == "sigma2_rz_measurement_") sigma2_rz_measurement_ = param.as_double();
 
         C_ = cv::Mat::zeros(6, 6, CV_64FC1);
         C_.at<double>(0, 0) = sigma2_tx_measurement_;
         C_.at<double>(1, 1) = sigma2_ty_measurement_;
         C_.at<double>(2, 2) = sigma2_tz_measurement_;
-        C_.at<double>(3, 3) = sigma2_theta_measurement_;
-        C_.at<double>(4, 4) = sigma2_phi_measurement_;
-        C_.at<double>(5, 5) = sigma2_psi_system_;
+        C_.at<double>(3, 3) = sigma2_rx_measurement_;
+        C_.at<double>(4, 4) = sigma2_ry_measurement_;
+        C_.at<double>(5, 5) = sigma2_rz_measurement_;
         kalman_core_->setC(C_);
       }
 
@@ -474,10 +461,10 @@
         kalman_core_->setMinHeight(min_height_);
       }
 
-      if (name == "max_height") 
+      if (name == "camera_ground_distance") 
       {
-        max_height_ = param.as_double();
-        kalman_core_->setMaxHeight(max_height_);
+        camera_ground_distance_ = param.as_double();
+        kalman_core_->setMaxHeight(camera_ground_distance_);
       }
 
       if (name == "use_ego_motion") 
@@ -508,6 +495,8 @@
   {
     rclcpp::init(argc, argv);
     auto node = std::make_shared<perception_pipeline::kalman_filter::KalmanFilterNode>();
+
+    //rclcpp::spin(node);
     rclcpp::executors::MultiThreadedExecutor executor;
     executor.add_node(node);
     executor.spin();
