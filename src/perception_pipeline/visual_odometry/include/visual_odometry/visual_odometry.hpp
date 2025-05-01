@@ -13,7 +13,11 @@ namespace perception_pipeline
 {
 namespace visual_odometry
 {
-    
+  /**
+   * @class VisualOdometry
+   * @brief Class that implements visual odometry using CUDA-based ORB feature detection and matching to compute relative motion between two camera frames
+   * 
+   */
   class VisualOdometry
   {
     public:
