@@ -127,26 +127,17 @@ namespace visual_odometry
     visual_odometry_->getOutput(translation, rotation, covariance, debug_image);
 
     // Convert relative translation and rotation to 4x4 transformation matrix
-    cv::Mat relative_transform = cv::Mat::eye(4, 4, CV_64F);
-    rotation.copyTo(relative_transform(cv::Rect(0, 0, 3, 3))); // Copy rotation
+    cv::Mat relative_transform = cv::Mat::eye(4, 4, CV_64F);    
     translation.copyTo(relative_transform(cv::Rect(3, 0, 1, 3))); // Copy translation
+    rotation.copyTo(relative_transform(cv::Rect(0, 0, 3, 3))); // Copy rotation
 
-    // Invert the relative transform
-    cv::Mat inverse_relative_transform = cv::Mat::eye(4, 4, CV_64F);
-    cv::Mat inverse_rotation = rotation.t(); // Transpose of rotation matrix (R^-1)
-    cv::Mat inverse_translation = -inverse_rotation * translation; // Inverted translation (-R^T * T)
 
-    inverse_rotation.copyTo(inverse_relative_transform(cv::Rect(0, 0, 3, 3)));
-    inverse_translation.copyTo(inverse_relative_transform(cv::Rect(3, 0, 1, 3)));
-
-    
-
-    // Transform from camera_optical_frame_previous to camera_optical_frame
+    // Transform from camera_optical_frame to camera_optical_frame_previous (local)
     geometry_msgs::msg::TransformStamped tf_local;
     
     tf_local.header.stamp = color_msg->header.stamp;
-    tf_local.header.frame_id = "camera_optical_frame_previous";
-    tf_local.child_frame_id = "camera_optical_frame";
+    tf_local.header.frame_id = "camera_optical_frame";
+    tf_local.child_frame_id = "camera_optical_frame_previous";
     tf_local.transform.translation.x = translation.at<double>(0);
     tf_local.transform.translation.y = translation.at<double>(1);
     tf_local.transform.translation.z = translation.at<double>(2);
@@ -162,7 +153,18 @@ namespace visual_odometry
     tf_local.transform.rotation.z = tf_quat.z();
     tf_local.transform.rotation.w = tf_quat.w();
 
-    // Transform from camera_optical_frame_initial to camera_optical_frame_previous
+    // Transform from camera_optical_frame_initial to camera_optical_frame (global)
+
+    // Accumulate the global transform (camera_optical_frame_initial -> camera_optical_frame_previous)
+    // We need to invert the relative transform to get the transformation from camera_optical_frame_previous to camera_optical_frame_initial
+    // Invert the relative transform
+    cv::Mat relative_transform_inv = cv::Mat::eye(4, 4, CV_64F);
+    relative_transform_inv(cv::Rect(0, 0, 3, 3)) = rotation.t();
+    relative_transform_inv(cv::Rect(3, 0, 1, 3)) = -rotation.t() * translation;
+    relative_transform_inv.at<double>(3, 3) = 1.0;
+
+    // Multiply the accumulated transform with the inverted relative transform
+    camera_tf_accumulated_ = camera_tf_accumulated_ * relative_transform_inv;
     tf2::Vector3 abs_translation(
         camera_tf_accumulated_.at<double>(0, 3),
         camera_tf_accumulated_.at<double>(1, 3),
@@ -181,7 +183,7 @@ namespace visual_odometry
     geometry_msgs::msg::TransformStamped tf_global;
     tf_global.header.stamp = color_msg->header.stamp;
     tf_global.header.frame_id = "camera_optical_frame_initial";   
-    tf_global.child_frame_id = "camera_optical_frame_previous";
+    tf_global.child_frame_id = "camera_optical_frame";
 
     tf_global.transform.translation.x = abs_translation.x();
     tf_global.transform.translation.y = 0.0; 
@@ -192,8 +194,7 @@ namespace visual_odometry
     tf_global.transform.rotation.w = abs_quat.w();
     
     // Publish the transforms in TF topic and dedicated topic
-    camera_frame_tf_pub_->publish(tf_local);
-
+    //camera_frame_tf_pub_->publish(tf_local);
     std::vector<geometry_msgs::msg::TransformStamped> transforms;
     transforms.push_back(tf_local);
     transforms.push_back(tf_global);
@@ -243,8 +244,6 @@ namespace visual_odometry
       debug_pub_->publish(*debug_image_msg);
     }
 
-    // Accumulate the global transform (camera_optical_frame_initial -> camera_optical_frame_previous)
-    camera_tf_accumulated_ = camera_tf_accumulated_ * inverse_relative_transform;
   }
 
   cv::Mat VisualOdometryNode::imageMsgToMat(const sensor_msgs::msg::Image::ConstSharedPtr & msg)
