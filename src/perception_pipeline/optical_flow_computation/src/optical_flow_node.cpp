@@ -5,7 +5,14 @@
 #include <cv_bridge/cv_bridge.h>
 #endif
 
+namespace perception_pipeline
+{
+namespace optical_flow_computation
+{
+
 using namespace cv;
+
+
 
 OpticalFlowNode::OpticalFlowNode()
     : Node("optical_flow_node"), prev_image_() {
@@ -177,3 +184,7 @@ void OpticalFlowNode::publishDebugMessages(const Mat current_image, const Mat fl
     cv_bridge::CvImage(std_msgs::msg::Header(), "bgr8", flow_vis).toImageMsg();
     optical_flow_debug_arrows_pub_->publish(*flow_arrow_msg);
 }
+
+
+} // namespace optical_flow_computation
+} // namespace perception_pipeline

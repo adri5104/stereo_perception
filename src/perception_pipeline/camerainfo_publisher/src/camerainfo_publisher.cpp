@@ -17,8 +17,14 @@
   #include <cv_bridge/cv_bridge.h>
 #endif
 
+namespace perception_pipeline
+{
+namespace camerainfo_publisher
+{
+
 using namespace std::chrono_literals;
 using namespace cv;
+
 
 /**
  * @brief Class for publishing camera info, depth image, and color image 
@@ -182,11 +188,14 @@ class CameraInfoPublisher : public rclcpp::Node
     bool depth_image_received_;
 };
 
+} // namespace camerainfo_publisher
+} // namespace perception_pipeline
+
 int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
 
-  auto node = std::make_shared<CameraInfoPublisher>();
+  auto node = std::make_shared<perception_pipeline::camerainfo_publisher::CameraInfoPublisher>();
   rclcpp::executors::MultiThreadedExecutor executor;
   executor.add_node(node);
   executor.spin();

@@ -19,6 +19,11 @@
 
 #include <iostream>
 
+namespace perception_pipeline
+{
+namespace optical_flow_computation
+{
+
 // OpticalFlowNode class definition
 class OpticalFlowNode : public rclcpp::Node {
 public:
@@ -47,5 +52,8 @@ private:
     double poly_sigma_;
     int flags_;
 };
+
+}
+} // namespace perception_pipeline
 
 #endif // OPTICAL_FLOW_NODE_HPP
