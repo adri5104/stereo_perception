@@ -238,6 +238,7 @@ of objects based on the changes in pixel intensity \cite{optical_flow_estimation
 Lucas-Kanade method \cite{flow_lucas_kanade} and the Horn-Schunck method \cite{flow_schunck}.
 
 \paragraph{6D Vision}
+\label{sec:6D_Vision}
 
 6D vision is a deterministic perception framework that combines stereo vision and motion tracking to estimate the 3D position and velocity
 of objects in the scene. Originally introduced by Franke et all \cite{6d_vision_daimler} this method provides a direct
@@ -1007,10 +1008,11 @@ These additional debug outputs greatly facilitate the qualitative evaluation of 
 
 In the context of autonomous and automated vehicles, estimating the ego motion is crucial to
 understand how the vehicle is moving in the environment. In the scope of this work, ego motion is
-defined as the relative motion of the vehicle with respect to the environment. Specifically, the
-information needed is the 3D position of the camera in one frame, relative to the previous frame.
-This information is essential for the Kalman Filter, since the optical flow output is relative to the
-camera frame, and the Kalman Filter requires knowledge of the camera's position in the world frame
+defined as the relative motion of the vehicle with respect to the environment. Specifically, the 3D 
+position of the camera in one frame, relative to the previous frame.
+
+This information is essential for the Kalman Filter step where the 6D field will be estimated, since the optical flow output 
+is relative to the camera frame, and the Kalman Filter requires knowledge of the camera's position in the world frame
 to properly compensate for its motion.
 
 For this purpose, visual odometry (VO) techniques are used to estimate the required information
@@ -1018,9 +1020,9 @@ using the stereo setup input. Incorporating the depth information from the stere
 direct recovery of metric information, providing robustness and accuracy.
 
 This section describes the concept behind visual odometry, the coordinate systems used, the specific
-algorithmic approach that was implemented, and the implementation details.
+algorithmic approach that was implemented, as well as the ROS2 implementation details.
 
-\subsection{Visual odometry concept}
+\subsection{Visual odometry}
 \label{sec:VisualOdometryConcept}
 
 Visual odometry (VO) refers to the process of estimating the motion of a camera by analyzing a
@@ -1034,21 +1036,24 @@ of the vehicle trajectory without relying on external localization systems.
 
 Visual odometry methods are generally categorized based on the type of input and processing
 approach used:
+
 \begin{itemize}
   \item \textbf{Monocular VO:} Utilizes a single camera as input. It is cost-effective but suffers from
   scale ambiguity, meaning that the absolute scale of the motion (e.g., in meters) cannot be determined
   without additional information. Monocular VO is often used in conjunction with other sensors
   (e.g., IMU) to resolve this ambiguity~\cite{visual_odometry_review}.
 
-  \item \textbf{Stereo VO:} Utilizes two synchronized cameras to estimate depth through triangulation,
+  \item \textbf{Stereo VO:} Used two synchronized cameras to estimate depth through triangulation,
   which allows direct recovery of metric scale. This removes the scale ambiguity present in monocular
-  systems, enabling more accurate and robust motion estimation. Stereo VO is especially beneficial
+  systems, producing more accurate and robust motion estimation. Stereo VO is especially beneficial
   in environments where monocular methods struggle, such as in low-texture areas or during large
   baseline movements, thanks to the additional geometric constraints provided by the known baseline
   distance between the cameras~\cite{visual_odometry_review}.
+
 \end{itemize}
 
 Processing approaches are typically divided into two categories:
+
 \begin{itemize}
   \item \textbf{Feature-based methods:} Extract and match features (e.g., corners, edges) across frames,
   estimating motion from the displacement of these features.
@@ -1057,56 +1062,55 @@ Processing approaches are typically divided into two categories:
   feature extraction.
 \end{itemize}
 
-Recently, \textbf{deep learning-based visual odometry} approaches have emerged, leveraging
-convolutional and recurrent neural networks to estimate motion directly from image sequences.
+Recently, \textbf{deep learning-based visual odometry} approaches have emerged, combining
+different types neural networks to estimate motion directly from image sequences.
 These methods aim to improve robustness under challenging conditions, such as illumination
 changes and textureless environments~\cite{visual_odometry_review}.
 
-This work adopts a \textbf{stereo feature-based} approach, leveraging the depth information from the
-stereo setup and using feature matching to estimate motion robustly. This choice provides a good
-balance between computational efficiency and robustness against noise, dynamic environments, and
-varying lighting conditions.
+This work adopts a \textbf{Stereo VO:} and \textbf{stereo feature-based} since the depth information is already available
+from the stereo Camera and using feature matching to estimate motion robustly. This choice provides a good
+balance between accuracy and computational efficiency, making it suitable for real-time applications
 
-\subsection{Reference frames and coordinate systems}
-\label{sec:ReferenceFramesCoordinateSystems}
+\subsection{Coordinate systems}
+\label{sec:ReferenceFramesCoordinateSystems and ROS transforms}
 
-In this work, several coordinate frames are used to represent the motion of the camera:
+To properly understand the visual odometry algorithm and this work, it is important to define the
+coordinate systems used in the implementation. The following coordinate frames are
+defined in the context of this project:
+
 \begin{itemize}
-\item \textbf{Previous camera frame:} The coordinate frame attached to the camera at the previous time
-step.
-\item \textbf{Current camera frame:} The coordinate frame attached to the camera at the current time step.
-\item \textbf{Initial camera frame:} The fixed world reference frame, corresponding to the camera pose at
-the start of the sequence.
+\item \textbf{camera\_optical\_frame} The optical coordinate frame attached to the camera at the current time step. All of the optical frames follow
+the ROS2 convention, where the z-axis points forward, the x-axis points to the right of the camera, and the y-axis points downwards.
+
+\item \textbf{camera\_optical\_frame\_previous} The optical coordinate frame attached to the camera at the previous time step of
+the visual odometry computation.
+
+\item \textbf{camera\_optical\_frame\_initial} The coordinate frame attached to the camera at the start of the sequence.
+\item \textbf{world} Coincident with camera camera\_optical\_frame\_initial but rotated. Z-axis points up, x-axis points forward, and y-axis points to the left.
 \end{itemize}
 
-The visual odometry algorithm estimates the relative motion between the previous and current camera
-frames. This relative transform is then accumulated over time to estimate the pose of the camera with
-respect to the initial frame.
 
-The coordinate system follows the standard ROS convention for cameras:
-\begin{itemize}
-\item The \textbf{z-axis} points forward, along the optical axis.
-\item The \textbf{x-axis} points to the right of the camera.
-\item The \textbf{y-axis} points downwards.
-\end{itemize}
+\begin{figure}[H]%
+  \centering%
+  \begin{minipage}{0.5\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figures/TF.png}
+  \end{minipage}\hfill
+  \begin{minipage}{0.5\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figures/TF_tree.png}
+  \end{minipage}
+  \caption{Coordinate frames and ROS2 TF tee. Left: Coordinate frames visualized using Foxglove. Right: ROS2 Transform Tree of the project generated using tf2\_tools. Source: own work} 
+  \label{fig:tf}%
+\end{figure}%
 
-It is important to note that this convention differs from the standard world coordinate system,
-where typically the x-axis points forward, the y-axis points to the left, and the z-axis points upwards.
-In our setup, the z-axis aligns with the camera's optical axis (forward), while the x- and y-axes are
-oriented relative to the image plane.
-
-\subsection{Implemented algorithm}
-\label{sec:VisualOdometryAlgorithm}
-
-
-
-\subsubsection{Overview of the algorithm}
+\subsubsection{Visual odometry algorithm}
 \label{sec:OverviewAlgorithm}
 
-The visual odometry algorithm implemented in this work follows a feature-based stereo approach. It
+The visual odometry algorithm implemented in this work follows a stereo vo and feature-based stereo approach. It
 estimates the relative motion of the camera by detecting and matching visual features between
 consecutive frames, reconstructing their 3D positions using the depth image, and solving the camera
-pose using a Perspective-n-Point (PnP) algorithm with RANSAC for outlier rejection.
+pose using a Perspective-n-Point (PnP) algorithm~\cite{vo_pnp_survey} with RANSAC for outlier rejection.
 
 A schematic overview of the algorithm steps is presented in Algorithm~\ref{alg:visual_odometry}.
 
@@ -1114,7 +1118,7 @@ A schematic overview of the algorithm steps is presented in Algorithm~\ref{alg:v
   \caption{Stereo Visual Odometry Pipeline}
   \label{alg:visual_odometry}
   \begin{algorithmic}[1]
-  \Require Grayscale images $I_{k-1}$, $I_k$, and depth image $D_{k-1}$
+  \Require RGB images $I_{k-1}$, $I_k$, and depth image $D_{k-1}$
   \Ensure Estimated relative pose $(R, t)$ between frames
   \State Detect ORB features in $I_{k-1}$ and $I_k$ using GPU acceleration
   \State Match ORB features between $I_{k-1}$ and $I_k$
@@ -1126,19 +1130,27 @@ A schematic overview of the algorithm steps is presented in Algorithm~\ref{alg:v
   \State Output $(R, t)$, covariance matrix, and debug images
 \end{algorithmic}
 \end{algorithm}
+
+The code of the algorithm is implemented without any ROS2 dependencies, allowing it to be
+easily reused in other projects. In the next sections, the main steps of the algorithm are
+described in detail.
   
 \subsubsection{Feature detection and matching}
 \label{sec:FeatureDetectionMatching}
 
-Feature detection and matching constitute the first step in the visual odometry pipeline. In this work,
-ORB (Oriented FAST and Rotated BRIEF) \cite{vo_orb} features are employed due to their balance between
-computational efficiency and robustness.
+Feature detection and matching constitute the first step in the visual odometry pipeline. In this phase, 
+some points, that will serve to compute the desired transformation, will be detected in two consequtive frames.
+For this, the ORB (Oriented FAST and Rotated BRIEF) \cite{vo_orb} algorithm will be used.
 
 ORB is a binary feature descriptor that builds upon two classical methods: FAST (Features from
 Accelerated Segment Test) \cite{vo_fast} for keypoint detection and BRIEF (Binary Robust Independent Elementary
 Features) \cite{vo_brief} for descriptor computation. 
 
-FAST is a corner detection algorithm that rapidly identifies points in the image with significant intensity
+In this context, a keypoint is a point in the image that is distinctive and repeatable (typically corners or blobs), that can be reliably identified across multiple frames.
+Around each keypoint, a descriptor is computed: a compact representation of the visual appearance in its local neighborhood. 
+These descriptors allow the system to match corresponding features between frames, even under variations in viewpoint.
+
+FAST is a corner keypoint detection algorithm that quickly identifies points in the image with significant intensity
 change compared to their surroundings. BRIEF, on the other hand, generates a binary string descriptor
 by comparing the intensity of random pairs of pixels in a small patch around the keypoint.
 
@@ -1150,28 +1162,19 @@ by comparing the intensity of random pairs of pixels in a small patch around the
 
 ORB enhances these methods by introducing rotation and scale invariance. The orientation of each
 keypoint is computed to make BRIEF descriptors rotation-invariant, and a multi-scale pyramid is used
-to handle changes in scale. As a result, ORB features are suitable for real-time applications while
-maintaining robustness to changes in viewpoint, illumination, and scale.
-
-After detecting keypoints, a descriptor is computed for each one. A descriptor is a compact
-representation of the local image neighborhood around a keypoint, designed to allow efficient and
-robust matching of features across frames.
+to handle changes in scale. 
 
 The feature extraction and matching process is performed on the GPU using OpenCV's CUDA modules.
 This allows real-time processing even at high image resolutions.
 
 The steps involved are:
-\begin{itemize}
+
+\begin{enumerate}
   \item Detect ORB features separately in the previous and current grayscale images.
   \item Compute binary descriptors for each detected feature.
   \item Match descriptors between the previous and current frames using brute-force Hamming distance.
   \item Extract the coordinates of matched keypoints for subsequent motion estimation.
-\end{itemize}
-
-GPU acceleration significantly speeds up both feature detection and descriptor matching, enabling the
-pipeline to meet real-time requirements.
-% ORB features extracted and matched using GPU acceleration.
-
+\end{enumerate}
 
 \subsubsection{3D-2D correspondences}
 \label{sec:3D2DCorrespondences}
@@ -1200,8 +1203,15 @@ This process results in a set of valid 3D points extracted from the previous fra
 pose of the camera.
 
 If the depth value is invalid (e.g., missing or outside the valid range), the corresponding match is
-discarded to avoid introducing noise into the motion estimation process.
+discarded to avoid introducing noise into the motion estimation process. In the followign figure, a 
+set of detected keypoint can be seen. The ones with valid depth are shown in green, while the ones with invalid depth are shown in red.
 
+\begin{figure}[H]
+  \centering
+  \resizebox{1.0\textwidth}{!}{\includegraphics{figures/Keypoints.png}}
+  \caption{Odometry Keypoints with depth filtering and RGB Image. Source: own work}
+  \label{fig:3D2D_correspondences}
+\end{figure}%
 
 \subsubsection{Motion estimation using PnP and RANSAC}
 \label{sec:MotionEstimationPnP}
@@ -1342,81 +1352,398 @@ final motion estimate for the current frame.
 \subsection{ROS2 Implementation}
 \label{sec:ImplementationVisualOdometry}
 
-% Implementation details
-% - ROS2 node structure
-% - Topics subscribed and published
-% - Debug outputs
-% - TF and Odometry publishing
+The previous algorithm was implemented in c++ class called \texttt{VisualOdometry}. This class 
+contains all the methods and attributes required to perform the visual odometry algorithm. It
+is used in a package called \texttt{visual\_odometry} that performs the ego motion estimation.
 
-\subsection{Parameter tuning and outputs}
-\label{sec:ParameterTuningOutputs}
+The ROS2 node subscribes to the depth image topic, the camera info topic that contains the camera
+intrinsic parameters, and the color image topic. It uses the VisualOdometry class to compute the rvec and tvec transformation as 
+well as the covariance matrix and the debug image (figure \ref{fig:3D2D_correspondences}).
 
-% Overview of configurable parameters
-% Table with main parameters
-% Explanation of published topics and output messages
+Once the computation is finished, the node publishes the results on the following topics:
+\begin{itemize}
+  \item \texttt{/perception\_pipeline/odom} Odometry topic with the camera pose in the camera initial frame.
+  \item \texttt{/perception\_pipeline/camera\_frame\_tf} Camera frame transform topic with the camera pose in the previous frame relative to the current frame. It is published as a separate topic because in the Kalman filter steo, this information is required with an exact frame syncronization.
+  \item \texttt{/perception\_pipeline/path} Path topic with the camera pose in the world frame (figure \ref{fig:Path}). This topic is used to visualize the camera trajectory.
+  \item \texttt{/debug/odometry\_keypoints} Debug topic with the detected keypoint. In red the keypoints with invalid depth and in green the keypoints with valid depth.
+  \item \texttt{/tf} The camera frame transform is published as a ROS2 transform. This allows to visualize the camera pose in the world frame using tools like RVIZ or Foxglove.
+\end{itemize}
 
+\begin{figure}[H]
+  \centering
+  \resizebox{0.6\textwidth}{!}{\includegraphics{figures/Path.png}}
+  \caption{Path and depth camera topics. Source: own work}
+  \label{fig:Path}
+\end{figure}%
 
-\subsection{Reference frames and coordinate systems}
-\label{sec:ReferenceFramesCoordinateSystems}
+To configure the node, the following ROS2 parameters were added:
 
-% Explain which frames are used (previous camera frame, current camera frame, initial frame)
-% Indicate axis conventions (e.g., z-forward)
-% Placeholder for figure showing frames and transforms
-
-\subsection{Visual odometry algorithm}
-\label{sec:VisualOdometryAlgorithm}
-
-% Detailed explanation of your VO algorithm
-% - Feature detection and matching (CUDA ORB)
-% - Reprojection to 3D
-% - Motion estimation with PnP + RANSAC
-% - Covariance estimation
-% - Statistical filtering and smoothing
-
-\subsection{Implementation}
-\label{sec:ImplementationVisualOdometry}
-
-% Implementation details
-% - ROS2 node structure
-% - Topics subscribed and published
-% - Debug outputs
-% - TF and Odometry publishing
-
-\subsection{Parameter tuning and outputs}
-\label{sec:ParameterTuningOutputs}
-
-% Overview of configurable parameters
-% Table with main parameters
-% Explanation of published topics and output messages
-
-
-
-\subsection{Reference frame selection}
-\label{sec:ReferenceFrameSelection}
-
-% - Explain how the reference frame is selected
-% - Explain how the ego motion is computed
-
-\subsection{Implementation}
-\label{sec:Implementation}
-
-% - Explain how the ego motion is computed
-
+\begin{table}[]
+  \centering
+  \begin{tabular}{|l|l|}
+  \hline
+  \textbf{ROS2 Parameter} & \textbf{Definition} \\ \hline
+  color\_image\_topic   & Topic name for the input color image. \\ \hline
+  depth\_image\_topic   & Topic name for the input depth image. \\ \hline
+  camera\_info\_topic   & Topic providing intrinsic camera parameters. \\ \hline
+  odometry\_debug\_topic & Topic where debug keypoints for odometry are published. \\ \hline
+  camera\_frame\_tf\_topic & Topic containing camera pose as a transform (TF). \\ \hline
+  max\_depth\_odom & Maximum valid depth (in meters) used for odometry. \\ \hline
+  min\_depth\_odom & Minimum valid depth (in meters) used for odometry. \\ \hline
+  odometry\_debug\_image & Enables publishing of debug images with tracked keypoints. \\ \hline
+  publish\_odom & Enables publishing of odometry estimates. \\ \hline
+  odom\_topic & Topic where odometry data is published. \\ \hline
+  publish\_path & Enables publishing of the full trajectory path. \\ \hline
+  path\_topic & Topic where the estimated path is published. \\ \hline
+  use\_sim\_time & Uses simulation time instead of system time (for Gazebo, etc.). \\ \hline
+  \end{tabular}
+  \caption{ROS 2 parameters used in visual\_odometry package}
+  \label{tab:ros2_vo_params}
+\end{table}
 
 \section{Perception pipeline: Kalman filter}
-\label{sec:PerceptionPipelineKalmanFilter}
+\label{sec:KalmanFilter}
 
-% - Explain what a Kalman filter is, why sensor fusion is important in this work
+After introducing the modules responsible for the depth computation, optical flow computation,
+and ego-motion estimation, this section addresses the core component of the perception 
+pipeline: the estimation of a dense six-dimensional field using a Kalman filter. 
+
+The objective of this stage is to compute, for a subset of image pixels, both their 3D position and 3D
+velocity over time. This results in a per-pixel six-dimensional vector that captures the spatial and
+dynamic state of the scene. This idea aligns with the concept of 6D vision (see Section~\ref{sec:6D_Vision}),
+which was initially explored at the FTM Chair by Bauer~\cite{previous_tfm_bauer} and later validated in a
+ROS1 implementation by Pastor~\cite{previous_tfm_pastor}.
+
+Each point is represented by a \texttt{WorldPoint} object, which maintains its own Kalman 
+filter and a 6D state vector composed of 3D position and velocity in world coordinates. 
+At each timestep, the point’s state is updated using three main sources of input: 
+
+\begin{itemize} 
+  \item Optical flow, providing pixel-level motion information between frames. 
+  \item Depth data, used to reconstruct the 3D location of the point via reprojection. 
+  \item Ego-motion, which accounts for the movement of the camera relative to the environment. 
+\end{itemize}
+
+The Kalman filter follows a standard constant-velocity model in 3D space. Predicted states are projected back into 
+the image frame for association with new measurements, producing real-time filtered estimates of position and velocity 
+at pixel-level resolution.
+
+This approach differs from object-based or grid-based tracking by focusing on local, independent point estimation. 
+Points are initialized or removed based on visibility, depth consistency, and motion reliability. 
+A regular grid helps initialize new points, and the use of OpenMP allows for concurrent updates of all active filters, 
+ensuring scalability and responsiveness.
+
+The system architecture separates the Kalman logic into a core module that operates independently of ROS, 
+and a ROS2 node that manages communication, timing, and visualization. The output includes a 6D image representation, 
+debug data, and visualization markers for use in tools such as RViz and Foxglove. 
+
 
 \subsection{Kalman filter algorithm}
 \label{sec:KalmanFilterAlgorithm}
 
-% - Explain how the Kalman filter works
+In this module, each selected pixel or \texttt{WorldPoint} is associated with its own Kalman Filter
+instance that estimates their local state. The filters operate independently and are updated
+at each timestep using new input from the previous perception modules. This approach allos the system 
+to maintain a dense spatial resolution while exploit paralell processing capabilities. 
+
+The Kalman Filter, first introduced by R.E. Kalman in 1960~\cite{kalman}, is a recursive 
+estimation algorithm, designed for linear, discrete-time dynamical systems with Gaussian noise. 
+It estimates the internal state of a system by predicting its evolution over time and correcting
+the prediction using new measurements. Taking this into account, the first thing that is necessary 
+to apply a Kalman filter is to have the called \textbf{system model} and the \textbf{measurement model}. 
+
+The system model is a state space representation of the system, which describes how the state evolves
+over time. It is defined by the following equations:
+
+\begin{equation}
+  \mathbf{x}_k = \mathbf{A} \cdot \mathbf{x}_{k-1} + \mathbf{B} \cdot \mathbf{u}_k + \boldsymbol{\omega}_k
+\end{equation}
+
+Here, $\mathbf{x}_k$ is the state vector at time $k$, $\mathbf{A}$ is the state transition matrix, 
+$\mathbf{u}_k$ is the control input, $\mathbf{B}$ is the control input matrix, and $\boldsymbol{\omega}_k$ 
+is the process noise, assumed to be zero-mean Gaussian with covariance $\mathbf{Q}$:
+
+\begin{equation}
+  \boldsymbol{\omega}_k \sim \mathcal{N}(\mathbf{0}, \mathbf{Q})
+\end{equation}
+
+The measurement model describes how the measurements are related to the state. It is defined by the
+following equations:
+
+\begin{equation}
+  \mathbf{z}_k = \mathbf{H} \cdot \mathbf{x}_k + \boldsymbol{\nu}_k
+\end{equation}
+
+where $\mathbf{z}_k$ is the measurement vector, $\mathbf{H}$ is the measurement matrix, and 
+$\boldsymbol{\nu}_k$ is the measurement noise, assumed to be zero-mean Gaussian with covariance 
+$\mathbf{R}$:
+
+\begin{equation}
+  \boldsymbol{\nu}_k \sim \mathcal{N}(\mathbf{0}, \mathbf{R})
+\end{equation}
+
+When both models are linear, as in the equations above, the standard Kalman filter can be used. However, if 
+either model is nonlinear, the Extended Kalman Filter (EKF)~\cite{ekf} must be applied. The EKF approximates 
+nonlinear functions by linearizing them around the current state estimate using the Jacobian.
+
+\subsubsection{Standard Kalman filter}
+\label{sec:KalmanFilterClassic}
+
+The standard Kalman filter operates in two main phases at each time step: prediction and correction. Each
+phase consists of a sequence of matrix operations that update both the estimated state and its associated
+covariance based on the system and measurement models. The prediction step starts by propagating the previous
+filtered state $\mathbf{x}_{k-1}$ forward in time using the system model. This results in the predicted state:
+
+\begin{equation}
+  \hat{\mathbf{x}}_k = \mathbf{A} \cdot \mathbf{x}_{k-1} + \mathbf{B} \cdot \mathbf{u}_k
+\end{equation}
+
+where $\mathbf{A}$ is the state transition matrix, $\mathbf{B}$ the control input matrix, and 
+$\mathbf{u}_k$ the control vector at time $k$. The predicted covariance $\hat{\mathbf{P}}_k$ is then computed as:
+
+\begin{equation}
+  \hat{\mathbf{P}}_k = \mathbf{A} \cdot \mathbf{P}_{k-1} \cdot \mathbf{A}^\top + \mathbf{Q}
+\end{equation}
+
+where $\mathbf{P}_{k-1}$ is the previous covariance and $\mathbf{Q}$ is the process noise covariance. Once the
+state and covariance have been predicted, the expected measurement is computed using the measurement model:
+
+\begin{equation}
+  \hat{\mathbf{z}}_k = \mathbf{H} \cdot \hat{\mathbf{x}}_k
+\end{equation}
+
+The predicted measurement covariance is then:
+
+\begin{equation}
+  \hat{\mathbf{T}}_k = \mathbf{H} \cdot \hat{\mathbf{P}}_k \cdot \mathbf{H}^\top
+\end{equation}
+
+When a new measurement $\mathbf{z}_k$ is available, the innovation vector is calculated as:
+
+\begin{equation}
+  \mathbf{s}_k = \mathbf{z}_k - \hat{\mathbf{z}}_k
+\end{equation}
+
+Its covariance is:
+
+\begin{equation}
+  \mathbf{S}_k = \hat{\mathbf{T}}_k + \mathbf{R}
+\end{equation}
+
+Then, the Kalman gain is computed as:
+
+\begin{equation}
+  \mathbf{K}_k = \hat{\mathbf{P}}_k \cdot \mathbf{H}^\top \cdot \mathbf{S}_k^{-1}
+\end{equation}
+
+The final corrected state estimate is:
+
+\begin{equation}
+  \mathbf{x}_k = \hat{\mathbf{x}}_k + \mathbf{K}_k \cdot \mathbf{s}_k
+\end{equation}
+
+and the updated covariance becomes:
+
+\begin{equation}
+  \mathbf{P}_k = \left( \mathbf{I} - \mathbf{K}_k \cdot \mathbf{H} \right) \cdot \hat{\mathbf{P}}_k
+\end{equation}
+
+This completes one full iteration of the standard Kalman filter. The filtered state $\mathbf{x}_k$ and
+covariance $\mathbf{P}_k$ serve as the input for the next prediction step.
+
+\subsubsection{Extended Kalman filter}
+\label{sec:ExtendedKalmanFilter}
+
+When the system or measurement model is nonlinear, the standard Kalman filter cannot be applied directly.
+In such cases, the Extended Kalman Filter (EKF) is used. The EKF extends the classical Kalman filter by
+linearizing the nonlinear functions around the current estimate using a first-order Taylor expansion.
+
+Let $\mathbf{f}(\cdot)$ represent the nonlinear system model, and $\mathbf{h}(\cdot)$ the nonlinear measurement
+model. The EKF performs the prediction step by applying the nonlinear dynamics to the previous state:
+
+\begin{equation}
+  \hat{\mathbf{x}}_k = \mathbf{f}(\mathbf{x}_{k-1}, \mathbf{u}_k)
+\end{equation}
+
+The predicted covariance is obtained using the Jacobian $\mathbf{F}_k$ of $\mathbf{f}(\cdot)$ with respect to
+the state:
+
+\begin{equation}
+  \hat{\mathbf{P}}_k = \mathbf{F}_k \cdot \mathbf{P}_{k-1} \cdot \mathbf{F}_k^\top + \mathbf{Q}
+\end{equation}
+
+The predicted measurement is computed by evaluating the nonlinear measurement function:
+
+\begin{equation}
+  \hat{\mathbf{z}}_k = \mathbf{h}(\hat{\mathbf{x}}_k)
+\end{equation}
+
+and its Jacobian with respect to the state is:
+
+\begin{equation}
+  \mathbf{H}_k = \left. \frac{\partial \mathbf{h}(\mathbf{x})}{\partial \mathbf{x}} \right|_{\mathbf{x} = \hat{\mathbf{x}}_k}
+\end{equation}
+
+The predicted measurement covariance becomes:
+
+\begin{equation}
+  \hat{\mathbf{T}}_k = \mathbf{H}_k \cdot \hat{\mathbf{P}}_k \cdot \mathbf{H}_k^\top
+\end{equation}
+
+Given a new measurement $\mathbf{z}_k$, the innovation is:
+
+\begin{equation}
+  \mathbf{s}_k = \mathbf{z}_k - \hat{\mathbf{z}}_k
+\end{equation}
+
+and the innovation covariance is:
+
+\begin{equation}
+  \mathbf{S}_k = \hat{\mathbf{T}}_k + \mathbf{R}
+\end{equation}
+
+The Kalman gain is:
+
+\begin{equation}
+  \mathbf{K}_k = \hat{\mathbf{P}}_k \cdot \mathbf{H}_k^\top \cdot \mathbf{S}_k^{-1}
+\end{equation}
+
+Finally, the updated state and covariance are:
+
+\begin{align}
+  \mathbf{x}_k &= \hat{\mathbf{x}}_k + \mathbf{K}_k \cdot \mathbf{s}_k \\
+  \mathbf{P}_k &= \left( \mathbf{I} - \mathbf{K}_k \cdot \mathbf{H}_k \right) \cdot \hat{\mathbf{P}}_k
+\end{align}
+
+This completes one full iteration of the Extended Kalman Filter. It retains the recursive structure of the
+classical filter while enabling the integration of nonlinear system or measurement models by local
+linearization.
 
 \subsection{Mathematical model}
-\label{sec:MathematicalModel}
+\label{sec:KalmanFilterMathematicalModel}
 
-% - Explain the mathematical model used in this work
+To apply the rotation estimated by the ego-motion module to the position and velocity components of each
+tracked point, a $6 \times 6$ matrix $\mathbf{D}_{w|k}$ is defined. This matrix maps the propagated state
+vector from the previous frame into the current camera frame by applying the estimated rotation. The matrix
+is constructed using the $3 \times 3$ rotation matrix $\mathbf{R}_k$, which is computed from a Rodrigues
+rotation vector $\mathbf{r}_k \in \mathbb{R}^3$. The resulting $\mathbf{D}_{w|k}$ has the following
+block-diagonal structure:
+
+\begin{equation}
+  \mathbf{D}_{w|k} =
+  \begin{bmatrix}
+    \mathbf{R}_k & \mathbf{0}_3 \\
+    \mathbf{0}_3 & \mathbf{R}_k
+  \end{bmatrix}
+\end{equation}
+
+This construction ensures that both position and velocity vectors are rotated in a consistent way using the
+same transformation.
+
+In the context of uncertainty propagation, it is necessary to evaluate how the predicted state 
+$\hat{\mathbf{X}}_{w|k}$ is affected by small changes in the ego-motion parameters. To that end, we define 
+the 6-dimensional motion parameter vector:
+
+\begin{equation}
+  \boldsymbol{\xi}_k =
+  \begin{bmatrix}
+    \mathbf{t}_k \\
+    \mathbf{r}_k
+  \end{bmatrix}
+  \in \mathbb{R}^6
+\end{equation}
+
+where $\mathbf{t}_k$ is the translation of the camera in world coordinates, and 
+$\mathbf{r}_k$ is the Rodrigues vector representing the relative rotation of the camera between frames.
+
+The predicted state with ego-motion is defined as:
+
+\begin{equation}
+  \hat{\mathbf{X}}_{w|k} = \mathbf{D}_{w|k} \cdot \mathbf{A}_{w|k} \cdot \mathbf{X}_{w|k-1} + \mathbf{u}_{w|k}
+\end{equation}
+
+where $\mathbf{u}_{w|k}$ is derived from the translation vector. The uncertainty introduced by this motion is 
+accounted for by computing the Jacobian:
+
+\begin{equation}
+  \mathbf{J}_{w|k} = \frac{\partial \hat{\mathbf{X}}_{w|k}}{\partial \boldsymbol{\xi}_k} =
+  \begin{bmatrix}
+    \frac{\partial \hat{\mathbf{X}}_{w|k}}{\partial \mathbf{t}_k} &
+    \frac{\partial \hat{\mathbf{X}}_{w|k}}{\partial \mathbf{r}_k}
+  \end{bmatrix}
+  \in \mathbb{R}^{6 \times 6}
+\end{equation}
+
+The first term, the partial derivative with respect to $\mathbf{t}_k$, corresponds to the direct effect of 
+translation on the predicted state. Since the translation vector only affects the position and not the 
+velocity, the derivative is:
+
+\begin{equation}
+  \frac{\partial \hat{\mathbf{X}}_{w|k}}{\partial \mathbf{t}_k} =
+  \begin{bmatrix}
+    \mathbf{I}_3 \\
+    \mathbf{0}_3
+  \end{bmatrix}
+\end{equation}
+
+The second term, the derivative with respect to the rotation vector $\mathbf{r}_k$, is more complex.
+The rotation matrix $\mathbf{R}_k$ is computed from $\mathbf{r}_k$ using the Rodrigues formula.
+In addition to the matrix itself, OpenCV provides the Jacobian 
+$\frac{\partial \mathbf{R}_k}{\partial \mathbf{r}_k} \in \mathbb{R}^{9 \times 3}$, which encodes the derivative
+of each element of $\mathbf{R}_k$ with respect to the rotation parameters.
+
+Let us denote the intermediate propagated state before ego-motion as:
+
+\begin{equation}
+  \mathbf{p}_k = \mathbf{A}_{w|k} \cdot \mathbf{X}_{w|k-1} =
+  \begin{bmatrix}
+    \mathbf{p}^{\text{pos}}_k \\
+    \mathbf{p}^{\text{vel}}_k
+  \end{bmatrix}
+\end{equation}
+
+where $\mathbf{p}^{\text{pos}}_k$ and $\mathbf{p}^{\text{vel}}_k$ are the position and velocity parts of the
+propagated state. Then, the rotated position is given by 
+$\mathbf{R}_k \cdot \mathbf{p}^{\text{pos}}_k$, and its derivative with respect to $\mathbf{r}_k$ is:
+
+\begin{equation}
+  \frac{\partial (\mathbf{R}_k \cdot \mathbf{p}^{\text{pos}}_k)}{\partial \mathbf{r}_k} = 
+  \sum_{i=1}^3 \left( \frac{\partial \mathbf{R}_k}{\partial r_i} \cdot \mathbf{p}^{\text{pos}}_k \right)
+\end{equation}
+
+The same procedure applies to the velocity component. The full Jacobian is then:
+
+\begin{equation}
+  \frac{\partial \hat{\mathbf{X}}_{w|k}}{\partial \mathbf{r}_k} =
+  \begin{bmatrix}
+    \frac{\partial (\mathbf{R}_k \cdot \mathbf{p}^{\text{pos}}_k)}{\partial \mathbf{r}_k} \\
+    \frac{\partial (\mathbf{R}_k \cdot \mathbf{p}^{\text{vel}}_k)}{\partial \mathbf{r}_k}
+  \end{bmatrix}
+  \in \mathbb{R}^{6 \times 3}
+\end{equation}
+
+Combining both components, the full Jacobian with respect to the motion parameters is:
+
+\begin{equation}
+  \mathbf{J}_{w|k} =
+  \begin{bmatrix}
+    \mathbf{I}_3 & \frac{\partial (\mathbf{R}_k \cdot \mathbf{p}^{\text{pos}}_k)}{\partial \mathbf{r}_k} \\
+    \mathbf{0}_3 & \frac{\partial (\mathbf{R}_k \cdot \mathbf{p}^{\text{vel}}_k)}{\partial \mathbf{r}_k}
+  \end{bmatrix}
+\end{equation}
+
+Finally, the propagated process noise covariance that includes the uncertainty of the ego-motion is given by:
+
+\begin{equation}
+  \mathbf{Q}'_{w|k} = \mathbf{D}_{w|k} \cdot \mathbf{Q}_{w|k} \cdot \mathbf{D}_{w|k}^\top +
+  \mathbf{J}_{w|k} \cdot \mathbf{C}_k \cdot \mathbf{J}_{w|k}^\top
+\end{equation}
+
+This expression allows the filter to correctly incorporate uncertainty from the ego-motion estimation module,
+while maintaining the per-point structure of the estimation process.
+
+
+
 
 \subsection{Implementation}
 \label{sec:ImplementationKalmanFilter}
