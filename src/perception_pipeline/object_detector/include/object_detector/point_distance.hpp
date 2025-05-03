@@ -26,7 +26,7 @@
  *    
  *    angle = acos(dot / (na * nb))
  *    
- *    If either velocity vector has a near-zero magnitude, the angle is set to π (180 degrees).
+ *    If either velocity vector has a near-zero magnitude, the angle is set to pi (180 degrees).
  */
  
 
