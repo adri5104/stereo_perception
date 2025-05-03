@@ -207,8 +207,9 @@ RUN sudo apt install -y libmlpack-dev
 FROM final AS deploy
 
 # Copy source files
-COPY --chown=ubuntu:ubuntu ./src /home/ubuntu/perception_pipeline_ws/src
+COPY --chown=ubuntu:ubuntu src /home/ubuntu/perception_pipeline_ws/src
 WORKDIR /home/ubuntu/perception_pipeline_ws/
+
 
 # Build the workspace
 RUN /bin/bash -c "source /opt/ros/humble/setup.bash && colcon build --symlink-install --packages-up-to perception_pipeline_launch --parallel-workers $(nproc) --cmake-args -DCMAKE_CUDA_ARCHITECTURES=86"
@@ -217,8 +218,15 @@ RUN /bin/bash -c "source /opt/ros/humble/setup.bash && colcon build --symlink-in
 RUN echo "source /home/ubuntu/perception_pipeline_ws/install/setup.bash" >> ~/.bashrc
 
 # Set entrypoint
-COPY --chown=ubuntu:ubuntu ./scripts/docker/dk_perception_pipeline/deploy_image/entrypoint.sh /home/ubuntu/perception_pipeline_ws/entrypoint.sh
-RUN chmod +x /home/ubuntu/perception_pipeline_ws/entrypoint.sh
-ENTRYPOINT ["/home/ubuntu/perception_pipeline_ws/entrypoint.sh"]
+USER root
+RUN apt-get update && apt-get install -y ros-humble-rmw-cyclonedds-cpp
+RUN echo '#!/bin/bash' > /ros_entrypoint.sh
+RUN echo 'set -e' >> /ros_entrypoint.sh
+RUN echo 'source "/opt/ros/$ROS_DISTRO/setup.bash"' >> /ros_entrypoint.sh 
+RUN echo 'exec "$@"' >> /ros_entrypoint.sh
+RUN chmod +x /ros_entrypoint.sh
+USER ubuntu
+
+ENTRYPOINT ["/ros_entrypoint.sh"]
 CMD ["bash"]
 
