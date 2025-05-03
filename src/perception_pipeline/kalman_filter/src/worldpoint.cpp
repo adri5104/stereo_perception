@@ -1,7 +1,7 @@
 /**
  * @file worldpoint.cpp
  * @author adrian.rieker@tum.de
-   * @brief This class implements the Kalman filter for a single world point
+ * @brief This class implements the Kalman filter for a single world point
  *
  */
 
@@ -142,23 +142,19 @@ WorldPointErrorCode WorldPoint::computeKalmanStep(
   // Compute the process noise covariance matrix
 	if (use_var_ego_ && include_ego_motion_)
   {
-    // 1. Predicción del estado utilizando la matriz de transición A_new
-    Mat v = A_new * x_old_;  // Vector de estado predicho
-    Mat v_pos = v.rowRange(0, 3);  // Posición (X, Y, Z)
-    Mat v_vel = v.rowRange(3, 6);  // Velocidad (X, Y, Z)
+    // Predict the new state
+    Mat v = A_new * x_old_;  
+    Mat v_pos = v.rowRange(0, 3);  
+    Mat v_vel = v.rowRange(3, 6);  
 
-    // 2. Cálculo de la matriz Jacobiana de la egomotion
-    // Usamos directamente la matriz derivada dRdr de rot_new.
-    Mat J_pos = Mat::zeros(3, 3, CV_64FC1);  // Inicialización de la matriz Jacobiana para posición
-    Mat J_vel = Mat::zeros(3, 3, CV_64FC1);  // Inicialización de la matriz Jacobiana para velocidad
+    // Compute the Jacobian matrix of the rotation
+    Mat J_pos = Mat::zeros(3, 3, CV_64FC1); 
+    Mat J_vel = Mat::zeros(3, 3, CV_64FC1);  
 
-
-
-    // Asumiendo dRdr es 9x3 (derivadas de la matriz de rotación fila a fila)
-    for (int i = 0; i < 3; ++i) {        // filas de R
-      for (int j = 0; j < 3; ++j) {      // columnas de R
-        int idx = 3 * i + j;            // posición en la matriz R (flattened row-wise)
-        for (int k = 0; k < 3; ++k) {   // derivadas respecto a rvec
+    for (int i = 0; i < 3; ++i) {        
+      for (int j = 0; j < 3; ++j) {     
+        int idx = 3 * i + j;           
+        for (int k = 0; k < 3; ++k) {   
           double dR = rot_new.dRdr.at<double>(idx, k);
           J_pos.at<double>(i, k) += dR * v_pos.at<double>(j, 0);
           J_vel.at<double>(i, k) += dR * v_vel.at<double>(j, 0);
@@ -166,19 +162,11 @@ WorldPointErrorCode WorldPoint::computeKalmanStep(
       }
     }
 
-    // 3. Actualización de la matriz Jacobiana total J_new_
     J_new_ = Mat::zeros(6, 6, CV_64FC1);
-    J_new_(Range(0, 3), Range(0, 3)) = Mat::eye(3, 3, CV_64FC1);  // Derivada respecto a tvec
-
-    // Añadimos contribución de rvec
+    J_new_(Range(0, 3), Range(0, 3)) = Mat::eye(3, 3, CV_64FC1); 
     J_new_(Range(0, 3), Range(3, 6)) = J_pos;
     J_new_(Range(3, 6), Range(3, 6)) = J_vel;
-    
-    
-  
-    // 4. Calculamos la nueva covarianza del proceso Q_new_
     Q_new_ = D_new * Q_new_w * D_new.t() + J_new_ * C_ * J_new_.t();
-   
   }
   else
   {
