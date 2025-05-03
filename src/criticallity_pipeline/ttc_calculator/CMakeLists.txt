@@ -69,7 +69,7 @@ if(ROS_VERSION STREQUAL "humble")
       std_msgs
       sensor_msgs
       geometry_msgs
-      visualization_msg
+      visualization_msgs
       Eigen3
       PCL
       stereo_perception_msgs
