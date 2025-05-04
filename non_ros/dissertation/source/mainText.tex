@@ -1401,20 +1401,24 @@ To configure the node, the following ROS2 parameters were added:
   \label{tab:ros2_vo_params}
 \end{table}
 
+
+\newpage
 \section{Perception pipeline: Kalman filter}
 \label{sec:KalmanFilter}
 
-After introducing the modules responsible for the depth computation, optical flow computation,
-and ego-motion estimation, this section addresses the core component of the perception 
+After introducing the modules responsible for the depth computation (\ref{sec:StereoImageComputation}), optical flow computation (\ref{sec:OpticalFlowComputation}),
+and ego-motion estimation (\ref{sec:EgoMotionEstimation}), this section addresses the core component of the perception 
 pipeline: the estimation of a dense six-dimensional field using a Kalman filter. 
 
-The objective of this stage is to compute, for a subset of image pixels, both their 3D position and 3D
+The objective of this stage is to compute, for a subset of selected pixels of the image, both their 3D position and 3D
 velocity over time. This results in a per-pixel six-dimensional vector that captures the spatial and
-dynamic state of the scene. This idea aligns with the concept of 6D vision (see Section~\ref{sec:6D_Vision}),
+dynamic state of the scene.
+
+This idea aligns with the concept of 6D vision (see Section~\ref{sec:6D_Vision}),
 which was initially explored at the FTM Chair by Bauer~\cite{previous_tfm_bauer} and later validated in a
 ROS1 implementation by Pastor~\cite{previous_tfm_pastor}.
 
-Each point is represented by a \texttt{WorldPoint} object, which maintains its own Kalman 
+Each point is represented by a \texttt{WorldPoint}, which maintains its own Kalman 
 filter and a 6D state vector composed of 3D position and velocity in world coordinates. 
 At each timestep, the point’s state is updated using three main sources of input: 
 
@@ -1424,14 +1428,17 @@ At each timestep, the point’s state is updated using three main sources of inp
   \item Ego-motion, which accounts for the movement of the camera relative to the environment. 
 \end{itemize}
 
+
+
+
 The Kalman filter follows a standard constant-velocity model in 3D space. Predicted states are projected back into 
 the image frame for association with new measurements, producing real-time filtered estimates of position and velocity 
-at pixel-level resolution.
+at pixel level resolution.
 
 This approach differs from object-based or grid-based tracking by focusing on local, independent point estimation. 
 Points are initialized or removed based on visibility, depth consistency, and motion reliability. 
-A regular grid helps initialize new points, and the use of OpenMP allows for concurrent updates of all active filters, 
-ensuring scalability and responsiveness.
+A regular grid helps initialize new points, and the use of OpenMP~\cite{openMP} allows for paralellizing the updates of all active filters
+tracked points, leading to a significant speedup in the computation.
 
 The system architecture separates the Kalman logic into a core module that operates independently of ROS, 
 and a ROS2 node that manages communication, timing, and visualization. The output includes a 6D image representation, 
@@ -1443,14 +1450,14 @@ debug data, and visualization markers for use in tools such as RViz and Foxglove
 
 In this module, each selected pixel or \texttt{WorldPoint} is associated with its own Kalman Filter
 instance that estimates their local state. The filters operate independently and are updated
-at each timestep using new input from the previous perception modules. This approach allos the system 
+at each timestep using new input from the previous perception modules. This approach allows the system 
 to maintain a dense spatial resolution while exploit paralell processing capabilities. 
 
 The Kalman Filter, first introduced by R.E. Kalman in 1960~\cite{kalman}, is a recursive 
 estimation algorithm, designed for linear, discrete-time dynamical systems with Gaussian noise. 
 It estimates the internal state of a system by predicting its evolution over time and correcting
 the prediction using new measurements. Taking this into account, the first thing that is necessary 
-to apply a Kalman filter is to have the called \textbf{system model} and the \textbf{measurement model}. 
+to implement a Kalman filter is to have the called \textbf{system model} and the \textbf{measurement model}. 
 
 The system model is a state space representation of the system, which describes how the state evolves
 over time. It is defined by the following equations:
@@ -1484,14 +1491,18 @@ $\mathbf{R}$:
 
 When both models are linear, as in the equations above, the standard Kalman filter can be used. However, if 
 either model is nonlinear, the Extended Kalman Filter (EKF)~\cite{ekf} must be applied. The EKF approximates 
-nonlinear functions by linearizing them around the current state estimate using the Jacobian.
+nonlinear functions by linearizing them around the current state estimate using the Jacobian (first order Taylor series approximation).
 
 \subsubsection{Standard Kalman filter}
 \label{sec:KalmanFilterClassic}
 
 The standard Kalman filter operates in two main phases at each time step: prediction and correction. Each
 phase consists of a sequence of matrix operations that update both the estimated state and its associated
-covariance based on the system and measurement models. The prediction step starts by propagating the previous
+covariance based on the system and measurement models. 
+
+\paragraph{Prediction step}
+
+The prediction step starts by propagating the previous
 filtered state $\mathbf{x}_{k-1}$ forward in time using the system model. This results in the predicted state:
 
 \begin{equation}
@@ -1505,8 +1516,11 @@ $\mathbf{u}_k$ the control vector at time $k$. The predicted covariance $\hat{\m
   \hat{\mathbf{P}}_k = \mathbf{A} \cdot \mathbf{P}_{k-1} \cdot \mathbf{A}^\top + \mathbf{Q}
 \end{equation}
 
-where $\mathbf{P}_{k-1}$ is the previous covariance and $\mathbf{Q}$ is the process noise covariance. Once the
-state and covariance have been predicted, the expected measurement is computed using the measurement model:
+where $\mathbf{P}_{k-1}$ is the previous covariance and $\mathbf{Q}$ is the process noise covariance. 
+
+\paragraph{Correction step}
+
+Once the state and covariance have been predicted, the correction step begins and the expected measurement is computed using the measurement model:
 
 \begin{equation}
   \hat{\mathbf{z}}_k = \mathbf{H} \cdot \hat{\mathbf{x}}_k
@@ -1515,28 +1529,46 @@ state and covariance have been predicted, the expected measurement is computed u
 The predicted measurement covariance is then:
 
 \begin{equation}
-  \hat{\mathbf{T}}_k = \mathbf{H} \cdot \hat{\mathbf{P}}_k \cdot \mathbf{H}^\top
+  \hat{\mathbf{T}}_k = \mathbf{H}_k \cdot \hat{\mathbf{P}}_k \cdot \mathbf{H}_k^\top
 \end{equation}
 
-When a new measurement $\mathbf{z}_k$ is available, the innovation vector is calculated as:
+When a new measurement $\mathbf{z}_k$ is available, it is compared with the predicted measurement 
+$\hat{\mathbf{z}}_k = \mathbf{h}(\hat{\mathbf{X}}_{w|k})$ to evaluate how consistent the prediction is 
+with the actual observation. The difference between them is known as the innovation vector:
 
 \begin{equation}
   \mathbf{s}_k = \mathbf{z}_k - \hat{\mathbf{z}}_k
 \end{equation}
 
-Its covariance is:
+This vector represents the residual between what the filter expected to observe and what was actually measured. 
+If the model and previous state are accurate, the innovation should be small and centered around zero. 
+Large values in $\mathbf{s}_k$ may indicate unexpected changes in the system or incorrect predictions.
+
+To properly weight the innovation in the update step, its uncertainty must be quantified. This is given by the 
+innovation covariance matrix:
 
 \begin{equation}
-  \mathbf{S}_k = \hat{\mathbf{T}}_k + \mathbf{R}
+  \mathbf{S}_k = \hat{\mathbf{T}}_k + \mathbf{T}_k
 \end{equation}
 
-Then, the Kalman gain is computed as:
+Here, $\hat{\mathbf{T}}_k$ is the predicted measurement covariance derived from the current state estimate, and 
+$\mathbf{T}_k$ is the measurement noise covariance, defined by the sensor model. The matrix $\mathbf{S}_k$ thus 
+quantifies the total expected uncertainty in the innovation vector, combining both predicted state uncertainty 
+projected into measurement space and known sensor noise.
+
+The innovation vector and its covariance are crucial for the correction step of the filter: they determine how 
+strongly the measurement should influence the state update. A large $\mathbf{S}_k$ implies high uncertainty, 
+which results in a smaller correction; conversely, a small $\mathbf{S}_k$ leads to a more aggressive update.
+
+Once the innovation and its covariance are computed, the Kalman gain $\mathbf{K}_k$ is calculated. The Kalman gain
+is a matrix that determines how much the predicted state should be adjusted based on the new measurement. It is computed as:
 
 \begin{equation}
   \mathbf{K}_k = \hat{\mathbf{P}}_k \cdot \mathbf{H}^\top \cdot \mathbf{S}_k^{-1}
 \end{equation}
 
-The final corrected state estimate is:
+Finally, the state and covariance are updated using the Kalman gain and the innovation vector. The updated state
+is given by:
 
 \begin{equation}
   \mathbf{x}_k = \hat{\mathbf{x}}_k + \mathbf{K}_k \cdot \mathbf{s}_k
@@ -1602,7 +1634,7 @@ and the innovation covariance is:
   \mathbf{S}_k = \hat{\mathbf{T}}_k + \mathbf{R}
 \end{equation}
 
-The Kalman gain is:
+Once the innovation and its covariance are computed, the Kalman gain is calculated as:
 
 \begin{equation}
   \mathbf{K}_k = \hat{\mathbf{P}}_k \cdot \mathbf{H}_k^\top \cdot \mathbf{S}_k^{-1}
@@ -1622,64 +1654,220 @@ linearization.
 \subsection{Mathematical model}
 \label{sec:KalmanFilterMathematicalModel}
 
-To apply the rotation estimated by the ego-motion module to the position and velocity components of each
-tracked point, a $6 \times 6$ matrix $\mathbf{D}_{w|k}$ is defined. This matrix maps the propagated state
-vector from the previous frame into the current camera frame by applying the estimated rotation. The matrix
-is constructed using the $3 \times 3$ rotation matrix $\mathbf{R}_k$, which is computed from a Rodrigues
-rotation vector $\mathbf{r}_k \in \mathbb{R}^3$. The resulting $\mathbf{D}_{w|k}$ has the following
-block-diagonal structure:
+Now that the Kalman filter algorithm has been introduced, we can define the mathematical model used
+in this work. First, the system model is defined and then the measurement model will be defined. 
+
+\subsubsection{System model}
+
+For the system model, the state vector $\mathbf{x}_{k|w}$ is defined as a $6 \times 1$ vector that contains the
+position and velocity of the tracked point in world coordinates ($w$):
 
 \begin{equation}
-  \mathbf{D}_{w|k} =
+  \mathbf{x}_{k|w} =
+  \begin{bmatrix}
+    X \\
+    Y \\
+    Z \\
+    \dot{X} \\
+    \dot{Y} \\
+    \dot{Z}
+  \end{bmatrix}
+\end{equation}
+
+This vector is propagated over time using a constant-velocity motion model, assuming no acceleration between
+frames. When no ego-motion compensation is applied, the evolution of the state is defined by the following 
+linear state model system:
+
+\begin{equation}
+  \hat{\mathbf{x}}_{k|w} = \mathbf{A}_{k|w} \cdot \mathbf{x}_{k-1|w} + \boldsymbol{\omega}_{k|w}
+\end{equation}
+
+where $\hat{\mathbf{x}}_{k|w}$ is the predicted state at time $k$, $\mathbf{A}_{k|w}$ is the transition matrix 
+that models constant velocity over the time step $\Delta t$, and $\boldsymbol{\omega}_{k|w}$ is the process noise.
+
+The state transition matrix $\mathbf{A}_{k|w}$ of the system is defined as: 
+
+\begin{equation}
+  \mathbf{A}_{k|w} =
+  \begin{bmatrix}
+    \mathbf{I}_3 & \Delta t \cdot \mathbf{I}_3 \\
+    \mathbf{0}_3 & \mathbf{I}_3
+  \end{bmatrix}
+\end{equation}
+
+where $\Delta t$ is the time elapsed between frames, representing the linear motion model. The process noise is assumed to be zero-mean Gaussian:
+
+\begin{equation}
+  \boldsymbol{\omega}_{k|w} \sim \mathcal{N}(\mathbf{0}, \mathbf{Q}_{k|w})
+\end{equation}
+
+Where the process noise covariance matrix $\mathbf{Q}_{k|w}$ captures the uncertainty introduced during the 
+state prediction. It is derived from the continuous-time system noise model~\cite{6d_vision_detailed} assuming white noise acceleration, 
+and discretized using standard integration over the time interval \( \Delta t \). The resulting structure is:
+
+\begin{equation}
+  \mathbf{Q}_{k|w} =
+  \begin{pmatrix}
+    \frac{1}{3} \Delta t^2 \cdot \text{diag}(\sigma^2_{\dot{X}}, \sigma^2_{\dot{Y}}, \sigma^2_{\dot{Z}}) &
+    \frac{1}{2} \Delta t \cdot \text{diag}(\sigma^2_{\dot{X}}, \sigma^2_{\dot{Y}}, \sigma^2_{\dot{Z}}) \\
+    \frac{1}{2} \Delta t \cdot \text{diag}(\sigma^2_{\dot{X}}, \sigma^2_{\dot{Y}}, \sigma^2_{\dot{Z}}) &
+    \text{diag}(\sigma^2_{\dot{X}}, \sigma^2_{\dot{Y}}, \sigma^2_{\dot{Z}})
+  \end{pmatrix}
+\end{equation}
+
+This formulation assumes that velocity is affected by independent white noise processes in \( X \), \( Y \), and \( Z \), 
+and that position integrates this uncertainty over time. As a result, the top-left block of \( \mathbf{Q}_{k|w} \)
+corresponds to accumulated uncertainty in position, and the bottom-right to direct uncertainty in velocity.
+
+To introduce the ego-motion compensation, we have to modify the system model. For this we assume, that the WorldPoints are 
+transformed with the rotation matrix $\mathbf{R}_k$ and the translation vector $\mathbf{t}_k$, that model the movement of the 
+camera between two frames (\ref{sec:MotionEstimationPnP}). The position and velocity components of the state vector $x_k$ are transformed 
+as follows:
+
+
+\begin{equation}
+  \begin{bmatrix}
+    X \\
+    Y \\
+    Z \\
+  \end{bmatrix}_k
+  =
+  \mathbf{R}_k
+  \cdot
+  \begin{bmatrix}
+    X \\
+    Y \\
+    Z \\
+  \end{bmatrix}_{k-1|w}
+  +
+  \begin{bmatrix}
+    t_x \\
+    t_y \\
+    t_z \\
+  \end{bmatrix}_k
+\end{equation}
+
+\begin{equation}
+  \begin{bmatrix}
+    \dot{X} \\
+    \dot{Y} \\
+    \dot{Z} \\
+  \end{bmatrix}_k
+  =
+  \mathbf{R}_k
+  \cdot
+  \begin{bmatrix}
+    \dot{X} \\
+    \dot{Y} \\
+    \dot{Z} \\
+  \end{bmatrix}_{k-1|w}
+\end{equation}
+
+which leads to the following updated system state model: 
+
+\begin{equation}
+  \mathbf{x}_k = \mathbf{A}_k \cdot \mathbf{x}_{k-1} + \mathbf{u}_k + \boldsymbol{\omega}_k
+\end{equation}
+
+Where the individual components are defined as:
+
+\begin{align}
+  \mathbf{A}_k &= \mathbf{D}_k \cdot \mathbf{A}_{k|w}, \in \mathbb{R}^{6 \times 6} \\
+  \mathbf{D}_k &=
   \begin{bmatrix}
     \mathbf{R}_k & \mathbf{0}_3 \\
     \mathbf{0}_3 & \mathbf{R}_k
   \end{bmatrix}
-\end{equation}
-
-This construction ensures that both position and velocity vectors are rotated in a consistent way using the
-same transformation.
-
-In the context of uncertainty propagation, it is necessary to evaluate how the predicted state 
-$\hat{\mathbf{X}}_{w|k}$ is affected by small changes in the ego-motion parameters. To that end, we define 
-the 6-dimensional motion parameter vector:
-
-\begin{equation}
-  \boldsymbol{\xi}_k =
+  \in \mathbb{R}^{6 \times 6} \\
+  \mathbf{u}_k &=
   \begin{bmatrix}
     \mathbf{t}_k \\
-    \mathbf{r}_k
+    \mathbf{0}_3
   \end{bmatrix}
-  \in \mathbb{R}^6
-\end{equation}
+  \in \mathbb{R}^{6 \times 1} \\
+  \boldsymbol{\omega}_k &\sim \mathcal{N}(\mathbf{0}, \mathbf{Q}_k)
+\end{align}
 
-where $\mathbf{t}_k$ is the translation of the camera in world coordinates, and 
-$\mathbf{r}_k$ is the Rodrigues vector representing the relative rotation of the camera between frames.
 
-The predicted state with ego-motion is defined as:
+Now that the ego-motion was introduced in the system model, the covariace matrix $\mathbf{Q}_k$ must be defined. 
+This matrix is not only dependant on the process noise $\sigma^2_{\dot{X}}$, $\sigma^2_{\dot{Y}}$, and $\sigma^2_{\dot{Z}}$ like the covarianze matrix
+without ego-motion $\mathbf{Q}_{k|w}$, but also on the ego-motion parameters. For this reason a parameter vector containing the ego-motion must be defined. 
 
-\begin{equation}
-  \hat{\mathbf{X}}_{w|k} = \mathbf{D}_{w|k} \cdot \mathbf{A}_{w|k} \cdot \mathbf{X}_{w|k-1} + \mathbf{u}_{w|k}
-\end{equation}
-
-where $\mathbf{u}_{w|k}$ is derived from the translation vector. The uncertainty introduced by this motion is 
-accounted for by computing the Jacobian:
+In previous works like \cite{6d_vision_detailed}, \cite{previous_tfm_bauer}, and \cite{previous_tfm_pastor}, the ego-motion parameters were defined by the translation 
+components and the Euler angles:
 
 \begin{equation}
-  \mathbf{J}_{w|k} = \frac{\partial \hat{\mathbf{X}}_{w|k}}{\partial \boldsymbol{\xi}_k} =
+  \mathbf{p}_k =
   \begin{bmatrix}
-    \frac{\partial \hat{\mathbf{X}}_{w|k}}{\partial \mathbf{t}_k} &
-    \frac{\partial \hat{\mathbf{X}}_{w|k}}{\partial \mathbf{r}_k}
-  \end{bmatrix}
-  \in \mathbb{R}^{6 \times 6}
+    t_{k|x} & t_{k|y} & t_{k|z} & \theta_k & \phi_k & \psi_k
+  \end{bmatrix}^T
 \end{equation}
+
+This approach has the big disadvantage that the Euler angles are not continuous and can lead to discontinuities in the
+covariance matrix. Moreover, its necessary to know beforehand which Euler angle convention was used to build the rotation
+matrix $\mathbf{R}_k$. This can lead to confusion and errors in the implementation and also limits the modularity of the code.
+
+For this reason, in this work, the ego-motion rotation components are defined using the Rodrigues vector $\mathbf{r}_k$ that is computed from the rotation matrix $\mathbf{R}_k$:
+
+\begin{equation}
+  \mathbf{p}_k =
+  \begin{bmatrix}
+    t_{k|x} & t_{k|y} & t_{k|z} & r_{k|x} & r_{k|y} & r_{k|z}
+  \end{bmatrix}^T
+\end{equation}
+
+The Euler-rodrigues vector, as introduced in the chapter \ref{sec:MotionEstimationPnP}, is a continuous representation of the rotation matrix as an vector in $\mathbb{R}^3$ where the length of the vector
+is the angle of rotation and the direction of the vector is the axis of rotation \cite{euler_rodrigues_historical,euler_rodrigues} as seen in the figure \ref{fig:rodrigues}.
+This representation is continuous and also enables the correct working of the algorithm regardless of how the rotation matrix was computed. 
+
+\begin{figure}
+  \centering
+  \resizebox{0.15\textwidth}{!}{\includegraphics{figures/euler_rodrigues_vector.png}}
+  \caption{Rodrigues vector representation of the rotation matrix. Source:~\cite{euler_rodrigues_historical}}
+  \label{fig:rodrigues}
+\end{figure}
+
+Now that the $p_k$ vector is defined, we can state that the rotation matrix $\mathbf{R}_k$ and the translation vector $\mathbf{t}_k$ are build as follows:
+
+\begin{align}
+  \mathbf{R}_k = \mathbf{R}(\mathbf{p}_k + \boldsymbol{\zeta}_k) \\
+  \mathbf{t}_k = \mathbf{t}(\mathbf{p}_k + \boldsymbol{\zeta}_k)
+\end{align}
+
+Where $\boldsymbol{\zeta}_k$ is the additive white noise of $p_k$ and follows a Gaussian distribution with zero mean and covariance $\mathbf{L}$:
+
+\begin{equation}
+  \boldsymbol{\zeta}_k \sim \mathcal{N}(\mathbf{0}, \mathbf{L}), \quad \mathbf{L} = \text{diag}(\sigma^2_{t|x}, \sigma^2_{t|y}, \sigma^2_{t|z}, \sigma^2_{r|x}, \sigma^2_{r|y}, \sigma^2_{r|z}) \in \mathbb{R}^{6 \times 6}
+\end{equation}
+
+Taking this into account, the covariance matrix $\mathbf{Q}_k$ is defined as:
+
+\begin{equation}
+  \mathbf{Q}_k = \mathbf{D}_k \cdot \mathbf{Q}_{k|w} \cdot \mathbf{D}_k^\top + \mathbf{J}_k \cdot \mathbf{L} \cdot \mathbf{J}_k^\top
+\end{equation}
+
+In the previous equation, the term $J_k$ is the Jacobian of the state vector with respect to the ego-motion parameter vector $p_k$:
+
+\begin{equation}
+  \mathbf{J}_k = \left. \frac{\partial \mathbf{x}}{\partial \mathbf{p}} \right|_{(\mathbf{x}_{k-1}, \mathbf{p}_k)} \in \mathbb{R}^{6 \times 6}
+\end{equation}
+  
+This Jacobian can be extended as follows:
+
+\begin{equation}
+  \mathbf{J}_k = \left. \frac{\partial \mathbf{x}}{\partial \mathbf{p}} \right|_{(\mathbf{x}_{k-1}, \mathbf{p}_k)} =
+  \begin{bmatrix}
+    \left. \frac{\partial \mathbf{x}}{\partial \mathbf{t}_k} \right|_{(\mathbf{x}_{k-1}, \mathbf{p}_k)} & \left. \frac{\partial \mathbf{x}}{\partial \mathbf{r}_k}  \right|_{(\mathbf{x}_{k-1}, \mathbf{p}_k)} 
+  \end{bmatrix}
+\end{equation}
+
 
 The first term, the partial derivative with respect to $\mathbf{t}_k$, corresponds to the direct effect of 
 translation on the predicted state. Since the translation vector only affects the position and not the 
 velocity, the derivative is:
 
 \begin{equation}
-  \frac{\partial \hat{\mathbf{X}}_{w|k}}{\partial \mathbf{t}_k} =
+  \frac{\partial \mathbf{x}_{k}}{\partial \mathbf{t}_k} =
   \begin{bmatrix}
     \mathbf{I}_3 \\
     \mathbf{0}_3
@@ -1687,7 +1875,7 @@ velocity, the derivative is:
 \end{equation}
 
 The second term, the derivative with respect to the rotation vector $\mathbf{r}_k$, is more complex.
-The rotation matrix $\mathbf{R}_k$ is computed from $\mathbf{r}_k$ using the Rodrigues formula.
+The rotation matrix $\mathbf{R}_k$ is computed from $\mathbf{r}_k$ using the Euler-Rodrigues formula.
 In addition to the matrix itself, OpenCV provides the Jacobian 
 $\frac{\partial \mathbf{R}_k}{\partial \mathbf{r}_k} \in \mathbb{R}^{9 \times 3}$, which encodes the derivative
 of each element of $\mathbf{R}_k$ with respect to the rotation parameters.
@@ -1695,7 +1883,7 @@ of each element of $\mathbf{R}_k$ with respect to the rotation parameters.
 Let us denote the intermediate propagated state before ego-motion as:
 
 \begin{equation}
-  \mathbf{p}_k = \mathbf{A}_{w|k} \cdot \mathbf{X}_{w|k-1} =
+  \mathbf{p}_k = \mathbf{A}_{k|w} \cdot \mathbf{x}_{k-1|w} =
   \begin{bmatrix}
     \mathbf{p}^{\text{pos}}_k \\
     \mathbf{p}^{\text{vel}}_k
@@ -1714,7 +1902,7 @@ $\mathbf{R}_k \cdot \mathbf{p}^{\text{pos}}_k$, and its derivative with respect 
 The same procedure applies to the velocity component. The full Jacobian is then:
 
 \begin{equation}
-  \frac{\partial \hat{\mathbf{X}}_{w|k}}{\partial \mathbf{r}_k} =
+  \frac{\partial \mathbf{x}_{k}}{\partial \mathbf{r}_k} =
   \begin{bmatrix}
     \frac{\partial (\mathbf{R}_k \cdot \mathbf{p}^{\text{pos}}_k)}{\partial \mathbf{r}_k} \\
     \frac{\partial (\mathbf{R}_k \cdot \mathbf{p}^{\text{vel}}_k)}{\partial \mathbf{r}_k}
@@ -1725,48 +1913,703 @@ The same procedure applies to the velocity component. The full Jacobian is then:
 Combining both components, the full Jacobian with respect to the motion parameters is:
 
 \begin{equation}
-  \mathbf{J}_{w|k} =
+  \mathbf{J}_{k|w} =
   \begin{bmatrix}
     \mathbf{I}_3 & \frac{\partial (\mathbf{R}_k \cdot \mathbf{p}^{\text{pos}}_k)}{\partial \mathbf{r}_k} \\
     \mathbf{0}_3 & \frac{\partial (\mathbf{R}_k \cdot \mathbf{p}^{\text{vel}}_k)}{\partial \mathbf{r}_k}
   \end{bmatrix}
 \end{equation}
 
-Finally, the propagated process noise covariance that includes the uncertainty of the ego-motion is given by:
+
+This expression captures how the uncertainty in the ego-motion parameters propagates into the predicted state 
+covariance, and allows the filter to adapt to the quality of the visual odometry estimates in a principled way. 
+The Jacobian \( \mathbf{J}_k \) is re-evaluated at each time step based on the current predicted state and ego-motion estimate.
+
+Now that the full state prediction model—including ego-motion and its uncertainty—has been defined, we turn our attention 
+to the measurement model, which relates the predicted state to the observations available from the stereo camera and 
+optical flow pipeline.
+
+
+\subsubsection{Measurement model}
+\label{sec:KalmanFilterMeasurementModel}
+
+The measurement model relates the predicted state to the observed measurements. In this case, the measurements are
+obtained from the stereo camera and the optical flow computation. The measurements are defined as a $3 \times 1$ vector:
 
 \begin{equation}
-  \mathbf{Q}'_{w|k} = \mathbf{D}_{w|k} \cdot \mathbf{Q}_{w|k} \cdot \mathbf{D}_{w|k}^\top +
-  \mathbf{J}_{w|k} \cdot \mathbf{C}_k \cdot \mathbf{J}_{w|k}^\top
+  \mathbf{z}_k =
+  \begin{bmatrix}
+    u_k \\
+    v_k \\
+    d_k
+  \end{bmatrix}
+\end{equation}
+where \( u_k \) and \( v_k \) are the pixel coordinates of the tracked point in the image, and \( d_k \) is the depth.
+In this project, the depth was considered for the measurment model, instead of the disparity like the previous works,
+since most of the modern stereo cameras provide the depth directly as output. 
+
+Unlike the system model, the measurement model is nonlinear. The relationship between the predicted state and the measurements is given by the 
+pinhole camera model, which maps the 3D world coordinates to 2D pixel coordinates. The measurement model is defined as:
+
+\begin{equation}
+  \mathbf{z}_k = \begin{bmatrix} \mathbf{I}_3 & \mathbf{0}_3 \end{bmatrix} \cdot \frac{1}{w} \cdot \boldsymbol{\Pi} \cdot 
+  \begin{pmatrix}
+  X \\
+  Y \\
+  Z \\
+  1
+  \end{pmatrix}
 \end{equation}
 
-This expression allows the filter to correctly incorporate uncertainty from the ego-motion estimation module,
-while maintaining the per-point structure of the estimation process.
+where $\boldsymbol{\Pi}$ is the intrinsic projection matrix of the camera, defined as:
 
+\begin{equation}
+  \boldsymbol{\Pi} =
+  \begin{bmatrix}
+    f_x & 0 & c_x & 0 \\
+    0 & f_y & c_y & 0 \\
+    0 & 0 & 1 & 0
+  \end{bmatrix}
+\end{equation}
 
+This projection transforms a 3D point in camera coordinates into homogeneous pixel coordinates. The final measured 
+pixel location is obtained by normalizing the first two components by the third (perspective division), and taking 
+the depth \( Z \) directly from the position vector. Therefore, the nonlinear measurement function 
+$\mathbf{h}(\mathbf{x}_{k})$ is defined as:
 
+\begin{equation}
+  \mathbf{h}(\mathbf{x}_{k}) =
+  \begin{bmatrix}
+    \dfrac{f_x X}{Z} + c_x \\
+    \dfrac{f_y Y}{Z} + c_y \\
+    Z
+  \end{bmatrix}
+\end{equation}
+
+This maps the predicted 3D point to the expected image coordinates $(u, v)$ and depth \( d = Z \). Since this model 
+is nonlinear, the Extended Kalman Filter is used. To apply the correction step of the EKF, the Jacobian of the 
+measurement model with respect to the state vector is required.
+
+\begin{equation}
+  \mathbf{H}_k = \left. \frac{\partial \mathbf{h}(\mathbf{x})}{\partial \mathbf{x}} \right|_{\mathbf{x} = \hat{\mathbf{x}}_k}
+\end{equation}
+
+Only the position part of the state vector affects the measurement, so the Jacobian matrix $\mathbf{H}_k$ has 
+non-zero entries only in the first three columns. The matrix $\mathbf{H}_k \in \mathbb{R}^{3 \times 6}$ is computed as:
+
+\begin{equation}
+  \mathbf{H}_k =
+  \begin{bmatrix}
+    \dfrac{f_x}{Z} & 0 & -\dfrac{f_x X}{Z^2} & 0 & 0 & 0 \\
+    0 & \dfrac{f_y}{Z} & -\dfrac{f_y Y}{Z^2} & 0 & 0 & 0 \\
+    0 & 0 & 1 & 0 & 0 & 0
+  \end{bmatrix}
+\end{equation}
+
+This Jacobian is evaluated at the predicted state $\hat{\mathbf{x}}_{k}$ and used in the computation of the innovation 
+covariance.
 
 \subsection{Implementation}
 \label{sec:ImplementationKalmanFilter}
 
-% - Explain how the Kalman filter was implemented
-% - Mention to multithreading and how it was used to improve performance
+Regarding the implementation of the filter, that will later be used by the corresponding
+\texttt{KalmanFilterNode} ROS2 node, it is separated into two main classes as introduces before:
 
+\begin{itemize}
+  \item \texttt{WorldPoint}: This class represents a single tracked point in the scene and manages its own Kalman filter.
+  \item \texttt{KalmanCore}: This class manages the list of all active filters and handles their initialization and updates.
+\end{itemize}
+
+In this subsection, we will describe the high level software architecture of both of them.
+
+\subsubsection{WorldPoint class}
+\label{sec:WorldPointClassKalmanFilter}
+
+The \texttt{WorldPoint} class is the core of the Kalman filter implementation. It encapsulates all the logic
+for managing a single tracked point in the scene, including its Kalman filter, state prediction,
+measurement update, and error code handling. In the following figure \ref{fig:wp} the class diagram of the \texttt{WorldPoint} class is shown.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[scale = 0.3]{figures/WorldPoint.png}
+  \caption{WorldPoint class. Source: own work} %
+  \label{fig:wp}
+\end{figure}%
+
+The initialization takes place through the method \texttt{initKalmanFilter()}, which takes a 
+pixel location and a depth value, reprojects it to 3D world coordinates, and initializes the 
+state vector and covariance. A regular grid ensures that only one point is initialized per 
+cell, maintaining a uniform spatial distribution as will be explained in the following section.
+
+The main function for updating each filter is \texttt{computeKalmanStep()}. It takes as input 
+the depth image, optical flow, and the current ego-motion estimation. It begins by updating 
+the measurement vector using optical flow, then retrieves the new depth from the depth image. 
+If the new pixel lies outside the image boundaries or the depth is invalid, the function 
+returns an error. Otherwise, it proceeds to the prediction step.
+
+\begin{algorithm}[H]
+  \caption{Kalman Filter Step (WorldPoint)}
+  \begin{algorithmic}[1]
+  \State Get optical flow at previous pixel position
+  \State Compute new pixel and read new depth
+  \If{new pixel is outside bounds or depth is invalid}
+    \State \Return Error
+  \EndIf
+  \State Predict new state using motion model
+  \If{using ego-motion}
+    \State Apply rotation and translation
+    \State Compute updated uncertainty using Jacobians
+  \EndIf
+  \State Project predicted state into image
+  \State Compute innovation vector and covariance
+  \If{3-sigma test fails}
+    \State \Return Error
+  \EndIf
+  \State Compute Kalman gain
+  \State Update state and covariance
+  \State \Return Success
+\end{algorithmic}
+\end{algorithm}
+
+If ego-motion compensation is enabled, the predicted state is rotated and translated based on 
+the estimated motion of the camera. Additionally, the associated uncertainty is propagated 
+using Jacobians of the rotation matrix with respect to the Rodrigues vector. These Jacobians 
+are computed using OpenCV, and allow precise propagation of uncertainty due to camera motion.
+
+After predicting the state, the measurement is predicted by projecting the 3D point into the 
+image using the pinhole camera model. This expected pixel and depth are then compared to the 
+actual measurement, and an innovation vector is calculated. 
+
+Before applying the correction step, a 3-sigma test is used to validate the measurement.
+This test ensures that the observed measurement is statistically consistent with the
+predicted measurement given the uncertainty. Specifically, it checks whether the Mahalanobis
+distance of the innovation vector $\mathbf{s}_k$ is below a threshold:
+
+\begin{equation}
+  \mathbf{s}_k^\top \cdot \mathbf{S}_k^{-1} \cdot \mathbf{s}_k < \tau
+\end{equation}
+
+where $\mathbf{S}_k$ is the innovation covariance and $\tau$ is the threshold corresponding
+to a 99.7\% confidence interval in a chi-squared distribution with 3 degrees of freedom.
+If the condition is not met, the measurement is considered an outlier and the correction step
+is skipped to maintain filter robustness.
+
+
+If the update is accepted, the Kalman gain is computed, and the state and covariance are 
+updated accordingly. The filter also checks whether the updated 3D point lies within 
+acceptable height bounds. If the point is too high or too low, it is discarded.
+
+
+
+\subsubsection{KalmanCore class}
+\label{sec:KalmanCoreClass}
+
+The \texttt{KalmanCore} class is responsible for managing the full set of active 
+\texttt{WorldPoint} filters in the scene. It handles the initialization, update,
+removal, and memory management of each tracked point, ensuring a scalable and spatially
+uniform filtering process across the image.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[scale = 0.5]{figures/KalmanCore.png}
+  \caption{KalmanCore class.}
+  \label{fig:kalmanCoreClass}
+\end{figure}
+
+To guarantee an even distribution of tracked points, a grid-based approach is employed (figure \ref{fig:grid}).
+The image plane is divided into a fixed number of rectangular cells, controlled by the
+parameters \texttt{grid\_cols} and \texttt{grid\_rows}. Each cell holds at most one
+active \texttt{WorldPoint}. This ensures that high-texture regions do not accumulate
+redundant points, and low-texture areas are still covered, improving robustness across 
+the entire field of view.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[scale = 0.1]{figures/gridApproach.png}
+  \caption{KalmanCore grid.}
+  \label{fig:grid}
+\end{figure}
+
+
+The core logic of each frame is executed in the \texttt{updateSyncedData()} method. This
+method is responsible for updating all active filters, removing invalid ones, and
+reinitializing new points where necessary. The complete process is shown in 
+Algorithm~\ref{alg:kalman_core_frame}.
+
+\begin{algorithm}[H]
+  \caption{Frame Processing (\texttt{KalmanCore::updateSyncedData})}
+  \label{alg:kalman_core_frame}
+  \begin{algorithmic}[1]
+    \State \textbf{Input:} depth image, optical flow, ego-motion estimate
+    \State \textbf{Output:} updated set of WorldPoints
+    \ForAll{grid cells $(i,j)$}
+      \If{cell has an active WorldPoint}
+        \State run \texttt{computeKalmanStep()} for the point
+        \If{step fails or point outside bounds}
+          \State remove WorldPoint from cell
+        \EndIf
+      \EndIf
+    \EndFor
+    \ForAll{empty cells $(i,j)$}
+      \State search candidate pixels in image region
+      \If{valid depth and point found}
+        \State initialize new WorldPoint and store in grid
+      \EndIf
+    \EndFor
+  \end{algorithmic}
+\end{algorithm}
+
+The algorithm is divided into two stages. In the first stage, each existing
+\texttt{WorldPoint} is updated. If the prediction or correction fails, the point is
+discarded. This may occur due to missing depth, invalid image location, or high
+innovation error detected by the three-sigma test.
+
+In the second stage, the algorithm checks for empty grid cells. For each unoccupied cell,
+a new point is initialized by scanning its corresponding image region for valid pixels
+with usable depth. The pixel is reprojected to 3D and passed to \texttt{initKalmanFilter()} 
+to start a new filter instance.
+
+The grid ensures that at least one point exists per region at any time, preventing
+overlapping estimates and enabling scalable parallel execution. In addition,
+the class supports multithreading: the outer loop is parallelized with
+OpenMP, allowing all \texttt{WorldPoint}s to be updated simultaneously. This results in
+a significant performance gain, especially when tracking hundreds of points across large 
+resolutions.
+
+\subsection{ROS2 integration}
+\label{sec:ROS2IntegrationKalmanFilter}
+
+The \texttt{KalmanFilterNode} is the central ROS 2 component that connects the Kalman 
+filter logic with the perception pipeline. It handles all data flow by subscribing to 
+synchronized data input streams, applying the filter update loop, and publishing processed 
+outputs and debug information.
+
+The node subscribes to three synchronized input topics: the depth image, the optical 
+flow, and the ego-motion transform. Synchronization is performed using 
+\texttt{message\_filters::Synchronizer} to guarantee time alignment across all data 
+modalities. Accurate synchronization is crucial to prevent inconsistencies in the filter 
+prediction and correction steps.
+
+In addition, runtime behavior is fully configurable via ROS 2 parameters. These include the grid 
+size, filter parameters such height limits to consider, and whether ego-motion should be used. 
+It also allows configuring all relevant noise sources via scalar parameters, 
+including the standard deviations of optical flow, depth, process model, and ego-motion 
+(rotational and translational) noise. These values are internally used to construct the 
+covariance matrices required by the Kalman update equations.
+
+The output of the node is a 2D image encoding the full 6D state field over the image 
+plane. This image uses the \texttt{CV\_32FC(7)} encoding, where each pixel contains a 
+seven-channel float vector.
+\begin{itemize}
+  \item Channels 0--2: estimated position \( (X, Y, Z) \)
+  \item Channels 3--5: estimated velocity \( (\dot{X}, \dot{Y}, \dot{Z}) \)
+  \item Channel 6: binary validity flag (1.0 if valid, 0.0 if empty)
+\end{itemize}
+
+For qualitative evaluation and debugging, additional topics are published. 
+These include:
+
+\begin{itemize}
+  \item A RGB image with the WorldPoint positions overlaid on the original image
+  \item A \texttt{MarkerArray} with 3D arrows, representing the estimated velocity field
+\end{itemize}
+
+The output of the Kalman Filter is shown in the figure \ref{fig:kalman_output}. 
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[scale = 0.2]{figures/kalmanOutput.png}
+  \caption{Kalman Filter output. Source: own work}
+  \label{fig:kalman_output}
+\end{figure}
 
 \section{Perception pipeline: Object detection}
 \label{sec:PerceptionPipelineObjectDetection}
 
-% - Explain what object detection is and why clustering is important
-% - Comparison between clustering algorithms
+The final stage of the perception pipeline is the object detection component. It is
+responsible for transforming the dense 6D motion field, produced by the Kalman filter,
+into a compact set of object-level representations. Each detected object is described by
+its spatial extent and estimated velocity, enabling further reasoning in downstream
+modules such as criticality assessment.
+
+The object detection component performs two main tasks. First, it filters and selects
+reliable motion vectors from the raw state field. Then, it applies a clustering algorithm
+to group consistent points into distinct objects. This approach allows the system to
+transition from point-based to object-centric perception, which is better suited for
+interpreting dynamic scenes.
+
+Like the Kalman filter module, the object detection logic is implemented in a
+ROS2-independent source library, and a ROS2 node handles communication and integration
+with the rest of the system.
+
+\subsection{Clustering}
+\label{sec:Clustering}
+
+The goal of the clustering stage is to aggregate motion vectors into object-level
+groups. Each vector, defined by a 3D position and velocity, represents a localized
+motion hypothesis estimated by the Kalman filter. Clustering serves to identify sets
+of points that likely belong to the same moving object in the environment.
+
+This task is challenging due to the sparsity and variability of the input data.
+Objects may vary in size, shape, and velocity; some points may be isolated or
+unreliable due to sensor noise or tracking loss. As a result, the clustering method
+must be robust, flexible, and capable of handling outliers.
+
+Several clustering techniques have been proposed in literature for similar tasks.
+Among the most common are:
+
+\todo{Add references to the clustering algorithms}
+
+\begin{itemize}
+  \item \textbf{K-Means}: a partition-based algorithm that assigns points to a fixed
+        number of clusters. It assumes convex cluster shapes and equal density,
+        which is often not the case in real-world perception problems.
+  \item \textbf{Hierarchical clustering}: a tree-based method that builds a
+        cluster hierarchy by recursively merging or splitting groups. It does not
+        require prior knowledge of the number of clusters, but has high computational
+        cost and is sensitive to noise.
+  \item \textbf{Mean Shift}: a mode-seeking algorithm that clusters based on density
+        peaks. It can discover arbitrarily shaped clusters, but tends to be
+        computationally expensive and sensitive to bandwidth selection.
+  \item \textbf{DBSCAN}: a density-based algorithm that identifies clusters as
+        connected regions of high point density. It does not require the number of
+        clusters in advance and handles noise explicitly.
+\end{itemize}
+
+Given the requirements of this project—unstructured input, unknown number of
+objects, and frequent outliers—DBSCAN was selected. It is well suited to segment
+point clouds where object boundaries are defined by density rather than geometry.
+Moreover, DBSCAN can be extended with a custom distance function, enabling the
+integration of both spatial and motion cues into the clustering process.
+
+In this implementation, the algorithm considers two points as neighbors if they
+are close in space and exhibit similar velocity vectors. This joint criterion is
+more discriminative than position alone, especially in dynamic scenes where
+multiple objects may temporarily overlap in 3D space.
+
 
 \subsection{DBSCAN clustering}
 \label{sec:DBSCANClustering}
 
-% - Explain how the DBSCAN algorithm works
+DBSCAN (Density-Based Spatial Clustering of Applications with Noise) is a
+non-parametric clustering algorithm introduced by Ester et al.~\cite{dbscan_original}.
+It defines clusters as areas of high point density and treats sparse regions as
+separators or noise. This density-based definition allows DBSCAN to discover clusters
+of arbitrary shape and to operate without requiring the number of clusters in advance.
 
-\subsection{Implementation}
-\label{sec:ImplementationDBSCAN}
+The algorithm operates on a dataset of points and requires two parameters:
+\begin{itemize}
+  \item $\varepsilon$: the neighborhood radius around each point
+  \item $minPts$: the minimum number of points within the radius to form a dense region
+\end{itemize}
 
-% - Explain how the DBSCAN algorithm was implemented
+The process begins by iterating over each point in the dataset:
+\begin{enumerate}
+  \item For a given point, its $\varepsilon$-neighborhood is computed.
+  \item If the number of neighbors is greater than or equal to $minPts$, the point is
+        marked as a \textit{core point}.
+  \item A new cluster is initiated and the neighborhood of the core point is expanded
+        recursively to include all density-connected points.
+  \item If a point is not a core point and not reachable from any cluster, it is marked
+        as noise.
+\end{enumerate}
+
+Two points are considered \textit{density-connected} if there exists a chain of core
+points such that each is within $\varepsilon$ of the next. This enables clusters to
+grow organically around dense regions and stop at natural boundaries.
+
+Figure~\ref{fig:dbscan_clusters} illustrates the basic idea of DBSCAN. Core points have
+dense neighborhoods and initiate clusters. Border points lie within the neighborhood
+of a core point but lack enough neighbors to be core points themselves. Noise points
+do not belong to any cluster.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.45\textwidth]{figures/dbscan_clusters.png}
+  \caption{Illustration of DBSCAN clustering: core, border, and noise points. Source:~\cite{dbscan_clusters}}
+  \label{fig:dbscan_clusters}
+\end{figure}
+
+This structure makes DBSCAN robust to spurious detections and suitable for real-world
+scenarios with irregular object shapes. In dynamic environments, it is common for
+moving objects to generate clusters of varying density. DBSCAN handles this without
+the need to fit a global model or impose strict geometric assumptions.
+
+In our application, the algorithm is applied not in pure Euclidean space, but using a
+distance function that incorporates both spatial and motion similarity. The definition
+of this distance and its implementation are described in the following sections.
+
+
+
+\subsubsection{Implementation}
+\label{sec:ObjectDetectionClass}
+
+The \texttt{ObjectDetector} class is the central component responsible for identifying
+dynamic objects from the 6D state field computed in the Kalman filter stage. It is
+designed as a self-contained module that can be reused and evaluated independently of
+the ROS2 framework. The main purpose of this class is to convert a dense field of
+motion vectors into a sparse list of detected object representations suitable for
+higher-level reasoning.
+
+The class exposes a public method, \texttt{detect()}, which performs the complete
+processing pipeline. The input to this method is an OpenCV matrix of type
+\texttt{CV\_32FC(7)}, where each pixel encodes a 6D motion estimate and a validity
+flag. The output is a list of \texttt{WorldEntity} instances, each corresponding to a
+cluster of consistent motion vectors.
+
+Internally, the pipeline consists of three sequential stages. These are described below
+in detail.
+
+\paragraph{1. CUDA-based filtering}
+
+The first stage is responsible for identifying valid and informative motion vectors
+from the full image. Given that the input may contain a large number of pixels,
+including invalid or static ones, it is essential to reduce the dataset before
+clustering. To achieve this efficiently, a custom CUDA kernel is used. Each thread in
+the kernel processes one pixel, applying a sequence of checks:
+
+\begin{itemize}
+  \item Validity: The flag channel must indicate a valid tracked point.
+  \item Motion: The magnitude of the velocity vector must exceed a minimum threshold.
+  \item Depth: The 3D position must be finite and within a configured spatial range.
+\end{itemize}
+
+Points that pass all filters are copied into a device buffer. After kernel execution,
+the filtered data is transferred from GPU to CPU memory. This parallel approach allows
+processing large images at interactive rates, even when the proportion of valid points
+is low.
+
+\paragraph{2. DBSCAN clustering}
+
+The second stage takes the filtered 6D points and performs density-based clustering
+using DBSCAN. This is implemented using the \texttt{mlpack} C++ library, which provides
+an extensible interface for clustering with custom distance functions. In this case,
+a metric combining spatial distance and velocity similarity is used. The motivation
+and details of this distance function are presented in the following subsection.
+
+DBSCAN is configured with parameters $\varepsilon$ and $minPts$, which are specified
+as ROS parameters. These control the local density required to initiate a cluster and
+the radius used to define neighborhoods. Clusters with fewer than the minimum size are
+discarded as noise. This helps remove isolated points or spurious detections that may
+pass the filtering stage but do not correspond to any coherent object.
+
+\paragraph{3. Cluster-to-object conversion}
+
+For each valid cluster found by DBSCAN, a new \texttt{WorldEntity} object is created.
+This class encapsulates the aggregate properties of the cluster, including its 3D
+bounding box, average velocity, and center position. The conversion is straightforward:
+all points in the cluster are passed to the constructor of the \texttt{WorldEntity},
+which then computes the relevant statistics. This separation of concerns improves
+modularity and simplifies testing.
+
+The high-level flow of the detection pipeline is outlined in
+Algorithm~\ref{alg:object_detector_pipeline}.
+
+\begin{algorithm}[H]
+  \caption{Object detection pipeline (\texttt{ObjectDetector::detect})}
+  \label{alg:object_detector_pipeline}
+  \begin{algorithmic}[1]
+    \State \textbf{Input:} 6D motion field (OpenCV matrix)
+    \State \textbf{Output:} List of \texttt{WorldEntity} objects
+    \State
+    \State Launch CUDA kernel to extract valid motion vectors
+    \State Transfer filtered points from GPU to CPU
+    \If{number of valid points $<$ minimum}
+      \State \Return empty list
+    \EndIf
+    \State Instantiate DBSCAN with custom distance function
+    \State Run clustering on the filtered point set
+    \ForAll{output clusters}
+      \If{cluster size $<$ minimum allowed}
+        \State discard as noise
+      \Else
+        \State construct \texttt{WorldEntity} from cluster
+      \EndIf
+    \EndFor
+    \State \Return list of detected entities
+  \end{algorithmic}
+\end{algorithm}
+
+A structural overview of the class is presented in Figure~\ref{fig:object_detector_uml}.
+The figure shows the main attributes, public interface, and key internal methods used
+during the detection process.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.6\textwidth]{figures/ObjectDetector.png}
+  \caption{UML diagram of the \texttt{ObjectDetector} class. Source: own work}
+  \label{fig:object_detector_uml}
+\end{figure}
+
+This architecture ensures that the computational workload is kept minimal on the CPU
+and that the more expensive filtering operations benefit from parallel execution on
+the GPU. The use of \texttt{mlpack} further abstracts the clustering logic, while still
+allowing full control over the distance metric and clustering parameters.
+
+The following section describes the custom distance function in detail.
+
+
+\paragraph{Custom distance function}
+
+The clustering stage uses a custom distance metric that integrates both position and
+velocity into the similarity evaluation. This design choice addresses a core limitation
+of purely geometric metrics, which may erroneously group objects that are close in space
+but move in distinct directions. In dynamic environments, true object boundaries are
+often better defined by coherent motion patterns than by absolute position alone.
+
+The distance function is implemented in the \texttt{WeightedPosVelDistance} class
+defined in \texttt{point\_distance.hpp}, and used directly within the
+\texttt{mlpack::DBSCAN} routine. Each input point is assumed to be a six-dimensional
+vector, where the first three components represent the 3D position and the last three
+represent the 3D velocity. The distance between two such points, $\mathbf{a}$ and
+$\mathbf{b}$, is computed as:
+
+\begin{equation}
+  d(\mathbf{a}, \mathbf{b}) = \alpha \cdot \| \mathbf{p}_a - \mathbf{p}_b \|_2 +
+                              \beta \cdot \| \mathbf{v}_a - \mathbf{v}_b \|_2
+\end{equation}
+
+where $\mathbf{p}_a, \mathbf{p}_b \in \mathbb{R}^3$ are the positions and
+$\mathbf{v}_a, \mathbf{v}_b \in \mathbb{R}^3$ are the velocities of the respective
+points. The scalar weights $\alpha$ and $\beta$ determine the influence of each term and
+can be tuned at runtime via ROS2 parameters. A higher value of $\beta$ increases the
+importance of velocity similarity in cluster formation.
+
+The purpose of this formulation is to promote the grouping of points that not only
+occupy similar positions in space, but also move with similar direction and magnitude.
+This is critical for distinguishing between overlapping or adjacent objects that follow
+different trajectories. For example, two pedestrians walking side by side will likely be
+clustered together, while one standing still nearby will not be included unless their
+motion aligns.
+
+Internally, the \texttt{Evaluate()} method partitions each input vector into position
+and velocity components using Armadillo’s \texttt{subvec()} API. The corresponding norms
+are computed using \texttt{norm()} and combined with the configured weights to produce
+the final scalar value. The function avoids memory allocations and operates efficiently
+even on large datasets.
+
+By embedding velocity coherence directly into the clustering distance, this approach
+ensures that object-level groupings reflect not only spatial continuity, but also
+temporal dynamics. This is especially important for downstream applications such as
+predictive tracking, trajectory forecasting, or collision estimation, where consistent
+motion behavior is a strong indicator of object identity.
+
+
+
+\subsubsection{WorldEntity class}
+\label{sec:WorldEntityClass}
+
+Each cluster produced by the DBSCAN algorithm is converted into a \texttt{WorldEntity}
+object, which encapsulates its geometric and kinematic properties in a compact
+representation. The class is initialized with a list of 3D points and corresponding
+velocity vectors, from which it computes the centroid, average velocity, and an
+oriented bounding box. These quantities are stored internally and accessed via public
+getter methods. The centroid is computed as the arithmetic mean of all 3D positions,
+and the average velocity is calculated analogously from the velocity vectors. These two
+features provide a representative location and motion estimate for the object.
+
+The bounding box is computed using a Principal Component Analysis (PCA), which enables
+an orientation-aware description of the cluster's shape. The procedure consists of the
+following steps:
+
+\begin{enumerate}
+  \item Center the input data by subtracting the mean position from each point.
+  \item Form a \( 3 \times N \) matrix containing all centered 3D points.
+  \item Compute the covariance matrix of the centered data.
+  \item Solve the eigenvalue decomposition to obtain three orthogonal basis vectors.
+  \item Project all points into this PCA-aligned coordinate system.
+  \item Determine the minimum and maximum bounds along each principal axis.
+  \item Reconstruct the eight corners of the bounding box in world coordinates by
+        transforming the axis-aligned box in PCA space back to the original frame.
+\end{enumerate}
+
+This results in an oriented bounding box that tightly encloses the cluster. The three
+axes of the box correspond to the directions of maximum variance in the data, and the
+box dimensions reflect the spatial spread along those axes. If the number of points is
+too low to perform PCA reliably, a fallback axis-aligned bounding box is computed
+directly from the minimum and maximum values in each coordinate dimension.
+
+In addition to geometric information, the class assigns a unique identifier to each
+entity and includes utility methods for converting its contents into ROS-compatible
+messages. These include a method for generating a visualization marker and another for
+publishing the entity as part of a message array. The class diagram shown in
+Figure~\ref{fig:world_entity_uml} summarizes the internal structure and public
+interface of the implementation.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.55\textwidth]{figures/WorldEntity.png}
+  \caption{UML diagram of the \texttt{WorldEntity} class. Source: own work}
+  \label{fig:world_entity_uml}
+\end{figure}
+
+This class provides a consistent abstraction between the clustering algorithm and the
+next stages of the perception pipeline, enabling object-level reasoning based on motion
+vector fields.
+
+
+\subsubsection{ROS2 integration}
+\label{sec:ROS2IntegrationObjectDetection}
+
+The \texttt{ObjectDetectorNode} serves as the ROS2 interface to the object detection
+module. It connects the independent detection logic with the rest of the perception
+pipeline and is responsible for receiving motion data, triggering clustering, and
+publishing object-level representations. The node subscribes to a single topic
+containing the 6D motion field output from the Kalman filter stage. This field is
+published as a \texttt{sensor\_msgs::msg::Image} message with encoding
+\texttt{CV\_32FC(7)}. Each pixel in the image stores a seven-dimensional float vector:
+three values for position, three for velocity, and one flag indicating if the data is
+valid.
+
+Upon receiving a new message, the callback function \texttt{callback6dImage()} converts
+the input to a \texttt{cv::Mat}, which is then passed to the detector. The
+\texttt{ObjectDetector} instance processes the image and returns a list of clustered
+entities. These clusters are then published in two forms: as RViz visualization markers
+and as structured messages for downstream consumption.
+
+The structured output is published on the \texttt{/object\_clusters} topic using a
+custom message type \texttt{ClusteredObjectArray}. This message encapsulates all
+detected objects for a given frame. It contains a header, the number of clusters, and a
+vector of \texttt{ClusteredObject} messages. Each \texttt{ClusteredObject} includes:
+
+\begin{itemize}
+  \item \texttt{id}: a unique integer identifier for the object
+  \item \texttt{position}: a \texttt{geometry\_msgs::Point} representing the centroid
+  \item \texttt{velocity}: a \texttt{geometry\_msgs::Vector3} with average motion
+  \item \texttt{bb\_marker}: a \texttt{visualization\_msgs::Marker} for RViz
+  \item \texttt{bounding\_box}: a custom message of type \texttt{BoundingBox}
+\end{itemize}
+
+The \texttt{BoundingBox} message defines the geometry of the oriented bounding box as a
+list of eight 3D corners, stored as an array of \texttt{geometry\_msgs::Point}. This
+explicit representation of the box enables further geometric reasoning in later stages
+of the pipeline, including volume checks, trajectory prediction, or collision
+assessment.
+
+In parallel to structured outputs, the node publishes markers for visualization. These
+include the bounding box as a wireframe, the motion vector as an arrow, and the
+clustered points as spheres, all in the \texttt{camera\_optical\_frame}. This visual
+feedback is critical for debugging and validation, and is useful during live operation
+as well as during dataset annotation or offline replay.
+
+All relevant parameters of the node are loaded from the ROS2 parameter server. These
+include the clustering radius $\varepsilon$, the minimum number of points
+\texttt{minPts}, velocity threshold, and the weights \texttt{pos\_weight} and
+\texttt{vel\_weight} for the custom distance metric. The input and output topics can
+also be configured via parameters to ensure compatibility with different integration
+setups.
+
+The node follows standard ROS2 design conventions and uses
+\texttt{message\_filters::Synchronizer} when required to align incoming data. The
+internals of the clustering remain decoupled from ROS, ensuring that the core
+algorithm remains portable and testable in isolation.
+
+With this structure, the object detection node forms a robust interface layer that
+bridges raw motion estimation with object-level perception, providing consistent,
+interpretable outputs for higher-level modules such as criticallity estimation,
+trajectory planning, or logging and evaluation tools.
+
+
 
 \section{Criticallity pipeline: TTC computation}
 \label{sec:CriticallityPipelineTTCComputation}
