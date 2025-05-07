@@ -1820,9 +1820,9 @@ The Euler-rodrigues vector, as introduced in the chapter \ref{sec:MotionEstimati
 is the angle of rotation and the direction of the vector is the axis of rotation \cite{euler_rodrigues_historical,euler_rodrigues} as seen in the figure \ref{fig:rodrigues}.
 This representation is continuous and also enables the correct working of the algorithm regardless of how the rotation matrix was computed. 
 
-\begin{figure}
+\begin{figure}[H]
   \centering
-  \resizebox{0.15\textwidth}{!}{\includegraphics{figures/euler_rodrigues_vector.png}}
+  \resizebox{0.30\textwidth}{!}{\includegraphics{figures/euler_rodrigues_vector.png}}
   \caption{Rodrigues vector representation of the rotation matrix. Source:~\cite{euler_rodrigues_historical}}
   \label{fig:rodrigues}
 \end{figure}
@@ -2031,7 +2031,7 @@ measurement update, and error code handling. In the following figure \ref{fig:wp
 
 \begin{figure}[H]
   \centering
-  \includegraphics[scale = 0.3]{figures/WorldPoint.png}
+  \includegraphics[scale = 0.5]{figures/WorldPoint.png}
   \caption{WorldPoint class. Source: own work} %
   \label{fig:wp}
 \end{figure}%
@@ -2125,7 +2125,7 @@ the entire field of view.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[scale = 0.1]{figures/gridApproach.png}
+  \includegraphics[scale = 0.3]{figures/gridApproach.png}
   \caption{KalmanCore grid.}
   \label{fig:grid}
 \end{figure}
@@ -2261,17 +2261,17 @@ Among the most common are:
 \todo{Add references to the clustering algorithms}
 
 \begin{itemize}
-  \item \textbf{K-Means}: a partition-based algorithm that assigns points to a fixed
+  \item \textbf{K-Means~\cite{k_means_original}}: a partition-based algorithm that assigns points to a fixed
         number of clusters. It assumes convex cluster shapes and equal density,
         which is often not the case in real-world perception problems.
-  \item \textbf{Hierarchical clustering}: a tree-based method that builds a
+  \item \textbf{Hierarchical clustering~\cite{Hierarchical_original}}: a tree-based method that builds a
         cluster hierarchy by recursively merging or splitting groups. It does not
         require prior knowledge of the number of clusters, but has high computational
         cost and is sensitive to noise.
-  \item \textbf{Mean Shift}: a mode-seeking algorithm that clusters based on density
+  \item \textbf{Mean Shift~\cite{mean_shift_original}}: a mode-seeking algorithm that clusters based on density
         peaks. It can discover arbitrarily shaped clusters, but tends to be
         computationally expensive and sensitive to bandwidth selection.
-  \item \textbf{DBSCAN}: a density-based algorithm that identifies clusters as
+  \item \textbf{DBSCAN~\cite{dbscan_original}}: a density-based algorithm that identifies clusters as
         connected regions of high point density. It does not require the number of
         clusters in advance and handles noise explicitly.
 \end{itemize}
@@ -2339,8 +2339,6 @@ In our application, the algorithm is applied not in pure Euclidean space, but us
 distance function that incorporates both spatial and motion similarity. The definition
 of this distance and its implementation are described in the following sections.
 
-
-
 \subsubsection{Implementation}
 \label{sec:ObjectDetectionClass}
 
@@ -2391,9 +2389,7 @@ DBSCAN is configured with parameters $\varepsilon$ and $minPts$, which are speci
 as ROS parameters. These control the local density required to initiate a cluster and
 the radius used to define neighborhoods. Clusters with fewer than the minimum size are
 discarded as noise. This helps remove isolated points or spurious detections that may
-pass the filtering stage but do not correspond to any coherent object.
-
-\paragraph{3. Cluster-to-object conversion}
+pass the filtering stage but do not correspond to any coherent object. \paragraph{3. Cluster-to-object conversion}
 
 For each valid cluster found by DBSCAN, a new \texttt{WorldEntity} object is created.
 This class encapsulates the aggregate properties of the cluster, including its 3D
@@ -2490,11 +2486,7 @@ even on large datasets.
 
 By embedding velocity coherence directly into the clustering distance, this approach
 ensures that object-level groupings reflect not only spatial continuity, but also
-temporal dynamics. This is especially important for downstream applications such as
-predictive tracking, trajectory forecasting, or collision estimation, where consistent
-motion behavior is a strong indicator of object identity.
-
-
+temporal dynamics. 
 
 \subsubsection{WorldEntity class}
 \label{sec:WorldEntityClass}
@@ -2529,6 +2521,10 @@ box dimensions reflect the spatial spread along those axes. If the number of poi
 too low to perform PCA reliably, a fallback axis-aligned bounding box is computed
 directly from the minimum and maximum values in each coordinate dimension.
 
+This bounding box serves not only as a geometric representation of the object, but also for the 
+computation of the criticallity metric. Thanks to the bounding boxes, its not necessary anymore
+to assume the objects to be point-like, but they can be represented as 3D boxes. This allows for a more accurate
+
 In addition to geometric information, the class assigns a unique identifier to each
 entity and includes utility methods for converting its contents into ROS-compatible
 messages. These include a method for generating a visualization marker and another for
@@ -2538,7 +2534,7 @@ interface of the implementation.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.55\textwidth]{figures/WorldEntity.png}
+  \includegraphics[width=0.5\textwidth]{figures/WorldEntity.png}
   \caption{UML diagram of the \texttt{WorldEntity} class. Source: own work}
   \label{fig:world_entity_uml}
 \end{figure}
