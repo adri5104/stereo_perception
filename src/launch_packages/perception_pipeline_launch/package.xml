@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>perception_pipeline_launch</name>
+  <version>0.0.0</version>
+  <description>Launches the entire perception pipeline</description>
+  <maintainer email="adrian.rieker@tum.de">adrian</maintainer>
+  <license>TODO: License declaration</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <depend>camerainfo_publisher</depend>
+  <depend>optical_flow_computation</depend>
+  <depend>stereo_computation</depend>
+  <depend>visual_odometry</depend>
+  <depend>kalman_filter</depend>
+  <depend>object_detector</depend>
+  <depend>stereo_perception_msgs</depend>
+  <depend>ttc_calculator</depend>
+  <depend>disparity_to_depth</depend>
+
+  <exec_depend>ros2launch</exec_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

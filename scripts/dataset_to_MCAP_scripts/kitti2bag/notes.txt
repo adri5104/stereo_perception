@@ -1,0 +1,190 @@
+=== To generate ROS1 bag from kitti dataset:
+
+wget https://s3.eu-central-1.amazonaws.com/avg-kitti/raw_data/2011_09_26_drive_0014/2011_09_26_drive_0014_sync.zip
+unzip 2011_09_26_drive_0014_sync.zip
+python3 kitti2bag.py -t 2011_09_26 -r 0014 raw_synced .
+
+=== To conver it from ROS1 to ROS2
+
+ rosbags-convert  kitti_2011_09_26_drive_0014_synced.bag --dst ./rkitti_rosbag_0014
+
+
+
+To convert from .db3 to .mcap:
+
+$ mcap-linux-amd64 convert multiple_files_1.db3 demo.mcap
+
+
+rosbag filter  Datasets/FramosDepthCamera/test2/2_meter.bag Datasets/FramosDepthCamera/test2/2_meter_filtered.bag "\
+topic == '/device_0/sensor_0/Depth_0/image/data' or \
+topic == '/device_0/sensor_0/Depth_0/info/camera_info' or \
+topic == '/device_0/sensor_1/Color_0/image/data' or \
+topic == '/device_0/sensor_1/Color_0/info/camera_info' or \
+topic == '/device_0/sensor_0/Depth_0/image/metadata' or \
+topic == '/device_0/sensor_0/option/Depth_Units/value' or \
+topic == '/device_0/sensor_0/option/Depth_Units/description' "
+
+rosbags-convert Datasets/FramosDepthCamera/test2/2_meter_filtered.bag --dst Datasets/FramosDepthCamera/test2/2_meter_filtered
+
+
+
+rosbag filter  Datasets/FramosDepthCamera/test2/8_meter.bag Datasets/FramosDepthCamera/test2/8_meter_filtered.bag "\
+topic != '/device_0/sensor_2/Accel_0/imu_intrinsic ' or \
+topic != '/device_0/sensor_2/Accel_0/info' or \
+topic != '/device_0/sensor_2/Accel_0/imu_intrinsic ' or \
+topic != '/device_0/sensor_2/Accel_0/info' or \
+
+
+
+
+"topic == '/device_0/sensor_0/Depth_0/info/camera_info'" \
+"/device_0/sensor0/option/Depth_Units/value'"
+
+
+rosbag filter  Datasets/FramosDepthCamera/test2/8_meter.bag Datasets/FramosDepthCamera/test2/8_meter_filtered.bag "topic == 'realsense'"_
+
+
+
+
+rosbag filter  Datasets/FramosDepthCamera/test1/bag2.bag Datasets/FramosDepthCamera/test1/bag2_filtered.bag "\
+topic == '/device_0/sensor_0/Depth_0/image/data' or \
+topic == '/device_0/sensor_0/Depth_0/info/camera_info' or \
+topic == '/device_0/sensor_1/Color_0/image/data' or \
+topic == '/device_0/sensor_1/Color_0/info/camera_info' or \
+topic == '/device_0/sensor_0/Depth_0/image/metadata' or \
+topic == '/device_0/sensor_0/option/Depth_Units/value' or \
+topic == '/device_0/sensor_0/option/Depth_Units/description' "
+
+rosbag filter  Datasets/prodromos_2021_10_29_close_approach.bag  "\
+topic == '/device_0/sensor_0/Depth_0/image/data' or \
+topic == '/device_0/sensor_0/Depth_0/info/camera_info' or \
+topic == '/device_0/sensor_1/Color_0/image/data' or \
+topic == '/device_0/sensor_1/Color_0/info/camera_info' or \
+topic == '/device_0/sensor_0/Depth_0/image/metadata' or \
+topic == '/device_0/sensor_0/option/Depth_Units/value' or \
+topic == '/device_0/sensor_0/option/Depth_Units/description' "
+
+
+
+rosbag filter Datasets/prodromos_2021_10_29_close_approach.bag  "\
+topic == '/Pablo05/gps/rpy' or \
+topic == '/Pablo05/odom' or \
+topic == '/Pablo05/point' or \
+topic == '/Pablo05/sensor/gps/fix' or \
+topic == '/Pablo05/text_marker' or \
+topic == '/Pablo39/gps/rpy' or \
+topic == '/Pablo39/odom' or \
+topic == '/Pablo39/point' or \
+topic == '/Pablo39/sensor/gps/fix' or \
+topic == '/Pablo39/text_marker' or \
+topic == '/broadband_radar/channel_0/pointcloud' or \
+topic == '/center_camera/camera_info' or \
+topic == '/center_camera/image_color/compressed' or \
+topic == '/diagnostics' or \
+topic == '/filter/gnss' or \
+topic == '/filter/positionlla' or \
+topic == '/filter/quaternion' or \
+topic == '/filter/twist' or \
+topic == '/filter/velocity' or \
+topic == '/gnss' or \
+topic == '/imu/acceleration' or \
+topic == '/imu/angular_velocity' or \
+topic == '/imu/data' or \
+topic == '/imu/dq' or \
+topic == '/imu/dv' or \
+topic == '/imu/mag' or \
+topic == '/imu/time_ref' or \
+topic == '/left_camera/camera_info' or \
+topic == '/left_camera/image_color/compressed' or \
+topic == '/left_ir/camera_info' or \
+topic == '/left_ir/rotated/image_raw' or \
+topic == '/nmea_to_send' or \
+topic == '/philos/sbg_heading' or \
+topic == '/right_camera/camera_info' or \
+topic == '/right_camera/image_color/compressed' or \
+topic == '/right_ir/camera_info' or \
+topic == '/right_ir/rotated/image_raw' or \
+topic == '/rosout_agg' or \
+topic == '/scan' or \
+topic == '/tf' or \
+topic == '/velodyne_packets' or \
+topic == '/velodyne_points' or \
+topic == 'imu/data' "
+
+
+
+For the angle tests: 
+
+rosbag filter  Datasets/FramosDepthCamera/angle_test/test21.bag Datasets/FramosDepthCamera/angle_test/test21f.bag "\
+topic == '/device_0/sensor_0/Depth_0/image/data' or \
+topic == '/device_0/sensor_0/Depth_0/info/camera_info' or \
+topic == '/device_0/sensor_1/Color_0/image/data' or \
+topic == '/device_0/sensor_1/Color_0/info/camera_info' or \
+topic == '/device_0/sensor_0/Depth_0/image/metadata' or \
+topic == '/device_0/sensor_0/option/Depth_Units/value' or \
+topic == '/device_0/sensor_0/option/Depth_Units/description' "
+
+rosbag filter  Datasets/FramosDepthCamera/angle_test/test22.bag Datasets/FramosDepthCamera/angle_test/test22f.bag "\
+topic == '/device_0/sensor_0/Depth_0/image/data' or \
+topic == '/device_0/sensor_0/Depth_0/info/camera_info' or \
+topic == '/device_0/sensor_1/Color_0/image/data' or \
+topic == '/device_0/sensor_1/Color_0/info/camera_info' or \
+topic == '/device_0/sensor_0/Depth_0/image/metadata' or \
+topic == '/device_0/sensor_0/option/Depth_Units/value' or \
+topic == '/device_0/sensor_0/option/Depth_Units/description' "
+
+rosbag filter  Datasets/FramosDepthCamera/angle_test/test23.bag Datasets/FramosDepthCamera/angle_test/test23f.bag "\
+topic == '/device_0/sensor_0/Depth_0/image/data' or \
+topic == '/device_0/sensor_0/Depth_0/info/camera_info' or \
+topic == '/device_0/sensor_1/Color_0/image/data' or \
+topic == '/device_0/sensor_1/Color_0/info/camera_info' or \
+topic == '/device_0/sensor_0/Depth_0/image/metadata' or \
+topic == '/device_0/sensor_0/option/Depth_Units/value' or \
+topic == '/device_0/sensor_0/option/Depth_Units/description' "
+
+rosbag filter  Datasets/FramosDepthCamera/angle_test/test24.bag Datasets/FramosDepthCamera/angle_test/test24f.bag "\
+topic == '/device_0/sensor_0/Depth_0/image/data' or \
+topic == '/device_0/sensor_0/Depth_0/info/camera_info' or \
+topic == '/device_0/sensor_1/Color_0/image/data' or \
+topic == '/device_0/sensor_1/Color_0/info/camera_info' or \
+topic == '/device_0/sensor_0/Depth_0/image/metadata' or \
+topic == '/device_0/sensor_0/option/Depth_Units/value' or \
+topic == '/device_0/sensor_0/option/Depth_Units/description' "
+
+rosbag filter  Datasets/FramosDepthCamera/angle_test/test25.bag Datasets/FramosDepthCamera/angle_test/test25f.bag "\
+topic == '/device_0/sensor_0/Depth_0/image/data' or \
+topic == '/device_0/sensor_0/Depth_0/info/camera_info' or \
+topic == '/device_0/sensor_1/Color_0/image/data' or \
+topic == '/device_0/sensor_1/Color_0/info/camera_info' or \
+topic == '/device_0/sensor_0/Depth_0/image/metadata' or \
+topic == '/device_0/sensor_0/option/Depth_Units/value' or \
+topic == '/device_0/sensor_0/option/Depth_Units/description' "
+
+rosbags-convert  Datasets/FramosDepthCamera/angle_test/test22f.bag --dst Datasets/FramosDepthCamera/angle_test/test22
+rosbags-convert  Datasets/FramosDepthCamera/angle_test/test23f.bag --dst Datasets/FramosDepthCamera/angle_test/test23
+rosbags-convert  Datasets/FramosDepthCamera/angle_test/test24f.bag --dst Datasets/FramosDepthCamera/angle_test/test24
+rosbags-convert  Datasets/FramosDepthCamera/angle_test/test25f.bag --dst Datasets/FramosDepthCamera/angle_test/test25
+
+Range test: 
+
+rosbag filter  Datasets/FramosDepthCamera/range_test/test1.bag Datasets/FramosDepthCamera/range_test/test1f.bag "\
+topic == '/device_0/sensor_0/Depth_0/image/data' or \
+topic == '/device_0/sensor_0/Depth_0/info/camera_info' or \
+topic == '/device_0/sensor_1/Color_0/image/data' or \
+topic == '/device_0/sensor_1/Color_0/info/camera_info' or \
+topic == '/device_0/sensor_0/Depth_0/image/metadata' or \
+topic == '/device_0/sensor_0/option/Depth_Units/value' or \
+topic == '/device_0/sensor_0/option/Depth_Units/description' "
+rosbags-convert  Datasets/FramosDepthCamera/range_test/test1f.bag --dst Datasets/FramosDepthCamera/range_test/test1f
+
+Driving test: 
+
+rosbag filter  Datasets/FramosDepthCamera/driving_test/test3.bag Datasets/FramosDepthCamera/driving_test/test3f.bag "\
+topic == '/device_0/sensor_0/Depth_0/image/data' or \
+topic == '/device_0/sensor_0/Depth_0/info/camera_info' or \
+topic == '/device_0/sensor_1/Color_0/image/data' or \
+topic == '/device_0/sensor_1/Color_0/info/camera_info' or \
+topic == '/device_0/sensor_0/Depth_0/image/metadata' or \
+topic == '/device_0/sensor_0/option/Depth_Units/value' or \
+topic == '/device_0/sensor_0/option/Depth_Units/description' "
+rosbags-convert  Datasets/FramosDepthCamera/range_test/test1f.bag --dst Datasets/FramosDepthCamera/range_test/test1f
