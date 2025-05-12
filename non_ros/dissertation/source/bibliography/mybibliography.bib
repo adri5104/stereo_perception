@@ -1235,3 +1235,171 @@ doi = {10.1186/s41074-017-0019-2}
   keywords={Robustness;Pattern recognition;Convergence;Density functional theory;Kernel;Smoothing methods;Image segmentation;Image resolution;Image analysis;Image color analysis},
   doi={10.1109/34.1000236}}
 
+@misc{nvidiaVersions,
+	author = {nvidia},
+	title = {{N}{V}{I}{D}{I}{A} {C}{U}{D}{A} {G}{P}{U} {C}ompute {C}apability --- developer.nvidia.com},
+	howpublished = {\url{https://developer.nvidia.com/cuda-gpus}},
+	year = {2025},
+	note = {[Accessed 09-05-2025]},
+}
+
+@article{centerTrack,
+  author       = {Xingyi Zhou and
+                  Vladlen Koltun and
+                  Philipp Kr{\"{a}}henb{\"{u}}hl},
+  title        = {Tracking Objects as Points},
+  journal      = {CoRR},
+  volume       = {abs/2004.01177},
+  year         = {2020},
+  url          = {https://arxiv.org/abs/2004.01177},
+  eprinttype    = {arXiv},
+  eprint       = {2004.01177},
+  timestamp    = {Wed, 08 Apr 2020 17:08:25 +0200},
+  biburl       = {https://dblp.org/rec/journals/corr/abs-2004-01177.bib},
+  bibsource    = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{trackRCNN,
+  author       = {Bing Shuai and
+                  Andrew G. Berneshawi and
+                  Davide Modolo and
+                  Joseph Tighe},
+  title        = {Multi-Object Tracking with Siamese Track-RCNN},
+  journal      = {CoRR},
+  volume       = {abs/2004.07786},
+  year         = {2020},
+  url          = {https://arxiv.org/abs/2004.07786},
+  eprinttype    = {arXiv},
+  eprint       = {2004.07786},
+  timestamp    = {Tue, 21 Apr 2020 16:51:52 +0200},
+  biburl       = {https://dblp.org/rec/journals/corr/abs-2004-07786.bib},
+  bibsource    = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{pointRCNN,
+  author       = {Shaoshuai Shi and
+                  Xiaogang Wang and
+                  Hongsheng Li},
+  title        = {PointRCNN: 3D Object Proposal Generation and Detection from Point
+                  Cloud},
+  journal      = {CoRR},
+  volume       = {abs/1812.04244},
+  year         = {2018},
+  url          = {http://arxiv.org/abs/1812.04244},
+  eprinttype    = {arXiv},
+  eprint       = {1812.04244},
+  timestamp    = {Fri, 26 Feb 2021 08:54:51 +0100},
+  biburl       = {https://dblp.org/rec/journals/corr/abs-1812-04244.bib},
+  bibsource    = {dblp computer science bibliography, https://dblp.org}
+}
+
+@misc{deepFusion,
+      title={DeepFusion: Lidar-Camera Deep Fusion for Multi-Modal 3D Object Detection}, 
+      author={Yingwei Li and Adams Wei Yu and Tianjian Meng and Ben Caine and Jiquan Ngiam and Daiyi Peng and Junyang Shen and Bo Wu and Yifeng Lu and Denny Zhou and Quoc V. Le and Alan Yuille and Mingxing Tan},
+      year={2022},
+      eprint={2203.08195},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV},
+      url={https://arxiv.org/abs/2203.08195}, 
+}
+
+@inproceedings{stereoCameraTech,
+author = {O' Riordan, Andrew and Newe, Thomas and Toal, Daniel and Dooly, Gerard},
+year = {2018},
+month = {12},
+pages = {},
+title = {Stereo Vision Sensing: Review of existing systems},
+doi = {10.1109/ICSensT.2018.8603605}
+}
+
+
+@misc{rosindustrialCameraSurvey,
+	author = {ros},
+	title = {3{D} {C}amera {S}urvey — {R}{O}{S}-{I}ndustrial --- rosindustrial.org},
+	howpublished = {\url{https://rosindustrial.org/3d-camera-survey}},
+	year = {2025},
+	note = {[Accessed 12-05-2025]},
+}
+
+
+@inproceedings{paperCarnegie,
+  author={Magnus Kaufmann Gjerde and Kamal Nasrollahi and Thomas B. Moeslund and Joakim Bruslund Haurum},
+  title={Enhancing Direct Visual Odometry with Deblurring and Saliency Maps},
+  year={2024},
+  cdate={1704067200000},
+  pages={154-161},
+  url={https://doi.org/10.1145/3653946.3653970},
+  booktitle={ICMVA},
+}
+
+@Article{paperLuxonis,
+AUTHOR = {Rojas-Perez, Leticia Oyuki and Martinez-Carranza, Jose},
+TITLE = {Towards Autonomous Drone Racing without GPU Using an OAK-D Smart Camera},
+JOURNAL = {Sensors},
+VOLUME = {21},
+YEAR = {2021},
+NUMBER = {22},
+ARTICLE-NUMBER = {7436},
+URL = {https://www.mdpi.com/1424-8220/21/22/7436},
+PubMedID = {34833511},
+ISSN = {1424-8220},
+ABSTRACT = {Recent advances have shown for the first time that it is possible to beat a human with an autonomous drone in a drone race. However, this solution relies heavily on external sensors, specifically on the use of a motion capture system. Thus, a truly autonomous solution demands performing computationally intensive tasks such as gate detection, drone localisation, and state estimation. To this end, other solutions rely on specialised hardware such as graphics processing units (GPUs) whose onboard hardware versions are not as powerful as those available for desktop and server computers. An alternative is to combine specialised hardware with smart sensors capable of processing specific tasks on the chip, alleviating the need for the onboard processor to perform these computations. Motivated by this, we present the initial results of adapting a novel smart camera, known as the OpenCV AI Kit or OAK-D, as part of a solution for the ADR running entirely on board. This smart camera performs neural inference on the chip that does not use a GPU. It can also perform depth estimation with a stereo rig and run neural network models using images from a 4K colour camera as the input. Additionally, seeking to limit the payload to 200 g, we present a new 3D-printed design of the camera’s back case, reducing the original weight 40%, thus enabling the drone to carry it in tandem with a host onboard computer, the Intel Stick compute, where we run a controller based on gate detection. The latter is performed with a neural model running on an OAK-D at an operation frequency of 40 Hz, enabling the drone to fly at a speed of 2 m/s. We deem these initial results promising toward the development of a truly autonomous solution that will run intensive computational tasks fully on board.},
+DOI = {10.3390/s21227436}
+}
+
+@article{paperStereoComparison,
+   title={Empirical Comparison of Four Stereoscopic Depth Sensing Cameras for Robotics Applications},
+   volume={13},
+   ISSN={2169-3536},
+   url={http://dx.doi.org/10.1109/ACCESS.2025.3560810},
+   DOI={10.1109/access.2025.3560810},
+   journal={IEEE Access},
+   publisher={Institute of Electrical and Electronics Engineers (IEEE)},
+   author={Rustler, Lukas and Volprecht, Vojtech and Hoffmann, Matej},
+   year={2025},
+   pages={67564–67577} }
+
+@article{paperIntel,
+author = {Hübner, Patrick and Hou, Jiwei and Iwaszczuk, Dorota},
+year = {2023},
+month = {12},
+pages = {1207-1214},
+title = {EVALUATION OF INTEL REALSENSE D455 CAMERA DEPTH ESTIMATION FOR INDOOR SLAM APPLICATIONS},
+volume = {XLVIII-1/W2-2023},
+journal = {The International Archives of the Photogrammetry, Remote Sensing and Spatial Information Sciences},
+doi = {10.5194/isprs-archives-XLVIII-1-W2-2023-1207-2023}
+}
+
+
+@Article{paperZivid,
+AUTHOR = {Afzal Maken, Fahira and Muthu, Sundaram and Nguyen, Chuong and Sun, Changming and Tong, Jinguang and Wang, Shan and Tsuchida, Russell and Howard, David and Dunstall, Simon and Petersson, Lars},
+TITLE = {Improving 3D Reconstruction Through RGB-D Sensor Noise Modeling},
+JOURNAL = {Sensors},
+VOLUME = {25},
+YEAR = {2025},
+NUMBER = {3},
+ARTICLE-NUMBER = {950},
+URL = {https://www.mdpi.com/1424-8220/25/3/950},
+PubMedID = {39943589},
+ISSN = {1424-8220},
+ABSTRACT = {High-resolution RGB-D sensors are widely used in computer vision, manufacturing, and robotics. The depth maps from these sensors have inherently high measurement uncertainty that includes both systematic and non-systematic noise. These noisy depth estimates degrade the quality of scans, resulting in less accurate 3D reconstruction, making them unsuitable for some high-precision applications. In this paper, we focus on quantifying the uncertainty in the depth maps of high-resolution RGB-D sensors for the purpose of improving 3D reconstruction accuracy. To this end, we estimate the noise model for a recent high-precision RGB-D structured light sensor called Zivid when mounted on a robot arm. Our proposed noise model takes into account the measurement distance and angle between the sensor and the measured surface. We additionally analyze the effect of background light, exposure time, and the number of captures on the quality of the depth maps obtained. Our noise model seamlessly integrates with well-known classical and modern neural rendering-based algorithms, from KinectFusion to Point-SLAM methods using bilinear interpolation as well as 3D analytical functions. We collect a high-resolution RGB-D dataset and apply our noise model to improve tracking and produce higher-resolution 3D models.},
+DOI = {10.3390/s25030950}
+}
+
+@article{paperZed,
+  author       = {Brian H. Wang and
+                  Carlos Diaz{-}Ruiz and
+                  Jacopo Banfi and
+                  Mark E. Campbell},
+  title        = {Detecting and Mapping Trees in Unstructured Environments with a Stereo
+                  Camera and Pseudo-Lidar},
+  journal      = {CoRR},
+  volume       = {abs/2103.15967},
+  year         = {2021},
+  url          = {https://arxiv.org/abs/2103.15967},
+  eprinttype    = {arXiv},
+  eprint       = {2103.15967},
+  timestamp    = {Wed, 07 Apr 2021 15:31:46 +0200},
+  biburl       = {https://dblp.org/rec/journals/corr/abs-2103-15967.bib},
+  bibsource    = {dblp computer science bibliography, https://dblp.org}
+}
