@@ -5,9 +5,11 @@
 \chapter{Introduction}
 \label{chap:Introduction}
 
-Autonomous vehicles are rapidly progressing toward widespread deployment, with 
+Autonomous vehicles are quickly heading towards a widespread deployment, with 
 the potential to significantly enhance traffic safety, alleviate congestion, 
-and increase overall transportation efficiency. At the heart of this 
+and increase overall transportation efficiency. 
+
+At the heart of this 
 transformation lies the ability to perceive the surrounding environment with 
 high accuracy and robustness. Perception systems enable vehicles to detect 
 obstacles, interpret the behavior of other traffic participants, and understand 
@@ -17,7 +19,7 @@ often unstructured, presenting substantial challenges to perception algorithms.
 Failures in perception can lead to \emph{disengagements}, situations in which the 
 automated driving system can no longer identify a safe course of action and 
 must transfer control to a human operator, often via teleoperation. These events 
-typically occur outside the system’s nominal operating conditions and are 
+typically occur outside the nominal operating conditions of the syste, and are 
 especially critical. Even in such scenarios, the vehicle must maintain a degree 
 of situational awareness to support fallback strategies or assist the operator 
 in resolving the situation safely.
@@ -36,9 +38,9 @@ objects without reliance on prior training or semantic annotations. By focusing
 on geometric cues such as disparity and optical flow, the system aims to achieve 
 robust performance across diverse and challenging environments.
 
-The system processes synchronized stereo images from a vehicle-mounted camera 
-setup to produce 6D motion estimates—three-dimensional positions and velocities 
-of selected scene points. A Kalman filter-based framework, inspired by the 
+The system processes synchronized stereo images from a vehicle mounted camera 
+setup to produce 6D motion estimates: three dimensional positions and the corresponging
+velocities of selected scene points. A Kalman filter-based framework, inspired by the 
 Daimler 6D Vision approach, integrates depth, optical flow, and ego-motion 
 information to compute these estimates. The resulting motion field is clustered 
 using the DBSCAN algorithm to identify coherent moving objects.
@@ -53,7 +55,7 @@ This work builds on previous research at the Chair of Automotive Technology,
 which investigated stereo vision and deterministic motion estimation. The 
 present study focuses on integrating these methods into a modular, reusable 
 software component. A major contribution is the development of an independent 
-\textbf{ROS~2} package, based on the \textbf{Humble} distribution, 
+ROS2 servie, based on the Humble distribution, 
 designed for seamless integration with the \textbf{EDGAR research vehicle} and 
 adaptability to other platforms.
 
@@ -93,7 +95,7 @@ and robustness.
 In summary, this thesis presents a deterministic, modular, and real-time capable 
 perception system for automated driving. By leveraging stereo vision and geometric 
 algorithms, the system enhances environmental understanding in situations where 
-deep learning methods may fall short. Its deployment as a ROS~2 service, optimized 
+deep learning methods may fall short. Its deployment as a ROS2 service, optimized 
 for performance and portability, enables easy integration into diverse research 
 and development workflows.
 
@@ -139,7 +141,7 @@ Perception systems are a core component of autonomous and automated vehicles. Th
 interpretation of the environment by converting raw sensor data into structured information, which is 
 subsequently used by planning and control modules. The accuracy, reliability, and completeness of this 
 information directly influence the vehicle's ability to operate safely and efficiently in various driving 
-conditions \todo{some more references here}.
+conditions~\cite{autonomous_vehicles_perception_survey}.
 
 To obtain a comprehensive representation of the surrounding environment, modern autonomous systems integrate 
 data from multiple sensor modalities. These include LiDAR, radar, and camera systems, each offering distinct 
@@ -177,9 +179,8 @@ scene.
 
 The main advantage of LiDAR is its precise depth sensing and high spatial resolution. This allows 
 robust obstacle detection independent of ambient light conditions. However, LiDAR is sensitive to 
-weather disturbances such as rain, fog, or snow, where light scattering can degrade data quality. 
-In addition, LiDAR devices typically incur higher costs than camera or radar systems and can present 
-integration challenges due to size, power, or thermal constraints \todo{reference here}. Although prices are decreasing, 
+weather disturbances such as rain, fog, or snow~\cite{lidarAdverseWeather}, where light scattering can degrade data quality. 
+In addition, LiDAR devices typically incur higher costs than camera or radar systems. Although prices are decreasing, 
 LiDAR adoption in production vehicles remains limited to higher-end or research platforms.
 
 \subsubsection{Radar-Based Perception}
@@ -590,101 +591,110 @@ capabilities align with the requirements of this project.
 Alternative sensor options and their impact on performance are
 discussed in Section~\ref{sec:CameraHardwareSelection}.
 
-
-
-
-
 \section{Requirements for the Thesis}
 \label{sec:RequirementsForTheThesis}
 
-Robust detection of dynamic objects remains a critical capability in autonomous  
-driving, as it directly determines a vehicle’s ability to avoid hazards and  
-make safe navigational decisions. While deep learning-based systems currently  
-dominate commercial stacks, their reliance on extensive labeled datasets,  
-limited generalization in rare scenarios, and lack of transparency pose  
-challenges in safety-critical contexts. This has led to increased interest in  
-deterministic alternatives, which leverage geometric and physical priors to  
-infer motion from raw sensor data without training.
+Robust detection of dynamic objects is a fundamental requirement in automated
+driving, as it directly affects the capability of the vehicle to avoid hazards and
+make safe navigation decisions. While deep learning-based systems currently
+dominate commercial perception stacks, their depencency on extensive labeled
+datasets, limited generalization in rare scenarios, and lack of transparency
+introduce challenges in safety-critical contexts. This has led to increased
+interest in deterministic alternatives, which leverage geometric and physical
+priors to infer motion from raw sensor data without the need for training.
 
-Among these, LiDAR-based methods have shown strong performance due to their  
-accurate depth estimation. Approaches such as voxel-based motion segmentation  
-in~\cite{asvadi_3d_2016} and mapless, distortion-compensated detection in  
-~\cite{yoon_mapless_2018} demonstrate that dynamic object detection can be  
-performed in real-time using purely 3D geometry. However, LiDAR sensors are  
-expensive, sensitive to weather, and complex to integrate—making them  
-unsuitable for cost-constrained applications. These limitations motivate the  
-use of stereo vision, which offers dense spatial information at significantly  
-lower hardware cost.
+Among these, LiDAR-based methods have demonstrated strong performance due to
+their accurate depth estimation. Voxel-based segmentation approaches such as
+~\cite{asvadi_3d_2016} and mapless, distortion-compensated techniques such as
+~\cite{yoon_mapless_2018} show that dynamic object detection can be performed
+in real time using 3D geometry alone. However, LiDAR sensors remain expensive,
+weather-sensitive, and difficult to integrate into embedded platforms. These
+limitations motivate the use of stereo vision, which provides dense spatial
+information at significantly lower cost and system complexity.
 
-Camera-based deterministic approaches have emerged as a promising alternative.  
-In~\cite{eppenberger_leveraging_2020}, a stereo vision system detects and  
-tracks moving obstacles in real time using sparse point clouds. The approach  
-relies on inter-frame clustering and velocity estimation to distinguish static  
-from dynamic entities, achieving high tracking accuracy on embedded hardware.  
-Other contributions such as~\cite{ess_moving_2009} extend this to highly  
-dynamic pedestrian environments, and~\cite{shi_dynamic_2018} propose  
-efficient filtering of dynamic points for 3D map consistency. Although these  
-systems offer promising results, they often rely on heuristic motion  
-classification or operate in simplified 2D spaces.
+Camera-based deterministic methods have emerged as a promising alternative.
+In~\cite{eppenberger_leveraging_2020}, a stereo system detects and tracks
+moving obstacles in real time using sparse point clouds and inter-frame
+clustering. The method achieves high tracking accuracy on embedded hardware.
+Other works such as~\cite{ess_moving_2009} extend this concept to dynamic
+pedestrian environments, while~\cite{shi_dynamic_2018} proposes efficient
+filtering of dynamic points to support consistent 3D mapping. Although these
+methods produce promising results, many rely on heuristic motion classification
+or operate in simplified 2D spaces.
 
-The 6D Vision framework developed by Franke et al.~\cite{6d_vision_daimler}  
-provides a more principled approach. It fuses stereo disparity and optical  
-flow to estimate the full 3D position and velocity of scene points. This  
-method tracks sparse but informative features over time and uses Kalman filters  
-to estimate their trajectories, enabling object-agnostic motion reasoning.  
-An extension of this framework with real-time multi-model filtering is  
-presented in~\cite{6d_vision_detailed}, where hundreds of points are  
-processed simultaneously to infer coherent motion fields. This avoids explicit  
-segmentation and enables detection of previously unseen object types.
+The 6D Vision framework, described in Section~\ref{sec:6D_Vision}, provides a
+more principled approach. It combines stereo disparity and optical flow to
+estimate the full 3D position and velocity of scene points. This method tracks
+sparse features over time and uses Kalman filters to estimate their
+trajectories, enabling object-agnostic motion reasoning through recursive
+estimation.
 
-This thesis adopts and modernizes the 6D Vision approach, with updates in both  
-algorithmic design and system implementation. The perception system developed  
-here is designed to fulfill a set of core requirements, derived from the  
-limitations and goals identified in the literature. First, the system must be  
-real-time capable, operating at frame rates of at least 10\,Hz to meet  
-control latency constraints. Second, it must rely solely on stereo  
-vision to reduce sensor cost and complexity, while exploiting modern hardware  
-for depth and flow estimation. Third, the system must function without  
-semantic object priors, enabling detection of arbitrary moving elements  
-through geometric consistency alone.
+This thesis adopts and modernizes the 6D Vision paradigm, introducing updates
+in both algorithmic design and system-level implementation. The developed
+system is implemented entirely in C++ and ROS2 and designed for deployment on
+the EDGAR research vehicle. A key novelty is the full modularization of the
+pipeline into a reusable and scalable ROS2 service. Each processing stage: depth
+estimation, optical flow, motion tracking, object clustering, and risk
+assessment, is encapsulated as an independent component, allowing flexible
+testing, extension, and integration with additional modules.
 
-Furthermore, the system must include egomotion compensation, transforming  
-observations into a consistent world frame to separate self-motion from object  
-motion. Temporal consistency must be ensured by tracking motion patterns  
-over time and filtering noise through recursive estimation. Detected objects  
-must include both position and velocity to enable downstream risk  
-analysis. To support system modularity, each stage of the pipeline—depth  
-estimation, optical flow, tracking, clustering, and criticality evaluation—is  
-implemented as an independent ROS~2 node. This modular design supports  
-reusability, testing, and scalability. The system must also tolerate  
-occlusions and partial detections, maintaining robust outputs under  
-real-world uncertainties.
+In contrast to previous work at the FTM~\cite{previous_tfm_bauer,
+previous_tfm_gpu_implementation, previous_tfm_pastor}, which used ADTF or
+partial ROS1 based implementations with limited deployment, this thesis
+delivers a fully containerized, real-time capable perception system. The system
+is tested under real-world conditions using the Framos D455e stereo camera and
+the EDGAR vehicle's PTP-synchronized infrastructure. Furthermore, a new
+egomotion compensation module is introduced to enable consistent alignment to
+the world frame, separating ego movement from external object motion.
 
-Unlike earlier 6D Vision implementations, the proposed system uses modern  
-ROS~2 (Humble) infrastructure, benefits from GPU acceleration  
-via CUDA, and is optimized through OpenMP for multi-core parallelism.  
-Sensor input is acquired using hardware-synchronized stereo cameras such as the  
-Framos D455e, integrated via PTP time synchronization. The software is  
-containerized using Docker to ensure reproducible deployment across  
-platforms like the EDGAR research vehicle.
+Another important contribution is the integration of a motion-based clustering
+step, which aggregates coherent point trajectories into object-level
+representations. These clusters form the basis for the computation of runtime
+criticality metrics, a novel extension not considered in previous FTM work.
+The criticality module computes indicators such as Time-to-Collision (TTC) by
+considering the relative velocity and distance between moving obstacles and the
+ego trajectory. This enables quantitative risk assessment in
+teleoperated fallback scenarios, where robust scene understanding is required
+despite degraded sensing or connectivity or even an additional security layer when driving
+autonomously.
 
-In summary, this thesis contributes a deterministic, stereo-based dynamic  
-object detection system that fulfills the following inferred requirements:
+To meet the outlined goals and ensure reliable operation in real-world
+conditions, the system must fulfill the following functional and technical
+requirements:
 
 \begin{enumerate}
-  \item \textbf{Real-time performance:} Minimum 10\,Hz processing speed.
-  \item \textbf{Stereo-only sensing:} No reliance on LiDAR or radar data.
-  \item \textbf{Semantic independence:} No object categories or training data required.
-  \item \textbf{Egomotion compensation:} Accurate frame-to-world alignment.
-  \item \textbf{6D output:} Objects with position and velocity estimates.
-  \item \textbf{Temporal consistency:} Persistent object tracking across frames.
-  \item \textbf{Modular ROS~2 design:} Each stage as an independent node.
-  \item \textbf{Robustness to occlusion:} Tolerant to partial visibility.
-  \item \textbf{GPU and parallelism:} Optimized with CUDA and OpenMP.
-  \item \textbf{Portability:} Dockerized deployment for reproducibility.
+  \item \textbf{Real-time performance:} Minimum processing frequency of 10\,Hz
+        to meet vehicle control latency constraints.
+  \item \textbf{Stereo-only sensing:} Exclusive use of stereo vision to reduce
+        hardware cost and simplify sensor integration.
+  \item \textbf{Semantic independence:} Object detection must operate without
+        class labels or training data, enabling generalization to unknown
+        object types.
+  \item \textbf{Egomotion compensation:} Accurate transformation of point
+        observations into a consistent ego vehicle frame.
+  \item \textbf{6D output:} Estimation of both 3D position and velocity for all
+        detected scene points or objects.
+  \item \textbf{Temporal consistency:} Persistent motion tracking over time
+        through recursive filtering and data association.
+  \item \textbf{Clustering:} Aggregation of dynamic points into coherent
+        object-level clusters for further analysis.
+  \item \textbf{Criticality estimation:} Online computation of risk metrics
+        based on relative motion and ego trajectory.
+  \item \textbf{Modular ROS2 architecture:} Each processing stage implemented
+        as an independent ROS2 service to support reusability and scalability.
+  \item \textbf{Robustness to occlusion:} Reliable operation in presence of
+        partial or intermittent visibility.
+  \item \textbf{Parallelism and acceleration:} Use of CUDA and OpenMP to
+        accelerate compute-intensive components.
+  \item \textbf{Portability and deployment:} Docker-based containerization for
+        reproducible deployment on the EDGAR research platform.
 \end{enumerate}
 
-
+These requirements are derived from both the theoretical analysis in the
+literature and the practical constraints of the target deployment platform.
+They reflect the system-level vision of enabling a deployable, deterministic,
+and transparent perception pipeline as a fallback for learned approaches in
+automated driving.
 
 % =====================================================================
 % ================== Methods and Implementation ====================
@@ -2669,7 +2679,6 @@ must be robust, flexible, and capable of handling outliers.
 Several clustering techniques have been proposed in literature for similar tasks.
 Among the most common are:
 
-\todo{Add references to the clustering algorithms}
 
 \begin{itemize}
   \item \textbf{K-Means~\cite{k_means_original}}: a partition-based algorithm that assigns points to a fixed
