@@ -12,7 +12,6 @@ namespace ttc_calculator
     // declare parameters
     declare_parameter("input_clusters_topic", "/object_clusters");
     declare_parameter("input_twist_topic", "/ego_twist");
-    declare_parameter("input_path_topic", "/path");
     declare_parameter("output_ttc_topic", "/object_ttc");
     declare_parameter("output_min_ttc_topic", "/min_ttc");
     declare_parameter("output_marker_topic", "/ego_marker");
@@ -25,7 +24,6 @@ namespace ttc_calculator
     // Read parameters
     get_parameter("input_clusters_topic", input_clusters_topic_);
     get_parameter("input_twist_topic", input_twist_topic_);
-    get_parameter("input_path_topic", input_path_topic_);
     get_parameter("output_ttc_topic", output_ttc_topic_);
     get_parameter("output_min_ttc_topic", output_min_ttc_topic_);
     get_parameter("output_marker_topic", output_marker_topic_);
@@ -65,6 +63,20 @@ namespace ttc_calculator
       this, 
       std::placeholders::_1)
     );
+
+    if (use_path_)
+    {
+      declare_parameter("input_path_topic", "/ego_path");
+      get_parameter("input_path_topic", input_path_topic_);
+      
+      input_path_sub_ = create_subscription<nav_msgs::msg::Path>(
+        input_path_topic_,
+        10,
+        [this](const nav_msgs::msg::Path::SharedPtr msg) {
+          current_path_ = *msg;
+        });
+    }
+
 
     // Create publishers
     output_ttc_pub_ = create_publisher<stereo_perception_msgs::msg::ClusteredObjectArray>(

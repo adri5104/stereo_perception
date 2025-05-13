@@ -44,6 +44,7 @@ namespace ttc_calculator
     // Subscribers
     rclcpp::Subscription<stereo_perception_msgs::msg::ClusteredObjectArray>::SharedPtr input_clusters_sub_;
     rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr input_twist_sub_;
+    rclcpp::Subscription<nav_msgs::msg::Path>::SharedPtr input_path_sub_;
 
     // Publishers
     rclcpp::Publisher<stereo_perception_msgs::msg::ClusteredObjectArray>::SharedPtr output_ttc_pub_;
@@ -58,6 +59,7 @@ namespace ttc_calculator
     void addEgoMarker();
 
     visualization_msgs::msg::MarkerArray current_markers_;
+    nav_msgs::msg::Path current_path_;
     stereo_perception_msgs::msg::ClusteredObjectArray output_ttc_;
     double current_min_ttc_;
     double vel_of_min_ttc_;
