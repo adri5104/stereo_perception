@@ -65,6 +65,7 @@ namespace ttc_calculator
     // Topic names
     std::string input_clusters_topic_;
     std::string input_twist_topic_;
+    std::string input_path_topic_;
     std::string output_ttc_topic_;
     std::string output_min_ttc_topic_;
     std::string output_marker_topic_;
@@ -75,6 +76,7 @@ namespace ttc_calculator
     double ego_length_;
     double ego_height_;
     bool publish_ego_marker_;
+    bool used_path_;
 
   };
 }

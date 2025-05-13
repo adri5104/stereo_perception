@@ -12,6 +12,7 @@ namespace ttc_calculator
     // declare parameters
     declare_parameter("input_clusters_topic", "/object_clusters");
     declare_parameter("input_twist_topic", "/ego_twist");
+    declare_parameter("input_path_topic", "/path");
     declare_parameter("output_ttc_topic", "/object_ttc");
     declare_parameter("output_min_ttc_topic", "/min_ttc");
     declare_parameter("output_marker_topic", "/ego_marker");
@@ -19,10 +20,12 @@ namespace ttc_calculator
     declare_parameter("ego_length", 1.0);
     declare_parameter("ego_height", 1.0);
     declare_parameter("publish_ego_marker", true);
+    declare_parameter("use_path", false);
 
     // Read parameters
     get_parameter("input_clusters_topic", input_clusters_topic_);
     get_parameter("input_twist_topic", input_twist_topic_);
+    get_parameter("input_path_topic", input_path_topic_);
     get_parameter("output_ttc_topic", output_ttc_topic_);
     get_parameter("output_min_ttc_topic", output_min_ttc_topic_);
     get_parameter("output_marker_topic", output_marker_topic_);
@@ -30,17 +33,20 @@ namespace ttc_calculator
     get_parameter("ego_length", ego_length_);
     get_parameter("ego_height", ego_height_);
     get_parameter("publish_ego_marker", publish_ego_marker_);
+    get_parameter("use_path", use_path_);
 
     // Print parameters
     RCLCPP_INFO(this->get_logger(), "========== TTC Calculator Parameters =========");
     RCLCPP_INFO(this->get_logger(), "input_clusters_topic: %s", input_clusters_topic_.c_str());
     RCLCPP_INFO(this->get_logger(), "input_twist_topic: %s", input_twist_topic_.c_str());
+    RCLCPP_INFO(this->get_logger(), "input_path_topic: %s", input_path_topic_.c_str());
     RCLCPP_INFO(this->get_logger(), "output_ttc__topic: %s", output_ttc_topic_.c_str());
     RCLCPP_INFO(this->get_logger(), "output_marker_topic: %s", output_marker_topic_.c_str());
     RCLCPP_INFO(this->get_logger(), "ego_width: %f", ego_width_);
     RCLCPP_INFO(this->get_logger(), "ego_length: %f", ego_length_);
     RCLCPP_INFO(this->get_logger(), "ego_height: %f", ego_height_);
     RCLCPP_INFO(this->get_logger(), "publish_ego_marker: %d", publish_ego_marker_);
+    RCLCPP_INFO(this->get_logger(), "use_path: %d", use_path_);
     RCLCPP_INFO(this->get_logger(), "=============================================");
 
     // Subscribe to the input topics
