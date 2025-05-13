@@ -581,24 +581,110 @@ increasingly used in embedded perception stacks for autonomous platforms.
   its relevance for perception systems with limited computational budgets.
 \end{itemize}
 
-\subsection{Relevance to the Thesis}
-\label{sec:RelevanceToThesis}
+
 
 Stereo vision is employed as the primary sensing modality for motion estimation
 in this work. The Framos D455e, an active stereo camera with infrared projection,
-is currently deployed on the EDGAR platform. Its depth range and real-time
-capabilities align with the requirements of trajectory forecasting and obstacle
-assessment. Alternative sensor options and their impact on performance are
-discussed in Section~\ref{sec:SensorEvaluation}.
+is currently deployed on the EDGAR platform. Its real-time
+capabilities align with the requirements of this project. 
+Alternative sensor options and their impact on performance are
+discussed in Section~\ref{sec:CameraHardwareSelection}.
 
-replacements or upgrades for EDGAR is provided in a separate section.
+
 
 
 
 \section{Requirements for the Thesis}
 \label{sec:RequirementsForTheThesis}
 
-\todo{Short review on the requirements for the thesis.}
+Robust detection of dynamic objects remains a critical capability in autonomous  
+driving, as it directly determines a vehicle’s ability to avoid hazards and  
+make safe navigational decisions. While deep learning-based systems currently  
+dominate commercial stacks, their reliance on extensive labeled datasets,  
+limited generalization in rare scenarios, and lack of transparency pose  
+challenges in safety-critical contexts. This has led to increased interest in  
+deterministic alternatives, which leverage geometric and physical priors to  
+infer motion from raw sensor data without training.
+
+Among these, LiDAR-based methods have shown strong performance due to their  
+accurate depth estimation. Approaches such as voxel-based motion segmentation  
+in~\cite{asvadi_3d_2016} and mapless, distortion-compensated detection in  
+~\cite{yoon_mapless_2018} demonstrate that dynamic object detection can be  
+performed in real-time using purely 3D geometry. However, LiDAR sensors are  
+expensive, sensitive to weather, and complex to integrate—making them  
+unsuitable for cost-constrained applications. These limitations motivate the  
+use of stereo vision, which offers dense spatial information at significantly  
+lower hardware cost.
+
+Camera-based deterministic approaches have emerged as a promising alternative.  
+In~\cite{eppenberger_leveraging_2020}, a stereo vision system detects and  
+tracks moving obstacles in real time using sparse point clouds. The approach  
+relies on inter-frame clustering and velocity estimation to distinguish static  
+from dynamic entities, achieving high tracking accuracy on embedded hardware.  
+Other contributions such as~\cite{ess_moving_2009} extend this to highly  
+dynamic pedestrian environments, and~\cite{shi_dynamic_2018} propose  
+efficient filtering of dynamic points for 3D map consistency. Although these  
+systems offer promising results, they often rely on heuristic motion  
+classification or operate in simplified 2D spaces.
+
+The 6D Vision framework developed by Franke et al.~\cite{6d_vision_daimler}  
+provides a more principled approach. It fuses stereo disparity and optical  
+flow to estimate the full 3D position and velocity of scene points. This  
+method tracks sparse but informative features over time and uses Kalman filters  
+to estimate their trajectories, enabling object-agnostic motion reasoning.  
+An extension of this framework with real-time multi-model filtering is  
+presented in~\cite{6d_vision_detailed}, where hundreds of points are  
+processed simultaneously to infer coherent motion fields. This avoids explicit  
+segmentation and enables detection of previously unseen object types.
+
+This thesis adopts and modernizes the 6D Vision approach, with updates in both  
+algorithmic design and system implementation. The perception system developed  
+here is designed to fulfill a set of core requirements, derived from the  
+limitations and goals identified in the literature. First, the system must be  
+real-time capable, operating at frame rates of at least 10\,Hz to meet  
+control latency constraints. Second, it must rely solely on stereo  
+vision to reduce sensor cost and complexity, while exploiting modern hardware  
+for depth and flow estimation. Third, the system must function without  
+semantic object priors, enabling detection of arbitrary moving elements  
+through geometric consistency alone.
+
+Furthermore, the system must include egomotion compensation, transforming  
+observations into a consistent world frame to separate self-motion from object  
+motion. Temporal consistency must be ensured by tracking motion patterns  
+over time and filtering noise through recursive estimation. Detected objects  
+must include both position and velocity to enable downstream risk  
+analysis. To support system modularity, each stage of the pipeline—depth  
+estimation, optical flow, tracking, clustering, and criticality evaluation—is  
+implemented as an independent ROS~2 node. This modular design supports  
+reusability, testing, and scalability. The system must also tolerate  
+occlusions and partial detections, maintaining robust outputs under  
+real-world uncertainties.
+
+Unlike earlier 6D Vision implementations, the proposed system uses modern  
+ROS~2 (Humble) infrastructure, benefits from GPU acceleration  
+via CUDA, and is optimized through OpenMP for multi-core parallelism.  
+Sensor input is acquired using hardware-synchronized stereo cameras such as the  
+Framos D455e, integrated via PTP time synchronization. The software is  
+containerized using Docker to ensure reproducible deployment across  
+platforms like the EDGAR research vehicle.
+
+In summary, this thesis contributes a deterministic, stereo-based dynamic  
+object detection system that fulfills the following inferred requirements:
+
+\begin{enumerate}
+  \item \textbf{Real-time performance:} Minimum 10\,Hz processing speed.
+  \item \textbf{Stereo-only sensing:} No reliance on LiDAR or radar data.
+  \item \textbf{Semantic independence:} No object categories or training data required.
+  \item \textbf{Egomotion compensation:} Accurate frame-to-world alignment.
+  \item \textbf{6D output:} Objects with position and velocity estimates.
+  \item \textbf{Temporal consistency:} Persistent object tracking across frames.
+  \item \textbf{Modular ROS~2 design:} Each stage as an independent node.
+  \item \textbf{Robustness to occlusion:} Tolerant to partial visibility.
+  \item \textbf{GPU and parallelism:} Optimized with CUDA and OpenMP.
+  \item \textbf{Portability:} Dockerized deployment for reproducibility.
+\end{enumerate}
+
+
 
 % =====================================================================
 % ================== Methods and Implementation ====================
@@ -689,18 +775,16 @@ The pipeline consists of several submodules as illustrated in figure \ref{fig:pe
 
 As shown in the figure, the perception pipeline comprises the following core modules: 
 
-\todo{Search source of sgm algorithm}
-
 \begin{enumerate}
   \item \textbf{Optical flow computation:} Computes a dense optical flow field from the left image sequence
-  using the Farneback algorithm.
+  using the Farneback algorithm~\cite{opf_flw_farneback}.
 
   \item \textbf{Visual odometry:} Estimates the ego-motion of the vehicle using stereo image sequences
   \item \textbf{Depth computation:}  Computes a dense depth image from the stereo image pair using a semi-global
   matching (SGM) algorithm.
   \item \textbf{Kalman filter:}  Central module of the perception pipeline. It uses depth and optical flow data to
   estimate the 6D state (position and velocity) of a sparse set of points over time.
-  \item \textbf{Object detection:} Applies a clustering algorithm (DBSCAN) to group similar 6D points into
+  \item \textbf{Object detection:} Applies a clustering algorithm (DBSCAN~\cite{dbscan_original}) to group similar 6D points into
   detected objects.
 \end{enumerate}
 
@@ -1705,7 +1789,7 @@ Once the computation is finished, the node publishes the results on the followin
 
 To configure the node, the following ROS2 parameters were added:
 
-\begin{table}[]
+\begin{table}[H]
   \centering
   \begin{tabular}{|l|l|}
   \hline
@@ -2483,7 +2567,7 @@ Algorithm~\ref{alg:kalman_core_frame}.
         \State initialize new WorldPoint and store in grid
       \EndIf
     \EndFor
-  \end{algorithmic}
+  \end{algorithmic}bb
 \end{algorithm}
 
 The algorithm is divided into two stages. In the first stage, each existing

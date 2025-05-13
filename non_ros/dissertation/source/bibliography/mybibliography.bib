@@ -1333,19 +1333,19 @@ doi = {10.1109/ICSensT.2018.8603605}
 }
 
 @Article{paperLuxonis,
-AUTHOR = {Rojas-Perez, Leticia Oyuki and Martinez-Carranza, Jose},
-TITLE = {Towards Autonomous Drone Racing without GPU Using an OAK-D Smart Camera},
-JOURNAL = {Sensors},
-VOLUME = {21},
-YEAR = {2021},
-NUMBER = {22},
-ARTICLE-NUMBER = {7436},
-URL = {https://www.mdpi.com/1424-8220/21/22/7436},
-PubMedID = {34833511},
-ISSN = {1424-8220},
-ABSTRACT = {Recent advances have shown for the first time that it is possible to beat a human with an autonomous drone in a drone race. However, this solution relies heavily on external sensors, specifically on the use of a motion capture system. Thus, a truly autonomous solution demands performing computationally intensive tasks such as gate detection, drone localisation, and state estimation. To this end, other solutions rely on specialised hardware such as graphics processing units (GPUs) whose onboard hardware versions are not as powerful as those available for desktop and server computers. An alternative is to combine specialised hardware with smart sensors capable of processing specific tasks on the chip, alleviating the need for the onboard processor to perform these computations. Motivated by this, we present the initial results of adapting a novel smart camera, known as the OpenCV AI Kit or OAK-D, as part of a solution for the ADR running entirely on board. This smart camera performs neural inference on the chip that does not use a GPU. It can also perform depth estimation with a stereo rig and run neural network models using images from a 4K colour camera as the input. Additionally, seeking to limit the payload to 200 g, we present a new 3D-printed design of the camera’s back case, reducing the original weight 40%, thus enabling the drone to carry it in tandem with a host onboard computer, the Intel Stick compute, where we run a controller based on gate detection. The latter is performed with a neural model running on an OAK-D at an operation frequency of 40 Hz, enabling the drone to fly at a speed of 2 m/s. We deem these initial results promising toward the development of a truly autonomous solution that will run intensive computational tasks fully on board.},
-DOI = {10.3390/s21227436}
+  AUTHOR = {Rojas-Perez, Leticia Oyuki and Martinez-Carranza, Jose},
+  TITLE = {Towards Autonomous Drone Racing without GPU Using an OAK-D Smart Camera},
+  JOURNAL = {Sensors},
+  VOLUME = {21},
+  YEAR = {2021},
+  NUMBER = {22},
+  ARTICLE-NUMBER = {7436},
+  URL = {https://www.mdpi.com/1424-8220/21/22/7436},
+  PubMedID = {34833511},
+  ISSN = {1424-8220},
+  DOI = {10.3390/s21227436}
 }
+
 
 @article{paperStereoComparison,
    title={Empirical Comparison of Four Stereoscopic Depth Sensing Cameras for Robotics Applications},
@@ -1402,4 +1402,87 @@ DOI = {10.3390/s25030950}
   timestamp    = {Wed, 07 Apr 2021 15:31:46 +0200},
   biburl       = {https://dblp.org/rec/journals/corr/abs-2103-15967.bib},
   bibsource    = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{asvadi_3d_2016,
+  title = {3D Lidar-Based Static and Moving Obstacle Detection in Driving Environments: An Approach Based on Voxels and Multi-Region Ground Planes},
+  author = {Asvadi, Alireza and Premebida, Cristovao and Peixoto, Paulo and Nunes, Urbano},
+  journal = {Journal of Field Robotics},
+  volume = {33},
+  number = {10},
+  pages = {1230--1252},
+  year = {2016},
+  doi = {10.1002/rob.21661},
+  url = {https://www.researchgate.net/publication/304247843},
+  urldate = {2025-05-12},
+  keywords = {Requirements}
+}
+
+@article{yoon_mapless_2018,
+  title = {Mapless Online Detection of Dynamic Objects in 3D Lidar},
+  author = {Yoon, David J. and Tang, Tim Y. and Barfoot, Timothy D.},
+  journal = {arXiv preprint arXiv:1809.06972},
+  year = {2018},
+  month = sep,
+  url = {http://arxiv.org/abs/1809.06972},
+  doi = {10.48550/arXiv.1809.06972},
+  note = {arXiv:1809.06972 [cs.RO]},
+  urldate = {2025-05-12},
+  keywords = {Computer Science - Robotics, Requirements}
+}
+
+@article{eppenberger_leveraging_2020,
+  title = {Leveraging Stereo-Camera Data for Real-Time Dynamic Obstacle Detection and Tracking},
+  author = {Eppenberger, Thomas and Cesari, Gianluca and Dymczyk, Marcin and Siegwart, Roland and Dubé, Renaud},
+  journal = {arXiv preprint arXiv:2007.10743},
+  year = {2020},
+  month = jul,
+  url = {http://arxiv.org/abs/2007.10743},
+  doi = {10.48550/arXiv.2007.10743},
+  note = {arXiv:2007.10743 [cs.RO]},
+  urldate = {2025-05-12},
+  keywords = {Computer Science - Robotics, Requirements}
+}
+
+@inproceedings{ess_moving_2009,
+  title = {Moving Obstacle Detection in Highly Dynamic Scenes},
+  author = {Ess, Andreas and Leibe, Bastian and Schindler, Konrad and Van Gool, Luc},
+  booktitle = {IEEE International Conference on Robotics and Automation (ICRA)},
+  year = {2009},
+  pages = {56--63},
+  doi = {10.1109/ROBOT.2009.5152884},
+  url = {https://www.researchgate.net/publication/221071574},
+  urldate = {2025-05-12},
+  language = {en},
+  keywords = {Requirements}
+}
+
+@article{shi_dynamic_2018,
+  title = {Dynamic Obstacles Rejection for 3D Map Simultaneous Updating},
+  author = {Shi, Weikun and Liu, Ming and Liu, Yuwei},
+  journal = {IEEE Access},
+  volume = {6},
+  pages = {42939--42951},
+  year = {2018},
+  doi = {10.1109/ACCESS.2018.2836192},
+  url = {https://www.researchgate.net/publication/325137826},
+  urldate = {2025-05-12},
+  language = {en},
+  keywords = {Requirements}
+}
+
+@inproceedings{menze_object_2015,
+  address = {Boston, MA, USA},
+  title = {Object Scene Flow for Autonomous Vehicles},
+  author = {Menze, Moritz and Geiger, Andreas},
+  booktitle = {2015 IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
+  publisher = {IEEE},
+  year = {2015},
+  pages = {3061--3070},
+  isbn = {978-1-4673-6964-0},
+  doi = {10.1109/CVPR.2015.7298925},
+  url = {http://ieeexplore.ieee.org/document/7298925/},
+  urldate = {2025-05-12},
+  language = {en},
+  keywords = {Requirements}
 }
