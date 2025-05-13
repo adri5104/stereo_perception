@@ -169,10 +169,47 @@ namespace ttc_calculator
   void TTCCalculatorNode::callbackTwist(const geometry_msgs::msg::Twist::SharedPtr msg)
   {
     last_twist_ = *msg;
-
     publishMarkers();
-  
   }
+
+
+  double TTCCalculatorNode::computeTTCFromPath(const Eigen::Vector3d& obj_pos, const Eigen::Vector3d& obj_vel)
+  {
+    double ego_speed = std::sqrt(
+      last_twist_.linear.x * last_twist_.linear.x +
+      last_twist_.linear.y * last_twist_.linear.y +
+      last_twist_.linear.z * last_twist_.linear.z
+    );
+
+    if (ego_speed < 1e-3)  // Avoid division by zero
+      return std::numeric_limits<double>::infinity();
+
+    double accumulated_time = 0.0;
+
+    for (size_t i = 1; i < current_path_.poses.size(); ++i)
+    {
+      const auto& prev_pose = current_path_.poses[i - 1].pose;
+      const auto& curr_pose = current_path_.poses[i].pose;
+
+      Eigen::Vector3d p_prev(prev_pose.position.x, prev_pose.position.y, prev_pose.position.z);
+      Eigen::Vector3d p_curr(curr_pose.position.x, curr_pose.position.y, curr_pose.position.z);
+
+      double d = (p_curr - p_prev).norm();
+      accumulated_time += d / ego_speed;
+
+      Eigen::Vector3d future_obj_pos = obj_pos + accumulated_time * obj_vel;
+      double distance = (p_curr - future_obj_pos).norm();
+
+      if (distance < 1.0)  // threshold for collision
+      {
+        return accumulated_time;
+      }
+    }
+
+    return std::numeric_limits<double>::infinity();
+  }
+
+
 
   void TTCCalculatorNode::publishMarkers()
   {

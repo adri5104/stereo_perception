@@ -55,6 +55,24 @@ namespace ttc_calculator
     void callbackClusters(const stereo_perception_msgs::msg::ClusteredObjectArray::SharedPtr msg);
     void callbackTwist(const geometry_msgs::msg::Twist::SharedPtr msg);
 
+    /**
+     *    
+     * @brief Calculates the time to collision (TTC) between the ego vehicle's planned path
+     *        and a given object's predicted linear trajectory.
+     * 
+     * This method iterates over the poses in the current ego path and checks when the predicted
+     * future position of the object (based on its velocity) becomes close enough to the ego
+     * vehicle's future position along the path. The TTC is approximated by the accumulated time
+     * it would take for the object to reach that point under constant velocity.
+     * 
+     * @param obj_pos The current 3D position of the object in the ego frame
+     * @param obj_vel The current 3D velocity of the object in the ego frame
+     * @return double The estimated time to collision in seconds. Returns infinity if no collision is predicted.
+     */
+    double computeTTCFromPath(const Eigen::Vector3d& obj_pos, const Eigen::Vector3d& obj_vel);
+
+
+
     void publishMarkers();
     void addEgoMarker();
 
@@ -80,7 +98,7 @@ namespace ttc_calculator
     double ego_length_;
     double ego_height_;
     bool publish_ego_marker_;
-    bool used_path_;
+    bool use_path_;
 
   };
 }
