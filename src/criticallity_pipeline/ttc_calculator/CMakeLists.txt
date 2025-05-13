@@ -34,7 +34,7 @@ find_package(std_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(visualization_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
-
+find_package(nav_msgs REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(PCL REQUIRED)
 find_package(OpenMP REQUIRED) 
@@ -70,6 +70,7 @@ if(ROS_VERSION STREQUAL "humble")
       sensor_msgs
       geometry_msgs
       visualization_msgs
+      nav_msgs
       Eigen3
       PCL
       stereo_perception_msgs
@@ -81,6 +82,7 @@ else()
       sensor_msgs
       geometry_msgs
       visualization_msgs 
+      nav_msgs
       Eigen3
       PCL
       stereo_perception_msgs

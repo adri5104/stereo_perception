@@ -13,6 +13,8 @@
 #include <rclcpp/rclcpp.hpp>
 #include <geometry_msgs/msg/twist.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
+#include <nav_msgs/msg/path.hpp>
+
 #include <std_msgs/msg/float64.hpp>
 
 #include <Eigen/Dense>
