@@ -101,70 +101,71 @@ namespace ttc_calculator
     output_ttc_.header = msg->header;
     current_min_ttc_ = std::numeric_limits<double>::infinity();
     vel_of_min_ttc_ = 0.0;
-
-    // Extract the ego vehicle's velocity
+  
+    // Extract ego velocity
     Eigen::Vector3d ego_velocity(
       last_twist_.linear.x,
       last_twist_.linear.y,
       last_twist_.linear.z
     );
-
-    for(const auto& obj : msg -> objects)
+  
+    double ego_speed = ego_velocity.norm();
+  
+    for (const auto& obj : msg->objects)
     {
       stereo_perception_msgs::msg::ClusteredObject obj_with_ttc = obj;
-
-      // Position of the object
-      Eigen::Vector3d obj_position(
-        obj.position.x,
-        obj.position.y,
-        obj.position.z
-      );
-
-      // Velocity of the object
-      Eigen::Vector3d obj_velocity(
-        obj.velocity.x,
-        obj.velocity.y,
-        obj.velocity.z
-      );
-
-      // Normalized direction vector from the ego vehicle to the object
-      Eigen::Vector3d direction = obj_position.normalized();
-
-      // Compute the relative velocity
-      Eigen::Vector3d rel_velocity = obj_velocity - ego_velocity;
-
-      // Relative velocity of the object projected onto the direction vector
-      double closing_velocity = rel_velocity.dot(direction);
-
-      // Distance to the object
-      double distance = obj_position.norm();
-
-      // Time to collision
+  
+      // Object state
+      Eigen::Vector3d obj_position(obj.position.x, obj.position.y, obj.position.z);
+      Eigen::Vector3d obj_velocity(obj.velocity.x, obj.velocity.y, obj.velocity.z);
+  
       double ttc = std::numeric_limits<double>::infinity();
-      if (closing_velocity < 0.0 && distance > 0.01)  // evita divisiones por cero
+  
+      // ---- PATH-BASED TTC ----
+      if (use_path_ && current_path_.poses.size() > 1 && ego_speed > 1e-3)
       {
-        ttc = distance / std::abs(closing_velocity);
+        ttc = computeTTCFromPath(obj_position, obj_velocity);
+        RCLCPP_DEBUG(this->get_logger(), "Computed TTC using path: %.2f", ttc);
       }
-
-      // Update the minimum time to collision
+      else
+      {
+        // ---- FALLBACK: TWIST-BASED TTC ----
+        Eigen::Vector3d direction = obj_position.normalized();
+        Eigen::Vector3d rel_velocity = obj_velocity - ego_velocity;
+        double closing_velocity = rel_velocity.dot(direction);
+        double distance = obj_position.norm();
+  
+        if (closing_velocity < 0.0 && distance > 0.01)
+        {
+          ttc = distance / std::abs(closing_velocity);
+        }
+  
+        RCLCPP_DEBUG(this->get_logger(), "Computed TTC using twist: %.2f", ttc);
+      }
+  
+      // Update min TTC
       if (ttc < current_min_ttc_)
       {
         current_min_ttc_ = ttc;
-        vel_of_min_ttc_ = closing_velocity;
+        vel_of_min_ttc_ = (obj_velocity - ego_velocity).norm();
       }
-
+  
       obj_with_ttc.ttc = ttc;
       output_ttc_.objects.push_back(obj_with_ttc);
     }
-    
+  
+    // Publish results
     std_msgs::msg::Float64 min_ttc_msg;
     min_ttc_msg.data = current_min_ttc_;
-
+  
     double vel_km_h = vel_of_min_ttc_ * 3.6;
-    RCLCPP_INFO(this->get_logger(), "Minimum TTC: %.2f s with velocity: %.2f m/s | %.2f km/h", current_min_ttc_, vel_of_min_ttc_, vel_km_h);
+    RCLCPP_INFO(this->get_logger(), "Minimum TTC: %.2f s with rel. velocity: %.2f m/s | %.2f km/h", 
+                current_min_ttc_, vel_of_min_ttc_, vel_km_h);
+  
     output_min_ttc_pub_->publish(min_ttc_msg);
     output_ttc_pub_->publish(output_ttc_);
   }
+  
 
   void TTCCalculatorNode::callbackTwist(const geometry_msgs::msg::Twist::SharedPtr msg)
   {
