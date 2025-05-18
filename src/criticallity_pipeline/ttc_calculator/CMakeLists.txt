@@ -42,9 +42,7 @@ find_package(OpenMP REQUIRED)
 
 find_package(stereo_perception_msgs REQUIRED)
 
-if(ROS_VERSION STREQUAL "humble")
-    find_package(mlpack REQUIRED)
-endif()
+
 
 
 

@@ -195,6 +195,8 @@ ENV LD_LIBRARY_PATH="/usr/local/cuda/lib64:${LD_LIBRARY_PATH}"
 ENV CUDA_HOME="/usr/local/cuda"
 
 RUN sudo mkdir -p /home/ubuntu/perception_pipeline_ws/src
+RUN sudo mkdir  /home/ubuntu/perception_pipeline_ws/src/perception_pipeline
+RUN sudo mkdir  /home/ubuntu/perception_pipeline_ws/src/launch_packages
 RUN chown -R ubuntu:ubuntu /home/ubuntu/perception_pipeline_ws
 
 # Switch back to the ubuntu user
@@ -207,7 +209,10 @@ RUN sudo apt install -y libmlpack-dev
 FROM final AS deploy
 
 # Copy source files
-COPY --chown=ubuntu:ubuntu src /home/ubuntu/perception_pipeline_ws/src
+COPY --chown=ubuntu:ubuntu src/perception_pipeline /home/ubuntu/perception_pipeline_ws/src/perception_pipeline
+COPY --chown=ubuntu:ubuntu src/launch_packages /home/ubuntu/perception_pipeline_ws/src/launch_packages
+COPY --chown=ubuntu:ubuntu src/utils /home/ubuntu/perception_pipeline_ws/src/utils
+
 WORKDIR /home/ubuntu/perception_pipeline_ws/
 
 
