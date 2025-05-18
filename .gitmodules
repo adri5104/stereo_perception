@@ -1,0 +1,6 @@
+[submodule "src/utils/tum_msgs"]
+	path = src/utils/tum_msgs
+	url = git@gitlab.lrz.de:tum-autonomous-driving/tum_msgs/tum_edgar_msgs.git
+[submodule "src/utils/tod_msgs"]
+	path = src/utils/tod_msgs
+	url = git@gitlab.lrz.de:teleoperiertes_fahren/tod_software/tod_msgs.git
