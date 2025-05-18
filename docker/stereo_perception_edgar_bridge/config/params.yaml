@@ -1,9 +1,7 @@
-stereo_perception_edgar_bridge_node:
+stereo_perception_bridge_node:
   ros__parameters:
     edgar_motion_topic: "/edgar/edgar_motion"
     edgar_trajectory_topic: "/edgar/edgar_trajectory"
     twist_topic: "/stereo_perception/ego_twist"
     path_topic: "/stereo_perception/ego_path"
     
-
-

@@ -228,6 +228,7 @@ RUN apt-get update && apt-get install -y ros-humble-rmw-cyclonedds-cpp
 RUN echo '#!/bin/bash' > /ros_entrypoint.sh
 RUN echo 'set -e' >> /ros_entrypoint.sh
 RUN echo 'source "/opt/ros/$ROS_DISTRO/setup.bash"' >> /ros_entrypoint.sh 
+RUN echo 'source /home/ubuntu/perception_pipeline_ws/install/local_setup.bash' >> /ros_entrypoint.sh
 RUN echo 'exec "$@"' >> /ros_entrypoint.sh
 RUN chmod +x /ros_entrypoint.sh
 USER ubuntu

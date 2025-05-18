@@ -17,13 +17,4 @@ def generate_launch_description():
             parameters=[config_file_path],
         ),
         
-        launch_ros.actions.Node(
-            package='foxglove_bridge',
-            executable='foxglove_bridge',
-            name='foxglove_bridge',
-            output='screen',
-            parameters=[
-                {'send_buffer_limit:': 1000000000 },
-            ],
-        ),
     ])

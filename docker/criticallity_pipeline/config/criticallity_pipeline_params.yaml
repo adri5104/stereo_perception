@@ -1,8 +1,8 @@
 ttc_calculator_node:
   ros__parameters:
     input_clusters_topic: "/object_clusters"
-    input_twist_topic: "/ego_twist"
-    input_path_topic: "/path"
+    input_twist_topic: "/stereo_perception/ego_twist"
+    input_path_topic: "/stereo_perception/ego_path"
     output_ttc_topic: "/object_ttc"
     output_min_ttc_topic: "/min_ttc"
     output_marker_topic: "/ego_marker"
