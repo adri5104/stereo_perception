@@ -1,0 +1,49 @@
+
+services:
+  stereo_perception_bridge:
+    image: gitlab.lrz.de:5005/teleoperiertes_fahren/research_brecht/stereo_perception/stereo_perception_edgar_bridge:1.0.0
+    container_name: stereo_perception_bridge
+    network_mode: "host"
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./docker/stereo_perception_edgar_bridge/config:/home/ubuntu/config
+      - "/dev/shm:/dev/shm"
+      - "./config/dds/:/home/ubuntu/ros2_ws/config/dds/"
+
+  perception_pipeline:
+    image: gitlab.lrz.de:5005/teleoperiertes_fahren/research_brecht/stereo_perception/perception_pipeline:1.0.0
+    container_name: perception_pipeline
+    network_mode: "host"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./docker/perception_pipeline/config:/home/ubuntu/config
+      - "/dev/shm:/dev/shm"
+      - "./config/dds/:/home/ubuntu/perception_pipeline_ws/config/dds/"
+
+
+  criticallity_pipeline:
+    image: gitlab.lrz.de:5005/teleoperiertes_fahren/research_brecht/stereo_perception/criticallity_pipeline:1.0.0
+    container_name: criticallity_pipeline
+    network_mode: "host"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./docker/criticallity_pipeline/config:/home/ubuntu/config
+      - "/dev/shm:/dev/shm"
+      - "./config/dds/:/home/ubuntu/criticallity_pipeline_ws/config/dds/"
