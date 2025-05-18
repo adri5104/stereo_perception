@@ -1,0 +1,14 @@
+pages:
+  image: ubuntu:22.04
+  before_script:
+    - apt-get update
+    - apt-get install -y doxygen graphviz
+  script:
+    - doxygen Doxyfile
+    - mkdir -p public
+    - cp -r docs/html/* public/
+  artifacts:
+    paths:
+      - public
+  only:
+    - main  # or change to your default branch
