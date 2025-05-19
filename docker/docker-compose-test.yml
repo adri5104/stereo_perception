@@ -1,6 +1,6 @@
 
 services:
-  stereo_perception_bridge:
+  stereo_perception_bridge_multisense:
     image: gitlab.lrz.de:5005/teleoperiertes_fahren/research_brecht/stereo_perception/stereo_perception_edgar_bridge:1.0.0
     container_name: stereo_perception_bridge
     network_mode: "host"
@@ -16,7 +16,7 @@ services:
       - >
           ros2 launch stereo_perception_edgar_bridge stereo_perception_bridge_container.launch.py
 
-  perception_pipeline:
+  perception_pipeline_multisense:
     image: gitlab.lrz.de:5005/teleoperiertes_fahren/research_brecht/stereo_perception/perception_pipeline:1.0.0
     container_name: perception_pipeline
     network_mode: "host"
@@ -30,7 +30,7 @@ services:
     stdin_open: true
     tty: true
     volumes:
-      - ./perception_pipeline/config:/home/ubuntu/config
+      - ./perception_pipeline/carnegie/config:/home/ubuntu/config
       - "/dev/shm:/dev/shm"
       - "../config/dds/:/home/ubuntu/perception_pipeline_ws/config/dds/"
     command:
@@ -40,7 +40,7 @@ services:
           ros2 launch perception_pipeline_launch launch_pipeline_container.launch.py
 
 
-  criticallity_pipeline:
+  criticallity_pipeline_multisense:
     image: gitlab.lrz.de:5005/teleoperiertes_fahren/research_brecht/stereo_perception/criticallity_pipeline:1.0.0
     container_name: criticallity_pipeline
     network_mode: "host"
@@ -54,7 +54,7 @@ services:
     stdin_open: true
     tty: true
     volumes:
-      - ./criticallity_pipeline/config:/home/ubuntu/config
+      - ./criticallity_pipeline/carnegie/config:/home/ubuntu/config
       - "/dev/shm:/dev/shm"
       - "../config/dds/:/home/ubuntu/criticallity_pipeline_ws/config/dds/"
     command:

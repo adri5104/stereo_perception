@@ -18,6 +18,7 @@ ObjectDetectorNode::ObjectDetectorNode() :
   this->declare_parameter("input_6d_topic", "/6d_image");
   this->declare_parameter("output_markers_topic", "/object_markers");
   this->declare_parameter("output_clusters_topic", "/object_clusters");
+  this->declare_parameter("frame_id", "camera_optical_frame");
   this->declare_parameter("eps", 0.1);
   this->declare_parameter("minPts", 10);
   this->declare_parameter("pos_weight", 1.0);
@@ -26,6 +27,7 @@ ObjectDetectorNode::ObjectDetectorNode() :
   this->get_parameter("input_6d_topic", input_6d_topic_);
   this->get_parameter("output_markers_topic", output_markers_topic_);
   this->get_parameter("output_clusters_topic", output_clusters_topic_);
+  this->get_parameter("frame_id", frame_id_);
   
   // Subscribe to the 6d image topic
   input_6d_sub_ = this->create_subscription<sensor_msgs::msg::Image>(
@@ -90,7 +92,7 @@ void ObjectDetectorNode::publishClustersMarkers(const std::vector<WorldEntity>& 
 
     // Clear old cluster point markers
     visualization_msgs::msg::Marker clear_marker;
-    clear_marker.header.frame_id = "camera_optical_frame";
+    clear_marker.header.frame_id = frame_id_;
     clear_marker.header.stamp = this->now();
     clear_marker.ns = "cluster_points";
     clear_marker.action = visualization_msgs::msg::Marker::DELETEALL;
@@ -98,7 +100,7 @@ void ObjectDetectorNode::publishClustersMarkers(const std::vector<WorldEntity>& 
 
     // Clear old bounding box markers
     visualization_msgs::msg::Marker clear_marker_bb;
-    clear_marker_bb.header.frame_id = "camera_optical_frame";
+    clear_marker_bb.header.frame_id = frame_id_;
     clear_marker_bb.header.stamp = this->now();
     clear_marker_bb.ns = "bounding_boxes";
     clear_marker_bb.action = visualization_msgs::msg::Marker::DELETEALL;
@@ -106,7 +108,7 @@ void ObjectDetectorNode::publishClustersMarkers(const std::vector<WorldEntity>& 
 
     // Clear old velocity arrow markers
     visualization_msgs::msg::Marker clear_marker_vel;
-    clear_marker_vel.header.frame_id = "camera_optical_frame";
+    clear_marker_vel.header.frame_id = frame_id_;
     clear_marker_vel.header.stamp = this->now();
     clear_marker_vel.ns = "velocity_arrow";
     clear_marker_vel.action = visualization_msgs::msg::Marker::DELETEALL;
@@ -125,7 +127,7 @@ void ObjectDetectorNode::publishClustersMarkers(const std::vector<WorldEntity>& 
         for (const auto& point : points)
         {
             visualization_msgs::msg::Marker marker;
-            marker.header.frame_id = "camera_optical_frame";
+            marker.header.frame_id = frame_id_;
             marker.header.stamp = this->now();
             marker.ns = "cluster_points";
             marker.id = marker_id++;
@@ -163,7 +165,7 @@ visualization_msgs::msg::Marker
   auto corners = cluster.getBoundingBox();
   if(!corners.empty())
   {
-    bb_marker.header.frame_id = "camera_optical_frame";
+    bb_marker.header.frame_id = frame_id_;
     bb_marker.header.stamp = this->now();
     bb_marker.ns = "bounding_boxes";
     bb_marker.id = cluster.getId();
@@ -198,7 +200,7 @@ visualization_msgs::msg::Marker
 {
   // Create a velocity arrow marker for the cluster
   visualization_msgs::msg::Marker arrow_marker;
-  arrow_marker.header.frame_id = "camera_optical_frame";
+  arrow_marker.header.frame_id = frame_id_;
   arrow_marker.header.stamp = this->now();
   arrow_marker.ns = "velocity_arrow";
   arrow_marker.id = cluster.getId() + 1000;
@@ -248,7 +250,7 @@ void ObjectDetectorNode::publishClusters(const std::vector<WorldEntity>& cluster
 {
     stereo_perception_msgs::msg::ClusteredObjectArray msg;
     msg.header.stamp = this->now();
-    msg.header.frame_id = "camera_optical_frame";
+    msg.header.frame_id = frame_id_;
     msg.num_clusters = clusters.size();
 
     for (auto& cluster : clusters)

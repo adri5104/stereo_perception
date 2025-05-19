@@ -16,7 +16,7 @@ docker run -it --rm \
     -e DISPLAY=$DISPLAY \
     --gpus all \
     -v /dev/shm:/dev/shm \
-    -v $PARENT_DIR/docker/$NAME/config:/home/ubuntu/config \
+    -v $PARENT_DIR/docker/$NAME/carnegie/config:/home/ubuntu/config \
     -e RMW_IMPLEMENTATION=rmw_cyclonedds_cpp \
     --ipc=host \
     -e QT_X11_NO_MITSHM=1 \

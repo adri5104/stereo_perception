@@ -1,3 +1,10 @@
+/**
+ * @file object_detector_node.hpp
+ * @author Adrian Rieker (adrian.rieker@tum.de)
+ * @brief ROS2 Node that subscribes to a 6D image topic and uses an internal object detector for the cluster detection logic.
+ * 
+ */
+
 #ifndef OBJECT_DETECTOR_NODE_HPP
 #define OBJECT_DETECTOR_NODE_HPP
 
@@ -7,6 +14,7 @@
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/image.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
+
 #ifdef ROS_VERSION_JAZZY
 #include <cv_bridge/cv_bridge.hpp>
 #else
@@ -20,7 +28,6 @@
 
 #include "object_detector/object_detector.hpp"
 #include "object_detector/world_entity.hpp"
-
 #include "stereo_perception_msgs/msg/clustered_object.hpp"
 #include "stereo_perception_msgs/msg/clustered_object_array.hpp"
 
@@ -111,6 +118,7 @@ namespace object_detector
     std::string input_6d_topic_;
     std::string output_markers_topic_;
     std::string output_clusters_topic_;
+    std::string frame_id_;
   };
 
 } // namespace object_detector

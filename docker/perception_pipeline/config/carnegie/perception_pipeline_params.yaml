@@ -73,6 +73,7 @@ object_detector_node:
     input_6d_topic: "/perception_pipeline/output_6d"
     output_markers_topic: "/perception_pipeline/output_markers"
     output_clusters_topic: "/perception_pipeline/output_clusters"
+    frame_id: "camera_frame"
     eps: 0.1
     minPts: 10
     pos_weight: 0.045
