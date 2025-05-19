@@ -8,7 +8,7 @@ ttc_calculator_node:
     output_marker_topic: "/multisense/criticallity_pipeline/ego_marker"
     ego_width: 1.0
     ego_length: 1.0
-    ego_height: 1.0
+    ego_height: 1.0 
     publish_ego_marker: true
     use_path: false
     frame_id: multisense/left_camera_optical_frame

@@ -15,7 +15,7 @@ visual_odometry_node:
     color_image_topic: "/multisense/left/image_rect"
     depth_image_topic: "/multisense/left/openni_depth"
     camera_info_topic: "/multisense/left/depth/camera_info"
-    odometry_debug_topic: "/multisense/debug/odometry_keypoints"
+    odometry_debug_topic: "/debug/odometry_keypoints"
     camera_frame_tf_topic: "/multisense/perception_pipeline/camera_frame_tf"
     max_depth_odom: 20.0
     min_depth_odom: 0.1
@@ -29,9 +29,9 @@ kalman_filter_node:
     camera_info_topic: "/multisense/left/depth/camera_info"
     camera_frame_tf_topic: "/multisense/perception_pipeline/camera_frame_tf"
     color_image_topic: "/multisense/left/image_rect"
-    debug_image_topic_: "/multisense/debug/debug_image"  # If your node code uses this exact param name
+    debug_image_topic_: "/debug/debug_image"  # If your node code uses this exact param name
     output_6d_topic: "/multisense/perception_pipeline/output_6d"
-    debug_markers_topic: "/multisense/debug/image_6d_markers"
+    debug_markers_topic: "/debug/image_6d_markers"
     frame_id: "/multisense/left_camera_optical_frame"
     grid_size: 15
     debug_image_grid: false

@@ -33,7 +33,7 @@ services:
     stdin_open: true
     tty: true
     volumes:
-      - ./perception_pipeline/carnegie/config:/home/ubuntu/config
+      - ./perception_pipeline/config/carnegie:/home/ubuntu/config
       - "/dev/shm:/dev/shm"
       - "../config/dds/:/home/ubuntu/perception_pipeline_ws/config/dds/"
     environment:
@@ -59,7 +59,7 @@ services:
     stdin_open: true
     tty: true
     volumes:
-      - ./criticallity_pipeline/carnegie/config:/home/ubuntu/config
+      - ./criticallity_pipeline/config/carnegie:/home/ubuntu/config
       - "/dev/shm:/dev/shm"
       - "../config/dds/:/home/ubuntu/criticallity_pipeline_ws/config/dds/"
     environment:
