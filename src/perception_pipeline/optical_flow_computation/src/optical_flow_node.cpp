@@ -5,10 +5,13 @@
 #include <cv_bridge/cv_bridge.h>
 #endif
 
+namespace stereo_perception
+{
 namespace perception_pipeline
 {
 namespace optical_flow_computation
 {
+
 
 using namespace cv;
 
@@ -185,6 +188,6 @@ void OpticalFlowNode::publishDebugMessages(const Mat current_image, const Mat fl
     optical_flow_debug_arrows_pub_->publish(*flow_arrow_msg);
 }
 
-
+}
 } // namespace optical_flow_computation
 } // namespace perception_pipeline

@@ -7,7 +7,7 @@
 int main(int argc, char **argv) {
     rclcpp::init(argc, argv);
     
-    auto node = std::make_shared<perception_pipeline::optical_flow_computation::OpticalFlowNode>();
+    auto node = std::make_shared<stereo_perception::perception_pipeline::optical_flow_computation::OpticalFlowNode>();
     rclcpp::executors::MultiThreadedExecutor executor;
     executor.add_node(node);
     executor.spin();

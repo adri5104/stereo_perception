@@ -19,6 +19,9 @@
 
 #include <iostream>
 
+
+namespace stereo_perception
+{
 namespace perception_pipeline
 {
 namespace optical_flow_computation
@@ -55,5 +58,6 @@ private:
 
 }
 } // namespace perception_pipeline
+} // namespace stereo_perception
 
 #endif // OPTICAL_FLOW_NODE_HPP
