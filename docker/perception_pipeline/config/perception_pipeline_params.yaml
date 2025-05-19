@@ -6,8 +6,10 @@ camerainfo_publisher:
     color_image_sub_topic: "/multisense/left/image_rect"
     depth_image_sub_topic: "/edgar/sensor/camera/framos/frontleft/depth/image_rect_rawa"
     camera_info_sub_topic: "/edgar/sensor/camera/framos/frontleft/color/camera_info"
-    publish_color_image: true
+    publish_color_image: false
     publish_depth_image: false
+    publish_camera_info: false
+    frame_id: "camera_frame"
 
  
 optical_flow_computation:
