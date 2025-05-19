@@ -34,6 +34,7 @@ visual_odometry_node:
     max_depth_odom: 20.0
     min_depth_odom: 0.1
     odometry_debug_image: true
+    frame_id: "camera_frame"
 
 kalman_filter_node:
   ros__parameters:

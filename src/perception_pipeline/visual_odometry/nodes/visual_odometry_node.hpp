@@ -125,9 +125,10 @@ namespace visual_odometry
       nav_msgs::msg::Path path_msg_; ///< Path message
       bool publish_odom_; ///< Publish odometry
       std::string odom_topic_; ///< Odometry topic
-      double max_depth_odom_;
-      double min_depth_odom_;
-      bool odometry_debug_image_;
+      double max_depth_odom_; ///< Maximum depth for odometry
+      double min_depth_odom_; ///< Minimum depth for odometry
+      bool odometry_debug_image_; ///< If true, debug image with odometry keypoints will be computed
+      std::string frame_id_; ///< Frame ID for the odometry message
 
       // Other attributes
       bool camera_info_arrived_;

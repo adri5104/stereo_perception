@@ -22,6 +22,7 @@ namespace visual_odometry
     this->declare_parameter("max_depth_odom", 10.0);
     this->declare_parameter("min_depth_odom", 0.1);
     this->declare_parameter("odometry_debug_image", true);
+    this->declare_parameter("frame_id", "camera_optical_frame");
     this->declare_parameter("apply_statistical_filtering", true);
     this->declare_parameter("apply_expotential_smoothing", true);
     this->declare_parameter("exponential_alpha", 0.1);
@@ -90,7 +91,7 @@ namespace visual_odometry
     if (publish_path_)
     {
       path_pub_ = this->create_publisher<nav_msgs::msg::Path>(path_topic_, 10);
-      path_msg_.header.frame_id = "camera_optical_frame_initial";
+      path_msg_.header.frame_id = this->frame_id_ + "_initial";
     }
     if (publish_odom_)
       odom_pub_ = this->create_publisher<nav_msgs::msg::Odometry>(odom_topic_, 10);
@@ -141,8 +142,8 @@ namespace visual_odometry
     geometry_msgs::msg::TransformStamped tf_local;
     
     tf_local.header.stamp = color_msg->header.stamp;
-    tf_local.header.frame_id = "camera_optical_frame";
-    tf_local.child_frame_id = "camera_optical_frame_previous";
+    tf_local.header.frame_id = frame_id_;
+    tf_local.child_frame_id = frame_id_ + "_previous";
     tf_local.transform.translation.x = translation.at<double>(0);
     tf_local.transform.translation.y = translation.at<double>(1);
     tf_local.transform.translation.z = translation.at<double>(2);
@@ -187,8 +188,8 @@ namespace visual_odometry
 
     geometry_msgs::msg::TransformStamped tf_global;
     tf_global.header.stamp = color_msg->header.stamp;
-    tf_global.header.frame_id = "camera_optical_frame_initial";   
-    tf_global.child_frame_id = "camera_optical_frame";
+    tf_global.header.frame_id = frame_id_+ "_initial";   
+    tf_global.child_frame_id = frame_id_;
 
     tf_global.transform.translation.x = abs_translation.x();
     tf_global.transform.translation.y = 0.0; 
@@ -211,8 +212,8 @@ namespace visual_odometry
       // Publish odometry
       nav_msgs::msg::Odometry odom_msg;
       odom_msg.header.stamp = color_msg->header.stamp;
-      odom_msg.header.frame_id = "camera_optical_frame_initial";
-      odom_msg.child_frame_id = "camera_optical_frame_previous";
+      odom_msg.header.frame_id = frame_id_ + "_initial";
+      odom_msg.child_frame_id = frame_id_ + "_previous";
       odom_msg.pose.pose.position.x = abs_translation.x();
       odom_msg.pose.pose.position.y = 0.0;
       odom_msg.pose.pose.position.z = abs_translation.z();
@@ -229,7 +230,7 @@ namespace visual_odometry
       path_msg_.header.stamp = color_msg->header.stamp;
       geometry_msgs::msg::PoseStamped pose_msg;
       pose_msg.header.stamp = color_msg->header.stamp;
-      pose_msg.header.frame_id = "camera_optical_frame_initial";
+      pose_msg.header.frame_id = frame_id_ + "_initial";
       pose_msg.pose.position.x = abs_translation.x();
       pose_msg.pose.position.y = 0.0;
       pose_msg.pose.position.z = abs_translation.z();
