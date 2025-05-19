@@ -35,6 +35,7 @@
     this->declare_parameter<std::string>("output_6d_topic", "/output_6d");
     this->declare_parameter<std::string>("debug_image_topic", "/debug/image_6d");
     this->declare_parameter<std::string>("debug_markers_topic", "/debug/image_6d_markers");
+    this->declare_parameter<std::string>("frame_id", "camera_optical_frame");
 
     // Kalman filter parameters
     this->declare_parameter<int>("grid_size", 10);
@@ -75,6 +76,7 @@
     output_6d_topic_    = this->get_parameter("output_6d_topic").as_string();
     debug_image_topic_  = this->get_parameter("debug_image_topic").as_string();
     debug_markers_topic_ = this->get_parameter("debug_markers_topic").as_string();
+    frame_id_ = this->get_parameter("frame_id").as_string();
     RCLCPP_INFO(this->get_logger(), "optical_flow_topic: '%s'", optical_flow_topic_.c_str());
     RCLCPP_INFO(this->get_logger(), "depth_topic: '%s'", depth_topic_.c_str());
     RCLCPP_INFO(this->get_logger(), "camera_info_topic: '%s'", camera_info_topic_.c_str());
@@ -83,6 +85,7 @@
     RCLCPP_INFO(this->get_logger(), "output_6d_topic: '%s'", output_6d_topic_.c_str());
     RCLCPP_INFO(this->get_logger(), "debug_image_topic: '%s'", debug_image_topic_.c_str());
     RCLCPP_INFO(this->get_logger(), "debug_markers_topic: '%s'", debug_markers_topic_.c_str());
+    RCLCPP_INFO(this->get_logger(), "frame_id: '%s'", frame_id_.c_str());
     
     // Time variables
     first_time_ = true;
@@ -262,7 +265,7 @@
     // Create header object
     std_msgs::msg::Header header;
     header.stamp = this->now();
-    header.frame_id = "camera_optical_frame";
+    header.frame_id = frame_id_;
 
     // Convert to sensor_msgs
     sensor_msgs::msg::Image::SharedPtr output_6d_msg =
@@ -332,7 +335,7 @@
         if (vec[OUT6D_VAL_IDX] != 1.0f) continue;
 
         visualization_msgs::msg::Marker marker;
-        marker.header.frame_id = "camera_optical_frame";
+        marker.header.frame_id = frame_id_;
         marker.header.stamp = this->now();
         marker.id = i * cols + j; // unique ID, no contention
         marker.type = visualization_msgs::msg::Marker::ARROW;

@@ -162,6 +162,7 @@ private:
   std::string debug_markers_topic_;
   std::string output_6d_topic_;
   bool camera_parameters_set_ = false;
+  std::string frame_id_;
 
   // Kalman filter parameters
   bool use_ego_motion_;
