@@ -1,21 +1,7 @@
-camerainfo_publisher:
-  ros__parameters:
-    color_image_pub_topic: "/device_0/sensor_1/Color_0/image/data"
-    depth_image_pub_topic: "/edgar/sensor/camera/framos/frontleft/depth/image_rect_raw"
-    camera_info_pub_topic: "/perception_pipeline/camera_info_sync"
-    color_image_sub_topic: "/multisense/left/image_rect"
-    depth_image_sub_topic: "/edgar/sensor/camera/framos/frontleft/depth/image_rect_rawa"
-    camera_info_sub_topic: "/edgar/sensor/camera/framos/frontleft/color/camera_info"
-    publish_color_image: false
-    publish_depth_image: false
-    publish_camera_info: false
-    frame_id: "camera_frame"
-
- 
 optical_flow_computation:
   ros__parameters:
-    image_topic: "/device_0/sensor_1/Color_0/image/data"
-    optical_flow_topic: "/perception_pipeline/optical_flow"
+    image_topic: "/multisense/left/image_rect"
+    optical_flow_topic: "/multisense/perception_pipeline/optical_flow"
     pyr_scale: 0.5
     levels: 6
     winsize: 15
@@ -27,26 +13,26 @@ optical_flow_computation:
 visual_odometry_node:
   ros__parameters:
     color_image_topic: "/multisense/left/image_rect"
-    depth_image_topic: "/edgar/sensor/camera/framos/frontleft/depth/image_rect_raw"
-    camera_info_topic: "/edgar/sensor/camera/framos/frontleft/color/camera_info"
-    odometry_debug_topic: "/debug/odometry_keypoints"
-    camera_frame_tf_topic: "/perception_pipeline/camera_frame_tf"
+    depth_image_topic: "/multisense/left/openni_depth"
+    camera_info_topic: "/multisense/left/depth/camera_info"
+    odometry_debug_topic: "/multisense/debug/odometry_keypoints"
+    camera_frame_tf_topic: "/multisense/perception_pipeline/camera_frame_tf"
     max_depth_odom: 20.0
     min_depth_odom: 0.1
     odometry_debug_image: true
-    frame_id: "camera_frame"
+    frame_id: "multisense/left_camera_optical_frame"
 
 kalman_filter_node:
   ros__parameters:
-    optical_flow_topic: "/perception_pipeline/optical_flow"
-    depth_topic: "/edgar/sensor/camera/framos/frontleft/depth/image_rect_raw"
-    camera_info_topic: "/edgar/sensor/camera/framos/frontleft/color/camera_info"
-    camera_frame_tf_topic: "/perception_pipeline/camera_frame_tf"
+    optical_flow_topic: "/multisense/perception_pipeline/optical_flow"
+    depth_topic: "/multisense/left/openni_depth"
+    camera_info_topic: "/multisense/left/depth/camera_info"
+    camera_frame_tf_topic: "/multisense/perception_pipeline/camera_frame_tf"
     color_image_topic: "/multisense/left/image_rect"
-    debug_image_topic_: "/debug/debug_image"  # If your node code uses this exact param name
-    output_6d_topic: "/perception_pipeline/output_6d"
-    debug_markers_topic: "/debug/image_6d_markers"
-    frame_id: "camera_frame"
+    debug_image_topic_: "/multisense/debug/debug_image"  # If your node code uses this exact param name
+    output_6d_topic: "/multisense/perception_pipeline/output_6d"
+    debug_markers_topic: "/multisense/debug/image_6d_markers"
+    frame_id: "/multisense/left_camera_optical_frame"
     grid_size: 15
     debug_image_grid: false
     use_ego_motion: true
@@ -70,10 +56,10 @@ kalman_filter_node:
 
 object_detector_node:
   ros__parameters:
-    input_6d_topic: "/perception_pipeline/output_6d"
-    output_markers_topic: "/perception_pipeline/output_markers"
-    output_clusters_topic: "/perception_pipeline/output_clusters"
-    frame_id: "camera_frame"
+    input_6d_topic: "/multisense/perception_pipeline/output_6d"
+    output_markers_topic: "/multisense/perception_pipeline/output_markers"
+    output_clusters_topic: "/multisense/perception_pipeline/output_clusters"
+    frame_id: "/multisense/multisense/left_camera_optical_frame"
     eps: 0.1
     minPts: 10
     pos_weight: 0.045
