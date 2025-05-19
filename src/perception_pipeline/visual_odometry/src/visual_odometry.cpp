@@ -1,6 +1,9 @@
 #include "visual_odometry/visual_odometry.hpp"
 #include <iostream>
 
+
+namespace stereo_perception
+{
 namespace perception_pipeline
 {
 namespace visual_odometry
@@ -463,3 +466,4 @@ double VisualOdometry::filterOutlier(double new_value, std::deque<double>& windo
 
 } // Namespace visual_odometry
 } // Namespace perception_pipeline
+} // Namespace stereo_perception

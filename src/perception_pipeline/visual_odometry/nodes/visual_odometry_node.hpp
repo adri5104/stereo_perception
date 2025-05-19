@@ -38,6 +38,9 @@
 
 #include "visual_odometry/visual_odometry.hpp"
 
+namespace stereo_perception
+{
+
 namespace perception_pipeline 
 {
 namespace visual_odometry
@@ -132,6 +135,6 @@ namespace visual_odometry
 
 } // Namespace perception_pipeline
 } // Namespace visual_odometry
-
+} // Namespace stereo_perception
 
 #endif // VIS_ODOM_NODE_

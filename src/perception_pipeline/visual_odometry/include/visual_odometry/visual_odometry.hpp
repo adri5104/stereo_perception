@@ -9,6 +9,9 @@
 #include <opencv2/cudaoptflow.hpp>
 #include <opencv2/cudafeatures2d.hpp>
 
+
+namespace stereo_perception
+{
 namespace perception_pipeline
 {
 namespace visual_odometry
@@ -169,5 +172,6 @@ namespace visual_odometry
   
 } // Namespace visual_odometry
 } // Namespace perception_pipeline
+} // Namespace stereo_perception
 
 #endif // VIS_ODOM_

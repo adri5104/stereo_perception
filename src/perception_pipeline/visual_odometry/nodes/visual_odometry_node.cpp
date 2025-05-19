@@ -1,9 +1,14 @@
 #include "visual_odometry_node.hpp"
 
+
+namespace stereo_perception
+{
 namespace perception_pipeline
 {
 namespace visual_odometry
 {
+
+
 
   VisualOdometryNode::VisualOdometryNode() 
   : Node("visual_odometry_node"), camera_info_arrived_(false), camera_tf_accumulated_(cv::Mat::eye(4, 4, CV_64F))  // 4x4 identity matrix
@@ -260,12 +265,13 @@ namespace visual_odometry
 
 } // Namespace perception_pipeline
 } // Namespace visual_odometry
+} // Namespace stereo_perception
 
 int main(int argc, char **argv) {
     rclcpp::init(argc, argv);
 
 
-    auto node = std::make_shared<perception_pipeline::visual_odometry::VisualOdometryNode>();
+    auto node = std::make_shared<stereo_perception::perception_pipeline::visual_odometry::VisualOdometryNode>();
     rclcpp::executors::MultiThreadedExecutor executor;
     executor.add_node(node);
     executor.spin();
