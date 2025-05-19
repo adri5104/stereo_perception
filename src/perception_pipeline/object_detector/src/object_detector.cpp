@@ -16,7 +16,8 @@
 #include <opencv2/core/cuda.hpp>
 
 #include <cuda_runtime.h>
-
+namespace stereo_perception
+{
 namespace perception_pipeline
 {
 namespace object_detector
@@ -210,4 +211,5 @@ arma::mat ObjectDetector::cudaPtrToArmaMat(float* d_data, int channels, int tota
 
 } // namespace object_detector
 } // namespace perception_pipeline
+} // namespace stereo_perception
 

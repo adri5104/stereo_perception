@@ -30,6 +30,8 @@
 
 using namespace cv;
 
+namespace stereo_perception
+{
 namespace perception_pipeline
 {
 namespace object_detector
@@ -149,5 +151,6 @@ void filterPointsVelKernelLauncher(const float* d_data, float* d_filtered_data, 
 
 } // namespace object_detector
 } // namespace perception_pipeline
+} // namespace stereo_perception
 
 #endif // OBJECT_DETECTOR_HPP

@@ -24,7 +24,8 @@
 #include "stereo_perception_msgs/msg/clustered_object.hpp"
 #include "stereo_perception_msgs/msg/clustered_object_array.hpp"
 
-
+namespace stereo_perception
+{
 namespace perception_pipeline
 {
 namespace object_detector
@@ -111,6 +112,9 @@ namespace object_detector
     std::string output_markers_topic_;
     std::string output_clusters_topic_;
   };
+
 } // namespace object_detector
 } // namespace perception_pipeline
+} // namespace stereo_perception
+
 #endif // OBJECT_DETECTOR_NODE_HPP

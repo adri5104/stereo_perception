@@ -5,6 +5,9 @@
 #include <cmath>
 #include <string>
 
+
+namespace stereo_perception
+{
 namespace perception_pipeline
 {
 namespace object_detector
@@ -28,6 +31,7 @@ inline std::string getErrorMessageObjectDetector(objectDetectorErrorCode code) {
         : "Invalid error code.";
 }
 
+}
 }
 }
 

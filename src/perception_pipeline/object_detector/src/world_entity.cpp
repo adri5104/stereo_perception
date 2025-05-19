@@ -4,6 +4,8 @@
 #include <pcl/point_cloud.h>
 #include <Eigen/Dense>
 
+namespace stereo_perception
+{
 namespace perception_pipeline
 {
 namespace object_detector
@@ -150,3 +152,4 @@ namespace object_detector
 
 } // namespace object_detector
 } // namespace perception_pipeline
+} // namespace stereo_perception

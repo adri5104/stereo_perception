@@ -12,7 +12,8 @@
 #include <pcl/point_types.h>
 #include <pcl/point_cloud.h>
 #include <Eigen/Dense>
-
+namespace stereo_perception
+{
 namespace perception_pipeline
 {
 namespace object_detector
@@ -79,6 +80,6 @@ private:
 
 } // namespace object_detector
 } // namespace perception_pipeline
-
+} // namespace stereo_perception
 
 #endif // WORLD_OBJECT_HPP

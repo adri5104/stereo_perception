@@ -10,6 +10,9 @@
 #include <cstdint>  
 #include <stdio.h>
 
+
+namespace stereo_perception
+{
 namespace perception_pipeline
 {
 namespace object_detector
@@ -201,3 +204,4 @@ void filterPointsVelKernelLauncher(
 
 } // namespace object_detector
 } // namespace perception_pipeline
+} // namespace stereo_perception

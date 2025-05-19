@@ -1,11 +1,13 @@
 #include "object_detector_node.hpp"
 #include <rclcpp/rclcpp.hpp>
 
-
+namespace stereo_perception
+{
 namespace perception_pipeline
 {
 namespace object_detector
 {
+
 
 using namespace std;
 
@@ -292,12 +294,13 @@ geometry_msgs::msg::Point ObjectDetectorNode::pclPointToGeometryMsgPoint(const p
 
 } // namespace object_detector
 } // namespace perception_pipeline
+} // namespace stereo_perception
 
 int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
 
-  auto node = std::make_shared<perception_pipeline::object_detector::ObjectDetectorNode>();
+  auto node = std::make_shared<stereo_perception::perception_pipeline::object_detector::ObjectDetectorNode>();
   rclcpp::executors::MultiThreadedExecutor executor;
   executor.add_node(node);
   executor.spin();
