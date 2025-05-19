@@ -1,3 +1,10 @@
+/**
+ * @file camerainfo_publisher.cpp
+ * @author Adrian Rieker 
+ * @brief ROS2 node to syncronize and re-publish camera info and color image with the 
+ * depth image.
+ */
+
 #include <chrono>
 #include <functional>
 #include <memory>
@@ -17,6 +24,9 @@
   #include <cv_bridge/cv_bridge.h>
 #endif
 
+
+namespace stereo_perception
+{
 namespace perception_pipeline
 {
 namespace camerainfo_publisher
@@ -27,9 +37,8 @@ using namespace cv;
 
 
 /**
- * @brief Class for publishing camera info, depth image, and color image 
- *       with synchronized timestamps for visualization purposes using
- *      the depth_image_proc package.
+ * @brief ROS2 node to synchronize and re-publish camera info and color image with the
+ * depth image.
  * 
  */
 class CameraInfoPublisher : public rclcpp::Node 
@@ -45,10 +54,10 @@ class CameraInfoPublisher : public rclcpp::Node
       this->declare_parameter<std::string>("color_image_sub_topic", "/device_0/sensor_1/Color_0/image/data");
       this->declare_parameter<std::string>("depth_image_sub_topic", "/device_0/sensor_0/Depth_0/image/data");
       this->declare_parameter<std::string>("camera_info_sub_topic", "/device_0/sensor_0/Depth_0/info/camera_info");
-
-      this->declare_parameter<bool>("publish_color_image", true);
-      this->declare_parameter<bool>("publish_depth_image", true);
-
+      this->declare_parameter<bool>("publish_color_image", false);
+      this->declare_parameter<bool>("publish_depth_image", false);
+      this->declare_parameter<bool>("publish_camera_info", false);
+      this->declare_parameter<std::string>("frame_id", "camera_optical_frame");
 
       // Read parameters
       color_image_pub_topic_ = this->get_parameter("color_image_pub_topic").as_string();
@@ -59,30 +68,34 @@ class CameraInfoPublisher : public rclcpp::Node
       camera_info_sub_topic_ = this->get_parameter("camera_info_sub_topic").as_string();
       publish_image_ = this->get_parameter("publish_color_image").as_bool();
       publish_depth_ = this->get_parameter("publish_depth_image").as_bool();
+      publish_camera_info_ = this->get_parameter("publish_camera_info").as_bool();
+      frame_id_ = this->get_parameter("frame_id").as_string();
 
-
-      // Initialize subscribers
-      color_image_sub_ = this->create_subscription<sensor_msgs::msg::Image>(
+      if (publish_depth_)
+      {
+        depth_image_sub_ = this->create_subscription<sensor_msgs::msg::Image>(
+          depth_image_sub_topic_, 10,
+          std::bind(&CameraInfoPublisher::depthCallback, this, std::placeholders::_1));
+          
+        depth_image_pub_ = this->create_publisher<sensor_msgs::msg::Image>(depth_image_pub_topic_, 10);
+        }
+      
+      if (publish_image_)
+      {
+        color_image_sub_ = this->create_subscription<sensor_msgs::msg::Image>(
           color_image_sub_topic_, 10,
           std::bind(&CameraInfoPublisher::colorCallback, this, std::placeholders::_1));
 
-      depth_image_sub_ = this->create_subscription<sensor_msgs::msg::Image>(
-          depth_image_sub_topic_, 10,
-          std::bind(&CameraInfoPublisher::depthCallback, this, std::placeholders::_1));
-      
-      camera_info_sub_ = this->create_subscription<sensor_msgs::msg::CameraInfo>(
+        color_image_pub_ = this->create_publisher<sensor_msgs::msg::Image>(color_image_pub_topic_, 10);
+      }
+        
+      if (publish_camera_info_)
+      {
+        camera_info_sub_ = this->create_subscription<sensor_msgs::msg::CameraInfo>(
           camera_info_sub_topic_, 10,
           std::bind(&CameraInfoPublisher::infoCallback, this, std::placeholders::_1));
-      
-      // Initialize publishers
-      if (publish_depth_)
-        depth_image_pub_ = this->create_publisher<sensor_msgs::msg::Image>(depth_image_pub_topic_, 10);
-      
-      if (publish_image_)
-        color_image_pub_ = this->create_publisher<sensor_msgs::msg::Image>(color_image_pub_topic_, 10);
-
-      
-      camera_info_pub_ = this->create_publisher<sensor_msgs::msg::CameraInfo>(camera_info_pub_topic_, 10);
+        camera_info_pub_ = this->create_publisher<sensor_msgs::msg::CameraInfo>(camera_info_pub_topic_, 10);
+      }
 
 
     }
@@ -110,7 +123,7 @@ class CameraInfoPublisher : public rclcpp::Node
       {
         camera_info_msg = camera_info_;
         camera_info_msg.header = msg->header;
-        camera_info_msg.header.frame_id = "camera_optical_frame";
+        camera_info_msg.header.frame_id = this->frame_id_;
         camera_info_msg.width = 848;
         camera_info_msg.height = 480;
       }
@@ -119,23 +132,16 @@ class CameraInfoPublisher : public rclcpp::Node
         RCLCPP_ERROR(this->get_logger(), "Camera info not received yet.");
         return;
       }
-    
-      
-      
-      
-    
-    
+
     if (publish_depth_)
     { 
-      msg->header.frame_id = "camera_optical_frame";
+      msg->header.frame_id = this->frame_id_;
 
       // Change encoding from mono16 to 32FC1
       cv_bridge::CvImagePtr cv_ptr;
       cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::TYPE_32FC1);
       cv_ptr->image.convertTo(cv_ptr->image, CV_32FC1, 0.001);
       msg->encoding = sensor_msgs::image_encodings::TYPE_32FC1;
-
-
       depth_image_pub_->publish(*msg);
     }
     
@@ -147,7 +153,7 @@ class CameraInfoPublisher : public rclcpp::Node
         sensor_msgs::msg::Image rgb_image_;
         rgb_image_ = color_image_;
         rgb_image_.header = msg->header;
-        rgb_image_.header.frame_id = "camera_optical_frame";
+        rgb_image_.header.frame_id = this->frame_id_;
         color_image_pub_->publish(rgb_image_);
       }
     }
@@ -175,6 +181,7 @@ class CameraInfoPublisher : public rclcpp::Node
     std::string color_image_sub_topic_;
     std::string depth_image_sub_topic_;
     std::string camera_info_sub_topic_;
+    std::string frame_id_;
     std::mutex camera_info_mutex_;
     std::mutex color_image_mutex_;
 
@@ -183,19 +190,22 @@ class CameraInfoPublisher : public rclcpp::Node
     size_t count_;
     bool publish_image_;
     bool publish_depth_;
+    bool publish_camera_info_;
     bool camera_info_received_;
     bool color_image_received_;
     bool depth_image_received_;
 };
 
+
 } // namespace camerainfo_publisher
 } // namespace perception_pipeline
+} // namespace stereo_perception
 
 int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
 
-  auto node = std::make_shared<perception_pipeline::camerainfo_publisher::CameraInfoPublisher>();
+  auto node = std::make_shared<stereo_perception::perception_pipeline::camerainfo_publisher::CameraInfoPublisher>();
   rclcpp::executors::MultiThreadedExecutor executor;
   executor.add_node(node);
   executor.spin();
