@@ -101,6 +101,7 @@ namespace ttc_calculator
     double ego_height_;
     bool publish_ego_marker_;
     bool use_path_;
+    std::string frame_id_;
 
   };
 }

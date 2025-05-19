@@ -1,13 +1,14 @@
 ttc_calculator_node:
   ros__parameters:
-    input_clusters_topic: "/object_clusters"
+    input_clusters_topic: "/multisense/perception_pipeline/output_clusters"
     input_twist_topic: "/stereo_perception/ego_twist"
     input_path_topic: "/stereo_perception/ego_path"
-    output_ttc_topic: "/object_ttc"
-    output_min_ttc_topic: "/min_ttc"
-    output_marker_topic: "/ego_marker"
+    output_ttc_topic: "/multisense/criticallity_pipeline/object_ttc"
+    output_min_ttc_topic: "/multisense/criticallity_pipeline/min_ttc"
+    output_marker_topic: "/multisense/criticallity_pipeline/ego_marker"
     ego_width: 1.0
     ego_length: 1.0
     ego_height: 1.0
     publish_ego_marker: true
     use_path: false
+    frame_id: multisense/left_camera_optical_frame

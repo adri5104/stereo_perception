@@ -22,6 +22,7 @@ namespace ttc_calculator
     declare_parameter("ego_height", 1.0);
     declare_parameter("publish_ego_marker", true);
     declare_parameter("use_path", false);
+    declare_parameter("frame_id", "camera_optical_frame");
 
     // Read parameters
     get_parameter("input_clusters_topic", input_clusters_topic_);
@@ -34,6 +35,7 @@ namespace ttc_calculator
     get_parameter("ego_height", ego_height_);
     get_parameter("publish_ego_marker", publish_ego_marker_);
     get_parameter("use_path", use_path_);
+    get_parameter("frame_id", frame_id_);
 
     // Print parameters
     RCLCPP_INFO(this->get_logger(), "========== TTC Calculator Parameters =========");
@@ -47,6 +49,7 @@ namespace ttc_calculator
     RCLCPP_INFO(this->get_logger(), "ego_height: %f", ego_height_);
     RCLCPP_INFO(this->get_logger(), "publish_ego_marker: %d", publish_ego_marker_);
     RCLCPP_INFO(this->get_logger(), "use_path: %d", use_path_);
+    RCLCPP_INFO(this->get_logger(), "frame_id: %s", frame_id_.c_str());
     RCLCPP_INFO(this->get_logger(), "=============================================");
 
     // Subscribe to the input topics
@@ -230,7 +233,7 @@ namespace ttc_calculator
   {
     // Erase the previous ego marker
     visualization_msgs::msg::Marker clear_marker;
-    clear_marker.header.frame_id = "camera_optical_frame";
+    clear_marker.header.frame_id = frame_id_;
     clear_marker.header.stamp = this->now();
     clear_marker.ns = "ego_vehicle";
     clear_marker.id = 0;
@@ -239,7 +242,7 @@ namespace ttc_calculator
 
     // Erase the previous ego velocity arrow
     visualization_msgs::msg::Marker clear_arrow;
-    clear_arrow.header.frame_id = "camera_optical_frame";
+    clear_arrow.header.frame_id = frame_id_;
     clear_arrow.header.stamp = this->now();
     clear_arrow.ns = "ego_velocity";
     clear_arrow.id = 0;
@@ -247,7 +250,7 @@ namespace ttc_calculator
 
     // Create marker in the camera optical frame node to visualize the ego vehicle    
     visualization_msgs::msg::Marker ego_marker;
-    ego_marker.header.frame_id = "camera_optical_frame";
+    ego_marker.header.frame_id = frame_id_;
     ego_marker.header.stamp = this->now();
     ego_marker.ns = "ego_vehicle";
     ego_marker.id = 0;
@@ -270,7 +273,7 @@ namespace ttc_calculator
 
     // Create an arrow to visualize the ego vehicle's velocity in the camera optical frame
     visualization_msgs::msg::Marker ego_arrow;
-    ego_arrow.header.frame_id = "camera_optical_frame";
+    ego_arrow.header.frame_id = frame_id_;
     ego_arrow.header.stamp = this->now();
     ego_arrow.ns = "ego_velocity";
     ego_arrow.id = 0;
