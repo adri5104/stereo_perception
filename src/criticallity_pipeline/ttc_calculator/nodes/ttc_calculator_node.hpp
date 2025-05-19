@@ -23,6 +23,8 @@
 #include "stereo_perception_msgs/msg/clustered_object.hpp"
 #include "stereo_perception_msgs/msg/bounding_box.hpp"
 
+namespace stereo_perception 
+{
 namespace criticallity_pipeline
 {
 namespace ttc_calculator
@@ -103,6 +105,7 @@ namespace ttc_calculator
   };
 }
 } // namespace criticallity_pipeline
+} // namespace ttc_calculator
 
 
 #endif

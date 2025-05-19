@@ -1,5 +1,7 @@
 #include "ttc_calculator_node.hpp"
 
+namespace stereo_perception 
+{
 namespace criticallity_pipeline
 {
 namespace ttc_calculator
@@ -303,13 +305,14 @@ namespace ttc_calculator
 
 } // namespace criticallity_pipeline
 } // namespace ttc_calculator
+} // namespace stereo_perception
 
 
 // Main with multi-threaded executor
 int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
-  auto node = std::make_shared<criticallity_pipeline::ttc_calculator::TTCCalculatorNode>();
+  auto node = std::make_shared<stereo_perception::criticallity_pipeline::ttc_calculator::TTCCalculatorNode>();
   rclcpp::executors::MultiThreadedExecutor executor;
   executor.add_node(node);
   executor.spin();
