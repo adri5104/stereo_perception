@@ -7,6 +7,7 @@
 
 #include "kalman_filter/worldpoint.hpp"
 
+namespace stereo_perception {
 namespace perception_pipeline {
 namespace kalman_filter {
 
@@ -309,4 +310,5 @@ void WorldPoint::setCameraParameters(double fx, double fy, double cx, double cy)
 
 }  // namespace kalman_filter
 }  // namespace perception_pipeline
+}  // namespace stereo_perception
 

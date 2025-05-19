@@ -28,10 +28,15 @@
 using namespace cv;
 using namespace std;
 
+namespace stereo_perception
+{
+
 namespace perception_pipeline
 {
 namespace kalman_filter
 {
+
+
 
 /// 6D image pixel value
 typedef Vec<float, 7> OutVec;
@@ -328,5 +333,6 @@ private:
 
 } // namespace kalman_filter
 } // namespace perception_pipeline
+} // namespace stereo_perception
 
 #endif  // KALMAN_FILTER__KALMAN_CORE_HPP_

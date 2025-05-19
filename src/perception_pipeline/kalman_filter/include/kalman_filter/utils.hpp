@@ -2,6 +2,8 @@
 #define _UTILS_KALMAN_FILTER_HPP_
 #include <opencv2/opencv.hpp>
 
+namespace stereo_perception
+{
 namespace perception_pipeline
 {
 namespace kalman_filter
@@ -15,5 +17,6 @@ namespace kalman_filter
 
 } // namespace kalman_filter
 } // namespace perception_pipeline
+} // namespace stereo_perception
 
 #endif  // _UTILS_KALMAN_FILTER_HPP_

@@ -1,11 +1,9 @@
 /**
  * @file kalman_filter_node.hpp
  * @author adrian.rieker@tum.de
- * @brief 
- * @version 
- * @date 
- * 
- * 
+ * @brief ROS2 Node that subscribes to optical flow, depth, color, and camera info,
+ *       and uses an internal KalmanCore object for the actual filter logic.
+ *     
  * 
  */
 
@@ -38,7 +36,8 @@
 
 #include "kalman_filter/kalman_core.hpp"
 
-
+namespace stereo_perception
+{
 namespace perception_pipeline
 {
 namespace kalman_filter
@@ -193,5 +192,6 @@ private:
 
 } // namespace kalman_filter
 } // namespace perception_pipeline
+} // namespace stereo_perception
 
 #endif  // KALMAN_FILTER__KALMAN_FILTER_NODE_HPP_

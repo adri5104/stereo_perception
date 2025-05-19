@@ -1,11 +1,7 @@
 /**
  * @file kalman_core.cpp
  * @author adrian.rieker@tum.de
- * @brief 
- * @version 
- * @date 
- * 
- * 
+ * @brief Class that implements a Kalman filter for 6D state estimation of a world point.
  * 
  */
 
@@ -15,6 +11,8 @@
 #include <iostream>
 #include <opencv2/opencv.hpp>
 #include <kalman_filter/utils.hpp>
+
+namespace stereo_perception {
 namespace perception_pipeline {
 namespace kalman_filter {
 
@@ -231,7 +229,9 @@ class WorldPoint
  
 };
 
+
 } // namespace kalman_filter
 }  // namespace perception_pipeline
+} // namespace stereo_perception
 
 #endif  // KALMAN_FILTER_WORLDPOINT_HPP

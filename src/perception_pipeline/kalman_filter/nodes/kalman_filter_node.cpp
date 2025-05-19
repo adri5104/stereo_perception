@@ -2,11 +2,8 @@
   /**
    * @file kalman_filter_node.hpp
    * @author adrian.rieker@tum.de
-   * @brief 
-   * @version 
-   * @date 
-   * 
-   * 
+   * @brief ROS2 Node that subscribes to optical flow, depth, color, and camera info,
+   *        and uses an internal KalmanCore object for the actual filter logic.
    * 
    */
 
@@ -17,7 +14,8 @@
   #include <cv_bridge/cv_bridge.h>
   #endif
 
-
+  namespace stereo_perception
+  {
   namespace perception_pipeline
   {
   namespace kalman_filter
@@ -490,11 +488,12 @@
 
   } // namespace kalman_filter
   } // namespace perception_pipeline
+  } // namespace stereo_perception
 
   int main(int argc, char **argv)
   {
     rclcpp::init(argc, argv);
-    auto node = std::make_shared<perception_pipeline::kalman_filter::KalmanFilterNode>();
+    auto node = std::make_shared<stereo_perception::perception_pipeline::kalman_filter::KalmanFilterNode>();
 
     //rclcpp::spin(node);
     rclcpp::executors::MultiThreadedExecutor executor;

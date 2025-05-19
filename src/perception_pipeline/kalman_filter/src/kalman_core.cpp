@@ -1,21 +1,20 @@
 /**
  * @file kalman_core.cpp
  * @author adrian.rieker@tum.de
- * @brief 
- * @version 
- * @date 
- * 
- * 
+ * @brief Implementation of the KalmanCore class for 6D state estimation of all the world points
  * 
  */
 
 #include "kalman_filter/kalman_core.hpp"
 #include <iostream>
 
+namespace stereo_perception
+{
 namespace perception_pipeline
 {
 namespace kalman_filter
 {
+
   KalmanCore::KalmanCore() :
   time_diff_(0.0),
   include_ego_motion_(false),
@@ -604,3 +603,4 @@ void KalmanCore::setSigmaSystem(Mat sigmaSystem)
 
 } // namespace kalman_filter
 } // namespace perception_pipeline
+} // namespace stereo_perception
