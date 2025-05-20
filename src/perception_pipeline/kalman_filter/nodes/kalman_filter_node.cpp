@@ -169,11 +169,12 @@
 
     // Register the synchronized callback
     sync_->registerCallback(&KalmanFilterNode::updateSync, this);
-    sync_->setMaxIntervalDuration(rclcpp::Duration::from_seconds(0.05));
+    sync_->setMaxIntervalDuration(rclcpp::Duration::from_seconds(0.5));
 
     // Camera info subscription (standard rclcpp subscription)
     camera_info_sub_ = this->create_subscription<sensor_msgs::msg::CameraInfo>(
-      camera_info_topic_, 10,
+      camera_info_topic_, 
+      rclcpp::SensorDataQoS(),
       std::bind(&KalmanFilterNode::cameraInfoCallback, this, std::placeholders::_1));
 
     // Publishers
@@ -204,7 +205,15 @@
     // Convert each to cv::Mat
     cv::Mat flow_image  = imageMsgToMat(flow_msg);
     cv::Mat depth_image = imageMsgToMat(depth_msg);
-    cv::Mat color_image = imageMsgToMat(color_msg);
+    cv::Mat color_image_raw = imageMsgToMat(color_msg);
+
+    // Detect grayscale and convert to BGR
+    cv::Mat color_image;
+    if (color_image_raw.channels() == 1) {
+      cv::cvtColor(color_image_raw, color_image, cv::COLOR_GRAY2BGR);
+    } else {
+      color_image = color_image_raw;
+    }
 
     // Get the odometry matrix from camera frame tf message
     cv::Mat odometry_matrix = cv::Mat::zeros(4, 4, CV_64FC1); 

@@ -36,6 +36,7 @@ namespace visual_odometry
     this->get_parameter("depth_image_topic", depth_image_topic_);
     this->get_parameter("camera_info_topic", camera_info_topic_);
     this->get_parameter("odometry_debug_topic", odometry_debug_topic_);
+    this->get_parameter("frame_id", frame_id_);
     this->get_parameter("camera_frame_tf_topic", camera_frame_tf_topic_);
     this->get_parameter("max_depth_odom", max_depth_odom_);
     this->get_parameter("min_depth_odom", min_depth_odom_);
@@ -58,6 +59,7 @@ namespace visual_odometry
     RCLCPP_INFO(this->get_logger(), "path_topic: '%s'", path_topic_.c_str());
     RCLCPP_INFO(this->get_logger(), "publish_odom: '%d'", publish_odom_);
     RCLCPP_INFO(this->get_logger(), "odom_topic: '%s'", odom_topic_.c_str());
+    RCLCPP_INFO(this->get_logger(), "frame_id: '%s'", frame_id_.c_str());
     RCLCPP_INFO(this->get_logger(), "======================================================================");
   
     // Create VisualOdometry object
