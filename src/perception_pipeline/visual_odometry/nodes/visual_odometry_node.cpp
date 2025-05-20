@@ -23,6 +23,7 @@ namespace visual_odometry
     this->declare_parameter("min_depth_odom", 0.1);
     this->declare_parameter("odometry_debug_image", true);
     this->declare_parameter("frame_id", "camera_optical_frame");
+    this->declare_parameter("qos_subs_profile", "sensor_data");
     this->declare_parameter("apply_statistical_filtering", true);
     this->declare_parameter("apply_expotential_smoothing", true);
     this->declare_parameter("exponential_alpha", 0.1);
@@ -69,8 +70,8 @@ namespace visual_odometry
       get_parameter("apply_expotential_smoothing").as_bool());
       
     // Create message_filters
-    color_sub_.subscribe(this, color_image_topic_);
-    depth_sub_.subscribe(this, depth_image_topic_);
+    color_sub_.subscribe(this, color_image_topic_, rmw_qos_profile_sensor_data);
+    depth_sub_.subscribe(this, depth_image_topic_, rmw_qos_profile_sensor_data);
 
     sync_ = std::make_unique<message_filters::Synchronizer<SyncPolicy>>(
       SyncPolicy(10), color_sub_, depth_sub_);
@@ -98,7 +99,8 @@ namespace visual_odometry
 
     // Create camera_info subscriber
     camera_info_sub_ = this->create_subscription<sensor_msgs::msg::CameraInfo>(
-      camera_info_topic_, 10, 
+      camera_info_topic_, 
+      rclcpp::SensorDataQoS(), 
       std::bind(&VisualOdometryNode::cameraInfoCallback, this, std::placeholders::_1));
 
     
