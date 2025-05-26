@@ -830,68 +830,103 @@ repository to simplify development, integration, and deployment.
 
 The repository is structured into three main directories:
 
-\begin{itemize}
-  \item \textbf{src:} Contains all ROS 2 source code. It is further divided into:
-  \begin{itemize}
-    \item \textbf{launch\_packages}: Includes ROS 2 launch files used to start multiple components together.
-    \item \textbf{perception\_pipeline}: Contains the core modules of the perception pipeline, including
-    \textbf{camera\_info\_publisher}, \textbf{stereo\_computation}, \textbf{optical\_flow\_computation}, 
-    \textbf{kalman\_filter}, and \textbf{object\_detector}.
-    \item \textbf{criticality\_pipeline}: Contains the \textbf{ttc\_calculator} package responsible for computing
-    Time-to-Collision and other criticality metrics.
-    \item \textbf{utils}: Provides auxiliary packages and shared message definitions in \textbf{stereo\_perception\_msgs}.
-  \end{itemize}
-  
-  \item \textbf{scripts:} Includes non ROS2 code that is used for testing and benchmarking the system.
+\begin{enumerate}
+  \item \texttt{src/} Contains all ROS 2 source code.
+  \begin{enumerate}
+    \item \texttt{launch\_packages/} Contains all launch files used to start the system.
+    \begin{enumerate}
+      \item \texttt{perception\_pipeline\_launch/} Package that contains the launch files for the perception pipeline.
+      \item \texttt{criticallity\_pipeline\_launch/} Package that contains the launch files for the criticallity pipeline.
+    \end{enumerate}
+    \item \texttt{perception\_pipeline/} Contains all the packages used in the perception pipeline.
+    \begin{enumerate}
+      \item \texttt{camera\_info\_publisher/} Package that republishes and syncronizes color image topic and camera info topic with the depth image topic.
+      \item \texttt{stereo\_computation/} Package to compute a depth image from a pair of stereo images.
+      \item \texttt{optical\_flow\_computation/} Package to compute the optical flow from an image topic.
+      \item \texttt{kalman\_filter/} Package that performs the 6D state estimation of the points in the scene.
+      \item \texttt{object\_detector/} Package that performs the object detection and clustering of the points in the scene.
+    \end{enumerate}
+    \item \texttt{criticallity\_pipeline/} Contains all the packages used in the criticality pipeline.
+    \begin{enumerate}
+      \item \texttt{ttc\_calculator/} Package that computes the Time-to-Collision (TTC) of the detected objects.
+    \end{enumerate}
+    \item \texttt{utils/} Contains all the packages that are independent of the perception and criticality pipelines.
+    \begin{enumerate}
+      \item \texttt{stereo\_perception\_msgs/} Contains all the custom messages used in the repository.
+      \item \texttt{disparity\_to\_depth/} Package that converts disparity images to depth images.
+      \item \texttt{stereo\_perception\_edgar\_bridge/} Package that contains a bridge between the custom messages used in the EDGAR vehicle and standard ROS2 messages
+      \item \texttt{tod\_msgs/} Custom messages used in the EDGAR vehicle (git submodule).
+      \item \texttt{tum\_msgs/} Custom messages used in the EDGAR vehicle (git submodule).
+    \end{enumerate}
+  \end{enumerate}
+  \item \texttt{docker/} Contains all Docker image related files, including the Dockerfile and configuration files.
+  \begin{enumerate}
+    \item \texttt{perception\_pipeline/} Contains all the Dockerfiles and configuration files for the perception pipeline.
+    \item \texttt{criticallity\_pipeline/} Contains all the Dockerfiles and configuration files for the criticallity pipeline.
+    \item \texttt{stereo\_perception\_edgar\_bridge/} Contains all the Dockerfiles and configuration files for the bridge between the custom messages used in the EDGAR vehicle and standard ROS2 messages.
+  \end{enumerate}
+  \item \texttt{non\_ros/} Contains all non ROS2 (e.g. Latex files, scripts, etc.) files.
+\end{enumerate}
 
-  \item \textbf{docker} Contains the Dockerfile of the ROS2 container that encapusulates the entire system. It also includes
-  necessary scripts to build and run the container as well as the configuration files that include all the ROS2 parameters.
-\end{itemize}
-
-An overview of this structure is shown in Figure~\ref{fig:repo_structure}.
-
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.85\textwidth]{figures/repository_structure.drawio.png}
-  \caption{Overview of the repository structure}
-  \label{fig:repo_structure}
-\end{figure}
 
 
-\subsection{Containerization and deployment}
+
+
+\subsection{Containerization and Deployment}
 \label{sec:Containerization}
 
-Docker is a platform for developing, shipping, and running applications in lightweight, isolated
-environments called containers. Containers package the application code together with its
-dependencies and runtime, ensuring consistent behavior across different systems and deployment
-contexts.
+Docker is a platform that enables the execution of software in isolated 
+environments called containers. These encapsulate code and dependencies, 
+ensuring consistency across development and deployment environments. 
 
-To ensure reproducibility and portability, the entire system is encapsulated
-within a single Docker container. This design choice is driven by both functional and performance
-considerations.
+To guarantee reproducibility and simplify integration, the system was deployed 
+using Docker. Initially, all components were combined into a single container 
+to reduce inter-process communication and avoid the latency introduced by 
+message serialization between modules. This design allowed the perception 
+modules, which are tightly coupled, to share memory space and operate with 
+minimal data transfer overhead.
 
-Firstly, the system is architected as a unified perception service that processes synchronized stereo
-camera inputs to produce a list of detected objects along with their associated criticality scores.
-Given the tight coupling and interdependencies among the modules, segregating components into
-multiple containers would introduce unnecessary inter-process communication overhead.
+However, to increase modularity and facilitate portability across platforms, the 
+final deployment was structured into three separate Docker images. The first 
+container hosts the entire perception pipeline. It receives stereo camera data 
+and generates a list of detected objects. The second container contains the 
+criticality pipeline, which computes criticality metrics based on object 
+detection results and ego-vehicle trajectory. The third container serves as a 
+ROS 2 bridge that converts custom messages from the EDGAR platform into 
+standard message types used by the other two containers.
 
-Secondly, employing a single container mitigates latency introduced by serialization and network
-layers between containers. This is particularly crucial in real-time systems, where maintaining low
-processing latency is imperative. Running all modules in the same memory space allows for efficient
-data exchange and eliminates potential bottlenecks associated with inter-container messaging.
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\linewidth]{figures/docker_containers.png}
+  \caption{Container architecture and data flow}
+  \label{fig:docker_architecture}
+\end{figure}
 
-This containerization strategy also simplifies integration with the research platform, facilitating
-easier deployment, logging, and testing within a controlled and reproducible environment.
+This separation allows both the perception and criticality pipelines to operate 
+independently of EDGAR-specific message definitions, thus making them 
+deployable in other platforms with minimal adjustments.
 
-One important consideration is that the system is heavily dependant on GPU acceleration, particularly
-on the cuda libraries of OpenCV. This means that the container must be run on a host system with a compatible
-NVIDIA GPU and the NVIDIA Container Toolkit installed. The container is built using the NVIDIA CUDA base image, and 
-openCV is build from source with CUDA support. 
-The system was optimized to run on a system with cuda 12.4 and Nvidia Compute Capability 8.0, 8.6 and 9.0. The list of compatible 
-GPUs can be found in the NVIDIA documentation~\cite{nvidiaVersions}.
+Each container is organized with a consistent directory structure:
 
-In case the system is run on a host system without a compatible NVIDIA GPU, the container must be built again changing the 
-CUDA version in the Dockerfile. 
+\begin{itemize}
+  \item \texttt{config/}: Configuration files in YAML format.
+  \item \texttt{scripts/}: Launch and runtime scripts.
+  \item \texttt{Dockerfile}: Build instructions for the container image.
+\end{itemize}
+
+The system relies on GPU acceleration for computationally intensive tasks, 
+particularly for processing stereo vision and optical flow using CUDA-enabled 
+OpenCV. The containers are built upon NVIDIA CUDA base images, and OpenCV 
+is compiled from source with CUDA support.
+
+Deployment requires a host system with a compatible NVIDIA GPU and the 
+NVIDIA Container Toolkit. The implementation is optimized for CUDA 12.4 and 
+Compute Capability 8.0, 8.6, and 9.0. Compatibility details can be found in the 
+official NVIDIA documentation~\cite{nvidiaVersions}.
+
+If the host system lacks a compatible GPU, the container must be rebuilt with 
+adjusted CUDA settings in the Dockerfile.
+
 
 
 
@@ -3056,63 +3091,533 @@ bridges raw motion estimation with object-level perception, providing consistent
 interpretable outputs for the next stages of the pipeline.
 
 
+\newpage
 
-\section{Criticallity pipeline: TTC computation}
+\section{Criticality pipeline: TTC computation}
 \label{sec:CriticallityPipelineTTCComputation}
+
+This section addresses the final stage of the perception pipeline:
+the computation of Time-to-Collision (TTC) as a criticality indicator. 
+TTC quantifies the temporal proximity between the ego vehicle and 
+external dynamic entities, assuming a constant relative velocity. 
+It is widely used in automated driving due to its simplicity, 
+computational efficiency, and direct interpretability.
+
+Beyond TTC, various criticality metrics have been proposed in the 
+literature. Westhofen et al.~\cite{cricitality_metrics} provide 
+a comprehensive taxonomy, grouping them into time-based, 
+distance-based, probabilistic, and hybrid categories. Several of 
+these metrics directly extend TTC, enriching its semantics or 
+adapting it to specific contexts. Among the most relevant TTC-based metrics are the following:
+\begin{itemize}
+  \item \textbf{Time-to-Brake (TTB)}: estimates the time remaining 
+  until a braking maneuver is required to avoid collision, based 
+  on a constant deceleration model. It refines TTC by considering 
+  the ego braking capacity.
+
+  \item \textbf{Time-to-Steer (TTS)}: measures the time available 
+  before a steering maneuver becomes necessary to avoid an 
+  obstacle. It introduces lateral dynamics and is particularly 
+  relevant in evasive scenarios.
+
+  \item \textbf{Time-to-React (TTR)}: incorporates human or system 
+  reaction time into the TTC estimation, often used in driver 
+  monitoring and shared control contexts.
+
+  \item \textbf{Time-to-Avoidance (TTA)}: models the time available 
+  until an avoidance maneuver (brake or steer) becomes ineffective. 
+  It compares TTC with the time needed to complete the avoidance 
+  maneuver successfully.
+
+  \item \textbf{Acceleration-based metrics (AM)}: estimate the 
+  required acceleration to avoid a collision within a given time 
+  window, assuming dynamic constraints. These are useful in 
+  risk-aware motion planning.
+\end{itemize}
+
+All these metrics maintain a direct conceptual dependency on TTC, 
+which serves as the temporal reference for evaluating risk. 
+Figure~\ref{fig:ttc_metric_network} shows a dependency graph of 
+commonly used criticality metrics, with TTC at its core.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{figures/criticallityMetrics.png}
+  \caption{Dependency graph of criticality metrics based on TTC.
+  Adapted from~\cite{cricitality_metrics}.}
+  \label{fig:ttc_metric_network}
+\end{figure}
+
+While TTC is often computed under the assumption of point-like 
+agents, this approximation neglects object geometry and orientation. 
+In structured urban environments, this simplification can lead to 
+under- or overestimation of risk, especially in dense traffic or 
+intersection scenarios.
+
+A more accurate strategy considers object dimensions through oriented 
+bounding boxes. Jiménez et al.~\cite{improvedTTC} propose 
+a method that models each vehicle as a rectangular body and evaluates 
+potential collisions by tracking corner-to-edge interactions over time. 
+Their formulation handles various motion configurations and computes 
+the TTC based on geometric overlap rather than idealized point 
+intersections.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.65\textwidth]{figures/improvedTTC.png}
+  \caption{Improved TTC computation based on rectangle-based vehicles.
+  Adapted from~\cite{improvedTTC}.}
+  \label{fig:ttc_metric_network}
+\end{figure}
+
+Such approaches could be integrated into future iterations of the 
+criticality pipeline, leveraging the bounding box information already 
+available from the object detection stage (Section~\ref{sec:WorldEntityClass}). 
+This would enable more realistic contact prediction and improve the 
+robustness of the TTC computation under complex spatial arrangements.
+
+\subsection{Time-to-Collision metric}
+\label{sec:TTCMetricDefinition}
+
+After introducing the conceptual role of TTC in the broader context of 
+criticality estimation, this subsection presents a more detailed 
+mathematical and algorithmic formulation of the metric. 
+
+The objective is to formalize its computation, analyze the assumptions 
+underlying its definition, and discuss how it is adapted and extended 
+in this work to support trajectory-aware reasoning.
+
+The Time-to-Collision (TTC) is a fundamental metric for estimating 
+collision risk in autonomous driving scenarios. It expresses the 
+time remaining until a potential collision occurs, assuming that 
+both agents continue moving with constant velocity. Its main 
+advantage lies in its simplicity, low computational requirements, 
+and direct interpretability.
+
+In its basic formulation, the Time-to-Collision (TTC) represents the 
+time it would take for two objects to collide if they continue moving 
+at constant velocity. It is computed as the current distance between 
+the two agents divided by the difference in their velocities projected 
+onto the line connecting them.
+
+Let $\mathbf{p}_{\text{rel}} \in \mathbb{R}^3$ be the relative position 
+vector from the ego vehicle to the object, and 
+$\mathbf{v}_{\text{rel}} \in \mathbb{R}^3$ the relative velocity between 
+them. The TTC is then defined as:
+
+\begin{equation}
+  \text{TTC} = \frac{ \| \mathbf{p}_{\text{rel}} \| }{ - \mathbf{v}_{\text{rel}}^\top 
+  \cdot \hat{\mathbf{p}}_{\text{rel}} }
+  \label{eq:ttc_twist}
+\end{equation}
+
+Here, $\hat{\mathbf{p}}_{\text{rel}} = \mathbf{p}_{\text{rel}} / 
+\| \mathbf{p}_{\text{rel}} \|$ is the unit vector pointing from the ego 
+vehicle towards the object. The denominator in 
+Equation~\eqref{eq:ttc_twist} corresponds to the projection of the 
+relative velocity onto this direction vector, i.e., the component of 
+$\mathbf{v}_{\text{rel}}$ that is aligned with the separation vector.
+This projection represents how quickly the distance between the two 
+agents is decreasing along the line of sight. If this projection is 
+negative, it indicates that the object is approaching the ego vehicle. 
+A positive projection implies divergence, in which case TTC is 
+undefined or infinite.
+
+Thus, the TTC can be interpreted as:
+
+
+
+\begin{equation}
+  \text{TTC} =
+  \frac{\mathit{distance}}{\mathit{rate\ of\ approach}} 
+  = \frac{\| \mathbf{p}_{\text{rel}} \|}{- \mathbf{v}_{\text{rel}}^\top
+  \cdot \hat{\mathbf{p}}_{\text{rel}}}
+\end{equation}
+
+The numerator is the Euclidean distance between the object and 
+the ego vehicle, while the denominator is the closing velocity. 
+
+This geometric interpretation is illustrated in Figure~\ref{fig:ttc_twist_diagram}, 
+where the TTC is calculated as the ratio between the relative 
+distance and the rate at which that distance shortens along the 
+collision axis.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.85\textwidth]{figures/ttc_twist.png}
+  \caption{Geometric interpretation of time-to-collision.}
+  \label{fig:ttc_twist_diagram}
+\end{figure}
+
+
+Equation~\eqref{eq:ttc_twist} assumes rectilinear motion at constant 
+velocity, with both agents approximated as point masses. It does not 
+account for lateral motion, acceleration, or non-holonomic constraints. 
+Moreover, the formulation implicitly assumes that a collision occurs 
+when the object reaches the ego vehicle's current position, ignoring 
+their respective shapes and orientations.
+
+To overcome some of these limitations, a second approach is 
+implemented based on forward simulation over the ego vehicle's 
+planned trajectory (figure~\ref{fig:ttc_path_diagram}). Let $\mathcal{P} = \{ \mathbf{p}_1, \dots, 
+\mathbf{p}_N \}$ denote a discrete sequence of future ego poses, 
+sampled at a fixed rate $1/\Delta t$, and let $\mathbf{o}_0$ and 
+$\mathbf{v}_o$ be the current position and velocity of the object.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.85\textwidth]{figures/ttc_path.png}
+  \caption{Time-to-collision with ego path consideration. Source: own work}
+  \label{fig:ttc_path_diagram}
+\end{figure}
+
+Assuming constant object velocity, its future position at time 
+$t_i = i \cdot \Delta t$ is predicted as:
+
+\begin{equation}
+  \mathbf{o}_i = \mathbf{o}_0 + i \cdot \Delta t \cdot \mathbf{v}_o
+\end{equation}
+
+The TTC is then defined as the first $t_i$ such that the distance 
+between the ego vehicle and the object falls below a collision 
+threshold $d_{\text{th}}$:
+
+\begin{equation}
+  \| \mathbf{p}_i - \mathbf{o}_i \| < d_{\text{th}}
+\end{equation}
+
+The threshold $d_{\text{th}}$ accounts for the physical dimensions 
+of the ego vehicle and a minimal buffer. A typical value ranges 
+from 0.5 to 1.5 meters, depending on system resolution and safety 
+requirements.
+
+This method leverages existing trajectory information and enables 
+a more realistic estimation of collision likelihood in structured 
+environments. It is particularly relevant when the ego vehicle is 
+navigating a curve or executing complex maneuvers where the 
+twist-based approximation becomes inaccurate.
+
+Despite this improvement, both approaches treat vehicles as 
+dimensionless points. In practice, real objects occupy space and 
+have non-negligible extent. Ignoring object geometry may lead 
+to conservative or optimistic estimates, especially when bounding 
+boxes partially overlap without their centers being aligned.
+
+To address this, an extended TTC formulation could incorporate 
+bounding box geometry into the distance computation. Jiménez 
+et al.~\cite{improvedTTC} propose a method where each 
+vehicle is modeled as a rectangle, and TTC is calculated based on 
+the earliest contact between corners and edges. Their approach 
+enumerates the possible collision configurations and accounts 
+for both relative motion and orientation.
+
+In the current pipeline, each object is already associated with an 
+oriented bounding box derived from clustering (see 
+Section~\ref{sec:WorldEntityClass}). This enables a future 
+extension where the collision threshold $d_{\text{th}}$ is replaced 
+by geometric contact prediction between the ego vehicle’s 
+bounding box and that of the object. This enhancement would 
+lead to more accurate criticality assessments, particularly in 
+dense urban scenarios or during turning maneuvers.
+
+\subsection{Implementation: TTC detection module}
+\label{sec:TTCImplementation}
+
+The TTC estimation described above is implemented as a dedicated 
+ROS2 node named \texttt{ttc\_calculator\_node}. This component 
+serves as the bridge between the object-level output of the 
+perception pipeline and the criticality estimation required for 
+downstream decision-making modules.
+
+The node operates in two modes: twist-based or path-based TTC, 
+depending on a configurable parameter. In both cases, it receives 
+as input the list of detected objects, each represented as a 
+\texttt{ClusteredObject} message containing position, velocity, and 
+bounding box information. The output is a list of the same objects, 
+each annotated with a TTC estimate.
+
+The node subscribes to the following input topics:
+\texttt{/object\_clusters} (\texttt{ClusteredObjectArray}), which 
+contains the list of detected objects; 
+\texttt{/ego\_twist} (\texttt{geometry\_msgs::Twist}), which 
+provides the linear velocity of the ego vehicle; and optionally 
+\texttt{/ego\_path} (\texttt{nav\_msgs::Path}), which defines the 
+planned trajectory in path-based mode.
+
+The output topics are:
+\texttt{/object\_ttc}, publishing the list of objects with updated 
+TTC values;
+\texttt{/min\_ttc}, containing the minimum TTC observed in the 
+current frame;
+and \texttt{/ego\_marker}, which publishes RViz markers for 
+visualizing the ego vehicle geometry and velocity vector.
+
+When a new object array is received, the node computes the TTC 
+for each object based on the selected mode. In path mode, the future 
+position of the object is compared to the ego trajectory as described 
+in Section~\ref{sec:TTCMetricDefinition}. In twist mode, the relative 
+velocity is projected onto the direction vector connecting the agents. 
+The result is stored in the \texttt{ttc} field of the output message. 
+The minimum TTC value is also computed and published separately.
+
+The node is fully configurable through parameters. These include 
+topic names for input and output; the dimensions of the ego vehicle 
+(\texttt{ego\_length}, \texttt{ego\_width}, \texttt{ego\_height}); the 
+reference frame (\texttt{frame\_id}); and flags for enabling path-based 
+mode (\texttt{use\_path}) and RViz visualization 
+(\texttt{publish\_ego\_marker}). All parameters can be defined via 
+a launch file, allowing flexible integration into larger systems.
+
+The node optionally publishes visualization markers in the 
+\texttt{camera\_optical\_frame}, showing the ego vehicle as a green 
+cube and its velocity as a red arrow. These markers provide an 
+intuitive representation of motion in the scene and assist in debugging 
+and validation.
+
+The design ensures real-time operation, with each TTC computation 
+performed independently for each object. This allows for future 
+parallelization and the integration of more advanced models, such as 
+bounding box contact estimation or probabilistic motion prediction.
+
+
 
 % Explain different critically metrics
 
 % ====================================================================
 % ================== Experiments and Results =========================
 % ====================================================================
+
+
 \chapter{Experiments and Results}
 \label{chap:ExperimentsAndResults}
 
-% - Introduction to the chapter
-% - Explain how the experiments were conducted
-% - Explain how the results were evaluated
+This chapter presents the experimental validation of the perception and 
+criticality pipelines developed in this thesis. The evaluation addresses three 
+main goals. First, it assesses the suitability of the selected stereo hardware 
+for 6D motion estimation, including the calibration procedures required for 
+integration with the perception pipeline. In case of insufficient performance, 
+alternative hardware is evaluated and re-integrated accordingly. Second, the 
+computational performance of the full pipeline is analyzed to determine whether 
+real-time constraints can be fulfilled on representative embedded platforms. 
+Third, the output of the deterministic system is compared against the learned 
+perception stack currently deployed on the EDGAR research vehicle, with a 
+particular focus on object detection quality and Time-to-Collision estimation.
 
-\section{Camera hardware selection}
-\label{sec:CameraHardwareSelection}
+All experiments are designed to evaluate compliance with the functional and 
+technical requirements introduced in 
+Chapter~\ref{sec:RequirementsForTheThesis}. These include stereo-only sensing, 
+semantic independence, real-time capability, modular implementation, and 
+robustness under partial occlusion. Additional criteria involve 6D motion 
+tracking, consistent egomotion compensation, clustering of dynamic points, and 
+runtime computation of criticality metrics. The objective is not only to validate 
+the proposed design, but also to quantify its reliability, accuracy, and 
+deployability under realistic operational conditions.
 
-% - Explain how the camera was selected
+The remainder of this chapter is structured as follows. Section~\ref{sec:CameraHardware} 
+describes the camera hardware evaluation and calibration procedures. 
+Section~\ref{sec:EvaluationMethodology} outlines the evaluation methodology and 
+experimental setup. Sections~\ref{sec:PerceptionEvaluation} and 
+\ref{sec:PerformanceBenchmarking} present the results of the perception pipeline 
+assessment and runtime performance analysis, respectively. Finally, 
+Section~\ref{sec:ResultsSummary} summarizes the main findings.
 
-\section{Experimental setup}
-\label{sec:ExperimentalSetup}
+\section{Camera hardware selection and calibration}
+\label{sec:CameraHardware}
 
-% - Explain how the experiments were conducted
+The perception pipeline developed in this thesis is based exclusively on 
+stereo vision. Consequently, selecting a suitable camera system was a 
+critical initial step. Rather than introducing external hardware, the 
+evaluation started with the camera systems already available on the 
+EDGAR research platform. These included: (i) a pair of Framos D455e 
+depth cameras, (ii) six Basler acA1920-50gc cameras mounted for 
+surround view and long-range sensing, and (iii) a set of fisheye cameras 
+dedicated to vehicle teleoperation.
+
+Each system met the integration and software compatibility requirements 
+of EDGAR, such as ROS2 support and Precision Time Protocol (PTP) 
+synchronization. However, their suitability for stereo-based depth 
+estimation varied significantly. Table~\ref{tab:camera_specs} summarizes 
+the most relevant technical characteristics for stereo vision evaluation.
+
+\begin{table}[H]
+  \centering
+  \caption{Comparison of available camera systems on EDGAR}
+  \label{tab:camera_specs}
+  \begin{tabular}{p{2.7cm} p{1.4cm} p{1.1cm} p{2.8cm}}
+    \toprule
+    \textbf{Camera System} & \textbf{FoV (H)} & \textbf{Stereo-ready} & 
+    \textbf{Notes} \\
+    \midrule
+    Basler + 16\,mm lens & 38.6° & No & Long-range; narrow FoV \\
+    Basler + 6/4.7\,mm lenses & 85–100° & No & Non-parallel; fisheye config. \\
+    Framos D455e & 87° & Yes & Active IR stereo; ROS2 support \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The long-range Basler setup, equipped with 16\,mm lenses, was designed 
+for distant object detection, such as traffic signs. However, its narrow 
+field of view and lack of stereo configuration made it unsuitable for this 
+application. The surround-view system, composed of six Basler cameras 
+with 6\,mm and 4.7\,mm lenses, provided wide-angle coverage but was 
+intended for monocular perception. The cameras were mounted at 
+non-parallel orientations around the vehicle and would require complex 
+extrinsic calibration to enable stereo vision. Furthermore, the use of 
+fisheye lenses violated the rectilinear geometry assumptions of the 
+disparity computation module.
+
+The Framos D455e camera was ultimately selected for the first phase of 
+pipeline development. It integrates a stereo pair with a 95\,mm baseline 
+and computes depth maps on board using active infrared projection. The 
+camera offers VGA resolution at 30\,Hz, includes an IMU, and is 
+natively compatible with ROS 2. These characteristics allowed rapid 
+integration and made it possible to collect initial datasets without 
+extensive driver development.
+
+The goal of this phase was not geometric calibration of the sensor 
+itself, but rather the tuning of internal parameters in the perception 
+pipeline. In particular, the system required calibration of:
+\begin{itemize}
+  \item the observation noise of the Kalman filter, including depth and 
+        optical flow uncertainty;
+  \item the covariance of the egomotion transform;
+  \item filtering thresholds for optical flow;
+  \item and parameters for motion consistency and point reinitialization.
+\end{itemize}
+
+A series of static experiments were designed and executed to collect 
+the necessary data. These included synthetic motion generation 
+through alpha-angle tests and depth range validation using planar 
+objects at known distances. The controlled nature of the setup 
+allowed for repeatability and easier parameter tuning through offline 
+inspection and visualization in RViz.
+
+The data and methodology of this calibration phase are described in 
+Section~\ref{sec:FramosCalibration}. The system limitations 
+encountered when the camera was tested in dynamic outdoor 
+conditions are discussed in Section~\ref{sec:FramosLimitations}.
+
+
+
+\subsection{Initial tests with Framos camera}
+\label{sec:FramosCalibration}
+
+\todo{Describe the calibration experiments using the Framos camera.}
+% - Explain static experiments performed to evaluate depth range and field of view.
+% - Include alpha-angle tests (object crossing at different angles).
+% - Mention the recording of rosbags and topics (depth, color, optical flow).
+% - Refer to the document on Framos recording session.
+
+\subsection{Limitations and motivation for replacement}
+\label{sec:FramosLimitations}
+
+\todo{Discuss the limitations of the Framos stereo camera.}
+% - Describe noise in depth estimation, especially beyond 15 meters.
+% - Evaluate the impact of limited range on Kalman filter initialization and tracking.
+% - Argue why the Framos camera could not fulfill the system requirements.
+
+\subsection{Selection of the Carnegie S30 stereo camera}
+\label{sec:CarnegieSelection}
+
+\todo{Describe the selection criteria for the Carnegie S30 camera.}
+% - Mention technical specs that influenced the decision: resolution, range, sync.
+% - List other candidates briefly and explain why they were discarded.
+% - Justify why the S30 met the perception pipeline requirements best.
+
+\subsection{Calibration and dataset recording with Carnegie}
+\label{sec:CarnegieDatasets}
+
+\todo{Detail the experiments conducted with the Carnegie S30 camera.}
+% - Describe static and dynamic test setups: alpha-angle tests, range tests, motion.
+% - List topics recorded: depth, grayscale, vehicle velocity, TF tree.
+% - Refer to the Carnegie session document and explain dataset purpose.
+
+\section{Evaluation methodology}
+\label{sec:EvaluationMethodology}
+
+\todo{Introduce the evaluation methodology.}
+% - Explain how the pipeline will be validated and compared to Autoware.
+% - Present evaluation goals: object detection and TTC estimation.
+% - Mention the two evaluation perspectives: qualitative and quantitative.
+
+\subsection{Evaluation modes}
+\label{sec:EvalModes}
+
+\todo{Define qualitative and quantitative evaluation strategies.}
+% - Qualitative: visual inspection, number of detected objects, scene understanding.
+% - Quantitative: comparison of TTC values with ground truth or Autoware output.
+% - Justify why both methods are necessary for a complete analysis.
+
+\subsection{Recording scenarios and conditions}
+\label{sec:RecordingScenarios}
+
+\todo{Describe where and how the evaluation data was collected.}
+% - Mention urban test routes (e.g., Garching, Munich).
+% - List recording duration, vehicle speeds, traffic density.
+% - Describe topics recorded and weather conditions if relevant.
 
 \section{Perception pipeline evaluation}
-\label{sec:PerceptionPipelineEvaluation}
+\label{sec:PerceptionEvaluation}
 
-\subsection{Stereo image computation}
-\label{sec:StereoImageComputation}
+\todo{Introduce the pipeline evaluation section.}
+% - Describe what metrics are being used to evaluate perception performance.
+% - Introduce the modules to be tested: detection, tracking, clustering.
 
-% - Explain how the stereo image computation was evaluated
-\subsection{Optical flow computation}
-\label{sec:OpticalFlowComputation}
-% - Explain how the optical flow computation was evaluated
+\subsection{Qualitative results}
+\label{sec:QualitativeEval}
 
-\subsection{Ego motion estimation}
-\label{sec:EgoMotionEstimation}  
-% - Explain how the ego motion estimation was evaluated
+\todo{Present the qualitative comparison between your pipeline and Autoware.}
+% - Show visual outputs and describe the number and type of objects detected.
+% - Include examples of failure cases (missed or false detections).
+% - Discuss the visual coherence of clustering and motion estimation.
 
-\subsection{Kalman filter}
-\label{sec:KalmanFilterEvaluation}
-% - Explain how the Kalman filter was evaluated
+\subsection{Quantitative TTC comparison}
+\label{sec:TTCComparison}
 
-\subsection{Object detection}
-\label{sec:ObjectDetectionEvaluation}
-% - Explain how the object detection was evaluated
+\todo{Analyze and compare TTC values between pipelines.}
+% - Present TTC curves or distributions for selected urban driving segments.
+% - Discuss accuracy and robustness of TTC compared to Autoware baseline.
+% - Comment on differences due to velocity estimation or bounding box geometry.
 
-\section{Criticallity pipeline evaluation}
-\label{sec:CriticallityPipelineEvaluation}
+\section{Performance benchmarking}
+\label{sec:PerformanceBenchmarking}
+
+\todo{Introduce the performance benchmarking section.}
+% - Explain why runtime and computational load are evaluated.
+% - Describe goals: deployability on embedded systems, real-time constraints.
+
+\subsection{Tested hardware platforms}
+\label{sec:HWPlatforms}
+
+\todo{List and describe the platforms used for benchmarking.}
+% - Desktop PC, Laptop 1, Laptop 2, EDGAR onboard computer.
+% - Include specs: CPU, GPU, RAM, OS.
+% - Mention containerization or compilation settings if relevant.
+
+\subsection{Execution time and resource usage}
+\label{sec:HWPerformance}
+
+\todo{Present runtime and system load results for all platforms.}
+% - Use tables/figures to compare per-module execution time.
+% - Include CPU/GPU usage if measurable.
+% - Highlight bottlenecks and discuss real-time viability.
+
+\section{Summary of results}
+\label{sec:ResultsSummary}
+
+\todo{Summarize the main experimental findings.}
+% - Provide a final table summarizing detection, TTC, performance.
+% - Reflect on whether the system meets its intended goals.
+% - Set the stage for the discussion in the next chapter.
+
 
 
 % ====================================================================
 % ================== Discussion ======================================
 % ====================================================================
 \chapter{Summary and Conclusion}
-\label{chap:SummaryAndConclusion}- High level explanation on how the work will be structured. 
-- What the perception and criticallity pipeline are
-- Go through each component. 
+\label{chap:SummaryAndConclusion}
+
+\todo{Write a summary of the thesis, including the main contributions,
+the results obtained, and the implications for future work. Reflect on the
+limitations of the current implementation and suggest possible improvements.}
