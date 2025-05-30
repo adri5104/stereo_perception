@@ -3498,17 +3498,326 @@ encountered when the camera was tested in dynamic outdoor
 conditions are discussed in Section~\ref{sec:FramosLimitations}.
 
 
-
 \subsection{Initial tests with Framos camera}
 \label{sec:FramosCalibration}
 
-\todo{Describe the calibration experiments using the Framos camera.}
-% - Explain static experiments performed to evaluate depth range and field of view.
-% - Include alpha-angle tests (object crossing at different angles).
-% - Mention the recording of rosbags and topics (depth, color, optical flow).
-% - Refer to the document on Framos recording session.
+The initial evaluation phase consisted of two test sessions designed to 
+characterize the performance of the Framos D455e stereo camera and to calibrate 
+the parameters of the perception pipeline. The first session focused on direct 
+visual inspection of the raw depth output, while the second was based on 
+structured rosbag recordings integrated with the full pipeline.
 
-\subsection{Limitations and motivation for replacement}
+\subsubsection{Session 1: Visual depth quality inspection}
+
+In this session, the camera was operated outside the ROS 2 pipeline. A human 
+subject walked laterally with respect to the camera’s optical axis at fixed 
+distances of 2, 4, 6, 8, 10, and 12 meters. For each distance, a pair of frames 
+was recorded: one showing the raw 2D depth image, and one showing the 
+corresponding 3D point cloud visualization. These data were used to assess how 
+depth quality and spatial consistency degrade as the distance increases.
+
+Figure~\ref{fig:framos_2m_2d} and Figure~\ref{fig:framos_2m_3d} show the results 
+at 2 meters. The subject is clearly defined, and the depth structure is sharp. 
+In contrast, Figure~\ref{fig:framos_10m_2d} and Figure~\ref{fig:framos_10m_3d} 
+illustrate the camera output at 10 meters. In this case, the IR-based disparity 
+estimation produces noisy and incomplete results, making it unsuitable for 
+reliable motion tracking.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.7\textwidth]
+  {figures/framosEval/session1/depthResults/2.png}
+  \caption{Raw 2D depth image at 2\,m distance.}
+  \label{fig:framos_2m_2d}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.7\textwidth]
+  {figures/framosEval/session1/depthResults3D/2_1.png}
+  \caption{3D depth visualization at 2\,m distance.}
+  \label{fig:framos_2m_3d}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.7\textwidth]
+  {figures/framosEval/session1/depthResults/10.png}
+  \caption{Raw 2D depth image at 10\,m distance.}
+  \label{fig:framos_10m_2d}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.7\textwidth]
+  {figures/framosEval/session1/depthResults3D/10_1.png}
+  \caption{3D depth visualization at 10\,m distance.}
+  \label{fig:framos_10m_3d}
+\end{figure}
+
+The complete set of 2D and 3D depth images from this session, including 
+intermediate distances, is available in Appendix~\ref{app:framos_depth}.
+
+From these tests, it was concluded that the Framos D455e camera provides 
+usable depth information up to approximately 8\,m in outdoor daylight 
+conditions. Beyond this range, depth quality degrades rapidly, introducing 
+noise and outliers that affect the reliability of the perception modules.
+
+This session also revealed an important phenomenon related to the motion 
+of objects across the image plane. When a tracked \texttt{WorldPoint} lies on 
+the border of a moving object—such as a person walking laterally across 
+the field of view—it can be erroneously reassigned to the background in 
+the following frame if the object moves past it. As a result, the Kalman 
+filter receives an invalid depth measurement from a distant surface, 
+causing a sharp discontinuity in the estimated position.
+
+This discontinuity leads to the creation of an artificial velocity vector 
+in the opposite direction of the motion. The resulting ghost vectors 
+appear visually as a "depth shadow" that trails the object and can 
+introduce false positives in the clustering stage. An example of this 
+effect is shown in Figure~\ref{fig:framos_depth_shadow}, where the 
+depth discontinuity causes a spurious motion estimate along the wall.
+
+\todo{Add a figure showing the depth shadow effect.}
+
+This observation motivated the need for controlled experiments with 
+known motion trajectories, leading to the second session described below.
+
+\subsubsection{Session 2: Structured rosbag recording}
+\label{sec:FramosRosbagRecording}
+
+
+
+The objective of this recording session was to acquire structured datasets 
+under repeatable and controlled conditions, using only raw sensor data from 
+the Framos stereo camera. Unlike the first session, where depth quality was 
+evaluated directly, this phase focused on generating rosbags that would later 
+be used for offline parameter tuning and performance validation.
+
+To this end, three types of scenarios were recorded:
+\begin{itemize}
+  \item \textbf{range test}, in which a subject walked directly towards the 
+        camera, enabling later analysis of detection range and point 
+        initialization behavior.
+  \item \textbf{alpha-angle test}, where the subject followed predefined 
+        diagonal trajectories at known angles, intended to study how trajectory 
+        orientation affects tracking quality and velocity estimation.
+  \item \textbf{dynamic test}, conducted with the EDGAR vehicle in motion, 
+        to assess the perception pipeline's robustness under real driving 
+        conditions.
+\end{itemize}
+
+All scenarios were recorded with the vehicle in a fixed or controlled setting, 
+and no processing was performed online. The pipeline was executed offline after 
+recording to allow parameter sweeps and diagnostic visualization in RViz. 
+These datasets form the basis for the calibration process described in 
+Section~\ref{sec:FramosCalibration}, and the evaluation of results in 
+Section~\ref{sec:FramosLimitations}. \paragraph{Range test}
+\label{sec:FramosRangeTest}
+
+This test was carried out in front of the Leichtbauhalle at the Garching 
+Forschungszentrum campus, with the goal of evaluating at which distance 
+the subject becomes detectable and consistently trackable by the perception 
+pipeline. A series of ground markers were placed between 30\,m and 1\,m in 
+front of the EDGAR vehicle, defining a straight walking path aligned with 
+the optical axis of the Framos camera.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.5\textwidth]
+  {figures/framosEval/session2/rangeTest/rangeTest.png}
+  \caption{Range test experiment setup. Source: own work}
+  \label{fig:rangeTest}
+\end{figure}
+
+During the test, a person walked toward the vehicle at constant speed, 
+passing through each marker. The camera was mounted on top of EDGAR in 
+its standard forward-facing configuration. No processing was performed 
+online; instead, the raw sensor data were recorded for offline analysis 
+and calibration.
+
+The following topics were captured:
+\begin{itemize}
+  \item Color image: 
+    \texttt{/device\_0/sensor\_1/Color\_0/image/data}
+  \item Depth image: 
+    \texttt{/device\_0/sensor\_0/Depth\_0/image/data}
+  \item Camera info: 
+    \texttt{/device\_0/sensor\_0/Depth\_0/info/camera\_info}
+\end{itemize}
+
+This dataset enabled later evaluation of Kalman filter initialization 
+behavior at different distances, and provided ground evidence to assess 
+how depth quality and measurement stability degrade as the object 
+approaches. A schematic of the test setup is shown in 
+Figure~\ref{fig:framos_range_test_schematic}.
+
+\paragraph{Alpha-angle test}
+\label{sec:FramosAlphaAngleTest}
+
+In this test, a human subject walked along six predefined trajectories forming 
+known angles \(\alpha\) with respect to the optical axis of the Framos camera. 
+The objective was to evaluate the impact of trajectory orientation on the 
+stability and accuracy of the estimated 6D velocity vectors. This setup also 
+enabled partial ground truth estimation by comparing the known motion direction 
+with the one inferred by the Kalman filter.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.6\textwidth]
+  {figures/framosEval/session2/angleTest/angleTest.png}
+  \caption{Angle test experiment setup. Source: own work}
+  \label{fig:alphaTest}
+\end{figure}
+
+The camera was mounted on the EDGAR vehicle in a fixed position, and the 
+subject's path was defined by marking the start and end points on the ground 
+using measuring tape. These positions were chosen to produce \(\alpha\) values 
+ranging from 14° to over 80°, as summarized in Table~\ref{tab:alpha_tests}. The 
+subject maintained approximately constant speed during all recordings.
+
+In some trajectories, the motion crossed the center of the field of view, while 
+in others it remained off-center. This variety helped evaluate the sensitivity 
+of the perception pipeline to viewing angle and occlusion effects.
+
+As in the previous test, only raw sensor data were recorded. The following topics 
+were captured:
+
+\begin{itemize}
+  \item Color image: 
+    \texttt{/device\_0/sensor\_1/Color\_0/image/data}
+  \item Depth image: 
+    \texttt{/device\_0/sensor\_0/Depth\_0/image/data}
+  \item Camera info: 
+    \texttt{/device\_0/sensor\_0/Depth\_0/info/camera\_info}
+  \item Odometry (for reference frame tracking)
+\end{itemize}
+
+The dataset was later used to calibrate the directional sensitivity of the 
+velocity estimation module and to verify the consistency of the motion model 
+under varying geometric conditions.
+
+A summary of all trajectories is shown in Figure~\ref{fig:alpha_trajectories}, 
+and their corresponding coordinates and angles are listed in 
+Table~\ref{tab:alpha_tests}.
+
+\begin{figure}[H]
+  \centering
+
+  \begin{minipage}{0.31\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figures/framosEval/session2/angleTest/test21_1.png}
+    \small Test21\_1 (\(\alpha = 14.04^\circ\))
+  \end{minipage}
+  \hfill
+  \begin{minipage}{0.31\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figures/framosEval/session2/angleTest/test21_2.png}
+    \small Test21\_2 (\(\alpha = 26.57^\circ\))
+  \end{minipage}
+  \hfill
+  \begin{minipage}{0.31\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figures/framosEval/session2/angleTest/test21_3.png}
+    \small Test21\_3 (\(\alpha = 45.00^\circ\))
+  \end{minipage}
+
+  \vspace{1em}
+
+  \begin{minipage}{0.31\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figures/framosEval/session2/angleTest/test21_4.png}
+    \small Test21\_4 (\(\alpha = 60.26^\circ\))
+  \end{minipage}
+  \hfill
+  \begin{minipage}{0.31\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figures/framosEval/session2/angleTest/test21_5.png}
+    \small Test21\_5 (\(\alpha = 75.96^\circ\))
+  \end{minipage}
+  \hfill
+  \begin{minipage}{0.31\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figures/framosEval/session2/angleTest/test21_6.png}
+    \small Test21\_6 (\(\alpha = 80.54^\circ\))
+  \end{minipage}
+
+  \caption{Overview of the six recorded trajectories used in the alpha-angle test.}
+  \label{fig:alpha_trajectories}
+\end{figure}
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{lccc}
+    \toprule
+    \textbf{Recording} & \textbf{P0 (Xw, Yw)} & \textbf{P1 (Xw, Yw)} & \textbf{$\alpha$ (deg)} \\
+    \midrule
+    Test21\_1 & (-2, 8) & (0, 0) & 14.04 \\
+    Test21\_2 & (-4, 8) & (0, 0) & 26.57 \\
+    Test21\_3 & (-4, 8) & (4, 0) & 45.00 \\
+    Test21\_4 & (-8, 8) & (6, 0) & 60.26 \\
+    Test21\_5 & (-8, 6) & (8, 2) & 75.96 \\
+    Test21\_6 & (-7, 5) & (5, 3) & 80.54 \\
+    \bottomrule
+  \end{tabular}
+  \caption{Coordinates and angles of recorded trajectories.}
+  \label{tab:alpha_tests}
+\end{table}
+
+This test provided valuable insight into how trajectory orientation affects the 
+geometry of observations and the robustness of temporal tracking. The variety of 
+angles and lateral offsets allowed for systematic tuning of the motion model 
+parameters and velocity estimation logic. These data were later used as part of 
+the pipeline calibration procedure described in Section~\ref{sec:FramosCalibration}.
+
+
+\paragraph{Dynamic test}
+\label{sec:FramosDynamicTest}
+
+The third recording scenario consisted of a short autonomous drive 
+with EDGAR around the perimeter of the Leichtbauhalle building at 
+Garching Forschungszentrum. The objective was to evaluate the behavior 
+of the perception pipeline under motion-induced perturbations, such as 
+camera vibration, parallax variation, and changing egocentric viewpoint. 
+Unlike the previous tests, this scenario included continuous egomotion 
+of the camera platform.
+
+The vehicle followed a predefined loop at a speed of approximately 
+10–15\,km/h, maintaining a smooth trajectory without abrupt 
+accelerations or stops. The total duration of the recording was around 
+two minutes. Although the environment included road infrastructure 
+and occasional traffic participants, few dynamic objects were present 
+in the recorded scene. Nonetheless, the data served as a valuable 
+baseline for evaluating the robustness of perception modules under 
+non-static conditions.
+
+As in the other scenarios, only raw camera data were recorded. The 
+topics included:
+
+\begin{itemize}
+  \item Color image: 
+    \texttt{/device\_0/sensor\_1/Color\_0/image/data}
+  \item Depth image: 
+    \texttt{/device\_0/sensor\_0/Depth\_0/image/data}
+  \item Camera info: 
+    \texttt{/device\_0/sensor\_0/Depth\_0/info/camera\_info}
+\end{itemize}
+
+This dataset was later used to calibrate the egomotion compensation 
+module and to evaluate the pipeline’s performance under real driving 
+conditions. The full route is illustrated in 
+Figure~\ref{fig:framos_dynamic_route}.
+
+\todo{Add route illustration as Figure~\ref{fig:framos_dynamic_route}}
+
+
+\subsection{Calibration of the perception pipeline}
+\label{sec:FramosCalibration}
+
+\todo{Describe the parameter calibration session with the Framos camera.}
+
+
+\subsection{Results, limitations and motivation for replacement}
 \label{sec:FramosLimitations}
 
 \todo{Discuss the limitations of the Framos stereo camera.}

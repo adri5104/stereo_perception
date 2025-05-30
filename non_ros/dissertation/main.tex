@@ -23,6 +23,7 @@ optCMYK%					printing text pages as black and white
 \usepackage{float} % In your preamble
 \usepackage{algorithm}
 \usepackage{algpseudocode}
+\usepackage{graphicx}
 
 
 \include{source/lists/abbreviations}% Definition of Acronyms
@@ -78,11 +79,11 @@ optCMYK%					printing text pages as black and white
 %% =========================
 %% ------- Appendix --------
 %% =========================
-%\begin{appendices}%
-%	\FTMAppendix%
-%	\FTMPrintTableOfAppendix%
-%	\include{source/appendix}%
-%\end{appendices}%
+\begin{appendices}%
+	\FTMAppendix%
+	\FTMPrintTableOfAppendix%
+	\include{source/appendix}%
+\end{appendices}%
 %
 %
 \end{document}%

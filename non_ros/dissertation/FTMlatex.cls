@@ -740,7 +740,7 @@
 % Use german as default, if no language has been selected
 \ifdefined\optGerman\else%
 \ifdefined\optEnglish\else%
-	\def\optGerman{x}%
+	\def\optEnglish{x}%
 \fi%
 \fi%
 %
