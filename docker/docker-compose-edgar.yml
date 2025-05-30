@@ -43,7 +43,7 @@ services:
       - bash
       - -c
       - >
-          ros2 launch perception_pipeline_launch launch_pipeline_container.launch.py
+          ros2 launch perception_pipeline_launch perception_pipeline_container.launch.py
 
   criticallity_pipeline_multisense:
     image: gitlab.lrz.de:5005/teleoperiertes_fahren/research_brecht/stereo_perception/criticallity_pipeline:1.0.0
