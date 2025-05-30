@@ -4,3 +4,6 @@
 [submodule "src/utils/tod_msgs"]
 	path = src/utils/tod_msgs
 	url = git@gitlab.lrz.de:teleoperiertes_fahren/tod_software/tod_msgs.git
+[submodule "src/utils/autoware_auto_msgs"]
+	path = src/utils/autoware_auto_msgs
+	url = https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs.git
