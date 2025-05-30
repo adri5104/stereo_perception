@@ -32,8 +32,8 @@ find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
-find_package(autoware_msgs REQUIRED)
-find_package(autoware_auto_msgs REQUIRED)
+find_package(autoware_perception_msgs REQUIRED)
+find_package(autoware_auto_perception_msgs REQUIRED)
 find_package(stereo_perception_msgs REQUIRED)
 
 
@@ -49,8 +49,8 @@ set(INCLUDE_DIRS
     ${nav_msgs_INCLUDE_DIRS}
     ${geometry_msgs_INCLUDE_DIRS}
     ${std_msgs_INCLUDE_DIRS}
-    ${autoware_msgs_INCLUDE_DIRS}
-    ${autoware_auto_msgs_INCLUDE_DIRS}
+    ${autoware_perception_msgs_INCLUDE_DIRS}
+    ${autoware_auto_perception_msgs_INCLUDE_DIRS}
     ${stereo_perception_msgs_INCLUDE_DIRS}
 )
 
@@ -61,8 +61,8 @@ if(ROS_VERSION STREQUAL "humble")
       std_msgs
       geometry_msgs
       nav_msgs
-      autoware_msgs
-      autoware_auto_msgs
+      autoware_perception_msgs
+      autoware_auto_perception_msgs
       stereo_perception_msgs
   )
 else()
@@ -71,8 +71,8 @@ else()
       std_msgs
       geometry_msgs
       nav_msgs
-      autoware_msgs
-      autoware_auto_msgs
+      autoware_perception_msgs
+      autoware_auto_perception_msgs
       stereo_perception_msgs
       )
 endif()
