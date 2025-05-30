@@ -1,0 +1,48 @@
+\chapter*{\FTMlangFormulaSymbolsName}
+\label{Formelzeichen}
+\addcontentsline{toc}{chapter}{\FTMlangFormulaSymbolsName}
+
+\begin{flushleft}%
+	\begingroup%
+	\renewcommand\arraystretch{1.8}%
+	\setlength\tabcolsep{0pt}%
+	\begin{longtable}[l]{>{\fontsize{12pt}{12pt}\selectfont$}M{3.5cm}<{$} >{\fontsize{10pt}{10pt}\selectfont}M{2.3cm}<{} >{\fontsize{10pt}{10pt}\selectfont}m{10cm}<{}}%
+
+		\text{\fontsize{10pt}{10pt}\selectfont \FTMlangFormulaSymbolsName} & \text{\FTMlangFormulaSymbolsUnitName} & \FTMlangFormulaSymbolsDescriptionName \\
+		\midrule
+
+		f_x & \si{px} & Focal length of the camera in the x direction \\
+		f_y & \si{px} & Focal length of the camera in the y direction \\
+		c_x & \si{px} & x coordinate of the principal point \\
+		c_y & \si{px} & y coordinate of the principal point \\
+
+		\mathbf{x}_k & & State vector at time $k$ (3D position and velocity) \\
+		\hat{\mathbf{x}}_k & & Predicted state vector at time $k$ \\
+		\mathbf{P}_k & & State covariance matrix \\
+		\hat{\mathbf{P}}_k & & Predicted state covariance matrix \\
+		\mathbf{A} & & State transition matrix \\
+		\mathbf{B} & & Control input matrix \\
+		\mathbf{u}_k & & Control input vector (e.g. ego-motion) \\
+		\boldsymbol{\omega}_k & & Process noise vector \\
+		\mathbf{Q} & & Covariance matrix of process noise \\
+    
+		\mathbf{z}_k & & Measurement vector (e.g. pixel + depth) \\
+		\hat{\mathbf{z}}_k & & Predicted measurement vector \\
+		\mathbf{H} & & Measurement matrix (linear case) \\
+		\mathbf{H}_k & & Jacobian of the nonlinear measurement function \\
+		\mathbf{h}(\cdot) & & Nonlinear measurement function \\
+		\mathbf{R} & & Measurement noise covariance matrix \\
+		\hat{\mathbf{T}}_k & & Predicted measurement covariance \\
+		\mathbf{s}_k & & Innovation vector (residual) \\
+		\mathbf{S}_k & & Innovation covariance matrix \\
+		\mathbf{K}_k & & Kalman gain \\
+		\mathbf{I} & & Identity matrix \\
+
+		u_k & \si{px} & Horizontal pixel coordinate \\
+		v_k & \si{px} & Vertical pixel coordinate \\
+		d_k & \si{m} & Depth value \\
+		\Delta t & \si{s} & Time difference between frames \\
+
+	\end{longtable}%
+	\endgroup%
+\end{flushleft}%

@@ -1,0 +1,1270 @@
+\chapter{Anleitung zur FTM-Latex-Vorlage}%
+\label{chap:Anleitung}%
+Die vorliegende Anleitung dient dazu, die Arbeit mit Latex zu erleichtern und eine Einführung in die wichtigsten Packages zu geben. Für alle Fragen zu den Themen Layout, Formatierungen und inhaltlicher Aufbau wird auf die Word"=Vorlage verwiesen.%
+%
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Warum überhaupt LaTeX?}%
+\label{sec:WarumLatex}%
+Zu Beginn einer wissenschaftlichen Arbeit steht häufig die grundlegende Frage im Raum: Mit welchem Programm soll ich diese Arbeit verfassen? Hierbei gibt es zwei realistische Antworten: Word oder LaTeX. Während Word den meisten bereits bekannt ist und daher für den Einstieg große Vorteile bietet, führt LaTeX zunächst ein Nischendasein und erfordert einen gewissen \glqq{}Einarbeitungsaufwand\grqq{}.%
+
+Langfristig bietet LaTeX jedoch sehr große Vorteile, gerade beim Schreiben größerer Dokumente. Im Folgenden wollen wir kurz die Vor- und Nachteile von LaTeX darstellen, um für dich eine gute Entscheidungsgrundlage zu schaffen:%
+
+Vorteile:
+\begin{itemize}%
+	\item Trennung von Inhalt und Layout: Beim Schreiben konzentriert man sich ausschließlich auf den Inhalt des Textes.%
+	\item Automatisiertes Layout nach den Regeln des Schriftsatzes im Hinblick auf gute, angenehme Lesbarkeit%
+	\item Das eigentliche Dokument der Studienarbeit besteht ausschließlich aus Text. Bilder werden erst beim Erstellen in das pdf eingefügt, wodurch die Hauptdatei auch bei längeren Arbeiten trotz hochqualitativer Bilder kaum anwächst. Somit wird die Bearbeitung des Dokuments auch bei großen Dokumenten kaum langsamer.%
+	\item LaTeX ist dauerhaft zuverlässig: Wenn etwas einmal funktioniert hat, dann funktioniert es immer.%
+	\item LaTeX-Projekte bestehen, wie oben beschrieben, ausschließlich aus Text. Somit können beim Schreiben ganz einfach Programme für die Versionsverwaltung (git) verwendet werden und das endlose Umbenennen von Dateien in \glqq{}final\grqq{}, \glqq{}final-final\grqq{}, \glqq{}jetzt-aber-wirklich-final\grqq{} hat ein Ende.%
+	\item Verwendung von Formeln: Das Einfügen von mathematischen Ausdrücken ist sehr einfach, da alle Zeichen und Buchstaben durch Kürzel (wie z.B. $\pi$ durch \verb|\pi|) zur Verfügung stehen.\newpage%
+	\item Verwendung von Quellcode: Das Einbinden von Quellcode (mit Syntax"=High\-lighting und Zeilennummern) ist ein großer Vorteil von LaTeX, wobei verschiedene Programmiersprachen wie bspw.~Matlab, Python, etc. verwendet werden können. Auch das Einbinden von ganzen Code-Files ist möglich, wenn auch nicht empfehlenswert.
+\end{itemize}%
+
+Nachteile:
+\begin{itemize}%
+	\item Einarbeitungsaufwand: Wir geben uns mit dieser Vorlage zwar alle Mühe, den Einarbeitungsaufwand für den Einzelnen zu reduzieren, allerdings wirst Du nicht daran vorbeikommen, Dich ein wenig mit LaTeX zu befassen.%
+	\item LaTeX ist eine Art Programmiersprache, die es zu erlernen gilt.%
+	\item Teilweise ist LaTeX nicht besonders intuitiv, sodass beispielsweise die Silbentrennung nicht ganz so gut funktioniert wie in Word. An manchen Stellen muss daher beim letzten Durchlesen des Dokuments manuell Hand angelegt werden.%
+\end{itemize}%
+%
+Zusammenfassend sei gesagt, dass keinem die Entscheidung für Word oder LaTeX abgenommen werden kann. Beide Programme haben ihre Vor- und Nachteile, sodass nur das Abwägen derselben zu einer sinnvollen Entscheidung führen kann.%
+%
+%
+%
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Softwareumgebung einrichten}%
+\label{sec:Softwareumgebung}%
+Dieses Kapitel stellt verschiedene Programme vor, welche bei der Erstellung deiner Studienarbeit hilfreich sein können. Falls du noch nicht mit LaTeX gearbeitet hast, ist insbesondere \FTMsecref{sec:Latex} mit einer detaillierten Einrichtung von TeXstudio interessant. Darauf folgen Tools aus den Bereichen Vektorgrafik, Produktivität,  etc., welche jeweils mit Link und einem Satz beschrieben werden. Hier ist eine Umfrage, um Ideen für weitere Tools zu finden, die hier vorgestellt werden sollten:%
+
+\href{https://goo.gl/forms/Y5J2O7CNfBdV9Zqa2}{https://goo.gl/forms/Y5J2O7CNfBdV9Zqa2}%
+%
+%
+%
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Latex installieren und einrichten}%
+\label{sec:Latex}%
+Ebenso, wie Word benötigt wird, um \glqq{}*.doc\grqq{}-Dateien zu bearbeiten, wird ein Latex-Editor für \glqq{}*.tex\grqq{}-Dateien benötigt. Das Ziel dieses Abschnitts ist, dir bei der Installation und Einrichtung der Latex-Umgebung zu helfen. Danach wirst du in der Lage sein, diese Latex-Vorlage zu bearbeiten und mit dem Schreiben der Studienarbeit zu beginnen. Der Aufbau dieser Vorlage ist in \FTMsecref{chap:Aufbau} erklärt und wertvolle Tipps zum Umgang mit Latex bekommst du in \FTMsecref{chap:Arbeiten}.%
+\begin{enumerate}%
+		\item \textbf{MiKTeX}: Damit der Latex-Editor die \glqq{}.*tex\grqq{}-Dateien richtig interpretieren kann, wird eine sogenannte TeX-Distribution benötigt. Lade \href{https://miktex.org/download}{MiKTeX} herunter und klick Dich durch die Installation.\\%
+		\textbf{TexLive}: Falls eine Version von TexLive verwendet werden soll, muss die Schriftart Arial nachinstalliert werden, da diese nicht in TexLive enthalten ist. Hierfür muss unter \href{http://www.tug.org/fonts/getnonfreefonts/}{http://www.tug.org/fonts/getnonfreefonts/} das Programm \textit{getnonfreefonts} heruntergeladen werden. Nach abgeschlossenem Download muss mit der Konsole (Windows: cmd [als Administrator ausführen], Mac: Terminal) mithilfe von \verb|cd C:\Users\...| in den Ordner gewechselt werden in den die Datei heruntergeladen wurde. Anschließend in der Konsole den Befehl \verb|texlua install-getnonfreefonts| ausführen. Nun ist das Programm installiert. Um nun die Schriftart Arial zu installieren, muss weiterhin der Befehl \verb|getnonfreefonts --sys arial-urw| oder für die Installation aller Schriftarten \verb|getnonfreefonts --sys --all| eingegeben werden.%
+	\item \textbf{TeXstudio}: Als guten Latex-Editor empfehlen wir Dir \href{https://www.texstudio.org/}{TeXstudio}, den Du ebenfalls herunterladen und installieren musst. Auch hier kannst du dich einfach durch die Installation klicken. Um diese Vorlage zu nutzen, musst du anschließend TeXstudio starten und Biber als Standard Bibliografieprogramm setzen.%
+	\FTMinstruction{Auswahl von biber in TeXstudio:}{\textit{Optionen} $\rightarrow$ \textit{TeXstudio konfigurieren...} $\rightarrow$ \textit{Erzeugen} $\rightarrow$ \textit{Standard Bibliographieprogramm} $\rightarrow$ \textit{Biber}}%
+	\FTMinstruction{Auswahl von biber in TeXmaker (Alternativ):}{\textit{Optionen} $\rightarrow$ \textit{Texmaker konfigurieren...} $\rightarrow$ \textit{Befehle} $\rightarrow$ \textit{Bib(la)tex} $\rightarrow$ \textit{biber \%}}%
+
+	Wenn du eine \glqq{}*.tex\grqq{}-Datei geöffnet hast, kannst du daraus mit Klick auf den doppelten grünen Pfeil (\includegraphics[width=3mm]{./figures/TeXstudioPfeil}) ein PDF erzeugen.%
+
+	Ein Latex-Projekt (z.\,B.~auch diese Vorlage) besteht meist aus mehreren Dateien. Dabei gibt es für Latex eine \glqq{}Hauptdatei\grqq{}, in der die Anweisungen stehen, an welcher Stelle welche andere Datei eingebunden werden soll. Dem TeXstudio muss man vor dem ersten Erzeugen noch klarmachen, welche Datei die Hauptdatei ist.%
+	\FTMinstruction{Einstellen des Root-Dokuments:}{In TeXstudio die \textit{main.tex} öffnen $\rightarrow$ \textit{Optionen} $\rightarrow$ \textit{Root Dokument} $\rightarrow$ \textit{Aktuelles Dokument explizit als Rootdokument setzen} auswählen}%
+
+	Somit weiß TeXstudio in Zukunft, für das vorliegende Projekt die Datei main.tex die Hauptdatei darstellt und alle anderen Dateien dort eingebunden sind.%
+
+	Um die Autovervollständigung zu aktivieren, muss die \glqq FTMlatex.cwl\grqq , die alle vordefinierten Kommandos enthält, in TeXstudio eingebunden und aktiviert werden.%
+	\FTMinstruction{Autovervollständigung für FTM"=Kommandos:}{	\textit{FTMlatex.cwl} in \path{C:\Users\...\AppData\Roaming\TeXstudio\completion\user} kopieren $\rightarrow$ TeXstudio neu starten $\rightarrow$ \textit{Optionen} $\rightarrow$ \textit{TeXstudio konfigurieren...} $\rightarrow$ Im Reiter \textit{Vervollständigung} die Datei \textit{FTMlatex.cwl} aktivieren $\rightarrow$ \textit{OK}}%
+		\item \textbf{Java} (optional): Um das LanguageTool aus dem nächsten Schritt zu nutzen, muss \href{https://java.com/de/download/}{Java} installiert werden. Auch hier kannst Du Dich einfach durch die Installation klicken.%
+	\item \textbf{LanguageTool} (optional): TeXstudio bietet die Möglichkeit, \href{https://languagetool.org/de/}{LanguageTool} zur Rechtschreib- und Grammatikprüfung zu nutzen. Lade dafür die Desktop-Version herunter und verschiebe den entpackten Ordner nach \path{C:\Programme(x86)}. Zusätzlich muss ein Wörterbuch heruntergeladen werden, für Deutsch empfehlen wir das \href{https://extensions.openoffice.org/de/project/german-de-de-frami-dictionaries}{Frami-Wörterbuch von OpenOffice}. Lade die Datei herunter und ändere die Endung von \glqq{}*.oxt\grqq{} zu \glqq{}.zip\grqq{}. In dem Zip befindet sich der Ordner \path{de_DE_frami}, öffne diesen Ordner und verschiebe alle Dateien daraus nach \path{C:\Users\deinName\AppData\Roaming\texstudio\dictionaries}. Nun musst du noch das \glqq{}frami\grqq{} aus den Dateinamen löschen, sodass der \path{dictionaries} Ordner aussieht wie in \FTMfigref{fig:LanguageTool}. Abschließend musst Du in TeXstudio unter \textit{Optionen > TeXstudio konfigurieren... > Sprache prüfen} das Tool einrichten. Übernehme die Parameter aus \FTMfigref{fig:LanguageTool} und passe den Pfad zum Wörterbuch, Java und dem LanguageTool entsprechend Deinem Rechner und Deinen Versionen an.%
+\end{enumerate}%
+\begin{figure}[!htbp]%
+	\centering%
+	\includegraphics[width=120mm]{./figures/LanguageToolsSetting}%
+	\caption{Einrichtung des LanguageTools in TeXstudio}%
+	\label{fig:LanguageTool}%
+\end{figure}%
+\FloatBarrier%
+%
+Hast du alle oben beschriebenen Schritte erfolgreich hinter dich gebracht, kann es für dich mit LaTeX losgehen!%
+
+\textbf{Info:} Für gemeinsame LaTeX-Projekte an der TUM (z.\,B.~Paper oder Projektberichte) kann die Website \href{https://sharelatex.tum.de}{\textbf{\textit{Sharelatex (sharelatex.tum.de)}}} verwendet werden. Der große Vorteil davon ist, das mehrere Leute gleichzeitig und live an einem Projekt arbeiten können, während eine Versionsverwaltung wie bspw.\,GIT Änderungen immer erst zeitverzögert darstellen kann.%
+
+Neben dem TeXstudio existiert für Word-Fans ein Latex-Editor namens \href{https://www.lyx.org/}{\textbf{Lyx}}, der sich im Handling ähnlich wie Word verhält, jedoch im Hintergrund Latex-Code erzeugt. Es handelt sich also um einen sogenannten WYSIWYG-Editor (\gls{wysiwyg}), mit dessen Hilfe der Einstieg zu Beginn etwas leichter fällt. Großer Nachteil davon ist allerdings, dass der Lerneffekt hinsichtlich Latex sowie das Verständnis der Zusammenhänge deutlich zurückbleibt und damit Phänomene auftauchen, bei denen nicht verstanden wird, warum das so geschieht. Aus diesem Grund raten wir von der Verwendung eines \gls{wysiwyg}-Editors ab und empfehlen die Kombination aus dem TeXstudio und dieser Anleitung.%
+%
+%
+%
+%
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Literaturverwaltung}%
+\label{sec:Literaturverwaltung}%
+Literaturverwaltungsprogramme oder Referenzmanager helfen bei der Erstellung einer wissenschaftlichen Arbeit, die eigene Literatur zu verwalten und so, auch bei vielen Quellen, den Überblick zu behalten. Beispielsweise können Quellen nach Schlagwörtern geordnet und durchsucht sowie direkt aus dem Programm geöffnet werden. Gleichzeitig können Bibliographien exportiert werden, um sie in das \LaTeX{}-Dokument einzubinden (\FTMfullref{subsec:BibliographieEinbinden}). Einen Überblick über die verschiedenen Literaturverwaltungsprogramme, sowie deren Vor- und Nachteile findest du auf der \href{https://mediatum.ub.tum.de/1316333}{Homepage der Universitätsbibliothek} \cite{Literaturverwaltungsprogramme}.%
+
+Im Rahmen der Campuslizenz wird \href{https://www.ub.tum.de/citavi}{\textit{Citavi}} von der Universitätsbibliothek zur Verfügung gestellt \cite{CitaviCampusLizenz}, weshalb sich die folgenden Beispiele auf \textit{Citavi} beziehen. Auf \textit{macOS} können Programme wie \textit{Mendeley}, \textit{JabRef} oder \textit{BibDesk} genutzt werden.%
+
+Neue Titel (neue Quellen) können als unterschiedliche Typen angelegt werden. Der Typ steuert die möglichen Felder des Eintrags und definiert den Stil der Ausgabe im Literaturverzeichnis des Dokuments. Online"=Quellen sollten als \textit{Internetdokument} angelegt werden. Zudem sollte das Feld \textit{Zuletzt geprüft am} ausgefüllt werden, da dieses im Literaturverzeichnis das Abrufdatum definiert.%
+
+Hilfreiche Tools sind der \textit{Citavi Picker} \cite{CitaviPicker} und der \textit{Mendeley Web Importer} \cite{MendeleyWebImporter}, die in allen gängigen Webbrowsern installiert und genutzt werden können. Sie ermöglichen es, auf den meisten Online"=Literatursammlungen die Quelleninformationen direkt in das Literaturverwaltungsprogramm zu importieren. Gleiches funktioniert mit \textit{RefMan}-Einträgen, die mit \textit{Google Scholar} erstellt und in die Literaturverwaltungsprogramme importiert werden können \cites{Citavi2GoogleScholar}.%
+%
+%
+%
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Grafikprogramme}%
+\label{sec:Grafikprogramme}%
+Die folgenden Tools eignen sich zum Erstellen verschiedener Arten von Grafiken. Achte immer darauf, eine editierbare Datei zu speichern und wenn möglich ausschließlich Vektorgrafiken zu nutzen! Vektorgrafiken verpixeln nicht und halten die Datei klein.%
+\begin{enumerate}%
+	\item \href{https://inkscape.org/de/}{\textbf{Inkscape}}: Umfangreiches Programm zur Erstellung und Bearbeitung von Vektorgrafiken.%
+	\item \href{https://www.yworks.com/products/yed}{\textbf{yEd Graph}}: Spezialisiert auf Diagramme wie Flowcharts, Klassendiagramme, Mindmaps und viele mehr.%
+	\item \href{https://www.draw.io/}{\textbf{draw.io}}: Leicht zu bedienendes Web-Tool zur Erstellung von Diagrammen und Vektorgrafiken.%
+	\item \href{https://www.mathcha.io/editor}{\textbf{Mathcha.io}}: Online-Editor zur Erstellung von Formeln und TikZ-Grafiken (u.\,a. Rechtecke, Kreise, Achsen, etc.) nach dem \gls{wysiwyg}-Prinzip. Die Export-Funktion für LaTeX- und TikZ-Code ist ohne Anmeldung verfügbar, mit einem Account können die erstellten Formeln und Grafiken gespeichert und später weiter bearbeitet werden.%
+	\item \href{https://code.google.com/archive/p/tikzedt/}{\textbf{Tikzedt}}: Graphischer Editor zur Erstellung von Tikz-Grafiken. Es handelt sich dabei um einen \gls{wysiwyg}-Editor, der auch ohne Installation funktioniert.%
+	\item \href{http://www.jonathanleroux.org/software/iguanatex/}{\textbf{IguanaTex}}: Extension für PowerPoint, um Tikz-Umgebungen (wie bspw.~Formeln oder Prinzipskizzen aus Tikz) als Vektor- oder Rastergrafik auf Präsentationsfolien einzubinden. Damit kann der Präsentation in PowerPoint der letzte Schliff gegeben werden und Formeln und Bilder einfach übernommen werden, wenn die schriftliche Ausarbeitung in LaTeX geschrieben wurde.%
+\end{enumerate}%
+Vektorgrafiken können auch direkt in LaTeX mit Hilfe von TikZ bzw. PGF erstellt werden. Es lassen sich auch MATLAB-Grafiken in TikZ umwanden. Eine detaillierte Beschreibung findest du in \FTMfullref{sec:GrafikenTabellen}.%
+%
+%
+%
+%
+%
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Produktivität}%
+\label{sec:Produktivität}%
+\begin{enumerate}%
+	\item \href{https://trello.com/}{\textbf{Trello}}: Übersichtliches Tool um Projekte zu organisieren und Aufgaben zu tracken.
+	\item \href{https://de.todoist.com/}{\textbf{Todoist}}:	Klassische To-do-Liste mit der Möglichkeit Fristen und Prioritäten hinzuzufügen. %
+	\item \href{https://de.atlassian.com/software/confluence}{\textbf{Confluence}}: Umfangreiches Projektmanagement-Tool, bei dem mehrere Benutzer gleichzeitig Dokumente bearbeiten können.%
+	\item \href{https://www.gitkraken.com/}{\textbf{Git Kraken}}: Bietet GUI für alle nötigen GIT Funktionen.%
+	\item \href{https://toggl.com/}{\textbf{Toggl}}: Zeiterfassungstool mit schneller Bedienung und Zuweisung von Einzel-Projekten und detaillierte wöchentliche und monatliche Auswertungen.%
+	\item \href{https://my.timesheet.io/login}{\textbf{Timesheet}}: Detailliertes Zeiterfassungstool mit schneller Bedienung.%
+	\item \href{https://autohotkey.com/}{\textbf{Autohotkey}}: Programm zur Erstellung globaler Shortcuts im Betriebssystem, um bspw.~Textbausteine wie neue Tabellen- oder Bild-Umgebungen im Latex-Code zu definieren und somit weniger Tippaufwand zu haben.%
+\end{enumerate}%
+%
+%
+%
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Aufbau der FTM-Latex-Vorlage}%
+\label{chap:Aufbau}%
+Die \LaTeX"=Vorlage besteht aus zwei Dateien und zwei Unterordnern.
+\begin{itemize}
+	\item Die Datei \textit{FTMlatex.cls} ist die sogenannte Dokumenten-Klasse und definiert das Layout und alle wichtigen Definitionen. Sie darf nicht verändert werden!%
+	\item Die Datei \textit{main.tex} ist die Hauptdatei, die alle weiteren Dokumente inkludiert und den Aufbau des Dokuments steuert.%
+	\item Der Unterordner \textit{figures} ist für alle Arten von Grafikdatei gedacht, die im Dokument genutzt werden. Der Pfad zum Unterordner ist als Standard"=Grafikpfad definiert (\FTMfullref{subsec:GrafikenEinfuegen}).%
+	\item Der Unterordner \textit{source} ist für alle weiteren \LaTeX{}-Dateien gedacht, wie beispielsweise die Abkürzungsliste, die Kapitel oder die eigenen Erweiterungen.%
+	\item Ist ein Package noch nicht definiert oder sollen eigene Makros, Befehle etc. definiert werden, so sollte dies in \textit{source/your\_own\_definitions} geschehen.%
+\end{itemize}%
+%
+%
+%
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Arbeiten mit der FTM-Latex-Vorlage}%
+\label{chap:Arbeiten}%
+In diesem Kapitel wird beschrieben, wie die wichtigsten Elemente einer wissenschaftlichen Arbeit, wie beispielsweise das Literaturverzeichnis, Grafiken oder Tabellen, in \LaTeX{} erstellt werden. Zudem werden einige hilfreiche Tipps und Tricks sowie Bug-Fixes vorgestellt.%
+\FTMinstruction{Schreiben auf Englisch:}{Grundsätzlich sollen Arbeiten am Lehrstuhl auf Deutsch geschrieben werden. Falls Prof.~Lienkamp dennoch zugestimmt hat, dass die Arbeit auf Englisch verfasst werden darf, kann die Vorlage mithilfe der Option \textit{optEnglish} in der main-Datei (beim Einbinden der Klasse) umgestellt werden.\\%
+\textbf{Wichtige Info:} Die Geheimhaltungsverpflichtung und Erklärung müssen auch bei englischen Arbeiten auf Deutsch in die Arbeit eingebunden und unterschrieben werden.}%
+%
+%
+%
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Druck}
+\label{sec:Druck}
+Für den Druck sollte die Option \textit{optCMYK} der Klasse aktiviert werden. So erkennt der Druckertreiber reine Textseiten als schwarz-weiß und es kann Geld gespart werden.
+%
+%
+%
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Einbinden der Bibliographie und Zitation}%
+\label{sec:Zitation}%
+Um die Literatursammlung in \LaTeX{} zitieren zu können, muss diese zunächst exportiert und anschließend eingebunden werden. Die einzelnen Schritte und Einstellungen sowie die Zitation werden im Folgenden beschrieben.%
+%
+%
+\subsection{Konfiguration des Bibliographie Prozessors}%
+\label{subsec:Bibliographieprozessor}%
+Für das korrekte Erzeugen des Literaturverzeichnisses im PDF-Dokument muss der Standard Bibliographie Prozessor, der als Interface zwischen Latex und der Bibliographie-Datei dient, korrekt eingestellt werden. Für die Lehrstuhlvorlage wird \textit{biber} benötigt.%
+\FTMinstruction{Auswahl von biber in TeXstudio:}{\textit{Optionen} $\rightarrow$ \textit{TeXstudio konfigurieren...} $\rightarrow$ \textit{Erzeugen} $\rightarrow$ \textit{Standard Bibliographieprogramm} $\rightarrow$ \textit{Biber}}%
+\FTMinstruction{Auswahl von biber in TeXmaker (Alternativ):}{\textit{Optionen} $\rightarrow$ \textit{Texmaker konfigurieren...} $\rightarrow$ \textit{Befehle} $\rightarrow$ \textit{Bib(la)tex} $\rightarrow$ \textit{biber \%}}%
+%
+%
+\subsection{Erstellen und Einbinden der Bibliographie}%
+\label{subsec:BibliographieEinbinden}%
+Zur automatischen Erstellung eines Literaturverzeichnisses müssen die Informationen und Daten der einzelnen Quellen in Latex eingebunden werden. Dies kann entweder direkt im Dokument oder besser über eine Bibliographie-Datei (.bib) geschehen. Erstellt werden können die Bibliographie-Datein aus allen gängigen Literaturverwaltungsprogrammen wie \textit{Citavi} oder \textit{Mendeley}. Für Citavi kann der vordefinierte Exportfilter \textit{FTM.CitaviTX} genutzt werden.%
+%
+\FTMinstruction{Exportfilter zu \textit{Citavi} hinzufügen:}{Die Datei \textit{FTM.CitaviTX} in \path{C:\Users\<Benutzername>\Dokumente\Citavi<Version>\Settings\Mappings} oder entsprechenden Ordner kopieren (Citavi 6: \path{C:\Users\<Benutzername>\AppData\Local\Swiss Academic Software\Citavi 6\Settings\Mappings}}
+%
+\FTMinstruction{In \textit{Citavi} erfolgt der Export über:}{\textit{Datei} $\rightarrow$ \textit{Exportieren} $\rightarrow$ \textit{Alle ... Titel in diesem Projekt} $\rightarrow$ \textit{Weiter} $\rightarrow$ \textit{Exportfilter hinzufügen} $\rightarrow$ \textit{FTM} auswählen $\rightarrow$ \textit{Hinzufügen} $\rightarrow$ \textit{FTM} auswählen $\rightarrow$ \textit{Weiter} $\rightarrow$ \textit{Eine Textdatei erstellen} und die Optionen \textit{LaTeX"=Notation verwenden} aktivieren, \textit{URL"=Package verwenden} deaktivieren $\rightarrow$ \textit{Weiter (ggf. als Standard-Einstellung speichern)} $\rightarrow$ \textit{Weiter}}%
+%
+
+\FTMtabref{tab:Literaturtypen} zeigt eine Übersicht über die in der Vorlage unterstützten Literaturtypen, sowie die in Citavi zu befüllenden Felder. Zudem werden \textit{DOI}, \textit{ISBN}, \textit{E-Print} Nummern und die \textit{URL} ausgegeben, falls vorhanden. \cites{Test.norm}{Test.patent}{Test.article}{Test.online}{Test.thesis}{Test.report}{Test.book}{Test.inproceedings}{Test.incollection}{Test.collections}{Test.notice}%
+
+\begin{table}[!htbp]%
+	\caption{Unterstütze Literaturtypen}%
+	\begin{tabular}{M{3cm}|M{3cm} M{2cm} M{5cm}}%
+		\toprule%
+		\textbf{Literaturtyp}&\multirow{2}{*}{\textbf{Citavi"=Feld}}&\multirow{2}{*}{\textbf{BibTex"=Feld}}&\multirow{2}{*}{\textbf{Beschreibung}}\\%
+		\textbf{(BibTeX-Typ)}&&&\\%
+		\midrule%
+		\multirow{4}{*}{\parbox{3cm}{\centering Norm\\(norm)}} & Titel & title & Name der Norm\\%
+		& Normtyp & type & ... \\%
+		& Nummer & number & ... \\%
+		& Ausgabedatum & date & nur das Jahr wird genutzt\\%
+		\midrule%
+		\multirow{5}{*}{\parbox{3cm}{\centering Patente\\(patent)}} & Author & author & Erfinder\\%
+		& Titel & title & Name des Patents \\%
+		& Publikationsland & address  & Land der Publikation\\%
+		& Veröffentlichungs-Nr. & number & ...\\%
+		& Publikationsdatum & date & ...\\%
+		\midrule%
+		\multirow{8}{*}{\parbox{3cm}{\centering Zeitschriftenaufsatz\\(article)}} & Author & author & ...\\%
+		& Titel & title & Titel: Untertitel \\%
+		& Titelzusatz & titleaddon  & ...\\%
+		& Zeitschrift & journal & ...\\%
+		& Jahrgang & volume & ...\\%
+		& Heftnummer & number & ...\\%
+		& Seiten von-bis & pages & ...\\%
+		& Jahr & year & ...\\%
+		\midrule%
+		\multirow{6}{*}{\parbox{3cm}{\centering Internetdokument\\(online)}} & Author & author & ...\\%
+		& Titel & title & Titel: Untertitel \\%
+		& Titelzusatz & titleaddon  & ...\\%
+		& Jahr & year & ...\\%
+		& Online"=Adresse & url & ...\\%
+		& Zuletzt geprüft am & date & ...\\%
+		\midrule%
+		\multirow{7}{*}{\parbox{3cm}{\centering Hochschulschrift\\(thesis)}} & Author & author & ...\\%
+		& Titel & title & Titel: Untertitel \\%
+		& Art der Schrift & type  & Dissertation, Master's Thesis, etc.\\%
+		& Institution & publisher & ...\\%
+		& Hochschule & school & ...\\%
+		& Hochschulort & address & ...\\%
+		& Datum/Jahr & date & ...\\%
+		\midrule%
+		\multirow{7}{*}{\parbox{3cm}{\centering Graue Literatur \\ Bericht \\ Report \\(report)}} & Author & author & ...\\%
+		& Titel & title & Titel: Untertitel \\%
+		& Institution  & institution & ...\\%
+		& Erscheinungsort & address & ...\\%
+		& Nummer & number & Nummer des Repositoriums\\%
+		& Seiten & pages & ...\\%
+		& Datum/Jahr & date & Kann auch nur ein Jahr sein\\%
+		\midrule%
+		\multirow{8}{*}{\parbox{3cm}{\centering Buch (Monographie)\\(book)}} & Author & author & ...\\%
+		& Titel & title & Titel: Untertitel \\%
+		& Institution  & series & ...\\%
+		& Bandnr. der Reihe & volume & ...\\%
+		& Auflage & edition & ... \\%
+		& Verlag & publisher & ...\\%
+		& Seiten & pages & ...\\%
+		& Jahr & year & ...\\%
+		\midrule%
+		\multirow{4}{*}{\parbox{3cm}{\centering Beitrag\\in Tagungsband\\(inproceedings)}} & Author & author & ...\\%
+		& Titel & title & Titel: Untertitel \\%
+		& Seiten & pages & ...\\%
+		& Jahr & year & ...\\%
+		\multirow{2}{*}{\parbox{3cm}{\centering Tagungsband\\(proceedings)}} & Titel & title & Titel: Untertitel (Tagungsband) \\%
+		& Tagungsort & venue & ... \\%
+		\midrule%
+	\end{tabular}%
+	\label{tab:Literaturtypen}%
+\end{table}%
+\begin{table}[!htbp]%
+	\begin{tabular}{M{3cm}|M{3cm} M{2cm} M{5cm}}%
+		\midrule%
+		\multirow{4}{*}{\parbox{3cm}{\centering Beitrag\\in Sammelwerk\\(incollection)}} & Author & author & ...\\%
+		& Titel & title & Titel: Untertitel \\%
+		& Bandnummer & volume & ...\\%
+		& Seiten & pages & ...\\%
+		\multirow{6}{*}{\parbox{3cm}{\centering Sammelwerk\\(collection)}} & Titel & title & Titel: Untertitel (Sammelwerk) \\%
+		& Herausgeber & editor & ... \\%
+		& Reihentitel & series & ... \\%
+		& Verlag & publisher & ... \\%
+		& Verlagsort & address & ... \\%
+		& Jahr & year & ...\\%
+		\midrule%
+		\multirow{6}{*}{\parbox{3cm}{\centering Persönliche Mitteilung\\(notice)}} & Titel & title & Titel: Untertitel (Sammelwerk) \\%
+		& Titelzusatz & titleaddon  & ...\\%
+		& Author & author & ...\\%
+		& Mitteilungsform & type  & ...\\%
+		& Datum & date & ... \\%
+		\bottomrule%
+	\end{tabular}%
+\end{table}%
+Dissertationen und Studienarbeiten müssen als \textit{Hochschulschrift}  angelegt werden, unter \textit{Art der Schrift (Type)} kann dann die Art der Arbeit angegeben werden.%
+
+Nutzer anderer Literaturverwaltungsprogramme müssen sich den Exportfilter entsprechend der Übersicht in Anhang \FTMtabref{tab:Literaturtypen} erstellen.%
+
+In der Lehrstuhlvorlage wird die Datei \textit{./source/literature.bib} eingebunden. Diese Datei muss mit der eignen Bibliographie ersetzt werden.%
+\FTMinstruction{Einbinden der Bibliographie in die Vorlage:}{In der Vorlage muss die Datei \textit{./source/literature.bib} mit der eigenen Bibliographie ersetzte werden (ggf. Dateinamen in der main.tex anpassen)}%
+%
+%
+\subsection{Definition eigener Cite-Keys}%
+\label{subsec:Cite-Key}%
+Die erstellte Bibliographie-Datei (\FTMsecref{subsec:BibliographieEinbinden}) enthält alle Informationen über die jeweilige Quelle, die in der Literaturverwaltung hinterlegt sind. Beim Export wird zudem ein sogenannter \textit{Key} erstellt, über den die jeweilige Quelle in Latex zitiert werden kann. Der \textit{Key} in Zeile 1 von \FTMlstref{lst:Bibliographie} wird standardmäßig aus Autor.Jahr erstellt.%
+
+\begin{minipage}{\linewidth}%
+\begin{lstlisting}[language=tex, caption=Auszug einer Bibliographie-Datei,label=lst:Bibliographie]
+@book{Lienkamp.2013,
+ author = {Lienkamp, Markus},
+ year = {2013},
+ title = {Conference on Future Automotive Technology: Focus Electro Mobility},
+ url = {http://dx.doi.org/10.1007/978-3-658-01141-3},
+ address = {Wiesbaden},
+ publisher = {{Springer Fachmedien Wiesbaden}},
+ isbn = {978-3-658-01141-3}}
+\end{lstlisting}%
+\end{minipage}%
+
+Zur manuellen Verwaltung der \textit{Keys} kann dieser in den meisten Literaturverwaltungsprogrammen manuell angegeben werden.%
+\FTMinstruction{BibTex Key Erweiterung in Citavi aktivieren:}{\textit{Extras} $\rightarrow$ \textit{Optionen...} $\rightarrow$  TeX-Unterstützung aktivieren $\rightarrow$ \textit{OK}\newline Anschließend erscheint im Reiter \textit{Titel} ein neues Feld \textit{BibTeX Key}}%
+%
+\subsection{Zitieren}%
+\label{subsec:Zitieren}%
+Ein Zitat kann in Latex mit Hilfe des Befehls \verb|\cite{}|, beziehungsweise \verb|\cites{}{}| für mehrere Quellen in einem Zitat, angegeben werden. Die Auflistung der Quelle im Literaturverzeichnis erfolgt anschließend automatisch in der Reihenfolge der Zitationen.\\%
+Als Parameter wird in geschweiften Klammern der \textit{Key} der jeweiligen Quelle übergeben, wie er in der Bibliographie-Datei (\textit{literatur.bib}) definiert ist. Als optionaler Parameter kann in eckigen Klammern vor der Quelle zusätzlich eine Seitenzahl oder ein Kapitel angegeben werden.%
+
+\textbf{Beispiel}: Die Frage ob Elektromobilität ein Hype oder eine Revolution ist stellt auch Lienkamp \cite{L12Hype}.%
+\begin{lstlisting}[language=tex, caption=Zitieren einer Quelle ohne Seitenangaben]
+\cite{Lienkamp.2012}
+\end{lstlisting}%
+Es können auch mehrere Zitate zusammengefügt werden \cites[S.\,5f]{Me1}[S.\,5-15]{studentsThesis1} oder \cite{Me1,studentsThesis1,FTM}.%
+\begin{lstlisting}[language=tex, caption=Zitieren mehrerer Quellen (inklusive Seitenangaben)]
+\cites[S.\,5f]{Me1}[S.\,5-15]{studentsThesis1}
+\cites{Me1,studentsThesis1,FTM}
+\end{lstlisting}%
+Der Befehlt \verb|\,| stellt ein halbes geschütztes Leerzeichen sicher (\FTMsecref{sec:SonderzeichenUndSilbentrennung}).%
+
+Um für Online-Quellen im Literaturverzeichnis das Datum des Abrufs an den Eintrag anzufügen, muss in der Bibliographie im Feld \textit{urldate} bzw. in Citavi im Feld \textit{Zuletzt geprüft am} das Datum des Seitenaufrufs angegeben werden \cite{FTM}.%
+
+Zur korrekten Darstellung von Eigennamen, ist der Befehlt \verb|\relax{}| hilfreich.%
+\begin{lstlisting}[language=tex, caption=Eigennamen im Literaturverzeichnis korrekt darstellen]
+Author = {\relax{Lehrstuhl für Fahrzeugtechnik München}}
+\end{lstlisting}%
+Weitere Details zum Thema Zitieren sind online zu finden. \cite{citePackage}%
+%
+%
+\subsection{Aufbau des Literaturverzeichnisses}%
+\label{subsec:Literaturverzeichnis}%
+Das Literaturverzeichnis listet alle im Text zitierten Quellen in der Reihenfolge der Zitation. Der Zitationsstil richtet sich dabei nach der Art der Quelle, wie beispielsweise \textit{article}, \textit{online} oder \textit{misc}.Der Zitationsstil und das Layout der Zitate wird in der Klasse \textit{FTMLatex.cls} definiert und darf nicht verändert werden%
+\subsubsection{Erweitertes Literaturverzeichnis}%
+\label{subsubsec:ErweitertesLiteraturverzeichnis}%
+Das erweiterte Literaturverzeichnis ist für Dissertationen vorgesehen und besteht aus zwei Teilen. Dem vollständigen Literaturverzeichnis der Arbeit und den Vorveröffentlichungen inklusive der studentischen Arbeiten. In Studienarbeiten gibt es nur die Erweiterung Eigene Veröffentlichungen. In welchen Verzeichnissen eine Quelle erscheint, kann mithilfe der folgenden Keywords im Literaturverwaltungsprogramm gesteuert werden:
+ \begin{table}[!htbp]
+	\begin{tabularx}{0.85\textwidth}{M{0.2\textwidth} p{0.6\textwidth}}
+		\toprule
+		\textbf{Keyword}&\textbf{Erklärung}\\
+		\midrule
+		me & eigene Veröffentlichung\\
+		peerReview & Veröffentlichung ist peer-reviewed (nur in Verbindung mit me)\\
+		\multirow{2}{*}{nonRelevant} & Veröffentlichung ist peer-reviewed aber nicht relevant für die Dissertation (nur in Verbindung mit me)\\
+		studentsThesis & betreute Studienarbeit\\
+		inPress & im Druck aber noch nicht veröffentlicht (nur in Verbindung mit me)\\
+		accepted & akzeptiert aber noch nicht im Druck (nur in Verbindung mit me)\\
+		inReview & eingereicht aber noch im Review-Prozess (nur in Verbindung mit me)\\
+		\bottomrule
+	\end{tabularx}
+	\caption{Steuerung der Literaturverzeichnisses mittels Key-Word}
+	\label{tab:KeyWords}
+\end{table}%
+\FloatBarrier%
+\begin{lstlisting}[language=tex, caption=Auszug einer Bibliographie-Datei mit Keyword,label=lst:BibliographieKeyword]
+@phdthesis{studentsThesis1,
+Adress = {M{\"u}nchen},
+Author = {Eins, Student},
+Type = {Bachelor's Thesis},
+Keywords = {studentsThesis},
+School = {TU M{\"u}nchen},
+Title = {Bachelor's Thesis},
+Year = {2017}}
+\end{lstlisting}%
+Alle Einträge, die mithilfe des Befehls \verb|\nocite{}| hinzugefügt werden, werden ohne Nummer in das Literaturverzeichnis angefügt. Wie bei allen Einträgen zählt hier die Reihenfolge der Zitationen im Text. Aus diesem Grund sollten die nicht zitierten Quellen am Ende des Dokuments in sinnvoller Sortierungsreihenfolge (bspw. Autor, Titel, Jahr) hinzugefügt werden.%
+%
+%
+%
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Sonderzeichen und Silbentrennung}%
+\label{sec:SonderzeichenUndSilbentrennung}%
+Bei \LaTeX{} handelt es sich um eine Programmiersprache, daher ist es nötig, Sonderzeichen \glqq{}maskiert\grqq{} in den \LaTeX"=Editor einzugeben. Die maskierte Eingabe erfolgt über definierte Codes, die \LaTeX{} beim Erstellen des PDFs interpretiert. Zu diesen Codes gehören auch sogenannte Steuerzeichen, mit deren Hilfe die Silbentrennung beeinflusst werden kann. Eine Übersicht der Sonder- und Steuerzeichen findet sich in \FTMtabref{tab:Sonderzeichen}.%
+\begin{table}[!htbp]%
+	\caption{Sonder- und Steuerzeichen in \LaTeX{}}%
+	\begin{tabular}{c c p{8 cm}}%
+		\toprule%
+		\textbf{Latex-Code}&\textbf{Beispiel}&\textbf{Beschreibung}\\%
+		\midrule%
+		\verb|\glqq{}| & \glqq{}Test & \textbf{Anführungszeichen unten}\newline%
+			\verb|Er sagt: \glqq{}Hallo!\grqq{}|\\%
+		\verb|\grqq{}| & Test\grqq{} & \textbf{Anführungszeichen oben}\\%
+		\midrule%
+		\verb|Ein\,Test| & Ein\,Test & \textbf{Halbes (geschütztes) Leerzeichen}\newline%
+			Für Verwendung in Abkürzungen wie bspw. \glqq{}z.\,B.\grqq{}, damit Abstand zwischen Punkt und B passt: \verb|z.\,B.|\\%
+		\verb|Ein~Test| & Ein~Test & \textbf{Ganzes geschütztes Leerzeichen}\newline%
+			Leerzeichen, das einen Umbruch an dieser Stelle verhindert. Beispielsweise um \glqq{}z.\,B.\grqq{} nicht am Zeilenende stehen zu lassen oder Wert und Einheit nicht zu trennen: \verb|z.\,B.~Testtext| und \verb|10~Prozent|\\%
+		\midrule%
+		\verb|-| & x - y & \textbf{Bindestrich/ Viertelgeviertstrich} (kurz), Verwendung für Worttrennungen (am Zeilenumbruch), Zusammengesetzte Wörter, Wortergänzungen
+		\\%
+		\verb|--| & x -- y & \textbf{Bindestrich/ Halbgeviertstrich/ Gedankenstrich} (mittellang), Verwendung für Zahlenbereiche wie bspw.~\glqq{}20\,--\,30\grqq{} in Form von \verb|20\,--\,30|\grqq{}, Zeichen für "gegen" (Bsp: Bayern München -- Borussia Dortmund), Streckenangaben (Bsp: Die Strecke Hamburg -- Hannover -- München) oder als Gedankenstrich.\\%
+		\midrule%
+		%
+		\multicolumn{3}{c}{\textbf{Silbentrennung für Wörter mit Bindestriche (nur für deutsche Vorlage gültig!)}}\\%
+		\verb|Silben-Trennung| & Silben-Trennung & \textbf{nur} am Bindestrich darf getrennt werden\\%
+		\verb|Silben"=Trennung| & Silben"=Trennung & \textbf{auch} am Bindestrich darf getrennt werden\\%
+		\verb|Silben"~Trennung| & Silben"~Trennung & am Bindestrich \textbf{darf nicht} getrennt werden\\%
+		%
+		\multicolumn{3}{c}{\textbf{Anpassungen der Silbentrennung innerhalb von Wörtern}}\\%
+		\multicolumn{3}{c}{\textbf{(nur für deutsche Vorlage gültig!)}}\\%
+		\verb|Silben\-trennung| & Silben\-trennung & \textbf{nur} an dieser Trennstelle darf getrennt werden (andere Silbentrennungen werden unterbunden); Verwendung für Haupttrennfugen bei zusammengesetzten Worten, z.\,B.~\verb|Elektro\-fahrzeuge|, um schlecht lesbare Trennungen wie bspw.~Elektrofahr-zeuge zu vermeiden.\\%
+		\verb|Silben"-trennung| & Silben"-trennung & \textbf{auch} an dieser Trennstelle darf getrennt werden;\newline%
+			Kann verwendet werden, falls \LaTeX{} eine Trennstelle nicht automatisch findet: z.\,B.~\verb|Am"-nestie|\\%
+		\verb|Silben""trennung| & Silben""trennung & \textbf{Trennmöglichkeit}, bei der \textbf{kein Trennstrich benötigt} wird\\%
+%		\verb|Silben"¦trennung| & Silben"¦trennung & Auflösen einer Ligatur und Schaffung einer Trennmöglichkeit\\% Was auch immer das ist...
+		\bottomrule%
+	\end{tabular}%
+	\label{tab:Sonderzeichen}%
+\end{table}%
+%
+%
+%
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Grafiken und Tabellen}%
+\label{sec:GrafikenTabellen}%
+Grafiken, Abbildungen, Diagramme und Tabellen können genutzte werden, um den Fließtext zu unterbrechen und dem Leser wichtige Inhalte und Informationen auf einem zusätzlichen Informationskanal zu präsentieren. Damit diese auch zu einem besseren Verständnis beitragen, ist es wichtig, stets Fließtext und Grafik oder Tabelle zu verknüpfen und einen Zusammenhang herzustellen.%
+%
+%
+\subsection{Layout von Grafiken und Tabellen}%
+\label{subsec:GrafikenLayout}%
+Allgemein dürfen Grafiken und Tabellen eine maximale Breite von \SI{90}{\percent} der Textbreite besitzen und sind zentriert. Grafiken werden mit Bildunterschriften, Tabellen mit Überschriften beschriftet. Die Formatierung der Beschriftungen (\textbackslash \textit{caption}) ist in der \LaTeX"=Vorlage bereits definiert.%
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{TUM-Farben}%
+\label{sec:TUM_Farben}%
+%
+Für Grafiken sollen nach Möglichkeit die offiziellen Farben der TUM nach \FTMtabref{tab:TUM_Farben} verwendet werden. Die Farben sind bereits vordefiniert und können mit den angegebenen Namen (bspw. \verb|TUMBlue|) verwendet werden. Es sollte darauf geachtet werden, dass die Grafiken auch bei DIN A5 drucken in schwarz-weiß noch gut lesbar sind.
+%
+\begin{table}[!htbp]%
+	\begin{tabular}[t]{|l|c|c|c|c|c|c|c|c|c|}%
+		\hline%
+		\textbf{Color} & \textbf{R} & \textbf{G} & \textbf{B} & \textbf{C} & \textbf{M} & \textbf{Y} & \textbf{K} & \textbf{Hex} & \textbf{Preview} \\\hline\hline%
+		TUMBlue & 0 & 101 & 189 & 100 & 43 & 0 & 0 & \texttt{0x0065BD} & \raisebox{-0.25em}{\tikz \fill [TUMBlue] (0,0) rectangle (1.3cm,1em);} \\\hline%
+		TUMWhite & 255 & 255 & 255 & 0 & 0 & 0 & 0 & \texttt{0xFFFFFF} & \raisebox{-0.25em}{\tikz \fill [TUMWhite] (0,0) rectangle (1.3cm,1em);} \\\hline%
+		TUMBlack & 0 & 0 & 0 & 0 & 0 & 0 & 100 & \texttt{0x000000} & \raisebox{-0.25em}{\tikz \fill [TUMBlack] (0,0) rectangle (1.3cm,1em);} \\\hline%
+		%
+		TUMBlue1 & 0 & 51 & 89 & 100 & 57 & 12 & 70 & \texttt{0x003359} & \raisebox{-0.25em}{\tikz \fill [TUMBlue1] (0,0) rectangle (1.3cm,1em);} \\\hline%
+		TUMBlue2 & 0 & 82 & 147 & 100 & 54 & 4 & 19 & \texttt{0x005293} & \raisebox{-0.25em}{\tikz \fill [TUMBlue2] (0,0) rectangle (1.3cm,1em);} \\\hline%
+		TUMGray1 & 51 & 51 & 51 & 0 & 0 & 0 & 80 & \texttt{0x333333} & \raisebox{-0.25em}{\tikz \fill [TUMGray1] (0,0) rectangle (1.3cm,1em);} \\\hline%
+		TUMGray2 & 127 & 127 & 127 & 0 & 0 & 0 & 50 & \texttt{0x7F7F7F} & \raisebox{-0.25em}{\tikz \fill [TUMGray2] (0,0) rectangle (1.3cm,1em);} \\\hline%
+		TUMGray3 & 204 & 204 & 204 & 0 & 0 & 0 & 20 & \texttt{0xCCCCCC} & \raisebox{-0.25em}{\tikz \fill [TUMGray3] (0,0) rectangle (1.3cm,1em);} \\\hline%
+		%
+		TUMBlue3 & 100 & 160 & 200 & 65 & 19 & 1 & 4 & \texttt{0x64A0C8} & \raisebox{-0.25em}{\tikz \fill [TUMBlue3] (0,0) rectangle (1.3cm,1em);} \\\hline%
+		TUMBlue4 & 152 & 198 & 234 & 42 & 9 & 0 & 0 & \texttt{0x98C6EA} & \raisebox{-0.25em}{\tikz \fill [TUMBlue4] (0,0) rectangle (1.3cm,1em);} \\\hline%
+		TUMIvory & 218 & 215 & 203 & 3 & 4 & 14 & 8 & \texttt{0xDAD7CB} & \raisebox{-0.25em}{\tikz \fill [TUMIvory] (0,0) rectangle (1.3cm,1em);} \\\hline%
+		TUMOrange & 227 & 114 & 34 & 0 & 65 & 95 & 0 & \texttt{0xE37222} & \raisebox{-0.25em}{\tikz \fill [TUMOrange] (0,0) rectangle (1.3cm,1em);} \\\hline%
+		TUMGreen & 162 & 173 & 0 & 35 & 0 & 100 & 20 & \texttt{0xA2AD00} & \raisebox{-0.25em}{\tikz \fill [TUMGreen] (0,0) rectangle (1.3cm,1em);} \\\hline%
+	\end{tabular}%
+	\caption{Definition der TUM-Farben}
+	\label{tab:TUM_Farben}
+\end{table}
+\FloatBarrier%
+%
+%
+\subsection{Einfügen von Tabellen}%
+\label{subsec:Tabellen}%
+In Latex gibt es die unterschiedlichsten Environments zum Einfügen von Tabellen, an dieser Stelle wird \textit{tabularx} vorgestellt. Den klassischen Aufbau einer Tabelle zeigt \FTMlstref{lst:table}
+\begin{lstlisting}[language=TeX, caption=Einfügen einer Tabelle, label=lst:table]
+\begin{table}[<float-Positionierung im Text>]
+	\begin{tabularx}{<Breite>}{<Spaltenformatierung>}
+		\toprule
+			<Spaltenüberschriften>
+		\midrule
+			<Zeilen und Spalten>
+		\bottomrule
+	\end{tabularx}
+	\caption{<Tabellenüberschrift>}
+	label{tab:table}
+\end{table}
+\end{lstlisting}%
+In Zeile 1 wird zunächst ein \textit{table}"=Environment gestartet, das automatisch zentriert ist, innerhalb dessen wiederum ein \textit{tabularx}"=Environment mit der gewünschten Breite und Spaltenformatierung, entsprechend \FTMtabref{tab:Tabellen}, begonnen wird (Zeile 2). Anschließend folgt der Tabelleninhalt (Zeile 3-7), Spalten werden durch \verb|&| getrennt, Zeilen durch \verb|\\|. Bevor das äußere \textit{table}"=Environment geschlossen wird (Zeile 11), muss noch eine Überschrift (Zeile 9) und ein Label (Zeile 10) vergeben werden (Zeile 11).
+ \begin{table}[!htbp]
+	\begin{tabularx}{0.5\textwidth}{c l}
+		\toprule
+		\textbf{Option}&\textbf{Erklärung}\\
+		\midrule
+		X & Spalte mit variabler Breite\\
+		c & zentrierte Spalte\\
+		l & linksbündige Spalte\\
+		r & rechtsbündige Spalte\\
+		p\{breite\} & Minipage mit der Breite oben ausgerichtet\\
+		m\{breite\} & Minipage mit der Breite mittig ausgerichtet\\
+		b\{breite\} & Minipage mit der Breite unten ausgerichtet\\
+		$\vert$ & vertikale Trennlinie\\
+		\midrule
+		\multirow{2}{*}{M\{breite\}} & Minipage mit der Breite mittig ausgerichtet\\
+		& und zentriert (eigene Definition)\\
+		\bottomrule
+	\end{tabularx}
+	\caption{Formatierungsoptionen der Spalten im Tabularx"=Package}
+	\label{tab:Tabellen}
+\end{table}%
+\FloatBarrier%
+Das Beispiel aus \FTMtabref{tab:Tabellen} zeigt \FTMlstref{lst:TabellenBeispiel}:
+\begin{lstlisting}[language=TeX, caption=Beispieltabelle, label=lst:TabellenBeispiel]
+\begin{table}[!htbp]
+	\begin{tabularx}{0.5\textwidth}{c l}
+		\toprule
+		\textbf{Option}&\textbf{Erklärung}\\
+		\midrule
+		X & Spalte mit variabler Breite\\
+		c & zentrierte Spalte\\
+		l & linksbündige Spalte\\
+		r & rechtsbündige Spalte\\
+		p\{breite\} & Minipage mit der Breite oben ausgerichtet\\
+		m\{breite\} & Minipage mit der Breite mittig ausgerichtet\\
+		b\{breite\} & Minipage mit der Breite unten ausgerichtet\\
+		$\vert$ & vertikale Trennlinie\\
+		\midrule
+		\multirow{2}{*}{M\{breite\}} & Minipage mit der Breite mittig ausgerichtet\\
+		& und zentriert (eigene Definition)\\
+		\bottomrule
+	\end{tabularx}
+	\caption{Formatierungsoptionen der Spalten im Tabularx"=Package}
+	\label{tab:Tabellen}
+\end{table}
+\end{lstlisting}
+Um Spalten oder Zeilen zusammenzuführen gibt es die Möglichkeit
+\begin{lstlisting}[language=TeX, caption=Zusammenführen von Zeilen und Spalten in Tabellen, label=lst:multirow]
+\multirow{<Anzahl der Reihen>}{<Spaltenbreite>}{<Text>}
+\multicolumn{<Anzahl der Spalten>}{<Formatierung>}{<Text>}
+\end{lstlisting}%
+zu nutzen. Die Dokumentation des \textit{tabularx}"=Packages \cite{tabularxDocumentation} und des \textit{multirow}"=Packages \cite{multirowDocumentation}  findet man wie viele weitere Dokumentationen im Rahmen des \gls{ctan}.
+%
+%
+\subsection{Einfügen von Grafiken}%
+\label{subsec:GrafikenEinfuegen}%
+In Latex können die verschiedensten Dateiformate für Grafiken eingefügt werden. Zum Einbinden muss zunächst eine Bildumgebung (Zeile 1 und 6) erstellt werden, die automatisch zentriert ist. Die Grafik wird in Zeile 2 eingefügt, in Zeile 3 die Bildunterschrift und in Zeile 4 das Label zum Referenzieren definiert.%
+\begin{lstlisting}[language=TeX, caption={Einfügen einer Grafik mittels figure-Umgebung und hier noch eine etwas längere Überschrift um zu zeigen, wie die hang-Formatierung die Beschriftung umbricht}, label=lst:Figure]
+\begin{figure}[!htbp]
+	\includegraphics[width=40mm]{./ImagePNG}
+	\caption[PNG-Grafik]{Das ist eine PNG-Grafik}
+	\label{fig:pngGrafik}
+\end{figure}
+\end{lstlisting}%
+Das Ergebnis aus \FTMlstref{lst:Figure} zeigt \FTMfigref{fig:pngGrafik}:
+\begin{figure}[!htbp]
+	\includegraphics[width=40mm]{./ImagePNG}
+	\caption[PNG-Grafik]{Das ist eine PNG-Grafik und auch hier wollen wir mal schauen, wie sich die Einstellung verhält, wenn die Bildunterschrift in die zweite Zeile umbricht}
+	\label{fig:pngGrafik}
+\end{figure}%
+Die Bildunterschrift für das Abbildungsverzeichnis kann getrennt definiert werden, wenn zum Beispiel Simulationsparameter weggelassen oder zu lange Unterschriften gekürzt werden sollen. Die Definition erfolgt wie in Zeile 4 von \FTMlstref{lst:Figure} in eckigen Klammern.%
+
+Abbildungen, die sich aus mehreren Einzelabbildungen zusammensetzen, können mit Hilfe des \textit{subcpation}-Packages erstellt werden. Dabei sollte für jede Einzelabbildung eine Beschriftung hinzugefügt und ein Label definiert werden.%
+
+\begin{lstlisting}[language=tex, caption=Zusammengesetzte Abbildung aus mehreren Einzelabbildungen, label=lst:Subfigure]
+\begin{figure}[!htbp]
+\begin{subfigure}[t]{0.3\textwidth}%
+	\centering%
+	\input{./figures/Tikz_Subfig_a}%
+	\subcaption{Bild a hat eine etwas längere Bildunterschrift um zu testen, ob die Option \textit{hang} funktioniert}%
+	\label{fig:subfig_a}%
+\end{subfigure}\quad%
+\begin{subfigure}[t]{0.3\textwidth}%
+	\centering%
+	\input{./figures/Tikz_Subfig_b}%
+	\subcaption{Bild b}%
+	\label{fig:subfig_b}%
+\end{subfigure}\par\bigskip%
+\begin{subfigure}[t]{0.3\textwidth}%
+	\centering%
+	\input{./figures/Tikz_Subfig_c}%
+	\subcaption{Bild c}%
+	\label{fig:subfig_c}%
+\end{subfigure}\quad%
+\begin{subfigure}[t]{0.3\textwidth}%
+	\centering%
+	\input{./figures/Tikz_Subfig_d}%
+	\subcaption{Bild d}%
+	\label{fig:subfig_d}%
+\end{subfigure}%
+\caption{Dieses Bild wurde mit dem subcaption-Package erstellt}
+   \label{fig:subfig}
+\end{figure}%
+\end{lstlisting}%
+\begin{figure}[!htbp]
+\begin{subfigure}[t]{0.3\textwidth}%
+	\centering%
+	\input{./figures/Tikz_Subfig_a}%
+	\subcaption{Bild a hat eine etwas längere Bildunterschrift um zu testen, ob die Option \textit{hang} funktioniert}%
+	\label{fig:subfig_a}%
+\end{subfigure}\quad%
+\begin{subfigure}[t]{0.3\textwidth}%
+	\centering%
+	\input{./figures/Tikz_Subfig_b}%
+	\subcaption{Bild b}%
+	\label{fig:subfig_b}%
+\end{subfigure}\par\bigskip%
+\begin{subfigure}[t]{0.3\textwidth}%
+	\centering%
+	\input{./figures/Tikz_Subfig_c}%
+	\subcaption{Bild c}%
+	\label{fig:subfig_c}%
+\end{subfigure}\quad%
+\begin{subfigure}[t]{0.3\textwidth}%
+	\centering%
+	\input{./figures/Tikz_Subfig_d}%
+	\subcaption{Bild d}%
+	\label{fig:subfig_d}%
+\end{subfigure}%
+\caption{Dieses Bild wurde mit dem subcaption-Package erstellt}
+   \label{fig:subfig}
+\end{figure}%
+
+Durch die Definition von Labels für jede der Einzelabbildungen kann entweder die gesamte \FTMfigref{fig:subfig} oder jede einzelne \FTMfigtoref{fig:subfig_a}{fig:subfig_d} referenziert werden (\FTMsecref{sec:Referenzieren}).%
+
+Der Unterordner \textit{figures} wird in der Vorlage als Standard-Grafikpfad definiert, weshalb Grafiken in diesem Ordner mit Hilfe von \verb|\includegraphics| ohne relativen Pfad eingefügt werden können.%
+
+Das gleiche funktioniert auch mit Tabellen. Hierfür muss ein \textit{table}-Environment genutzt werden. Um die Captions über die Tabelle zu bekommen, muss der \textit{subcaption}-Befehl im \textit{subtable}-Environment vor der Tabelle stehen. Da sich die \textit{subtable} und \textit{subfigure} Environments wie \textit{minipages} verhalten, sind die Breitenangaben innerhalb der Environments relativ auf die Breitenangaben der Environments bezogen.
+
+\begin{table}[!htbp]
+\begin{subtable}[t]{0.4\textwidth}%
+	\centering%
+	\subcaption{Tabelle a}%
+	\begin{tabularx}{0.7\textwidth}{c l}%
+		\toprule%
+		\textbf{Spalte 1}&\textbf{Spalte 2}\\%
+		\midrule%
+		1 & Alpha\\%
+		2 & Beta\\%
+		\bottomrule%
+	\end{tabularx}%
+\end{subtable}\quad%
+\begin{subtable}[t]{0.4\textwidth}%
+	\centering%
+	\subcaption{Tabelle b}%
+	\begin{tabularx}{0.7\textwidth}{c l}%
+		\toprule%
+		\textbf{Spalte 1}&\textbf{Spalte 2}\\%
+		\midrule%
+		3 & Gamma\\%
+		4 & Delta\\%
+		\bottomrule%
+	\end{tabularx}%
+\end{subtable}\par\bigskip %
+\begin{subtable}[t]{0.4\textwidth}%
+	\centering%
+	\subcaption{Tabelle c}%
+	\begin{tabularx}{0.7\textwidth}{c l}%
+		\toprule%
+		\textbf{Spalte 1}&\textbf{Spalte 2}\\%
+		\midrule%
+		5 & Epsion\\%
+		6 & Zeta\\%
+		\bottomrule
+	\end{tabularx}%
+\end{subtable}\quad%
+\begin{subtable}[t]{0.4\textwidth}%
+	\centering%
+	\subcaption{Tabelle d}%
+	\begin{tabularx}{0.7\textwidth}{c l}%
+		\toprule%
+		\textbf{Spalte 1}&\textbf{Spalte 2}\\%
+		\midrule%
+		7 & Eta\\%
+		8 & Theta\\%
+		\bottomrule%
+	\end{tabularx}%
+\end{subtable}\\%
+\caption{Diese Mehrfach-Tabelle wurde mit dem subcaption-Package erstellt}
+   \label{fig:subtab}
+\end{table}%
+
+%
+%
+\subsection{Platzieren von Grafiken und Tabellen}
+\label{subsec:GrafikenPlatzieren}
+Grafiken und Tabellen werden mit Hilfe des \textit{Float}-Environments platziert. Je nach Reihenfolge und Auswahl der Ausrichtungsoptionen hinter der Grafik oder Tabellendefinition (\FTMlstref{lst:Figure} und \FTMlstref{lst:TabellenBeispiel} Zeile 1) wird die Grafik im Text positioniert.%
+\begin{table}[!htbp]
+	\begin{tabularx}{0.6\textwidth}{c l}
+		\toprule
+		\textbf{Option}&\textbf{Positionierung}\\
+		\midrule
+		h & hier\\%
+		t & Seitenanfang\\%
+		b & Seitenende\\%
+		p & extra Seite\\%
+		! & Parameter für bessere Positionierung überschreiben\\%
+		H & genau hier (nicht empfohlen)\\%
+		!htbp & Empfohlene Einstellung\\%
+		\bottomrule
+	\end{tabularx}
+	\caption{Positionierung von Float-Objekten, auch hier wollen wir schauen, wie es sich verhält, wenn die Tabellenüberschrift in die nächste Zeile umbricht}
+	\label{tab:Float}
+\end{table}%
+\FloatBarrier%
+Es wird die Einstellung \verb|!htbp| empfohlen. Mit dem Befehl \verb|\FloatBarrier| kann eine untere Grenze definiert werden, bis zu der alle zuvor definierten Float-Objekt positioniert werden müssen. Statt \verb|H| sollte besser eine \verb|\FloatBarrier| direkt hinter dem Objekt genutzt werden. Um leere Zeilen an das Ende eines Kapitels bzw. einer Seite zu schieben, kann der Befehl \verb|\vfill| genutzt werden.%
+%
+%
+\subsection{Vektorgrafiken}%
+\label{subsec:Vektorgrafiken}
+Grafikformaten wie \textit{.jpg} oder \textit{.png} sind sogenannte Rastergrafiken, die jedem Pixel einen Farbwert zuweisen. Das hat zur Folge, dass detailreiche Grafiken entweder verpixelt wirken oder die Datei sehr groß wird. Dies führt wiederum zu einem unschönen Erscheinungsbild oder einer großen PDF-Datei. Im Gegensatz dazu speichern Vektorgrafiken Formparameter wie Kreismittelpunkt und Radius oder Datenpunkte. Die Dateien sind wesentlich kleiner und stufenlos skalierbar. Folgendes Beispiel zeigt den Unterschied:%
+\begin{figure}[!htbp]
+    \includegraphics[width=40mm]{figures/ImagePNG.png}\hspace*{5mm}%
+    \includegraphics[width=40mm]{figures/ImagePDF.pdf}\par
+    \begingroup%
+        \resizebox{40mm}{!}{\input{figures/ImageTIKZ.tikz}}%
+    \endgroup\hspace*{5mm}%
+    \begingroup%
+        \def\svgwidth{40mm}%
+        \fontsize{25}{25}\selectfont%
+        \input{figures/ImagePDFTEX.pdf_tex}%
+    \endgroup%
+    \caption{Vergleich verschiedener Grafikformate}
+\end{figure}%
+Neben TikZ (\FTMsecref{subsec:TikZ}) können Vektorgrafiken auch mit Programmen wie Inkscape erstellt werden.%
+%
+%
+% TODO: \subsection{Inkscape to tikz}%
+%
+%
+% TODO: \subsection{overpic}%
+%
+%
+\subsection{TikZ}%
+\label{subsec:TikZ}%
+TikZ ist eine Programmiersprache zur Erstellung von Vektorgrafiken. Es stellt eine vereinfachte Syntax für PGF dar. \FTMfigref{fig:Einspurmodell} zeigt ein Beispiel für eine TikZ"=Grafik. Neben den Vorteilen von Vektorgrafiken, wie der Skalierbarkeit und damit der Dateigröße, bietet TikZ die Möglichkeit, Abbildungen im Textdokument zu verändern und so Strichstärken, Linientyp, Farbe oder Beschriftung anzupassen. Eine detaillierte Anleitung bietet \cite{TikZmanual} und weitere Beispiele sind unter \cite{TikZexample} zu finden.%
+
+Um TikZ"=Grafiken nicht vollständig händisch programmieren zu müssen, sondern - ähnlich wie mit herkömmlichen Vektorgrafikprogrammen (oder PowerPoint) - erstellen zu können, wird die Verwendung von \gls{wysiwyg}-Editoren empfohlen (bspw. \glqq{}\href{https://code.google.com/archive/p/tikzedt/}{Tikzedt}\grqq{} oder \glqq{}\href{https://www.mathcha.io/editor}{Mathcha.io}\grqq{}). Detaillierte Informationen zu diesen Tools sind in \autoref{sec:Grafikprogramme} zu finden.%
+\begin{figure}[!htbp]
+	\input{./figures/Tikz_2D_Bsp_Einspurmodell}
+	\caption{Einspurmodell mit Hilfe von TikZ}
+	\label{fig:Einspurmodell}
+\end{figure}%
+\FloatBarrier%
+TikZ bietet zudem die Möglichkeit dreidimensionale Grafiken zu erstellen (\FTMfigref{fig:3D-Tikz}):%
+\begin{figure}[!htbp]
+	\input{./figures/Tikz_3D_Bsp_Stabi}
+	\caption{Modell eines Wankstabilisators mit Hilfe von 3D-TikZ}
+	\label{fig:3D-Tikz}
+\end{figure}%
+\FloatBarrier%
+Um weitere TikZ"=Bibliotheken nutzen zu können müssen diese zunächst mit Hilfe des Befehls\linebreak \verb|\usetikzlibrary| eingebunden werden. \FTMlstref{lst:TikzLibraries} zeigt ein Beispiel mit einer Vielzahl nützlicher Zusatzbibliotheken.%
+\begin{lstlisting}[language=TeX, caption=Einbinden weiterer TikZ-Bibliotheken,label=lst:TikzLibraries]
+\usetikzlibrary{arrows.meta,arrows,shapes,trees,angles,calc,through,3d,patterns,decorations.pathmorphing,decorations.markings,positioning,bending}
+\end{lstlisting}%
+%
+%
+\subsection{MATLAB-Grafiken in TikZ umwandeln}
+\label{subsec:MATLAB2TikZ}
+In MATLAB erstellte Grafiken können mit Hilfe der Toolbox \textit{Matlab2TikZ} direkt in TikZ-Dateien umgewandelt werden. Anschließend können in der TikZ-Datei Beschriftungen, Strichstärken, Farben und Größen angepasst werden. \FTMfigref{fig:BodeHubbeschleunigung} zeigt ein Beispiel einer Übertragungsfunktion (die Pfeile wurden nachträglich hinzugefügt):%
+\begin{figure}[!htbp]
+	\centering
+	\input{figures/Tikz_Hubbeschl_kF}
+	\caption{Beispiel für die Umwandlung eines Matlab-Plots in eine Tikz-Grafik}
+	\label{fig:BodeHubbeschleunigung}
+\end{figure}%
+\FloatBarrier%
+Die MATLAB-Toolbox \textit{Matlab2TikZ} wird im MathWorks File Exchange \cite{MatlabTikz} bereitgestellt.%
+%
+Bei der Umwandlung in TikZ-Dateien auf den Umfang der Datenpunkte achten: Versucht der Compiler zu große Tex-Dateien zu übersetzen kann ein Fehler auftreten, da der reservierte Arbeitsspeicher nicht genügt. Abhilfe kann hier eine der nachstehenden Funktionen schaffen:
+
+\begin{itemize}
+	\item \textit{cleanfigures()}-Funktion in \textit{Matlab2TikZ}: Reduziert die Datenpunkte in Abhängigkeit der Änderung der Funktionswerte
+	\item downsample() in Matlab: Jeder x-te Datenpunkt wird erhalten, der Rest verworfen
+	\item TikZ externalize-Package: Lagert die Tikz-Grafiken als PDF aus
+\end{itemize}
+%
+%
+\subsection{Stand-alone-TikZ-Bilder}
+\label{subsec:StandAloneTikz}
+In einigen Fällen kann es sinnvoll sein, TikZ-Bilder separat zu kompilieren (als Stand-alone-TikZ-Bild). Auf diese Weise muss der Compiler beim Aufbaus eines Bildes in TeXstudio nur das Bild und nicht das gesamte Dokument kompilieren. Dieses Vorgehen reduziert die Wartezeit für das Kompilieren und ermöglicht eine Erzeugung des Bildes fast in \glqq{}Echtzeit\grqq{} (natürlich abhängig von der Größe und Komplexität des TikZ-Codes).
+Es ist wichtig zu verstehen, dass es nicht ausreicht, einfach den TikZ-Code in eine eigene Datei zu kopieren und diese zu kompilieren. LaTeX benötigt immer ein umgebendes Gesamt-Dokument, das die Einstellungen zum Layout (Seitengröße, Seitenränder, etc.) enthält. Dies kann für TikZ-Grafiken mit der folgenden Struktur erreicht werden:
+
+\begin{lstlisting}[language=tex, caption=Beispiel-Code für ein Stand-alone-TikZ-Bild]
+	\documentclass{standalone} % Aufsetzen eines Dokuments der Klasse standalone
+	% Hier können benötigte Packages eingebunden werden:
+	% \usepackage{...}
+	\begin{document}
+		\begin{tikzpicture}
+			
+			% Hier wird der TikZ-Code eingefügt.
+			
+		\end{tikzpicture}
+	\end{document}
+\end{lstlisting}%
+
+Ein Beispiel für den Code eines Stand-alone-TikZ-Bildes ist im Ordner \textit{figures} unter dem Namen \textit{Stand\_alone\_picture.txt} zu finden. Beim Ausprobieren ist zu beachten, dass in TeXstudio das Root-Dokument neu gesetzt werden muss (Optionen > Root Dokument > Aktuelles Dokument explizit als Root Dokument setzen).
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Formeln, Gleichungen und Einheiten}%
+\label{sec:FormelnGleichungeEinheiten}%
+%
+%
+\subsection{Formelsatz}
+\label{sec:Formelsatz}
+Die korrekte Schreibweise von Formeln und Formelzeichen wird leider selten richtig gemacht. Gerade in der wissenschaftlichen Welt kann mit einem korrekten Formelsatz ein professioneller Gesamteindruck erreicht werden und ist daher sehr empfehlenswert. In der Praxis finden sich in Fachbüchern und Veröffentlichungen viele verschiedene Konventionen, jedoch sind diese Regeln mittlerweile vereinheitlicht und in der DIN-Norm DIN~1304 \& DIN~1338 und international gültig in der DIN EN ISO 80000-1:2013-08 festgeschrieben. Im Folgenden finden sich Auszüge daraus und eine Zusammenstellung der wichtigsten Inhalte.
+Formeln bzw. Formelzeichen können in drei verschiedenen Schriftlagen dargestellt werden: gerade, \textit{kursiv} und \textbf{fett}. Je nach Lage ändert dies die Bedeutung und vice versa. Sofern es sich um physikalische Größen oder sich variabel ändernde Größen handelt werden diese immer \textit{kursiv} geschrieben. Demgegenüber werden reine Bezeichnungen, wie Text in Indizes und mathematische Operatoren aufrecht geschrieben, um die Abgrenzung für den Leser optisch hervorzuheben. Vektoren bzw. Tensoren werden häufig \textbf{fett} geschrieben mit zusätzlichen Akzenten. Tabelle \ref{tab:Formelsatz} gibt eine Übersicht über die Anwendung dieser Regel anhand von Beispielen.
+\begin{table}[t]
+	\centering
+	\caption{Regeln zum korrekten Formelsatz und Schriftweise}
+	\begin{tabularx}{0.9\textwidth}{M{0.4\textwidth} M{0.1\textwidth} M{0.4\textwidth}}
+		\toprule
+		\textbf{Beschreibung}&\textbf{Schriftlage}&\textbf{Beispiel}\\
+		\midrule
+		\multicolumn{3}{c}{\textbf{Formelzeichen}}\\
+		\midrule
+		Zahlen, die durch Buchstaben dargestellt werden & gerade & $\uppi$ (Pi) $\mathrm{e}$ (euler'sche Zahl),\newline $\mathrm{i}$  (imaginäre Zahl)\\
+		\addlinespace
+		physikalische Konstanten & \textit{kursiv} &
+		$e = \SI{1,602e-19}{A.s}$ (Elementarladung), \newline
+		$N_{\mathrm{A}} = \SI{6,022 e{23}}{mol^{-1}}$ (Avogadrokonstante) \\
+		\addlinespace
+		physikalische Größen & \textit{kursiv} &
+		$v$ (Geschwindigkeit), \newline
+		$s$ (Strecke), \newline
+		$P_\mathrm{max}$ (maximale Leistung) \\
+		Vektoren & \textbf{fett} & $\boldsymbol{x}, \boldsymbol{y}, \boldsymbol{z}$ \\
+		\midrule
+		\multicolumn{3}{c}{\textbf{Einheiten}}\\
+		\midrule
+		physikalische Einheiten & gerade & $\si{N}$, $\si{kg.m/s^2}$ %, $\si[per-mode =fraction]{\kilogram\meter \per \second^2}$
+		\\
+		\addlinespace
+		Zusammengesetzte Einheiten werden getrennt durch Punkt oder halbes geschütztes Leerzeichen (lt. Norm ist das Leerzeichen nicht festgeschrieben, ist aber FTM Konvention)  & gerade & $\si{\newton \meter}$, $\mathrm{N \cdot m}$ \\
+		Angabe von Einheiten in Diagrammen/ Formeln etc. & gerade & $v~\mathrm{in}~\si{m/s}$,\newline $v/(\si{m/s})$, \newline $s\,\si{\per m}$,  \newline $\left\{v\right\}_{\si{m \per s}}$  %$\SI[per-mode=symbol]{1.99}{\per\meter}$ \newline $1.99\,\si[per-mode=symbol]{\per\meter}$
+		\\
+		\addlinespace
+		Präfix von Einheiten immer ohne Leerzeichen & gerade & $\si{\milli N}$, $\si{\kilo N}$,  $\si{\mega N}$ \\
+		\addlinespace
+		\textcolor{red}{\textbf{Falsche}}, aber leider gebräuchliche Angabe von Einheiten & -- & $v\; \mathrm{[m/s]}$, $[m/s]$, $[\mathrm{\frac{m}{s}}]$	\\
+		\midrule
+		\multicolumn{3}{c}{\textbf{Indizes}}\\
+		\midrule
+		Laufende Zahlen, physikalische Größen & \textit{kursiv} &
+		$\sum_{i=1}^{\infty} S_i$ \newline
+		$E_m$ (spezifische Energie) \newline
+		$c_x$ (Steifigkeit in x-Richtung) \newline	\\
+		Alle anderen Bezeichnungen & gerade & 	$E_\mathrm{kin}$, $F_\mathrm{tot}$, $c_{\mathrm{rot},x}$  \\
+		\midrule
+		\multicolumn{3}{c}{\textbf{Operatoren}}\\
+		Alle mathematischen Operatoren & gerade & $ P = \int_{0}^{s} F(s)\,\mathrm{d} s$ \newline $\log(x)$\\
+		\midrule
+		\bottomrule
+	\end{tabularx}
+	\label{tab:Formelsatz}
+\end{table}%
+
+Zusätzliche Regeln zur Formelschreibweise:
+\begin{enumerate}
+	\item Verwenden eines Multiplikationspunktes vermeiden, außer zur Verdeutlichung von Gruppen oder bei Darstellung von Ziffern in einer Formel: $n! = 1 \cdot 2  \cdot 3 \cdot \ldots \cdot n$,~~~$2\cdot16\cdot a\,b$
+	\item Abstände zwischen mehreren Formelzeichen, Operator und Ziffer/Formelzeichen durch ein halbes geschütztes Leerzeichen: $\int f\,\mathrm{d}t$,~~~$E_\mathrm{pot}=m\,g\,h$
+\end{enumerate}
+Beispiele für die Nennung von Formeln in Sätzen.
+
+Beispiel 1 (Haupt- und Nebensatz):
+
+Der Strahlungswirkungsgrad ist gegeben durch Gleichung \ref{eq:Strahlung1}
+\begin{equation}
+\eta_\mathrm{t} = \frac{R_\mathrm{r}}{R_\mathrm{r}+R_\mathrm{l}}~,
+\label{eq:Strahlung1}
+\end{equation}
+wobei $R_\mathrm{r}$ und $R_\mathrm{l}$ für dieselbe Bezugsstromstärke zu ermitteln sind.
+
+Beispiel 2 (drei Hauptsätze):
+
+Der Strahlungswirkungsgrad ergibt sich aus folgender Gleichung:
+\begin{equation}
+\eta_\mathrm{t} = \frac{R_\mathrm{r}}{R_\mathrm{r}+R_\mathrm{l}}~.
+\label{eq:Strahlung2}
+\end{equation}
+$R_\mathrm{r}$ und $R_\mathrm{l}$ sind für dieselbe Bezugsstromstärke zu ermitteln.
+
+
+\subsection{Formeln und Gleichungen}%
+\label{sec:FormelnUndGleichungen}%
+Formeln und Gleichungen können mit Hilfe von Mathematik"=Environments wie:%
+\begin{itemize}%
+	\item \verb|equation|: Environment für einfache Gleichungen%
+	\item \verb|eqnarray|: Environment für mehrere Gleichungen%
+	\item \verb|alignat|:  Environment zum ausrichten mehrerer Gleichungen%
+\end{itemize}%
+eingefügt werden. Innerhalb dieser Environments können griechische Buchstaben, Formelzeichen oder spezielle Notation mit Hilfe von Makros eingegeben werden. Eine Übersicht findet sich bei \cite{latexMath}.%
+
+Wie bei Grafiken und Tabellen, kann auch für Gleichungen ein Label vergeben werden, über das sie referenziert werden können. Gleichungen werden zudem nummeriert, was mit Hilfe von \verb|\notag| oder einem Stern hinter dem Namen des Environments unterdrückt werden kann.%
+
+\FTMeqntworef{eqn:Gleichung1}{eqn:Gleichung2} zeigen Beispiele mit \verb|equation|%
+\begin{equation}%
+	\pi(x) = \sum_{n=1}^\infty\frac{\mu(n)}{n}J(\sqrt[n]{x})\label{eqn:Gleichung1}%
+\end{equation}%
+\begin{equation}%
+	J(x)=li(x)+\sum_\rho li(x^\rho)-\ln\,2+\int_{x}^\infty\frac{\mathrm{d}t}{t(t^2-1)\ln t}\label{eqn:Gleichung2}%
+\end{equation}%
+und \FTMeqnref{eqn:Gleichung3} ein Beispiel mit \verb|alignat|%
+\begin{alignat}{1}%
+	\sigma_q^2 &= \int_\Omega \frac{\left(f(\mathbf{x})p(\mathbf{x})\right)^2}{q(\mathbf{x})}\mathrm{d}\mathbf{x}-\mu^2\notag\\[0.8em]%
+	&= \int_\Omega \frac{\left(f(\mathbf{x})p(\mathbf{x})-\mu q(\mathbf{x})\right)^2}{q(\mathbf{x})}~\mathrm{d}\mathbf{x}=\mathbb{E}_q\left(\frac{\left(f(\mathbf{X})p(\mathbf{X})-\mu q(\mathbf{X})\right)^2}{q(\mathbf{X})^2}\right). \label{eqn:Gleichung3}%
+\end{alignat}%
+%
+%
+\subsection{SI-Einheiten}%
+\label{subsec:Einheiten}%
+Für die Darstellung von SI"=Einheiten wird in der \LaTeX"=Vorlage das \textit{siunitx}"=Package genutzt, das nach DIN"=Norm eingestellt wurde
+\begin{itemize}
+	\item geschütztes Leerzeichen zwischen Zahl und Einheit (\SI{10}{\metre}) oder Zahl und Prozent (\SI{99}{\percent}) mit \verb|\SI{99}{\percent}|
+	\item kein Leerzeichen bei abgeleiteten Prozentangaben wie $99\%\text{-ig}$
+	\item kein Leerzeichen zwischen Zahl und Einheiten die ausschließlich aus hochgestellten Zeichen bestehen wie Winkelangaben (\SI{10}{\degree}, \SI{10}{\arcminute}, \SI{10}{\arcsecond})
+	\item halbes geschütztes Leerzeichen zwischen mehreren Einheiten (\SI{10}{\newton\metre})
+	\item kein Leerzeichen zwischen Einheit und Präfix (\SI{10}{\pico\metre})
+\end{itemize}
+Die Befehle des \textit{siuintx}"=Packages zur Erstellung von Zahlen und Einheiten werden im Folgenden beschrieben.\\%
+Einheiten ohne Zahl wie z.B. \si{\metre}:%
+\begin{lstlisting}[language=TeX,caption=Einfügen von Einheiten,label=lst:SIEinheit]
+\si[<Optionen>]{<Einheit>}
+\end{lstlisting}%
+Einheiten mit Zahl wie z.B. \SI{10,5}{\metre}:
+\begin{lstlisting}[language=TeX,caption=Einfügen von Einheiten mit Werten,label=lst:SIEinheitWert]
+\SI[<Optionen>]{<Zahl>}{<Einheit>}
+\end{lstlisting}%
+Für einen Wertebereich inkl.~Einheit kann der folgende Befehl verwendet werden (\SIrange{10}{20}{\metre}):%
+\begin{lstlisting}[language=TeX,caption=Einfügen von Wertebereichen mit Einheiten,label=lst:SIEinheitRange]
+\SIrange[<Optionen>]{<Zahl1>}{<Zahl2>}{<Einheit>}
+\end{lstlisting}%
+Eine Liste mehrerer Werte mit gleicher Einheit kann mithilfe von folgendem Befehl erreicht werden (\SIlist{10;20;30}{\metre}):
+\begin{lstlisting}[language=TeX,caption=Einfügen von Wertelisten mit Einheiten,label=lst:SIEinheitList]
+\SIrange[<Optionen>]{<Zahl1>;<Zahl2>;<Zahl3>}{<Einheit>}
+\end{lstlisting}%
+Einheiten können mit Präfixen versehen (\si{\pico\metre}), zusammengesetzt (\si{\newton\metre}) oder eigene Makros definiert werden. Der \textit{per-mode} steuert die Ausgabe von Brüchen und wurde auf \textit{fraction} eingestellt, wodurch \si{\kilo\metre\per\hour} entsteht, mit der Option \verb|per-mode=reciprocal| wird \si[per-mode=reciprocal]{\kilo\metre\per\hour} und mit der Option \verb|per-mode=symbol| wird \si[per-mode=symbol]{\kilo\metre\per\hour} erzeugt. Das Package kann zudem in mathematischen Formeln genutzt werden.%
+
+Die wichtigsten Einheiten zeigt \FTMtabref{tab:Einheiten}, eine ausführliche Dokumentation und weitere Beispiele liefert die Package"=Dokumentation \cite{siunitxDocumentation}.%
+
+\textbf{Info:} Die Leerzeichen-Setzung bei Angabe von $^{\circ}$ ist abhängig vom Kontext. Soll eine Temperatur angegeben werden, so ist die korrekte Schreibweise \SI{21}{\celsius} (Zahl, Leerzeichen, Grad-Celsius ohne Leerzeichen zusammengeschrieben). Soll hingegen ein Winkel angegeben werden, so erfolgt die Angabe in der Schreibweise \SI{90}{\degree} (Zahl und Gradsymbol ohne Leerzeichen). Das \textit{siunitx}"=Package formatiert dies selbstständig in der korrekten Form.
+
+\begin{table}[!htbp]
+	\centering
+	\caption{Die wichtigsten SI"=Einheiten im Überblick}
+	\begin{tabular}{c c c}
+		\toprule%
+		\textbf{Einheit}&\textbf{Makro}&\textbf{Symbol}\\%
+		\midrule%
+		\multicolumn{3}{c}{\textbf{Längen und Winkel}}\\%
+		Meter & \verb|\metre| & \si{\metre}\\ %
+		Grad & \verb|\degree| & \si{\degree}\\%
+		Winkelminute & \verb|\arcminute| & \si{\arcminute} \\%
+		Winkelsekunde & \verb|\arcsecond| & \si{\arcsecond}\\%
+		Radiant & \verb|\radian| & \si{\radian}\\%
+		\midrule%
+		\multicolumn{3}{c}{\textbf{Zeit}}\\%
+		Tag & \verb|\day| & \si{\day}\\%
+		Stunde & \verb|\hour| & \si{\hour}\\%
+		Minute & \verb|\minute| & \si{\minute}\\%
+		Sekunde & \verb|\second| & \si{\second}\\%
+		\midrule%
+		\multicolumn{3}{c}{\textbf{Mechanik}}\\
+		Kilogramm & \verb|\kilogram| & \si{\kilogram}\\%
+		Newton & \verb|\newton| & \si{\newton}\\%
+		Joule & \verb|\joule| & \si{\joule}\\%
+		Watt & \verb|\watt| & \si{\watt}\\%
+		\midrule%
+		\multicolumn{3}{c}{\textbf{Elektrotechnik}}\\%
+		Ampere & \verb|\ampere| & \si{\ampere}\\%
+		Volt & \verb|\volt| & \si{\volt}\\%
+		Ohm & \verb|\ohm| & \si{\ohm}\\%
+		Coulomb & \verb|\coulomb| & \si{\coulomb}\\%
+		Farad & \verb|\farad| & \si{\farad}\\%
+		Tesla & \verb|\tesla| & \si{\tesla}\\%
+		\midrule%
+		\multicolumn{3}{c}{\textbf{Sonstiges}}\\%
+		Grad Celsius & \verb|\degreeCelsius| & \si{\degreeCelsius}\\%
+ 		Pascal & \verb|\pascal| & \si{\pascal}\\%
+		Bar & \verb|\bar| & \si{\bar}\\%
+		Hertz & \verb|\hertz| & \si{\hertz}\\%
+		Dezibel & \verb|\decibel| & \si{\decibel}\\%
+		\midrule%
+		\multicolumn{3}{c}{\textbf{SI"=Präfixe (exemplarisch für Watt \si{\watt})}}\\%
+		peta & \verb|\peta| & \si{\peta\watt}\\%
+		tera & \verb|\tera| & \si{\tera\watt}\\%
+		giga & \verb|\giga| & \si{\giga\watt}\\%
+		mega & \verb|\mega| & \si{\mega\watt}\\%
+		kilo & \verb|\peta| & \si{\kilo\watt}\\%
+		centi & \verb|\centi| & \si{\centi\watt}\\%
+		milli & \verb|\milli| & \si{\milli\watt}\\%
+		micro & \verb|\micro| & \si{\micro\watt}\\%
+		nano & \verb|\nano| & \si{\nano\watt}\\%
+		pico & \verb|\pico| & \si{\pico\watt}\\%
+		\bottomrule%
+	\end{tabular}
+	\label{tab:Einheiten}%
+\end{table}%
+\FloatBarrier%
+%
+%
+%
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Akronyme und Abkürzungen}%
+\label{sec:Akronyme}%
+Akronyme und Abkürzungen werden mit dem Glossary-Package verwalten. Definiert werden sie in der Datei {./source/Abkuerzungsverzeichnis.tex}. Bei der Definition müssen Label, Abkürzung und Langform angegeben werden:%
+\begin{lstlisting}[language=TeX, caption=Definition eines Acronyms,label=lst:Acronym]
+\newacronym{oem}{OEM}{Original Equipment Manufacturer}
+\end{lstlisting}%
+Weicht der Plural von der englischen Pluralbildung mit s am Ende ab, muss zusätzlich die Lang- und Kurzform des Plurals definiert werden. Um bspw. die Übersetzung einer englischen Abkürzung anzugeben, kann die \textit{description}-Option genutzt werden.%
+\begin{lstlisting}[language=TeX, caption=Definition eines Acronyms,label=lst:Acronymplural]
+\newacronym[description={Antiblockiersystem (engl. Anti-lock Braking System)}, \glslongpluralkey={Antiblockiersysteme},\glsshortpluralkey={ABS}]{abs}{ABS}{Antiblockiersystem}
+\end{lstlisting}%
+Angesprochen werden Akronyme im Text mit Hilfe des definierten Labels, wie beispielsweise \textit{oem}. Die Darstellung mit mit folgenden Befehlen gesteuert:%
+\begin{itemize}
+	\item \verb|\gls{oem}|: schreibt beim ersten Auftreten im Dokument ausführlich \gls{oem}, ab dem zweiten Auftreten wird abgekürzt \gls{oem}%
+	\item \verb|\glspl{abs}| verwendet den plural \glspl{abs}%
+	\item \verb|\Gls| und \verb|\Glspl| steuern die jeweilige Ausgabe mit großem Anfangsbuchstaben, beispielsweise für einen Satzanfang.%
+\end{itemize}%
+Weitere Details zum Glossary-Package findet sich hier \cite{GlossaryPackage}.
+%
+%
+%
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Referenzieren}%
+\label{sec:Referenzieren}%
+Prinzipiell können alle Labels referenziert werden, die Ausgabe richtet sich jeweils nach der Umgebung in der das Label definiert wurde, wie beispielsweise \textit{figure}, \textit{equation} oder \textit{section}. Zur Übersichtlichkeit empfiehlt es sich deshalb den Labels eindeutige Namen zu geben, die die Art Umgebung als Prefix enthalten, wie \textbackslash fig:NamederFigure oder \textbackslash chap:NamedesKapitels.%
+
+Referenziert werden kann mit \textbackslash \textit{autoref} oder \textbackslash \textit{nameref}. Zum schnelleren und leichteren Referenzieren wurden einige erweiterte Kommandos definiert, die im Folgenden vorgestellt werden:%
+\begin{itemize}%
+	\item Kapitel mit Namen referenzieren\\%
+		\verb|\FTMfullref{sec:Referenzieren}|: \FTMfullref{sec:Referenzieren}%
+	\item Ein Kapitel bzw. Abschnitte\\%
+		\verb|\FTMsecref{chap:Kapitel1}|: \FTMsecref{chap:Anleitung}
+	\item Zwei Kapitel bzw. Abschnitte mit einem \glqq{}und\grqq{} dazwischen:\\%
+		\verb|\FTMsectworef{chap:Kapitel1}{chap:Kapitel2}|: \FTMsectworef{chap:Anleitung}{chap:StandderTechnik}%
+	\item Eine Abbildung\\%
+		\verb|\FTMfigref{fig:subfig}|: \FTMfigref{fig:subfig}%
+	\item Zwei Abbildungen mit einem \glqq{}und\grqq{} dazwischen\\%
+		\verb|\FTMfigtworef{fig:subfig_a}{fig:subfig_d}|: \FTMfigtworef{fig:subfig_a}{fig:subfig_d}%
+	\item Mehrere Abbildungen \glqq{}von bis\grqq{} mit Bindestrich\\%
+		\verb|\FTMfigtoref{fig:subfig_a}{fig:subfig_d}|: \FTMfigtoref{fig:subfig_a}{fig:subfig_d}%
+	\item Eine Tabelle\\%
+		\verb|\FTMtabref{tab:Tabelle_1}|: \FTMtabref{tab:Tabellen}
+	\item Zwei Tabellen mit \glqq{}und\grqq{} dazwischen\\%
+		\verb|\FTMtabtworef{tab:Tabelle_1}{tab:Tabelle_2}|: \FTMtabtworef{tab:TUM_Farben}{tab:Tabellen}%
+	\item Mehrere Tabellen \glqq{}von bis\grqq{} mit Bindestrich\\%
+		\verb|\FTMtabtoref{tab:Tabelle_1}{tab:Tabelle_2}|: \FTMtabtoref{tab:TUM_Farben}{tab:Tabellen}%
+	\item Eine Gleichung\\%
+		\verb|\FTMeqnref{eqn:Gleichung_1}|: \FTMeqnref{eqn:Gleichung1}%
+	\item Zwei Gleichungen mit \glqq{}und\grqq{} dazwischen\\%
+		\verb|\FTMeqntworef{eqn:Gleichung_1}{eqn:Gleichung_2}|: \FTMeqntworef{eqn:Gleichung1}{eqn:Gleichung2}%
+	\item Mehrere Gleichungen \glqq{}von bis\grqq{} mit Bindestrich\\%
+		\verb|\FTMeqntoref{eqn:Gleichung_1}{eqn:Gleichung_2}|: \FTMeqntoref{eqn:Gleichung1}{eqn:Gleichung2}%
+	\item Ein Quellcode bzw.~Listing\\%
+		\verb|\FTMlstref{lst:Listing_1}|: \FTMlstref{lst:Subfigure}
+	\item Zwei Listings mit \glqq{}und\grqq{} dazwischen\\%
+		\verb|\FTMlsttworef{lst:Listing_1}{lst:Listing_2}|: \FTMlsttworef{lst:Figure}{lst:Subfigure}%
+	\item Mehrere Listings \glqq{}von bis\grqq{} mit Bindestrich\\%
+		\verb|\FTMlsttoref{lst:Listing_1}{lst:Listing_2}|: \FTMlsttoref{lst:Figure}{lst:Subfigure}%
+\end{itemize}%
+%
+%
+%
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Todo-Verwaltung}%
+\label{sec:TodoVerwaltung}%
+%
+Eine Studienarbeit ist ebenso wie eine Dissertation ein \glqq{}wachsendes\grqq{} Dokument. Aus diesem Grund ist es hilfreich, sich Stellen im Dokument zu markieren, an denen noch etwas zu tun ist. In dieser Vorlage stehen dafür zwei Möglichkeiten der Todo-Verwaltung zur Verfügung: Zum einen können mithilfe des todonotes-Packages, das im \FTMsecref{subsec:todonotes} näher beschrieben wird, die offenen Todos in Sprechblasen im pdf-Dokument dargestellt werden. Zum anderen lassen sich farblich markierte Texteinschübe mithilfe der vordefinierten Befehle \verb|\FTMutilsTodo|, \verb|\FTMutilsTodoW| und \verb|\FTMutilsTodoSpacer| im Text platzieren. Die Funktion dieser Befehle ist in \FTMsecref{subsec:texhighlightingtodos} beschrieben.%
+%
+%
+\subsection{todonotes}%
+\label{subsec:todonotes}%
+Das Todonotes-Package dient der Verwaltung von offenen Aufgaben wie bspw. fehlenden Quellen, die im Laufe der Arbeit noch ergänzt werden müssen. Weiterhin bietet todonotes das Einfügen von Platzhalterbildern in der richtigen Größe an, die später nur noch durch die richtige Grafik ersetzt werden müssen.%
+%
+\subsubsection{Text-Todos}%
+Der größte Vorteil dieses Packages ist, dass die normalen Todos in Form von Randnotizen im PDF dargestellt werden und nicht das eigentliche Layout beeinflussen. Ein Todo wird immer genau an einer Stelle im Text positioniert, bspw.~nach diesem Doppelpunkt: \todo{Dies ist eine Randnotiz, die mit \textbackslash{}todo\{test\}| eingebunden werden kann.} Somit kann der Textabsatz nach dem Todo regulär fortgeführt werden, ohne dabei das Layout des pdf-Dokuments zu beeinflussen. Für das Erstellen einer Randnotiz steht der in \FTMlstref{lst:Todo} gezeigte Befehl zur Verfügung:%
+\begin{lstlisting}[language=TeX,caption=Einfügen eines Randnotiz-Todos,label=lst:Todo]
+\todo{Dies ist eine Randnotiz.}
+\end{lstlisting}%
+%
+Wenn ein Todo mit viel Text (bspw.~ein Absatz, der noch zu überarbeiten ist) als Todo markiert werden soll und dieser in einer Randnotiz zu lang wäre, steht hierfür die inline-Option des todo-Befehls zur Verfügung. Ein Beispiel ist in \FTMlstref{lst:TodoInline} dargestellt:
+\todo[inline]{Dies ist ein inline-Todo.}%
+\begin{lstlisting}[language=TeX,caption=Einfügen eines Inline-Todos,label=lst:TodoInline]
+\todo[inline]{Dies ist ein inline-Todo.}
+\end{lstlisting}%
+%
+\subsubsection{Platzhalterbilder}%
+Im Todonotes-Package ist außerdem der Befehl \textbackslash{}missingfigure\{Beschreibungstext\} enthalten, mit dem Platzhalterbilder eingefügt werden können, an deren Stelle später nur noch das richtige Bild eingebunden werden muss. Dabei ersetzt \textbackslash{}missingfigue den Befehl \textbackslash{}includegraphics, sodass bereits eine Figure-Umgebung mit Caption und Label für Referenzierungen auf das Bild im Text vorkonfiguriert werden kann. Im Text sind somit bereits Verweise auf fehlende Bilder möglich, wie hier exemplarisch für \FTMfigref{fig:BildAusQuelleABC} gezeigt. Später muss anstelle des \textbackslash{}missingfigure im Code nur noch ein \textbackslash{}includegraphics ergänzt werden, um das richtige Bild einzubinden.%
+
+Info: Durch Angabe des Parameters \textbf{\textit{figcolor}} kann die Hintergrundfarbe angegeben und bspw.~auf Weiß umgestellt werden, um beim Drucken graue Druckflächen zu vermeiden, die nur unnötig Durckertinte bzw.~Toner verschwenden. Es ist weiterhin möglich, die Höhe des Platzhalterbildes mit \textbf{\textit{figheight}} zu definieren, sodass das Platzhalterbild exakt zum später einzufügenden Bild passt.%
+
+Beispielhafte Befehle sind in \FTMlstref{lst:TodoMissingFigure} aufgeführt:%
+\begin{lstlisting}[language=TeX,caption=Einfügen von Platzhalterbildern,label=lst:TodoMissingFigure]
+\missingfigure[figcolor=white]{Beschreibungstext}
+\missingfigure[figcolor=white,figheight=5cm]{Beschreibungstext}
+\end{lstlisting}%
+
+\begin{figure}[!htbp]%
+	\centering%
+%	\includegraphics[width=0.9\linewidth]{./BildAusQuelleABC}%
+	\missingfigure[figcolor=white]{Beschreibungstext: Hier wird später das Bild aus Quelle ABC eingefügt.}%
+	\caption[Bild aus Quelle ABC]{Bild mit weißem Hintergrund aus Quelle ABC nach [ABC]}%
+	\label{fig:BildAusQuelleABC}%
+\end{figure}%
+%
+\begin{figure}[H]%%
+	%	\includegraphics[width=0.9\linewidth]{./BildAusQuelleXYZ}%
+	\missingfigure[figcolor=white,figheight=5cm]{Beschreibungstext: Hier wird später ein Bild aus Quelle XYZ eingefügt.}%
+	\caption[Bild aus Quelle XYZ]{Bild mit weißem Hintergrund und \SI{5}{\centi\metre} Höhe aus Quelle XYZ nach [XYZ]}%
+	\label{fig:BildAusQuelleXYZ}%
+\end{figure}%
+%
+\subsubsection{Verzeichnis der offenen Todos und Deaktivieren des Todonotes-Pack"=ages}%
+Im pdf-Dokument erstellt der Befehl \textbackslash{}listoftodos ein Verzeichnis mit allen im Dokument vorhandenen Todos und Missingfigures und verlinkt diese innerhalb des PDFs, sodass jederzeit ein guter Überblick über die noch offenen Todos behalten werden kann. Diese Übersicht ist in der Vorlage vor Kapitel~1 eingebunden.%
+
+Für Vorabgaben und die finale Abgabe bzw.~das Drucken der Arbeit ist es sinnvoll, alle Todos zu verbergen. Hierfür steht in der Dokumentenklasse eine eigene Option zur Verfügung:%
+\FTMinstruction{Deaktivieren des Todonotes-Packages für den Druck}{Durch Angabe von optHideToDos in der Dokumentenklasse oben in der main-Datei kann das todonotes-Package komplett ausgeschaltet werden, sodass für den Druck der Arbeit auch offene Todos und das Todo-Verzeichnis verborgen werden.}%
+%
+\subsection{Todos mithilfe von Text-Highlighting}%
+\label{subsec:texhighlightingtodos}%
+Die Befehle \verb|\FTMutilsTodo|, \verb|\FTMutilsTodoW| und \verb|\FTMutilsTodoSpacer| stehen zum Einfügen von farblich markiertem Text und Textplatzhaltern zur Verfügung.\\
+Ein \verb|\FTMutilsTodo[orange]{Text}| sieht folgendermaßen aus: \FTMutilsTodo[orange]{Text}%
+
+Der Befehl \verb|\FTMutilsTodoW| hat denselben Effekt wie \verb|\FTMutilsTodo|, allerdings erzeugt dieser zusätzlich eine \LaTeX{}-Warning, die beim Erzeugen des pdf-Dokuments bspw.~im Log des TeXstudios ausgegeben wird. Das Aussehen im Text ist analog zu \verb|\FTMutilsTodo|%
+
+Als dritte Option steht der Befehl \verb|\FTMutilsTodoSpacer| zur Verfügung, der einen beschrifteten Freiraum einfügt. In diesem Rahmen können in der gedruckten Version bspw.~handschriftlich inhaltliche Ergänzungen festgehalten werden.%
+\FTMutilsTodoSpacer[Hier muss noch etwas eingefügt werden.]{30}% [Heading]{HeightInMM}%
+
+Zusammenfassend stehen die drei in \FTMlstref{lst:TodoTextHighlighting} aufgeführten Befehle für Text-Highlighting-Todos zur Verfügung:%
+\begin{lstlisting}[language=TeX,caption=Einfügen von Platzhalterbildern,label=lst:TodoTextHighlighting]
+\FTMutilsTodo[orange]{Text}
+\FTMutilsTodoW[orange]{Text}
+\FTMutilsTodoSpacer{Text}{HoeheInMM}
+\end{lstlisting}%
+%
+%
+\section{Code einfügen}%
+Listings-Package: \textbackslash{}lstlisting und \textbackslash{}lstinline mit verschiedenen Programmiersprachen\\%
+language-Option, style-Option
+
+Verändern eines Sprachstyles (Beispiel: Add Keyword SQL); Referenzierung auch über Label möglich: Wie in \FTMlstref{code:MatlabCode} zu sehen...%
+%
+\begin{lstlisting}[language=SQL,caption={[Falscher SQL-Code]\textbf{Falscher} SQL-Code: Keyword \glqq{}AUTOINCREMENT\grqq{} fehlt, Farben stimmen nicht},label={code:SQLstatement}]
+CREATE TABLE Persons (
+ID int NOT NULL AUTOINCREMENT,
+LastName varchar(255) NOT NULL DEFAULT "Mustermann",
+FirstName varchar(255) DEFAULT "Max",
+Birthday DATE() DEFAULT "1900-01-01",
+PRIMARY KEY (ID)
+);
+SELECT * FROM Persons WHERE Birthday > '1989-02-28'; --Abfrage aller Personen, die ab März 1989 geboren sind.
+\end{lstlisting}%
+%
+\begin{lstlisting}[style=SQLStyleFTM,caption={[Korrekter SQL-Code]\textbf{Korrekter} SQL-Code mit FTMsql-Style},label={code:SQLstatement2}]
+CREATE TABLE Persons (
+	ID int NOT NULL AUTOINCREMENT,
+	LastName varchar(255) NOT NULL DEFAULT "Mustermann",
+	FirstName varchar(255) DEFAULT "Max",
+	Birthday DATE() DEFAULT "1900-01-01",
+	PRIMARY KEY (ID)
+);
+SELECT * FROM Persons WHERE Birthday > '1989-02-28'; --Abfrage aller Personen, die ab März 1989 geboren sind.
+\end{lstlisting}%
+%
+%
+%
+\begin{lstlisting}[language=FTMpython,style=PythonStyleFTM,caption={Python-Beispiel-Code},label={code:PythonCode}]
+print("Hello World!")
+x = 1
+if x == 1:
+	# indented four spaces
+	print("x is 1.")
+\end{lstlisting}%
+%
+\begin{lstlisting}[language=FTMjava,style=JavaStyleFTM,caption={Java-Beispiel-Code},label={code:JavaCode}]
+public class HelloWorld
+{
+	public static void main (String[] args)
+	{
+		// Ausgabe von Hello World!
+		System.out.println("Hello World!");
+	}
+}
+\end{lstlisting}%
+%
+\begin{lstlisting}[language=FTMc,style=CStyleFTM,caption={C-Beispiel-Code},label={code:CCode}]
+#include<stdio.h>
+int main() {
+	printf("Hello World\n");
+	return 0;
+}
+\end{lstlisting}%
+%
+\begin{lstlisting}[language=FTMcpp,style=CppStyleFTM,caption={C++-Beispiel-Code},label={code:C++Code}]
+#include <iostream>
+using namespace std;
+int main()
+{
+	cout << "Hello, World!";
+	return 0;
+}
+\end{lstlisting}%
+%
+%
+\begin{lstlisting}[language=matlabfloz,caption={Matlab-Beispiel-Code},label={code:MatlabCode}]
+disp('Hello world')
+for I = eye(4,3)
+disp('Current unit vector:')
+disp(I)
+end
+\end{lstlisting}%
+%
+%
+%
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Bugfixes}%
+\label{chap:Bugfixes}%
+Erkennt \textit{TeXStudio} beim ersten Start keine \textit{MikTex}"= oder \textit{TexLive}"=Distribution, sollte der PC neu gestartet werden und vor dem erneuten Start von \textit{TeXStudio} die Datei \path{C:\Users\LRZ-Kennung\AppData\Roaming\TeXstudio\texstudio.ini} gelöscht werden.%
+
+\noindent\rule{\textwidth}{1pt}
+
+Beim ersten Kompilieren muss unter Umständen mehrmals kompiliert (\textit{F5}) und das Literaturverzeichnis erstellt werden (\textit{F8}).%
+
+\noindent\rule{\textwidth}{1pt}
+
+Sollte ein neuer Übersetzungsdurchlauf keine Änderungen übernehmen, insbesondere bei der Literatur oder den Verzeichnissen, ist es häufig hilfreich, eine vollständige Übersetzung zu starten oder alle Arbeitsdateien mit Endungen wie \textit{.aux .bbl .bcf .blg .lof .log .lot. out. .run .toc .upa} zu löschen und erneut zu kompilieren.%
+
+\noindent\rule{\textwidth}{1pt}
+
+Wird die Bibliographie nicht aktualisiert, fehlen Quellen oder es erscheint beim Kompilieren eine Fehlermeldung die Bibliographie betreffend, ist es meist hilfreich, die Bibliographie einzeln zu kompilieren. In \textit{TeXStudio} mit \textit{F8} oder über das Terminal bzw. die Eingabeaufforderung in den Ordner der \textit{main}"=Datei navigieren und mit Hilfe des Befehls \textit{biber main} den Vorgang starten.%
+
+\noindent\rule{\textwidth}{1pt}
+
+Internet"=Quellen werden falsch dargestellt, statt \glqq{}aufgerufen am\grqq{} steht \glqq{}(besucht am)\grqq{} oder die URLs enthalten kryptische Zeichen am Anfang und Ende: Die Internetdokumente/-quellen wurden nicht richtig in die .bib"=Datei exportiert und sind nicht vom Typ \textit{www} (siehe \FTMfullref{subsec:BibliographieEinbinden})
+
+\noindent\rule{\textwidth}{1pt}
+
+Um die Anzahl der möglichen Datenpunkten zu erhöhen, kann folgende Einstellung für den Aufruf von PDF-Latex genutzt werden:%
+
+\textit{pdflatex.exe --shell-escape --extra-mem-top=100000000  -synctex=1 -interaction=nonstopmode --pool-size=5000000  \%.tex}%
+
+Tikz-Externalize ruft eine eigene Instanz von PDF-Latex auf, weshalb folgender Code genutzt werden muss:
+
+\textit{\textbackslash tikzset\{external/system call=\{pdflatex.exe --shell-escape --halt-on-error --extra-mem-top=\\100000000 --pool-size=5000000 -interaction=batchmode -jobname "\textbackslash image" "\textbackslash texsource"\}\}}
+
+\noindent\rule{\textwidth}{1pt}
+
+\textbf{Fehlermeldung:} Sorry, but miktex-makemf did not succeed for the following reason: The md-chr8y source file could not be found. The log file hopefully contains the information to get MiKTeX going again.\newline Fontsmap mit Hilfe der Kommandozeile neu erzeugen \cite{mrunix}.%
+
+\noindent\rule{\textwidth}{1pt}
+
+Falls Biber einen kryptischen Fehler produziert und das Dokument nicht mehr kompiliert, kann das Löschen des Biber-Cache-Verzeichnisses (temporäres Verzeichnis zum Zwischenspeichern von Dateien) helfen. Dies wird bei Mac und Linux über das Terminal bzw. die Konsole mit dem folgenden Befehl erledigt:
+\FTMinstruction{Biber-Cache leeren:}{\textit{rm -rf `biber --cache`}}%
+Zur Erklärung: \glqq{}rm\grqq{} ist das Kommando zum Löschen von Dateien und Ordnern, \glqq{}-rf\grqq{} steht für die beiden Optionen \textbf{rekursiv} (auch Unterordner werden mitgelöscht) und \textbf{forciert} (Dateilöschung wird erzwungen). \glqq{}`biber --cache`\grqq{} liest den Ordnerpfad aus, der auf dem System als Biber-Cache verwendet wird.\\%
+Diese Fehlerbehebung wurde bei tex.stackexchange.com gefunden und ist über folgende URL zu erreichen: \href{https://tex.stackexchange.com/questions/140814/biblatex-biber-fails-with-a-strange-error-about-missing-recode-data-xml-file}{https://tex.stackexchange.com/questions/140814/}%
+
+\todo[inline]{Hier eine Liste mit Bugfixes ergänzen.}%
+
+\todo[inline]{Hier weitere Bugfixes ergänzt, wenn diese an den Vorlagenbeauftragten gemeldet wurden.}%
