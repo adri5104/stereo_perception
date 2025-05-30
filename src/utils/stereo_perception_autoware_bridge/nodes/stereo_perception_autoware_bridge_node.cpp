@@ -3,7 +3,7 @@
  * @author Adrian Rieker (adrian.rieker@tum.de)
  * @brief  Implementation file for the StereoPerceptionAutowareBridgeNode class
  */
-#include "stereo_perception_autoware_bridge/nodes/stereo_perception_autoware_bridge_node.hpp"\
+#include "stereo_perception_autoware_bridge_node.hpp"
 
 namespace stereo_perception
 {
@@ -22,3 +22,12 @@ StereoPerceptionAutowareBridgeNode::StereoPerceptionAutowareBridgeNode()
 } // namespace stereo_perception_autoware_bridge
 } // namespace utils
 } // namespace stereo_perception
+
+int main(int argc, char ** argv)
+{
+    rclcpp::init(argc, argv);
+    auto node = std::make_shared<stereo_perception::utils::stereo_perception_autoware_bridge::StereoPerceptionAutowareBridgeNode>();
+    rclcpp::spin(node);
+    rclcpp::shutdown();
+    return 0;
+}
