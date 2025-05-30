@@ -22,14 +22,4 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   DEPENDENCIES sensor_msgs geometry_msgs std_msgs visualization_msgs
 )
 
-
-
-install(
-  DIRECTORY include/
-  DESTINATION include
-)
-
-
-
-
 ament_package()
