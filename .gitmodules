@@ -7,3 +7,6 @@
 [submodule "src/utils/autoware_auto_msgs"]
 	path = src/utils/autoware_auto_msgs
 	url = https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs.git
+[submodule "src/utils/autoware_msgs"]
+	path = src/utils/autoware_msgs
+	url = https://github.com/autowarefoundation/autoware_msgs.git
