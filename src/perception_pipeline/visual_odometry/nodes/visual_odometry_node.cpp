@@ -23,6 +23,7 @@ namespace visual_odometry
     this->declare_parameter("min_depth_odom", 0.1);
     this->declare_parameter("odometry_debug_image", true);
     this->declare_parameter("frame_id", "camera_optical_frame");
+    this->declare_parameter("qos_subs_profile", "sensor_data");
     this->declare_parameter("apply_statistical_filtering", true);
     this->declare_parameter("apply_expotential_smoothing", true);
     this->declare_parameter("exponential_alpha", 0.1);
@@ -35,6 +36,7 @@ namespace visual_odometry
     this->get_parameter("depth_image_topic", depth_image_topic_);
     this->get_parameter("camera_info_topic", camera_info_topic_);
     this->get_parameter("odometry_debug_topic", odometry_debug_topic_);
+    this->get_parameter("frame_id", frame_id_);
     this->get_parameter("camera_frame_tf_topic", camera_frame_tf_topic_);
     this->get_parameter("max_depth_odom", max_depth_odom_);
     this->get_parameter("min_depth_odom", min_depth_odom_);
@@ -57,6 +59,7 @@ namespace visual_odometry
     RCLCPP_INFO(this->get_logger(), "path_topic: '%s'", path_topic_.c_str());
     RCLCPP_INFO(this->get_logger(), "publish_odom: '%d'", publish_odom_);
     RCLCPP_INFO(this->get_logger(), "odom_topic: '%s'", odom_topic_.c_str());
+    RCLCPP_INFO(this->get_logger(), "frame_id: '%s'", frame_id_.c_str());
     RCLCPP_INFO(this->get_logger(), "======================================================================");
   
     // Create VisualOdometry object
@@ -69,8 +72,8 @@ namespace visual_odometry
       get_parameter("apply_expotential_smoothing").as_bool());
       
     // Create message_filters
-    color_sub_.subscribe(this, color_image_topic_);
-    depth_sub_.subscribe(this, depth_image_topic_);
+    color_sub_.subscribe(this, color_image_topic_, rmw_qos_profile_sensor_data);
+    depth_sub_.subscribe(this, depth_image_topic_, rmw_qos_profile_sensor_data);
 
     sync_ = std::make_unique<message_filters::Synchronizer<SyncPolicy>>(
       SyncPolicy(10), color_sub_, depth_sub_);
@@ -98,7 +101,8 @@ namespace visual_odometry
 
     // Create camera_info subscriber
     camera_info_sub_ = this->create_subscription<sensor_msgs::msg::CameraInfo>(
-      camera_info_topic_, 10, 
+      camera_info_topic_, 
+      rclcpp::SensorDataQoS(), 
       std::bind(&VisualOdometryNode::cameraInfoCallback, this, std::placeholders::_1));
 
     

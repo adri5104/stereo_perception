@@ -34,7 +34,8 @@ OpticalFlowNode::OpticalFlowNode()
 
     // Subscriber to camera image topic
     image_sub_ = this->create_subscription<sensor_msgs::msg::Image>(
-        image_topic_, 10,
+        image_topic_, 
+        rclcpp::SensorDataQoS(),
         std::bind(&OpticalFlowNode::imageCallback, this, std::placeholders::_1));
 
     // Publisher for optical flow
