@@ -32,12 +32,37 @@ namespace stereo_perception_autoware_bridge
  */
 class StereoPerceptionAutowareBridgeNode : public rclcpp::Node
 {
-public:
+  public:
+
+      /**
+       * @brief Construct a new Stereo Perception Autoware Bridge Node object
+       */
+      StereoPerceptionAutowareBridgeNode();
+
+  private:
+    
+    /**
+     * @brief Callback for the Autoware tracked objects topic. Takes the received
+     * tracked objects message and converts it to a stereo perception clustered object array message.
+     * 
+     * @param msg The received Autoware tracked objects message
+     */
+    void autowareTrackedObjectsCallback(const autoware_perception_msgs::msg::TrackedObjects::SharedPtr msg);
 
     /**
-     * @brief Construct a new Stereo Perception Autoware Bridge Node object
+     * @brief Converts a single Autoware tracked object to a stereo perception clustered object.
+     * 
+     * @param autoware_object The Autoware tracked object to convert
+     * @return stereo_perception_msgs::msg::ClusteredObject The converted clustered object
      */
-    StereoPerceptionAutowareBridgeNode();
+    stereo_perception_msgs::msg::ClusteredObject convertTrackedObjectToClusteredObject(
+        const autoware_perception_msgs::msg::TrackedObject & autoware_object);
+
+    rclcpp::Publisher<stereo_perception_msgs::msg::ClusteredObjectArray>::SharedPtr clustered_object_array_pub_; ///< Publisher for clustered object array messages.
+    rclcpp::Subscription<autoware_perception_msgs::msg::TrackedObjects>::SharedPtr tracked_objects_sub_; ///< Subscriber for Autoware tracked objects messages.
+    std::string clustered_object_array_topic_ ;
+    std::string tracked_objects_topic_;
+    
 };
 
 } // namespace stereo_perception_autoware_bridge
