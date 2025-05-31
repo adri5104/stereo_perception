@@ -9,7 +9,7 @@ def generate_launch_description():
             name='stereo_perception_autoware_auto_bridge_node',
             output='screen',
             parameters=[
-                {"predicted_objects_topic": "/autoware/predicted_objects"},
+                {"predicted_objects_topic": "/perception/object_recognition/objects"},
                 {"clustered_object_array_topic": "/autoware/clustered_objects"},
             ]
         ),

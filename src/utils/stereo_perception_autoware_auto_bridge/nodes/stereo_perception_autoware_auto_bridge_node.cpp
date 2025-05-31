@@ -34,7 +34,7 @@ StereoPerceptionAutowareAutoBridgeNode::StereoPerceptionAutowareAutoBridgeNode()
     predicted_objects_sub_ = create_subscription<autoware_auto_perception_msgs::msg::PredictedObjects>
     (
       predicted_objects_topic_,
-      rclcpp::QoS(10),
+      rclcpp::QoS(rclcpp::KeepLast(10)).reliable().durability_volatile(),
       std::bind(
         &StereoPerceptionAutowareAutoBridgeNode::autowareAutoPredictedObjectsCallback, 
         this, 
@@ -45,7 +45,9 @@ StereoPerceptionAutowareAutoBridgeNode::StereoPerceptionAutowareAutoBridgeNode()
 
 void StereoPerceptionAutowareAutoBridgeNode::autowareAutoPredictedObjectsCallback(
     const autoware_auto_perception_msgs::msg::PredictedObjects::SharedPtr msg)
-{
+{   
+    RCLCPP_INFO(get_logger(), "Received PredictedObjects message with %zu objects", msg->objects.size());
+    // Convert Autoware Auto PredictedObjects to Stereo Perception ClusteredObjectArray
     stereo_perception_msgs::msg::ClusteredObjectArray clustered_object_array;
     clustered_object_array.header = msg->header;
     clustered_object_array.num_clusters = msg->objects.size();
