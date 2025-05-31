@@ -20,3 +20,4 @@ docs/
 *.toc
 *.synctex.gz
 *.run.xml
+*.mcap
