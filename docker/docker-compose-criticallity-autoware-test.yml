@@ -1,0 +1,23 @@
+services:
+  criticallity_pipeline_autoware:
+    image: gitlab.lrz.de:5005/teleoperiertes_fahren/research_brecht/stereo_perception/criticallity_pipeline_autoware:1.0.0
+    container_name: criticallity_pipeline_autoware
+    network_mode: "host"
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./criticallity_pipeline_autoware/config:/home/ubuntu/config
+      - "/dev/shm:/dev/shm"
+      - "../config/dds/:/home/ubuntu/ros2_ws/config/dds/"
+    environment:
+      - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+    command:
+      - bash
+      - -c
+      - > 
+          echo "###########################################################" &&
+          echo "# Starting autoware bridge node and critiallity_pipeline  #" &&
+          echo "###########################################################" &&
+          echo "" &&
+          ros2 launch criticallity_pipeline_launch criticallity_pipeline_autoware_container.launch.py &
+          ros2 launch stereo_perception_autoware_auto_bridge stereo_perception_autoware_bridge_container.launch.py 
