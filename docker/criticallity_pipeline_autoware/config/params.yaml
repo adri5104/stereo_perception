@@ -1,0 +1,29 @@
+
+# This wrapper is used in case the old Autoware Auto messages are used
+stereo_perception_autoware_auto_bridge_node:
+  ros__parameters:
+    predicted_objects_topic: "/perception/object_recognition/objects"
+    clustered_object_array_topic: "/perception_pipeline/autoware/output_clusters"
+
+# This wrapper convers the autoware predicted objects to the stereo perception clustered object array format
+stereo_perception_autoware_bridge_node:
+  ros__parameters:
+    predicted_objects_topic: "/perception/object_recognition/objects"
+    clustered_object_array_topic: "/perception_pipeline/autoware/output_clusters"
+
+ttc_calculator_node:
+  ros__parameters:
+    input_clusters_topic: "/perception_pipeline/autoware/output_clusters"
+    input_twist_topic: "/stereo_perception/ego_twist"
+    input_path_topic: "/stereo_perception/ego_path"
+    output_ttc_topic: "/criticallity_pipeline/autoware/ttc"
+    output_min_ttc_topic: "criticallity_pipeline/autoware/min_ttc"
+    output_marker_topic: "/criticallity_pipeline/autoware/markers"
+    ego_width: 1.0
+    ego_length: 1.0
+    ego_height: 1.0 
+    publish_ego_marker: true
+    use_path: false
+    frame_id: multisense/left_camera_optical_frame
+    
+
