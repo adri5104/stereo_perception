@@ -10,9 +10,9 @@ def generate_launch_description():
 
     return launch.LaunchDescription([
         launch_ros.actions.Node(
-            package='stereo_perception_auto_bridge',
-            executable='stereo_perception_auto_bridge_node',
-            name='stereo_perception_auto_bridge_node',
+            package='stereo_perception_autoware_auto_bridge',
+            executable='stereo_perception_autoware_auto_bridge_node',
+            name='stereo_perception_autoware_auto_bridge_node',
             output='screen',
             parameters=[config_file_path]
         ),
