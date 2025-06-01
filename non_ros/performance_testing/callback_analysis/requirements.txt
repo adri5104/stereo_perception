@@ -1,0 +1,7 @@
+bokeh
+pandas
+numpy
+tracetools-analysis==3.0.0
+tracetools-read==8.2.3
+tracetools-trace==8.2.3
+ros2trace==8.2.3
