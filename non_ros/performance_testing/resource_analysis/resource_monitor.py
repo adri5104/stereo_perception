@@ -13,7 +13,7 @@ from bokeh.layouts import column, row
 from bokeh.models import ColumnDataSource, DatetimeTickFormatter, Span, Label, Spacer
 
 # Sampling interval (in seconds)
-interval = 0.1
+interval = 0.08
 
 # Nodes to track
 tracked_nodes = ["visual_odometry", "kalman_filter_n", "optical_flow_co", "object_detector"]
@@ -125,7 +125,7 @@ def plot_bokeh_html(output_dir):
             plot = figure(
                 title=f"{node} - {metric.upper()}",
                 x_axis_label=f'Time ({ts})',
-                y_axis_label=metric.upper(),
+                y_axis_label= 'CPU (%)' if metric == 'cpu' else 'Memory (MB)' if metric == 'rss' else 'GPU (MB)',
                 width=500, height=300,
             )
             plot.line(
