@@ -56,7 +56,7 @@ class CameraInfoPublisher : public rclcpp::Node
       this->declare_parameter<std::string>("camera_info_sub_topic", "/device_0/sensor_0/Depth_0/info/camera_info");
       this->declare_parameter<bool>("publish_color_image", false);
       this->declare_parameter<bool>("publish_depth_image", false);
-      this->declare_parameter<bool>("publish_camera_info", false);
+      this->declare_parameter<bool>("publish_camera_info", true);
       this->declare_parameter<std::string>("frame_id", "camera_optical_frame");
 
       // Read parameters
@@ -71,11 +71,24 @@ class CameraInfoPublisher : public rclcpp::Node
       publish_camera_info_ = this->get_parameter("publish_camera_info").as_bool();
       frame_id_ = this->get_parameter("frame_id").as_string();
 
-      if (publish_depth_)
-      {
-        depth_image_sub_ = this->create_subscription<sensor_msgs::msg::Image>(
+      // Print parameters to console
+      RCLCPP_INFO(this->get_logger(), "Publishing color image on topic: %s", color_image_pub_topic_.c_str());
+      RCLCPP_INFO(this->get_logger(), "Publishing depth image on topic: %s", depth_image_pub_topic_.c_str());
+      RCLCPP_INFO(this->get_logger(), "Publishing camera info on topic: %s", camera_info_pub_topic_.c_str());
+      RCLCPP_INFO(this->get_logger(), "Subscribing to color image on topic: %s", color_image_sub_topic_.c_str());
+      RCLCPP_INFO(this->get_logger(), "Subscribing to depth image on topic: %s", depth_image_sub_topic_.c_str());
+      RCLCPP_INFO(this->get_logger(), "Subscribing to camera info on topic: %s", camera_info_sub_topic_.c_str());
+      RCLCPP_INFO(this->get_logger(), "Frame ID: %s", frame_id_.c_str());
+      RCLCPP_INFO(this->get_logger(), "Publish color image: %s", publish_image_ ? "true" : "false");
+      RCLCPP_INFO(this->get_logger(), "Publish depth image: %s", publish_depth_ ? "true" : "false");
+      RCLCPP_INFO(this->get_logger(), "Publish camera info: %s", publish_camera_info_ ? "true" : "false");
+      
+      depth_image_sub_ = this->create_subscription<sensor_msgs::msg::Image>(
           depth_image_sub_topic_, 10,
           std::bind(&CameraInfoPublisher::depthCallback, this, std::placeholders::_1));
+      if (publish_depth_)
+      {
+        
           
         depth_image_pub_ = this->create_publisher<sensor_msgs::msg::Image>(depth_image_pub_topic_, 10);
         }
@@ -158,7 +171,6 @@ class CameraInfoPublisher : public rclcpp::Node
       }
     }
 
-    
     camera_info_pub_->publish(camera_info_msg);
     
     }
