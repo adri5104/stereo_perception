@@ -33,6 +33,7 @@ def generate_launch_description():
               {"camera_info_sub_topic": "/device_0/sensor_0/Depth_0/info/camera_info"},
               {"publish_color_image": False},
               {"publish_depth_image": False},
+              {"publish_camera_info": True},
               {'use_sim_time': use_sim_time}
             ]  
         ),
