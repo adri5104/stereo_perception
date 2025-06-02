@@ -11,4 +11,4 @@ FILE=${PARENT_DIR}/docker/$NAME/Dockerfile
 echo  $PARENT_DIR
 echo $FILE
 
-docker build --network host -f $FILE --tag $GITNAME/$NAME:$TAG  $PARENT_DIR  
+docker build  -f $FILE --tag $GITNAME/$NAME:$TAG  $PARENT_DIR  

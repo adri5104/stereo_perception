@@ -241,7 +241,7 @@ WORKDIR /home/ubuntu/tracing_ws/
 RUN vcs import src/ --input https://raw.githubusercontent.com/ros2/ros2/humble/ros2.repos
 WORKDIR /home/ubuntu/tracing_ws/src
 RUN git clone https://github.com/ros-tracing/tracetools_analysis.git -b humble
-WORKDIR /home/ubuntu/tracing_ws/src
+WORKDIR /home/ubuntu/tracing_ws/
 RUN rosdep update
 RUN rosdep install --rosdistro humble --from-paths src --ignore-src -y --skip-keys "fastcdr rti-connext-dds-6.0.1 urdfdom_headers"
 RUN colcon build --packages-up-to ros2trace ros2run tracetools_analysis performance_test --cmake-args -DPERFORMANCE_TEST_RCLCPP_ENABLED=ON
