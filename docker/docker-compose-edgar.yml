@@ -35,10 +35,10 @@ services:
     volumes:
       - ./perception_pipeline/config/carnegie:/home/ubuntu/config
       - "/dev/shm:/dev/shm"
-      - "../config/dds/:/home/ubuntu/perception_pipeline_ws/config/dds/"
+      - "../config/dds/:/home/ubuntu/ros2_ws/config/dds/"
     environment:
       - ROS_DOMAIN_ID=${ROS_Domain_ID}
-      - CYCLONEDDS_URI=file:///home/ubuntu/perception_pipeline_ws/config/dds/${dds}.xml
+      - CYCLONEDDS_URI=file:///home/ubuntu/ros2_ws/config/dds/${dds}.xml
     command:
       - bash
       - -c
@@ -61,10 +61,10 @@ services:
     volumes:
       - ./criticallity_pipeline/config/carnegie:/home/ubuntu/config
       - "/dev/shm:/dev/shm"
-      - "../config/dds/:/home/ubuntu/criticallity_pipeline_ws/config/dds/"
+      - "../config/dds/:/home/ubuntu/ros2_ws/config/dds/"
     environment:
       - ROS_DOMAIN_ID=${ROS_Domain_ID}
-      - CYCLONEDDS_URI=file:///home/ubuntu/criticallity_pipeline_ws/config/dds/${dds}.xml
+      - CYCLONEDDS_URI=file:///home/ubuntu/ros2_ws/config/dds/${dds}.xml
     command:
       - bash
       - -c

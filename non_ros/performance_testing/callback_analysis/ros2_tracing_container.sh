@@ -67,7 +67,7 @@ docker exec -it "$CONTAINER_NAME" bash -c "
     mkdir -p \"$CONTAINER_TRACE_DIR\"
 
     source /opt/ros/humble/setup.bash
-    source /home/ubuntu/perception_pipeline_ws/install/setup.bash
+    source /home/ubuntu/ros2_ws/install/setup.bash
 
     # Create the expect script
     cat > /tmp/trace_script.exp <<EOF
