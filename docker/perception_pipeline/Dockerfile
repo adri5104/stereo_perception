@@ -180,7 +180,7 @@ RUN sudo apt install -y ros-${ROS_DISTRO}-foxglove-bridge
 RUN echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
 
 # Configure ROS 2 workspace
-WORKDIR /ros2_ws
+WORKDIR /perception_pipeline_ws
 RUN mkdir -p src
 
 # Switch to root
@@ -199,14 +199,60 @@ RUN sudo mkdir  /home/ubuntu/perception_pipeline_ws/src/perception_pipeline
 RUN sudo mkdir  /home/ubuntu/perception_pipeline_ws/src/launch_packages
 RUN chown -R ubuntu:ubuntu /home/ubuntu/perception_pipeline_ws
 
-# Switch back to the ubuntu user
-USER ubuntu
-RUN sudo apt install -y libmlpack-dev
 
 # ==============================
-# Stage 4: Build Perception Pipeline
+# Stage 4: Add tracing tools
 # ==============================
-FROM final AS deploy
+
+FROM final AS tracing
+
+# Temporarily comment out any ROS 2 repository that may cause GPG signature errors
+# (this avoids issues before we replace the key and update the repo)
+RUN sed -i 's|^deb http://packages.ros.org|# deb http://packages.ros.org|' /etc/apt/sources.list.d/*.list || true && \
+    sed -i 's|^deb .*ros2/ubuntu|# &|' /etc/apt/sources.list.d/*.list || true
+
+
+
+# Clean up any old ROS key and repo files
+RUN rm -f /etc/apt/sources.list.d/ros2.list && \
+    rm -f /usr/share/keyrings/ros-archive-keyring.gpg
+
+# Download and install the new ROS GPG key, and set up the ROS 2 repository
+COPY ros.key /usr/share/keyrings/ros-archive-keyring.gpg
+RUN echo "deb [signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu jammy main" \
+    > /etc/apt/sources.list.d/ros2.list
+
+# Update package list again, now with the correct key and repo
+RUN apt-get update
+
+# Install tracing tools
+RUN apt-get install -y \
+    lttng-tools \
+    liblttng-ust-dev \
+    python3-lttng \
+    python3-babeltrace \
+    babeltrace \
+    libmlpack-dev
+
+# Setup tracing ROS2 tools
+RUN mkdir -p /home/ubuntu/tracing_ws/src
+WORKDIR /home/ubuntu/tracing_ws/
+RUN vcs import src/ --input https://raw.githubusercontent.com/ros2/ros2/humble/ros2.repos
+WORKDIR /home/ubuntu/tracing_ws/src
+RUN git clone https://github.com/ros-tracing/tracetools_analysis.git -b humble
+WORKDIR /home/ubuntu/tracing_ws/src
+RUN rosdep update
+RUN rosdep install --rosdistro humble --from-paths src --ignore-src -y --skip-keys "fastcdr rti-connext-dds-6.0.1 urdfdom_headers"
+RUN colcon build --packages-up-to ros2trace ros2run tracetools_analysis performance_test --cmake-args -DPERFORMANCE_TEST_RCLCPP_ENABLED=ON
+RUN echo "source /home/ubuntu/tracing_ws/install/setup.bash" >> /home/ubuntu/.bashrc
+
+# Install expect 
+RUN apt-get install -y expect
+
+# ==============================
+# Stage 5: Build Perception Pipeline
+# ==============================
+FROM tracing AS deploy
 
 # Copy source files
 COPY --chown=ubuntu:ubuntu src/perception_pipeline /home/ubuntu/perception_pipeline_ws/src/perception_pipeline
@@ -223,7 +269,6 @@ RUN /bin/bash -c "source /opt/ros/humble/setup.bash && colcon build --symlink-in
 RUN echo "source /home/ubuntu/perception_pipeline_ws/install/setup.bash" >> ~/.bashrc
 
 # Set entrypoint
-USER root
 RUN apt-get update && apt-get install -y ros-humble-rmw-cyclonedds-cpp
 RUN echo '#!/bin/bash' > /ros_entrypoint.sh
 RUN echo 'set -e' >> /ros_entrypoint.sh
