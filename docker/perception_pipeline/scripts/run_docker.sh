@@ -2,7 +2,7 @@
 PARENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )"/../../.. &> /dev/null && pwd )"
 GITNAME="gitlab.lrz.de:5005/teleoperiertes_fahren/research_brecht/stereo_perception"
 NAME="perception_pipeline"
-TAG="1.0.1"
+TAG="1.0.2"
 
 docker run -it --rm \
     --name $NAME \

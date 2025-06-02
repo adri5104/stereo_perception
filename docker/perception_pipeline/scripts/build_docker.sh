@@ -5,10 +5,10 @@ cd $PARENT_DIR
 
 GITNAME="gitlab.lrz.de:5005/teleoperiertes_fahren/research_brecht/stereo_perception"
 NAME="perception_pipeline"
-TAG="1.0.1"
+TAG="1.0.2"
 FILE=${PARENT_DIR}/docker/$NAME/Dockerfile
 
 echo  $PARENT_DIR
 echo $FILE
 
-docker build -f $FILE --tag $GITNAME/$NAME:$TAG  $PARENT_DIR  
+docker build --network host -f $FILE --tag $GITNAME/$NAME:$TAG  $PARENT_DIR  
