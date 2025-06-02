@@ -235,6 +235,7 @@ RUN apt-get install -y \
     babeltrace \
     libmlpack-dev
 
+
 # Setup tracing ROS2 tools
 RUN mkdir -p /home/ubuntu/tracing_ws/src
 WORKDIR /home/ubuntu/tracing_ws/
@@ -243,8 +244,9 @@ WORKDIR /home/ubuntu/tracing_ws/src
 RUN git clone https://github.com/ros-tracing/tracetools_analysis.git -b humble
 WORKDIR /home/ubuntu/tracing_ws/
 RUN rosdep update
+RUN apt-get update
 RUN rosdep install --rosdistro humble --from-paths src --ignore-src -y --skip-keys "fastcdr rti-connext-dds-6.0.1 urdfdom_headers"
-RUN colcon build --packages-up-to ros2trace ros2run tracetools_analysis performance_test --cmake-args -DPERFORMANCE_TEST_RCLCPP_ENABLED=ON
+RUN colcon build --packages-up-to ros2trace ros2run tracetools_analysis --cmake-args -DPERFORMANCE_TEST_RCLCPP_ENABLED=ON
 RUN echo "source /home/ubuntu/tracing_ws/install/setup.bash" >> /home/ubuntu/.bashrc
 
 # Install expect 
