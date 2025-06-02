@@ -5,7 +5,7 @@ cd $PARENT_DIR
 
 GITNAME="gitlab.lrz.de:5005/teleoperiertes_fahren/research_brecht/stereo_perception"
 NAME="criticallity_pipeline"
-TAG="1.0.0"
+TAG="1.1.0"
 FILE=${PARENT_DIR}/docker/$NAME/Dockerfile
 
 echo  $PARENT_DIR
