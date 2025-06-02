@@ -218,7 +218,8 @@ RUN rm -f /etc/apt/sources.list.d/ros2.list && \
     rm -f /usr/share/keyrings/ros-archive-keyring.gpg
 
 # Download and install the new ROS GPG key, and set up the ROS 2 repository
-COPY ros.key /usr/share/keyrings/ros-archive-keyring.gpg
+RUN curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o ros.key
+RUN cp ros.key /usr/share/keyrings/ros-archive-keyring.gpg
 RUN echo "deb [signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu jammy main" \
     > /etc/apt/sources.list.d/ros2.list
 
