@@ -54,11 +54,11 @@ RUN mkdir -p src
 USER root
 
 
-RUN sudo mkdir -p /home/ubuntu/criticallity_pipeline_ws/src
-RUN sudo mkdir  /home/ubuntu/criticallity_pipeline_ws/src/criticallity_pipeline
-RUN sudo mkdir  /home/ubuntu/criticallity_pipeline_ws/src/utils
-RUN sudo mkdir  /home/ubuntu/criticallity_pipeline_ws/src/launch_packages
-RUN chown -R ubuntu:ubuntu /home/ubuntu/criticallity_pipeline_ws
+RUN sudo mkdir -p /home/ubuntu/ros2_ws/src
+RUN sudo mkdir  /home/ubuntu/ros2_ws/src/criticallity_pipeline
+RUN sudo mkdir  /home/ubuntu/ros2_ws/src/utils
+RUN sudo mkdir  /home/ubuntu/ros2_ws/src/launch_packages
+RUN chown -R ubuntu:ubuntu /home/ubuntu/ros2_ws
 
 
 
@@ -102,24 +102,24 @@ RUN apt-get install -y expect
 FROM tracing AS deploy
 
 # Copy source files
-COPY --chown=ubuntu:ubuntu src/criticallity_pipeline /home/ubuntu/criticallity_pipeline_ws/src/criticallity_pipeline
-COPY --chown=ubuntu:ubuntu src/utils /home/ubuntu/criticallity_pipeline_ws/src/utils
-COPY --chown=ubuntu:ubuntu src/launch_packages /home/ubuntu/criticallity_pipeline_ws/src/launch_packages
-WORKDIR /home/ubuntu/criticallity_pipeline_ws/
+COPY --chown=ubuntu:ubuntu src/criticallity_pipeline /home/ubuntu/ros2_ws/src/criticallity_pipeline
+COPY --chown=ubuntu:ubuntu src/utils /home/ubuntu/ros2_ws/src/utils
+COPY --chown=ubuntu:ubuntu src/launch_packages /home/ubuntu/ros2_ws/src/launch_packages
+WORKDIR /home/ubuntu/ros2_ws/
 
 
 # Build the workspace
 RUN /bin/bash -c "source /opt/ros/humble/setup.bash && colcon build --symlink-install --packages-up-to criticallity_pipeline_launch --parallel-workers $(nproc) --cmake-args -DCMAKE_CUDA_ARCHITECTURES=86"
 
 # Source the workspace
-RUN echo "source /home/ubuntu/criticallity_pipeline_ws/install/setup.bash" >> ~/.bashrc
+RUN echo "source /home/ubuntu/ros2_ws/install/setup.bash" >> ~/.bashrc
 
 # Set entrypoint
 RUN apt-get update && apt-get install -y ros-humble-rmw-cyclonedds-cpp
 RUN echo '#!/bin/bash' > /ros_entrypoint.sh
 RUN echo 'set -e' >> /ros_entrypoint.sh
 RUN echo 'source "/opt/ros/$ROS_DISTRO/setup.bash"' >> /ros_entrypoint.sh 
-RUN echo 'source /home/ubuntu/criticallity_pipeline_ws/install/local_setup.bash' >> /ros_entrypoint.sh
+RUN echo 'source /home/ubuntu/ros2_ws/install/local_setup.bash' >> /ros_entrypoint.sh
 RUN echo 'exec "$@"' >> /ros_entrypoint.sh
 RUN chmod +x /ros_entrypoint.sh
 USER ubuntu

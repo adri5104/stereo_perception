@@ -180,7 +180,7 @@ RUN sudo apt install -y ros-${ROS_DISTRO}-foxglove-bridge
 RUN echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
 
 # Configure ROS 2 workspace
-WORKDIR /perception_pipeline_ws
+WORKDIR /ros2_ws
 RUN mkdir -p src
 
 # Switch to root
@@ -194,10 +194,10 @@ ENV PATH="/usr/local/cuda/bin:${PATH}"
 ENV LD_LIBRARY_PATH="/usr/local/cuda/lib64:${LD_LIBRARY_PATH}"
 ENV CUDA_HOME="/usr/local/cuda"
 
-RUN sudo mkdir -p /home/ubuntu/perception_pipeline_ws/src
-RUN sudo mkdir  /home/ubuntu/perception_pipeline_ws/src/perception_pipeline
-RUN sudo mkdir  /home/ubuntu/perception_pipeline_ws/src/launch_packages
-RUN chown -R ubuntu:ubuntu /home/ubuntu/perception_pipeline_ws
+RUN sudo mkdir -p /home/ubuntu/ros2_ws/src
+RUN sudo mkdir  /home/ubuntu/ros2_ws/src/perception_pipeline
+RUN sudo mkdir  /home/ubuntu/ros2_ws/src/launch_packages
+RUN chown -R ubuntu:ubuntu /home/ubuntu/ros2_ws
 
 
 # ==============================
@@ -258,25 +258,25 @@ RUN apt-get install -y expect
 FROM tracing AS deploy
 
 # Copy source files
-COPY --chown=ubuntu:ubuntu src/perception_pipeline /home/ubuntu/perception_pipeline_ws/src/perception_pipeline
-COPY --chown=ubuntu:ubuntu src/launch_packages /home/ubuntu/perception_pipeline_ws/src/launch_packages
-COPY --chown=ubuntu:ubuntu src/utils /home/ubuntu/perception_pipeline_ws/src/utils
+COPY --chown=ubuntu:ubuntu src/perception_pipeline /home/ubuntu/ros2_ws/src/perception_pipeline
+COPY --chown=ubuntu:ubuntu src/launch_packages /home/ubuntu/ros2_ws/src/launch_packages
+COPY --chown=ubuntu:ubuntu src/utils /home/ubuntu/ros2_ws/src/utils
 
-WORKDIR /home/ubuntu/perception_pipeline_ws/
+WORKDIR /home/ubuntu/ros2_ws/
 
 
 # Build the workspace
 RUN /bin/bash -c "source /opt/ros/humble/setup.bash && colcon build --symlink-install --packages-up-to perception_pipeline_launch --parallel-workers $(nproc) --cmake-args -DCMAKE_CUDA_ARCHITECTURES=86"
 
 # Source the workspace
-RUN echo "source /home/ubuntu/perception_pipeline_ws/install/setup.bash" >> ~/.bashrc
+RUN echo "source /home/ubuntu/ros2_ws/install/setup.bash" >> ~/.bashrc
 
 # Set entrypoint
 RUN apt-get update && apt-get install -y ros-humble-rmw-cyclonedds-cpp
 RUN echo '#!/bin/bash' > /ros_entrypoint.sh
 RUN echo 'set -e' >> /ros_entrypoint.sh
 RUN echo 'source "/opt/ros/$ROS_DISTRO/setup.bash"' >> /ros_entrypoint.sh 
-RUN echo 'source /home/ubuntu/perception_pipeline_ws/install/local_setup.bash' >> /ros_entrypoint.sh
+RUN echo 'source /home/ubuntu/ros2_ws/install/local_setup.bash' >> /ros_entrypoint.sh
 RUN echo 'exec "$@"' >> /ros_entrypoint.sh
 RUN chmod +x /ros_entrypoint.sh
 USER ubuntu
