@@ -16,7 +16,7 @@ from bokeh.models import ColumnDataSource, DatetimeTickFormatter, Span, Label, S
 interval = 0.08
 
 # Nodes to track
-tracked_nodes = ["visual_odometry", "kalman_filter_n", "optical_flow_co", "object_detector"]
+tracked_nodes = ["visual_odometry", "kalman_filter_n", "optical_flow_co", "object_detector", "ttc_calculator_"]
 
 # Initialize data structure
 data = {node: {"timestamp": [], "cpu": [], "rss": [], "gpu": []} for node in tracked_nodes}
