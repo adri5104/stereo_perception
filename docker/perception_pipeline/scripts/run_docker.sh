@@ -7,7 +7,7 @@ TAG="1.1.0"
 docker run -it --rm \
     --name $NAME \
     -v $(pwd):/ros2_ws \
-    -w /home/ubuntu/perception_pipeline_ws \
+    -w /home/ubuntu/ros2_ws \
     --network host \
     -v /tmp/.X11-unix:/tmp/.X11-unix \
     -v $HOME/.Xauthority:/root/.Xauthority \
