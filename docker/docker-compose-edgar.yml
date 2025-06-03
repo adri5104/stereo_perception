@@ -1,7 +1,7 @@
 
 services:
   stereo_perception_bridge_multisense:
-    image: gitlab.lrz.de:5005/teleoperiertes_fahren/research_brecht/stereo_perception/stereo_perception_bridge:1.0.0
+    image: gitlab.lrz.de:5005/teleoperiertes_fahren/research_brecht/stereo_perception/stereo_perception_edgar_bridge:1.0.0
     container_name: stereo_perception_bridge
     network_mode: "host"
     stdin_open: true
@@ -20,7 +20,7 @@ services:
           ros2 launch stereo_perception_edgar_bridge stereo_perception_bridge_container.launch.py
 
   perception_pipeline_multisense:
-    image: gitlab.lrz.de:5005/teleoperiertes_fahren/research_brecht/stereo_perception/perception_pipeline:1.0.0
+    image: gitlab.lrz.de:5005/teleoperiertes_fahren/research_brecht/stereo_perception/perception_pipeline:1.1.0
     container_name: perception_pipeline
     network_mode: "host"
     deploy:
@@ -46,7 +46,7 @@ services:
           ros2 launch perception_pipeline_launch perception_pipeline_container.launch.py
 
   criticallity_pipeline_multisense:
-    image: gitlab.lrz.de:5005/teleoperiertes_fahren/research_brecht/stereo_perception/criticallity_pipeline:1.0.0
+    image: gitlab.lrz.de:5005/teleoperiertes_fahren/research_brecht/stereo_perception/criticallity_pipeline:1.1.0
     container_name: criticallity_pipeline
     network_mode: "host"
     deploy:
