@@ -17,8 +17,8 @@ visual_odometry_node:
     camera_info_topic: "/multisense/left/depth/camera_info"
     odometry_debug_topic: "/debug/odometry_keypoints"
     camera_frame_tf_topic: "/multisense/perception_pipeline/camera_frame_tf"
-    max_depth_odom: 20.0
-    min_depth_odom: 0.1
+    max_depth_odom: 40.0
+    min_depth_odom: 3.0
     odometry_debug_image: true
     frame_id: "multisense/left_camera_optical_frame"
 
@@ -33,7 +33,7 @@ kalman_filter_node:
     output_6d_topic: "/multisense/perception_pipeline/output_6d"
     debug_markers_topic: "/debug/image_6d_markers"
     frame_id: "/multisense/left_camera_optical_frame"
-    grid_size: 15
+    grid_size: 12
     debug_image_grid: false
     use_ego_motion: true
     use_ego_var: true
@@ -42,16 +42,17 @@ kalman_filter_node:
     sigma2_z_system: 0.1
     sigma2_flow_y_measurement: 3.0
     sigma2_flow_x_measurement: 3.0
-    sigma2_depth_system: 0.5
+    sigma2_depth_system: 0.3
     sigma2_tx_measurement: 10.0
     sigma2_ty_measurement: 10.0
     sigma2_tz_measurement: 10.0
     sigma2_theta_measurement: 10.0
     sigma2_psi_system: 10.0
     min_depth: 2.0
-    max_depth: 20.0
-    min_height_: -2.0
+    max_depth: 30.0
+    min_height_: 1.0
     max_height: 4.0
+    camera_ground_distance: 1.5
 
 
 object_detector_node:
@@ -59,12 +60,12 @@ object_detector_node:
     input_6d_topic: "/multisense/perception_pipeline/output_6d"
     output_markers_topic: "/multisense/perception_pipeline/output_markers"
     output_clusters_topic: "/multisense/perception_pipeline/output_clusters"
-    frame_id: "/multisense/multisense/left_camera_optical_frame"
-    eps: 0.1
-    minPts: 10
-    pos_weight: 0.045
-    vel_weight: 1.0
-    vel_threshold: 0.5
+    frame_id: "/multisense/left_camera_optical_frame"
+    eps: 0.3
+    minPts: 4
+    pos_weight: 1.0
+    vel_weight: 0.0
+    vel_threshold: 0.1
 
 
 
