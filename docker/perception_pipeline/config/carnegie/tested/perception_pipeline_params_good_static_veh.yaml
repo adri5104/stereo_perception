@@ -1,0 +1,73 @@
+optical_flow_computation:
+  ros__parameters:
+    image_topic: "/multisense/left/image_mono"
+    optical_flow_topic: "/multisense/perception_pipeline/optical_flow"
+    pyr_scale: 0.5
+    levels: 6
+    winsize: 8
+    iterations: 10
+    poly_n: 5
+    poly_sigma: 1.1
+    flags: 0
+
+visual_odometry_node:
+  ros__parameters:
+    color_image_topic: "/multisense/aux/image_rect_color"
+    depth_image_topic: "/multisense/left/openni_depth"
+    camera_info_topic: "/multisense/left/depth/camera_info"
+    odometry_debug_topic: "/debug/odometry_keypoints"
+    camera_frame_tf_topic: "/multisense/perception_pipeline/camera_frame_tf"
+    max_depth_odom: 40.0
+    min_depth_odom: 3.0
+    odometry_debug_image: true
+    frame_id: "multisense/left_camera_optical_frame"
+
+kalman_filter_node:
+  ros__parameters:
+    optical_flow_topic: "/multisense/perception_pipeline/optical_flow"
+    depth_topic: "/multisense/left/openni_depth"
+    camera_info_topic: "/multisense/left/depth/camera_info"
+    #camera_frame_tf_topic: "/multisense/perception_pipeline/camera_frame_tf"
+    camera_frame_tf_topic: "/multisense/perception_pipeline/camera_frame_tf"  # If your node code uses this exact param name
+    color_image_topic: "/multisense/aux/image_rect_color"
+    debug_image_topic_: "/debug/debug_image"  # If your node code uses this exact param name
+    output_6d_topic: "/multisense/perception_pipeline/output_6d"
+    debug_markers_topic: "/debug/image_6d_markers"
+    frame_id: "/multisense/left_camera_optical_frame"
+    grid_size: 15
+    debug_image_grid: false
+    use_ego_motion: true
+    use_ego_var: true
+    ego_compensation_factor: 1.20
+    sigma2_x_system: 0.1
+    sigma2_y_system: 0.1
+    sigma2_z_system: 0.01
+    sigma2_flow_y_measurement: 5.0
+    sigma2_flow_x_measurement: 15.0
+    sigma2_tx_measurement: 0.015
+    sigma2_ty_measurement: 0.015
+    sigma2_tz_measurement: 0.015
+    sigma2_rx_measurement: 0.01
+    sigma2_ry_measurement: 0.01
+    sigma2_rz_measurement: 0.01
+    min_depth: 4.0
+    max_depth: 25.0
+    min_height_: 1.0
+    max_height: 4.0
+    camera_ground_distance: 1.2 
+
+
+object_detector_node:
+  ros__parameters:
+    input_6d_topic: "/multisense/perception_pipeline/output_6d"
+    output_markers_topic: "/multisense/perception_pipeline/output_markers"
+    output_clusters_topic: "/multisense/perception_pipeline/output_clusters"
+    frame_id: "/multisense/left_camera_optical_frame"
+    eps: 0.5
+    minPts: 4
+    pos_weight: 1.0
+    vel_weight: 0.05
+    vel_threshold: 0.2
+
+
+
