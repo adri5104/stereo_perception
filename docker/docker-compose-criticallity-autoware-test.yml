@@ -7,6 +7,7 @@ services:
     tty: true
     volumes:
       - ./criticallity_pipeline_autoware/config:/home/ubuntu/config
+      - ../non_ros/ttc_comparison/ttc_logs_autoware/:/home/ubuntu/ttc_logs
       - "/dev/shm:/dev/shm"
       - "../config/dds/:/home/ubuntu/ros2_ws/config/dds/"
     environment:
