@@ -4,24 +4,7 @@
 
 FROM osrf/ros:humble-desktop AS final
 
-# Temporarily comment out any ROS 2 repository that may cause GPG signature errors
-# (this avoids issues before we replace the key and update the repo)
-RUN sed -i 's|^deb http://packages.ros.org|# deb http://packages.ros.org|' /etc/apt/sources.list.d/*.list || true && \
-    sed -i 's|^deb .*ros2/ubuntu|# &|' /etc/apt/sources.list.d/*.list || true
 
-
-
-# Clean up any old ROS key and repo files
-RUN rm -f /etc/apt/sources.list.d/ros2.list && \
-    rm -f /usr/share/keyrings/ros-archive-keyring.gpg
-
-# Download and install the new ROS GPG key, and set up the ROS 2 repository
-RUN curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o ros.key
-RUN cp ros.key /usr/share/keyrings/ros-archive-keyring.gpg
-RUN echo "deb [signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu jammy main" \
-    > /etc/apt/sources.list.d/ros2.list
-
-# Update package list again, now with the correct key and repo
 RUN apt-get update
 
 # Add non-root user
@@ -113,6 +96,10 @@ RUN /bin/bash -c "source /opt/ros/humble/setup.bash && colcon build --symlink-in
 
 # Source the workspace
 RUN echo "source /home/ubuntu/ros2_ws/install/setup.bash" >> ~/.bashrc
+
+
+# Create dir for the csv ttc logs
+RUN mkdir -p /home/ubuntu/ttc_logs
 
 # Set entrypoint
 RUN apt-get update && apt-get install -y ros-humble-rmw-cyclonedds-cpp
