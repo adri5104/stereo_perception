@@ -68,6 +68,7 @@ class WorldPoint
      * @param max_depth Maximum depth value in meters.
      * @param min_height Minimum height value in meters.
      * @param max_height Maximum height value in meters.
+     * @param ego_compensation_factor Factor for egomotion compensation.
      * @param fx Focal length x.
      * @param fy Focal length y.
      * @param cx Principal point x.
@@ -80,6 +81,7 @@ class WorldPoint
       Mat &C, Mat &T, 
       double min_depth, double max_depth,
       double min_height, double max_height,
+      double ego_compensation_factor,
       double fx, double fy, double cx, double cy, 
       bool &includeEgoMotion, bool &useVarEgo,
       int gridSize);
@@ -192,6 +194,7 @@ class WorldPoint
     double min_depth_ ;
     double min_height_;
     double max_height_;
+    double ego_compensation_factor_; ///< Factor for egomotion compensation
 
     Mat	z_old_;	///< Old measurement vector			
 	  Mat	x_old_;	///< Old state vector

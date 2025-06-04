@@ -61,11 +61,13 @@
     this->declare_parameter<double>("sigma2_ry_measurement", 10);
     this->declare_parameter<double>("sigma2_rz_measurement", 10);
 
-    // Camera parameters
+    // Camera parameters ego_compensation_factor_
     this->declare_parameter<double>("min_depth", 0.1);
     this->declare_parameter<double>("max_depth", 15.0);
     this->declare_parameter<double>("min_height", 0.0);
     this->declare_parameter<double>("camera_ground_distance", 4.0);
+    this->declare_parameter<double>("ego_compensation_factor", 1.0);
+
 
     // Read parameters
     optical_flow_topic_ = this->get_parameter("optical_flow_topic").as_string();
@@ -117,6 +119,7 @@
     max_depth_ = this->get_parameter("max_depth").as_double();
     min_height_ = this->get_parameter("min_height").as_double();
     camera_ground_distance_ = this->get_parameter("camera_ground_distance").as_double();
+    ego_compensation_factor_ = this->get_parameter("ego_compensation_factor").as_double();
     C_ = cv::Mat::zeros(6, 6, CV_64FC1);
     T_ = cv::Mat::zeros(3, 3, CV_64FC1);
     sigma_system_ = cv::Mat::zeros(3, 3, CV_64FC1);   
@@ -149,6 +152,7 @@
       min_height_, camera_ground_distance_, 
       use_ego_motion_,
       use_ego_var_,
+      ego_compensation_factor_,
       grid_size_,
       debug_image_grid_
     );   

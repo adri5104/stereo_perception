@@ -16,6 +16,7 @@ WorldPoint::WorldPoint(
   Mat &T, 
   double min_depth, double max_depth, 
   double min_height, double max_height, 
+  double ego_compensation_factor,
   double fx, double fy, double cx, double cy,  
   bool &includeEgoMotion,
   bool &useVarEgo, 
@@ -23,6 +24,7 @@ WorldPoint::WorldPoint(
 : C_(C),  T_(T), 
   min_depth_(min_depth),   max_depth_(max_depth),
   min_height_(min_height), max_height_(max_height),
+  ego_compensation_factor_(ego_compensation_factor),
   include_ego_motion_(includeEgoMotion), use_var_ego_(useVarEgo), 
   grid_size_worldpoints(gridSize),
   age_(0),
@@ -184,7 +186,9 @@ WorldPointErrorCode WorldPoint::computeKalmanStep(
   // A. Prediction step
   if (include_ego_motion_)  
   { 
-    x_new_pred_ = A_new * x_old_  + u_new;
+    x_new_pred_ = A_new * x_old_;
+    x_new_pred_ = x_new_pred_  + ego_compensation_factor_ *  u_new;
+  
   }
   else
   {
@@ -193,7 +197,7 @@ WorldPointErrorCode WorldPoint::computeKalmanStep(
 
   P_new_pred_ = A_new * P_old_ * A_new.t() + Q_new_;
   
-  
+
   // B. Update step
   // Compute the Jacobian matrix of the measurement model
   double x_pred = x_new_pred_.at<double>(0,0);	

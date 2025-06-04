@@ -186,6 +186,7 @@ private:
   double max_depth_;
   double min_height_;
   double camera_ground_distance_;
+  double ego_compensation_factor_;
   cv::Mat C_;
   cv::Mat T_;
   cv::Mat sigma_system_;

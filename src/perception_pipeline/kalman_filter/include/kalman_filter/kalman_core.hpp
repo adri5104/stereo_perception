@@ -131,6 +131,7 @@ public:
    * @param max_height maximum height value considered for the worldpoints
    * @param include_ego_motion flag for using egomotion compensation
    * @param use_var_ego flag for using the covariance matrix of the egomotion
+   * @param ego_compensation_factor factor for the egomotion compensation
    * @param gridSize grid size for the worldpoints in pixels
    * @param debug_image_grid flag for drawing grid lines on the debug image
    */
@@ -142,6 +143,7 @@ public:
     double min_height, double max_height,
     bool include_ego_motion, 
     bool use_var_ego,
+    double ego_compensation_factor,
     int gridSize,
     bool debug_image_grid
   );
@@ -306,6 +308,7 @@ private:
 
   bool include_ego_motion_;	  ///< Flag for incorporating the egomotion 
   bool use_ego_var_;           ///< Flag for using the covariance matrix of the egomotion
+  double ego_compensation_factor_; ///< Factor for egomotion compensation
   int grid_size_worldpoints_;	///< Size of the grid cells in pixels
   bool debug_image_grid_;     ///< Flag for drawing grid lines on the debug image
 
