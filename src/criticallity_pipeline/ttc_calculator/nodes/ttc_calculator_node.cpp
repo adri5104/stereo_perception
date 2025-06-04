@@ -213,6 +213,7 @@ namespace ttc_calculator
     csv_file_ << std::fixed << std::setprecision(6) << timestamp.seconds() << ","
               << num_objects << "," 
               << current_min_ttc_ << "\n";
+              
     csv_file_.flush();
   
     output_min_ttc_pub_->publish(min_ttc_msg);
