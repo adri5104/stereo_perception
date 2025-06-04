@@ -11,3 +11,4 @@ ttc_calculator_node:
     ego_height: 1.0
     publish_ego_marker: true
     use_path: false
+    output_csv_path: "/home/ubuntu/ttc_logs"
