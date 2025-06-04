@@ -206,10 +206,11 @@ namespace ttc_calculator
                 current_min_ttc_, vel_of_min_ttc_, vel_km_h);
 
     // Log to CSV
-    rclcpp::Time timestamp = msg->header.stamp;
+    rclcpp::Time timestamp = this->now();
+
     int num_objects = static_cast<int>(msg->objects.size());
 
-    csv_file_ << timestamp.seconds() << "," 
+    csv_file_ << std::fixed << std::setprecision(6) << timestamp.seconds() << ","
               << num_objects << "," 
               << current_min_ttc_ << "\n";
     csv_file_.flush();
