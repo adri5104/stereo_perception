@@ -6,7 +6,7 @@ TAG="1.1.0"
 
 docker run -it --rm \
     --name $NAME \
-    -v $(pwd):/ros2_ws \
+    -v $PARENT_DIR/:/home/ubuntu/ros2_ws \
     -w /home/ubuntu/ros2_ws \
     --network host \
     -v /tmp/.X11-unix:/tmp/.X11-unix \
@@ -24,6 +24,5 @@ docker run -it --rm \
     -e QT_X11_NO_MITSHM=1 \
     -e XAUTHORITY=/root/.Xauthority \
     -v /home/edgar/david/adrian-ma/stereo_perception/config/dds/:/home/ubuntu/ros2_ws/config/dds/ \
-    -e CYCLONEDDS_URI=file:///home/ubuntu/ros2_ws/config/dds/autoware.xml \
     $GITNAME/$NAME:$TAG \
     "$@"
