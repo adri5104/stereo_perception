@@ -1,8 +1,8 @@
 
 services:
   stereo_perception_bridge_multisense:
-    image: gitlab.lrz.de:5005/teleoperiertes_fahren/research_brecht/stereo_perception/stereo_perception_edgar_bridge:1.1.0
-    container_name: stereo_perception_bridge
+    image: gitlab.lrz.de:5005/teleoperiertes_fahren/research_brecht/stereo_perception/stereo_perception_edgar_bridge:1.0.0
+    container_name: stereo_perception_bridge_compose
     network_mode: "host"
     stdin_open: true
     tty: true
@@ -18,7 +18,7 @@ services:
 
   perception_pipeline_multisense:
     image: gitlab.lrz.de:5005/teleoperiertes_fahren/research_brecht/stereo_perception/perception_pipeline:1.1.0
-    container_name: perception_pipeline
+    container_name: perception_pipeline_compose
     network_mode: "host"
     deploy:
       resources:
@@ -40,25 +40,25 @@ services:
           ros2 launch perception_pipeline_launch perception_pipeline_container.launch.py
 
 
-  criticallity_pipeline_multisense:
-    image: gitlab.lrz.de:5005/teleoperiertes_fahren/research_brecht/stereo_perception/criticallity_pipeline:1.1.0
-    container_name: criticallity_pipeline
-    network_mode: "host"
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu]
-    stdin_open: true
-    tty: true
-    volumes:
-      - ./criticallity_pipeline/config/carnegie:/home/ubuntu/config
-      - "/dev/shm:/dev/shm"
-      - "../config/dds/:/home/ubuntu/ros2_ws/config/dds/"
-    command:
-      - bash
-      - -c
-      - >
-          ros2 launch criticallity_pipeline_launch criticallity_pipeline_container.launch.py
+  #criticallity_pipeline_multisense:
+    #image: gitlab.lrz.de:5005/teleoperiertes_fahren/research_brecht/stereo_perception/criticallity_pipeline:1.1.0
+    #container_name: criticallity_pipeline
+    #network_mode: "host"
+    #deploy:
+    #  resources:
+    #    reservations:
+    #      devices:
+    #        - driver: nvidia
+    #          count: all
+    #          capabilities: [gpu]
+    #stdin_open: true
+    #tty: true
+    #volumes:
+    #  - ./criticallity_pipeline/config/carnegie:/home/ubuntu/config
+    #  - "/dev/shm:/dev/shm"
+    #  - "../config/dds/:/home/ubuntu/ros2_ws/config/dds/"
+    #command:
+    #  - bash
+    #  - -c
+    #  - >
+    #      ros2 launch criticallity_pipeline_launch criticallity_pipeline_container.launch.py
