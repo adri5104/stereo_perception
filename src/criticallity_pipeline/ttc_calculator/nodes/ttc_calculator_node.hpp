@@ -18,6 +18,10 @@
 #include <std_msgs/msg/float64.hpp>
 
 #include <Eigen/Dense>
+#include <fstream>
+#include <filesystem>
+
+
 
 #include "stereo_perception_msgs/msg/clustered_object_array.hpp"
 #include "stereo_perception_msgs/msg/clustered_object.hpp"
@@ -40,6 +44,11 @@ namespace ttc_calculator
      * @brief Construct a new TTC Calculator Node object
      */
     TTCCalculatorNode();
+
+    /**
+     * @brief Destroy the TTC Calculator Node object
+     */
+    ~TTCCalculatorNode();
 
   private:
     
@@ -83,6 +92,7 @@ namespace ttc_calculator
     stereo_perception_msgs::msg::ClusteredObjectArray output_ttc_;
     double current_min_ttc_;
     double vel_of_min_ttc_;
+    std::ofstream csv_file_;
     
     geometry_msgs::msg::Twist last_twist_;
 
@@ -102,6 +112,7 @@ namespace ttc_calculator
     bool publish_ego_marker_;
     bool use_path_;
     std::string frame_id_;
+    std::string output_csv_path_;
 
   };
 }

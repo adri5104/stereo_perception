@@ -23,6 +23,11 @@ namespace ttc_calculator
     declare_parameter("publish_ego_marker", true);
     declare_parameter("use_path", false);
     declare_parameter("frame_id", "camera_optical_frame");
+    declare_parameter("output_csv_path", "./");
+
+
+    
+
 
     // Read parameters
     get_parameter("input_clusters_topic", input_clusters_topic_);
@@ -36,6 +41,8 @@ namespace ttc_calculator
     get_parameter("publish_ego_marker", publish_ego_marker_);
     get_parameter("use_path", use_path_);
     get_parameter("frame_id", frame_id_);
+    get_parameter("output_csv_path", output_csv_path_);
+
 
     // Print parameters
     RCLCPP_INFO(this->get_logger(), "========== TTC Calculator Parameters =========");
@@ -50,7 +57,10 @@ namespace ttc_calculator
     RCLCPP_INFO(this->get_logger(), "publish_ego_marker: %d", publish_ego_marker_);
     RCLCPP_INFO(this->get_logger(), "use_path: %d", use_path_);
     RCLCPP_INFO(this->get_logger(), "frame_id: %s", frame_id_.c_str());
+    RCLCPP_INFO(this->get_logger(), "output_csv_path: %s", output_csv_path_.c_str());
     RCLCPP_INFO(this->get_logger(), "=============================================");
+
+
 
     // Subscribe to the input topics
     input_clusters_sub_ = create_subscription<stereo_perception_msgs::msg::ClusteredObjectArray>(
@@ -98,7 +108,35 @@ namespace ttc_calculator
       output_min_ttc_topic_, 
       10
     );
+
+    // Open csv file for logging
+    auto now = std::chrono::system_clock::now();
+    std::time_t now_time = std::chrono::system_clock::to_time_t(now);
+
+    std::stringstream filename_ss;
+    filename_ss << std::put_time(std::localtime(&now_time), "ttc_log_%Y%m%d_%H%M%S.csv");
+    std::string filename = filename_ss.str();
+
+    std::filesystem::path full_path = std::filesystem::path(output_csv_path_) / filename;
+    csv_file_.open(full_path);
+
+    if (!csv_file_.is_open())
+    {
+      RCLCPP_ERROR(this->get_logger(), "Failed to open CSV file at: %s", full_path.c_str());
+    }
+    else
+    {
+      RCLCPP_INFO(this->get_logger(), "Writing TTC log to: %s", full_path.c_str());
+      csv_file_ << "timestamp,num_objects,min_ttc\n";
+    }
   }
+
+  TTCCalculatorNode::~TTCCalculatorNode()
+  {
+    if (csv_file_.is_open())
+      csv_file_.close();
+  }
+
 
   void TTCCalculatorNode::callbackClusters(const stereo_perception_msgs::msg::ClusteredObjectArray::SharedPtr msg)
   {
@@ -166,6 +204,15 @@ namespace ttc_calculator
     double vel_km_h = vel_of_min_ttc_ * 3.6;
     RCLCPP_INFO(this->get_logger(), "Minimum TTC: %.2f s with rel. velocity: %.2f m/s | %.2f km/h", 
                 current_min_ttc_, vel_of_min_ttc_, vel_km_h);
+
+    // Log to CSV
+    rclcpp::Time timestamp = msg->header.stamp;
+    int num_objects = static_cast<int>(msg->objects.size());
+
+    csv_file_ << timestamp.seconds() << "," 
+              << num_objects << "," 
+              << current_min_ttc_ << "\n";
+    csv_file_.flush();
   
     output_min_ttc_pub_->publish(min_ttc_msg);
     output_ttc_pub_->publish(output_ttc_);
