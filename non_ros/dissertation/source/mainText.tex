@@ -20,7 +20,7 @@ Failures in perception can lead to \emph{disengagements}, situations in which th
 automated driving system can no longer identify a safe course of action and 
 must transfer control to a human operator, often via teleoperation. These events 
 typically occur outside the nominal operating conditions of the syste, and are 
-especially critical. Even in such scenarios, the vehicle must maintain a degree 
+especially critical. Even in such scenarios, the vehicle must maintain a  
 of situational awareness to support fallback strategies or assist the operator 
 in resolving the situation safely.
 
@@ -2546,7 +2546,7 @@ distance of the innovation vector $\mathbf{s}_k$ is below a threshold:
 \end{equation}
 
 where $\mathbf{S}_k$ is the innovation covariance and $\tau$ is the threshold corresponding
-to a 99.7\% confidence interval in a chi-squared distribution with 3 degrees of freedom.
+to a 99.7\% confidence interval in a chi-squared distribution with 3 s of freedom.
 If the condition is not met, the measurement is considered an outlier and the correction step
 is skipped to maintain filter robustness.
 
@@ -3814,29 +3814,368 @@ Figure~\ref{fig:framos_dynamic_route}.
 \subsection{Calibration of the perception pipeline}
 \label{sec:FramosCalibration}
 
-\todo{Describe the parameter calibration session with the Framos camera.}
+The parameters of the perception pipeline were calibrated offline using 
+the datasets acquired in Session~1 and Session~2. The goal was to adjust 
+the internal noise models and detection thresholds to match the 
+characteristics of the Framos stereo camera and improve the accuracy 
+and stability of the resulting 6D motion estimates.
+
+The calibration followed a progressive approach, starting from the tuning 
+of sensor-specific filters and proceeding to more global parameters that 
+control temporal fusion and object-level reasoning.
+
+\paragraph{Optical flow module}
+
+The optical flow module was calibrated using both static and dynamic 
+datasets to optimize motion estimation performance across a wide 
+range of conditions. The objective was to maximize precision in 
+low-texture regions and ensure sensitivity to small displacements, 
+while preserving the ability to detect larger motions without introducing 
+high-frequency noise or flow discontinuities.
+
+A parameter sweep was performed on the classical Farnebäck method, 
+with visual feedback in RViz overlaid on test trajectories from the 
+alpha-angle dataset. The final configuration represents a trade-off 
+between detection in low texture regions, detection of small displacements and the detectoin 
+of large displacementes.
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{l l}
+    \toprule
+    \textbf{Parameter} & \textbf{Value} \\
+    \midrule
+    \texttt{pyr\_scale}    & 0.5 \\
+    \texttt{levels}        & 6 \\
+    \texttt{winsize}       & 8 \\
+    \texttt{iterations}    & 10 \\
+    \texttt{poly\_n}       & 5 \\
+    \texttt{poly\_sigma}   & 1.1 \\
+    \texttt{flags}         & 0 \\
+    \bottomrule
+  \end{tabular}
+  \caption{Final configuration of the optical flow module}
+  \label{tab:optical_flow_params}
+\end{table}
+
+The module was configured to process grayscale images from the left 
+camera, publishing the resulting flow field to the corresponding ROS 2 topic 
+for consumption by downstream modules.
+
+
+
+
+\paragraph{Kalman filter module}
+
+The Kalman filter forms the core of the perception pipeline, enabling 
+state estimation of individual 3D points over time. Its accuracy and 
+robustness are highly dependent on the tuning of its covariance matrices, 
+as well as on geometric filtering parameters that determine which 
+measurements are accepted into the tracking process.
+
+Calibration was performed in stages. First, the observation noise parameters 
+were adjusted using static recordings, where the subject remained within a 
+controlled region. These include the depth and optical flow covariances, which 
+determine the reliability of each measurement. Next, the system noise parameters 
+were tuned to stabilize the 6D velocity estimation, particularly in the alpha-angle 
+dataset. Finally, the egomotion uncertainty values were adjusted using the 
+dynamic recordings, allowing the system to adapt to camera motion in real-world 
+conditions.
+
+The filter also includes geometric constraints to reject measurements outside 
+the desired spatial region. These include minimum and maximum valid depths, 
+as well as vertical height thresholds that discard ground or ceiling clutter.
+
+The final parameter configuration is shown in 
+Table~\ref{tab:kalman_filter_params}.
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{l l}
+    \toprule
+    \textbf{Parameter} & \textbf{Value} \\
+    \midrule
+    \texttt{sigma2\_flow\_x\_measurement} & 3.0 \\
+    \texttt{sigma2\_flow\_y\_measurement} & 3.0 \\
+    \texttt{sigma2\_depth\_measurement}  & 0.5 \\
+    \texttt{sigma2\_tx\_measurement}     & 0.025 \\
+    \texttt{sigma2\_ty\_measurement}     & 0.025 \\
+    \texttt{sigma2\_tz\_measurement}     & 0.00525 \\
+    \texttt{sigma2\_rx\_measurement}     & 0.005 \\
+    \texttt{sigma2\_ry\_measurement}     & 0.005 \\
+    \texttt{sigma2\_rz\_measurement}     & 0.005 \\
+    \texttt{sigma2\_x\_system}           & 10.0 \\
+    \texttt{sigma2\_y\_system}           & 10.0 \\
+    \texttt{sigma2\_z\_system}           & 10.0 \\
+    \texttt{min\_depth}                 & 1.0 \\
+    \texttt{max\_depth}                 & 10.0 \\
+    \texttt{min\_height\_}              & -3.0 \\
+    \texttt{camera\_ground\_distance}   & 2.0 \\
+    \bottomrule
+  \end{tabular}
+  \caption{Final configuration of the Kalman filter}
+  \label{tab:kalman_filter_params}
+\end{table}
+
+This configuration was validated across the full Framos dataset, including 
+range and alpha-angle tests for static operation, and dynamic recordings 
+for mobile conditions. 
+
+
+\paragraph{Object detector module}
+
+The final stage of the perception pipeline is responsible for grouping 
+individual \texttt{WorldPoint} tracks into coherent object hypotheses. 
+This is implemented using a density-based spatial clustering algorithm 
+(DBSCAN), which considers both positional and velocity similarity.
+
+Calibration of this module focused on tuning the clustering sensitivity 
+and filtering thresholds to reduce false positives while preserving the 
+ability to separate distinct moving entities. The position weight was 
+initially set to 1.0, and the velocity weight to 0.0, allowing clusters to 
+form based purely on spatial proximity. Once an appropriate radius 
+(\texttt{eps}) and minimum number of points (\texttt{minPts}) were 
+identified based on the grid density used in the Kalman filter, the 
+velocity component was gradually introduced to improve temporal 
+coherence.
+
+The velocity weight (\texttt{vel\_weight}) was increased iteratively, 
+and a threshold on minimum motion magnitude (\texttt{vel\_threshold}) 
+was added to filter out noisy tracks and avoid clustering of static points. 
+This proved especially useful in reducing spurious detections caused by 
+depth shadows or jitter in low-texture areas.
+
+The final parameters are summarized in Table~\ref{tab:object_detector_params}.
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{l l}
+    \toprule
+    \textbf{Parameter} & \textbf{Value} \\
+    \midrule
+    \texttt{eps}            & 0.3 \\
+    \texttt{minPts}         & 7 \\
+    \texttt{pos\_weight}    & 1.0 \\
+    \texttt{vel\_weight}    & 0.02 \\
+    \texttt{vel\_threshold} & 0.2 \\
+    \bottomrule
+  \end{tabular}
+  \caption{Final configuration of the object detector module}
+  \label{tab:object_detector_params}
+\end{table}
+
+This configuration allowed the clustering module to consistently detect 
+relevant motion groups in both static and dynamic scenarios. By adjusting 
+the weights and thresholds, the detector was made robust to noise and 
+sensitive to subtle but consistent movement patterns.
+
+
+
 
 
 \subsection{Results, limitations and motivation for replacement}
 \label{sec:FramosLimitations}
 
-\todo{Discuss the limitations of the Framos stereo camera.}
-% - Describe noise in depth estimation, especially beyond 15 meters.
-% - Evaluate the impact of limited range on Kalman filter initialization and tracking.
-% - Argue why the Framos camera could not fulfill the system requirements.
+Despite the successful integration and calibration of the Framos D455e stereo 
+camera, the experiments revealed critical limitations that significantly hindered 
+its suitability for mobile perception tasks.
+
+The most prominent issue was related to depth range and noise. Although the 
+sensor's theoretical range was specified as 6 meters, in practice, depth values 
+could be obtained up to approximately 10 meters. However, in outdoor conditions, 
+the depth image became dominated by static noise beyond 6--7 meters, rendering 
+it ineffective for object detection. This degradation was attributed to the use of 
+infrared stereo matching, which is known to suffer under natural sunlight.
+
+Across all distances, the depth image exhibited a high level of baseline noise, 
+which increased with range. This made object contours hard to distinguish and 
+reduced the spatial consistency of measurements. Attempts to mitigate these 
+effects through noise filtering and Kalman filter calibration had limited success. 
+Even with tuned parameters, the state estimation quality remained suboptimal, 
+particularly in dynamic scenes.
+
+Another significant limitation was the restricted effective detection range during 
+vehicle motion. While a 6-meter range might be marginally acceptable in static 
+scenarios, it proved insufficient under driving conditions. At speeds typical for 
+urban operation, the time between first detection and potential collision became 
+too short to allow reliable tracking and response. This severely undermined the 
+feasibility of using the Framos sensor in a real-time criticality estimation context.
+
+Given these constraints, it was concluded that the Framos D455e did not meet the 
+minimum performance requirements of the system. In particular, the perception 
+pipeline required robust detection of moving objects at distances of 10--20 meters 
+to ensure sufficient anticipation during motion. The noise profile and depth 
+limitations of the Framos made it unfit for this purpose.
+
+These findings motivated the search for a replacement stereo camera with higher 
+range, lower noise, and better outdoor performance. The next section presents the 
+criteria and rationale behind the selection of the Carnegie Robotics S30 sensor.
+
 
 \subsection{Selection of the Carnegie S30 stereo camera}
 \label{sec:CarnegieSelection}
 
-\todo{Describe the selection criteria for the Carnegie S30 camera.}
-% - Mention technical specs that influenced the decision: resolution, range, sync.
-% - List other candidates briefly and explain why they were discarded.
-% - Justify why the S30 met the perception pipeline requirements best.
+The perception pipeline initially developed for the EDGAR research vehicle was 
+designed around the Framos D455e stereo camera. While this sensor allowed rapid 
+prototyping and testing under static indoor conditions, its limitations became 
+evident during outdoor operation with moving ego vehicle. 
+
+In particular, excessive depth noise, limited 
+detection range, and susceptibility to sunlight rendered the Framos unsuitable 
+for reliable object tracking in dynamic driving scenarios. These issues are 
+discussed in detail in Section~\ref{sec:FramosLimitations}.
+
+To address these shortcomings, a systematic evaluation of alternative stereo vision 
+systems was initiated. The objective was to identify a sensor that could reliably 
+detect moving objects at distances of 15-30\,m under real-world conditions, while 
+remaining compatible with the existing software infrastructure. In addition, the 
+new sensor needed to offer deterministic data output, robust synchronization 
+features, and mechanical resilience suitable for long-term deployment in a 
+research vehicle.
+
+This section details the criteria used in the selection process, the evaluated 
+candidates, and the rationale for ultimately choosing the Carnegie Robotics 
+Multisense S30 camera.
+
+\paragraph{Technical requirements}
+
+To ensure compatibility with the EDGAR software and hardware architecture~\cite{edgar_hardware}, 
+a set of mandatory requirements was defined:
+
+\begin{itemize}
+  \item \textbf{Driver compatibility:} ROS~2 support under the Humble distribution, 
+        with active maintenance and documentation.
+  \item \textbf{Timestamp synchronization:} Support for IEEE 1588 PTP to ensure 
+        temporal alignment with other sensors.
+  \item \textbf{Depth range:} Reliable stereo depth beyond 15\,m in outdoor settings, 
+        sufficient to detect and track objects before critical TTC thresholds are reached
+\end{itemize}
+
+Two optional features were also considered advantageous:
+\begin{itemize}
+  \item \textbf{On-board processing:} To enable local computation and reduce CPU load 
+        on the ego vehicle main computer.
+  \item \textbf{Power over Ethernet (PoE):} To simplify wiring and reduce connector count.
+  \item \textbf{Environmental sealing:} Resistance to water, dust, and sunlight exposure, 
+        with at least IP65 protection rating.
+  \item \textbf{Communication:} Ethernet connectivity (Gigabit) for high-bandwidth 
+        and low-latency data transmission.
+  \item \textbf{Field of view:} Minimum horizontal coverage of 90  to monitor 
+        the vehicle’s forward sector. 
+  \item \textbf{Frame rate:} At least 20\,Hz to maintain sufficient temporal resolution 
+        for 6D motion estimation.
+  \item \textbf{Cost limit:} Total acquisition cost, including necessary accessories, 
+        below €3000.
+\end{itemize}
+
+\paragraph{Evaluated candidates}
+
+Following a market survey and review of all stereo cameras listed in ROS Industrial, 
+three final candidates were evaluated in detail: the \textbf{Stereolabs ZED X + ZED Box}, 
+the \textbf{Luxonis OAK-D Long Range}, and the \textbf{Carnegie Robotics Multisense S30}. 
+Table~\ref{tab:candidate_summary} summarizes key aspects of each.
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{lccc}
+    \toprule
+    \textbf{Feature} & \textbf{ZED X + Box} & \textbf{OAK-D LR} & \textbf{S30} \\
+    \midrule
+    Stereo baseline & 12\,cm & 15\,cm & 30\,cm \\
+    Max depth (claimed) & $>$20\,m & 30\,m & 30\,m \\
+    HFOV (deg) & $\sim$110 & 82--100 & 91 \\
+    Global shutter & No & Yes & Yes \\
+    ROS~2 driver & Proprietary & Unstable & Maintained \\
+    PTP synchronization & No & No & Yes \\
+    On-board compute & Yes (Jetson) & Yes & Yes (Quad-core ARM) \\
+    Native PoE & No & Yes & No (external splitter supported) \\
+    Outdoor protection & IP66 & IP65 & IP68 \\
+    Approx. cost & €2900 & €900 & €2495 \\
+    \bottomrule
+  \end{tabular}
+  \caption{Comparison of final stereo camera candidates.}
+  \label{tab:candidate_summary}
+\end{table}
+
+The \textbf{ZED X + ZED Box} was disqualified due to its complex network configuration 
+and tight budget constraints. All data processing is routed through an intermediate Jetson 
+unit (ZED Box), adding latency and integration complexity. Furthermore, the combined system 
+cost approached the €3000 limit without additional accessories.
+
+The \textbf{OAK-D Long Range} featured impressive specifications on paper, including 
+global shutter sensors and theoretical depth precision up to 30\,m. However, its 
+lack of PTP support and instability of the ROS~2 driver—as reported by the community—
+ruled it out for time-sensitive vehicle applications.
+
+\paragraph{Selection of the Carnegie Multisense S30}
+
+The \textbf{Multisense S30} was the only camera that fulfilled all critical requirements 
+and offered a well-supported ROS~2 driver with PTP capability. It features a 30\,cm 
+stereo baseline with 91 {} HFOV and IP68 environmental protection. The internal 
+architecture includes a quad-core ARM processor, capable of local pre-processing or 
+network handling. Although it does not support PoE natively, standard PoE splitters 
+(IEEE 802.3at) can be used to simplify cabling with minimal cost overhead.
+
+To further validate its performance, Carnegie Robotics was contacted to provide 
+a \texttt{rosbag} sample. The perception pipeline was executed offline using this 
+data, and showed significantly reduced depth noise and more coherent motion 
+tracks compared to previous experiments with the Framos D455e. This preliminary 
+validation confirmed the sensor's suitability for deployment in EDGAR.
+
+\paragraph{Justification over the S27 model}
+
+The Multisense S27, another product from Carnegie Robotics, was also considered. 
+While both S27 and S30 share the same resolution, image sensors, and processing 
+architecture, three key differences led to the selection of the S30:
+
+\begin{itemize}
+  \item \textbf{Mounting configuration:} The S30 can be mounted parallel to the ground, 
+        unlike the S27, which has a fixed optical tilt of 24 {} downward. This 
+        simplifies mechanical integration and ensures alignment with the camera 
+        coordinate frame.
+  \item \textbf{Stereo baseline:} The S30 extends the stereo baseline to 30\,cm, 
+        slightly improving depth precision at long distances.
+  \item \textbf{FOV alignment:} Both the stereo and color cameras on the S30 share 
+        the same horizontal and vertical field of view. In the S27, the color sensor 
+        offers a wider FOV, introducing inconsistency in image overlays and projections.
+\end{itemize}
+
+These differences, although subtle, had a significant impact on system integration 
+and perception reliability. A summary of both models is shown in 
+Table~\ref{tab:s27_s30_comparison}.
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{lcc}
+    \toprule
+    \textbf{Feature} & \textbf{S27} & \textbf{S30} \\
+    \midrule
+    Stereo baseline & 27\,cm & 30\,cm \\
+    Depth range & 1.4--30\,m & 1.4--30\,m \\
+    Stereo FOV (H$\times$V) & 91 $\times$54  & 91 $\times$54  \\
+    Color FOV (H$\times$V) & 135 $\times$84  & 91 $\times$53  \\
+    Mounting angle & Fixed at $-24$  & Parallel to ground \\
+    Water resistance & IP67 & IP68 \\
+    Dimensions & $6.0 \times 35 \times 16$\,cm & $5.6 \times 36.4 \times 14.1$\,cm \\
+    Price & \$1995 & \$2495 \\
+    \bottomrule
+  \end{tabular}
+  \caption{Comparison between Carnegie Multisense S27 and S30 models.}
+  \label{tab:s27_s30_comparison}
+\end{table}
+
+Given its superior alignment with the vehicle platform, improved depth geometry, 
+and unified imaging configuration, the Carnegie Multisense S30 was selected as 
+the primary sensor for all subsequent phases of development, calibration, and 
+evaluation.
+
+\todo{Add images of the cameras}
+
 
 \subsection{Calibration and dataset recording with Carnegie}
 \label{sec:CarnegieDatasets}
 
-\todo{Detail the experiments conducted with the Carnegie S30 camera.}
+\todo{Detail the experiments conducted with the Carnegie S30 camera. Explain the recording session performed, what data was collected and how it was used.}
 % - Describe static and dynamic test setups: alpha-angle tests, range tests, motion.
 % - List topics recorded: depth, grayscale, vehicle velocity, TF tree.
 % - Refer to the Carnegie session document and explain dataset purpose.
@@ -3844,7 +4183,7 @@ Figure~\ref{fig:framos_dynamic_route}.
 \section{Evaluation methodology}
 \label{sec:EvaluationMethodology}
 
-\todo{Introduce the evaluation methodology.}
+\todo{Introduce the evaluation methodology. Explain that the criticallity pipeline will be runned for both the Perception pipeline and Autoware, and that the results will be compared (number of detected objects and also the computed ttcs).}
 % - Explain how the pipeline will be validated and compared to Autoware.
 % - Present evaluation goals: object detection and TTC estimation.
 % - Mention the two evaluation perspectives: qualitative and quantitative.
@@ -3891,22 +4230,31 @@ Figure~\ref{fig:framos_dynamic_route}.
 \section{Performance benchmarking}
 \label{sec:PerformanceBenchmarking}
 
-\todo{Introduce the performance benchmarking section.}
+\todo{Introduce the performance benchmarking section. Explain that for the perception pipeline, a callback analysis was performed to measure the execution time of each module. Also a resource usage analysis was performed to measure 
+the CPU and GPU usage of the pipeline.}
 % - Explain why runtime and computational load are evaluated.
 % - Describe goals: deployability on embedded systems, real-time constraints.
 
 \subsection{Tested hardware platforms}
 \label{sec:HWPlatforms}
 
-\todo{List and describe the platforms used for benchmarking.}
+\todo{List and describe the platforms used for benchmarking (computer at home and EDGAR onboard computer).}
 % - Desktop PC, Laptop 1, Laptop 2, EDGAR onboard computer.
 % - Include specs: CPU, GPU, RAM, OS.
 % - Mention containerization or compilation settings if relevant.
 
-\subsection{Execution time and resource usage}
+\subsection{Callback analysis}
 \label{sec:HWPerformance}
 
-\todo{Present runtime and system load results for all platforms.}
+\todo{Explain how it was performed and present the results.}
+% - Use tables/figures to compare per-module execution time.
+% - Include CPU/GPU usage if measurable.
+% - Highlight bottlenecks and discuss real-time viability.
+
+\subsection{Resource usage analysis}
+\label{sec:HWPerformance}
+
+\todo{Explain how it was performed and present the results.}
 % - Use tables/figures to compare per-module execution time.
 % - Include CPU/GPU usage if measurable.
 % - Highlight bottlenecks and discuss real-time viability.
