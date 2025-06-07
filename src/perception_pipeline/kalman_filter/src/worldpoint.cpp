@@ -54,12 +54,12 @@ WorldPointErrorCode WorldPoint::initKalmanFilter(
   
   // Initialize variances with 10
   P_old_ = Mat::eye(6, 6, CV_64FC1);
-  P_old_.at<double>(0,0) = 1;
-  P_old_.at<double>(1,1) = 1;
-  P_old_.at<double>(2,2) = 1;
-  P_old_.at<double>(3,3) = 1;
-  P_old_.at<double>(4,4) = 1;
-  P_old_.at<double>(5,5) = 1;
+  P_old_.at<double>(0,0) = 5;
+  P_old_.at<double>(1,1) = 5;
+  P_old_.at<double>(2,2) = 5;
+  P_old_.at<double>(3,3) = 5;
+  P_old_.at<double>(4,4) = 5;
+  P_old_.at<double>(5,5) = 5;
   
   // Increase occupancy grid value
   occupancyGrid.at<uchar>

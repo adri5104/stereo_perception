@@ -39,14 +39,15 @@ kalman_filter_node:
     use_ego_motion: true
     use_ego_var: true
     ego_compensation_factor: 1.4
-    sigma2_x_system: 1.0
-    sigma2_y_system: 1.0
-    sigma2_z_system: 1.5
-    sigma2_flow_y_measurement: 5.0
-    sigma2_flow_x_measurement: 15.0
+    sigma2_x_system: 0.1
+    sigma2_y_system: 0.1
+    sigma2_z_system: 0.01
+    sigma2_flow_y_measurement: 0.1
+    sigma2_flow_x_measurement: 0.1
+    sigma2_depth_measurement: 0.1
     sigma2_tx_measurement: 0.015
     sigma2_ty_measurement: 0.015
-    sigma2_tz_measurement: 0.015
+    sigma2_tz_measurement: 0.010
     sigma2_rx_measurement: 0.01
     sigma2_ry_measurement: 0.01
     sigma2_rz_measurement: 0.01
@@ -67,7 +68,7 @@ object_detector_node:
     minPts: 4
     pos_weight: 1.0
     vel_weight: 0.05
-    vel_threshold: 0.2
+    vel_threshold: 1.0
 
 
 

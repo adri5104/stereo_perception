@@ -96,15 +96,9 @@ void OpticalFlowNode::imageCallback(const sensor_msgs::msg::Image::SharedPtr msg
     cv::cuda::GpuMat d_flow;
     
 
-    Ptr<cuda::FarnebackOpticalFlow> optical_flow_compute = cv::cuda::FarnebackOpticalFlow::create	(
-      levels_,
-      pyr_scale_, 
-      false,
-      winsize_,
-      iterations_,
-      poly_n_,
-      poly_sigma_,
-      flags_);
+    // Create CUDA-based TV-L1 optical flow instance
+    cv::Ptr<cv::cuda::OpticalFlowDual_TVL1> optical_flow_compute =
+    cv::cuda::OpticalFlowDual_TVL1::create();
 
     optical_flow_compute->calc(d_prev_image, d_next_image, d_flow);
 
