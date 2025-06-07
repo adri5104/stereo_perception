@@ -41,9 +41,10 @@ kalman_filter_node:
     ego_compensation_factor: 1.4
     sigma2_x_system: 1.0
     sigma2_y_system: 1.0
-    sigma2_z_system: 1.5
-    sigma2_flow_y_measurement: 5.0
-    sigma2_flow_x_measurement: 15.0
+    sigma2_z_system: 0.5
+    sigma2_flow_y_measurement: 3.0
+    sigma2_flow_x_measurement: 3.0
+    sigma2_depth_measurement: 0.5
     sigma2_tx_measurement: 0.015
     sigma2_ty_measurement: 0.015
     sigma2_tz_measurement: 0.015
