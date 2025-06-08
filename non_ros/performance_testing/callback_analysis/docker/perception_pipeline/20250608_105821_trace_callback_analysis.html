@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Callback Analysis</title>
+    <style>
+      html, body {
+        box-sizing: border-box;
+        display: flow-root;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+    <script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-3.7.3.min.js"></script>
+    <script type="text/javascript">
+        Bokeh.set_log_level("info");
+    </script>
+  </head>
+  <body>
+    <div id="d26e0b4e-9b33-4282-acb6-47b205cb97ed" data-root-id="p1003" style="display: contents;"></div>
+  
+    <script type="application/json" id="f8c8f8c0-8ba9-435b-81e9-1672c5f03234">
+      {"d998ceef-f76e-4d87-92e9-4dfcff5ee46d":{"version":"3.7.3","title":"Bokeh Application","roots":[{"type":"object","name":"Column","id":"p1003"}]}}
+    </script>
+    <script type="text/javascript">
+      (function() {
+        const fn = function() {
+          Bokeh.safely(function() {
+            (function(root) {
+              function embed_document(root) {
+              const docs_json = document.getElementById('f8c8f8c0-8ba9-435b-81e9-1672c5f03234').textContent;
+              const render_items = [{"docid":"d998ceef-f76e-4d87-92e9-4dfcff5ee46d","roots":{"p1003":"d26e0b4e-9b33-4282-acb6-47b205cb97ed"},"root_ids":["p1003"]}];
+              root.Bokeh.embed.embed_items(docs_json, render_items);
+              }
+              if (root.Bokeh !== undefined) {
+                embed_document(root);
+              } else {
+                let attempts = 0;
+                const timer = setInterval(function(root) {
+                  if (root.Bokeh !== undefined) {
+                    clearInterval(timer);
+                    embed_document(root);
+                  } else {
+                    attempts++;
+                    if (attempts > 100) {
+                      clearInterval(timer);
+                      console.log("Bokeh: ERROR: Unable to run BokehJS code because BokehJS library is missing");
+                    }
+                  }
+                }, 10, root)
+              }
+            })(window);
+          });
+        };
+        if (document.readyState != "loading") fn();
+        else document.addEventListener("DOMContentLoaded", fn);
+      })();
+    </script>
+  </body>
+</html>
