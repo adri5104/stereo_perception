@@ -54,7 +54,7 @@ kalman_filter_node:
     min_depth: 4.0
     max_depth: 20.0
     min_height_: 1.0
-    max_height: 4.0
+    max_height: 6.0
     camera_ground_distance: 1.1
 
 
