@@ -2887,7 +2887,7 @@ during the detection process.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.6\textwidth]{figures/ObjectDetector.png}
+  \includegraphics[width=0.3\textwidth]{figures/ObjectDetector.png}
   \caption{UML diagram of the \texttt{ObjectDetector} class. Source: own work}
   \label{fig:object_detector_uml}
 \end{figure}
@@ -2998,7 +2998,7 @@ interface of the implementation.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.5\textwidth]{figures/WorldEntity.png}
+  \includegraphics[width=0.3\textwidth]{figures/WorldEntity.png}
   \caption{UML diagram of the \texttt{WorldEntity} class. Source: own work}
   \label{fig:world_entity_uml}
 \end{figure}
@@ -3224,8 +3224,6 @@ A positive projection implies divergence, in which case TTC is
 undefined or infinite.
 
 Thus, the TTC can be interpreted as:
-
-
 
 \begin{equation}
   \text{TTC} =
@@ -3924,10 +3922,7 @@ for mobile conditions.
 
 \paragraph{Object detector module}
 
-The final stage of the perception pipeline is responsible for grouping 
-individual \texttt{WorldPoint} tracks into coherent object hypotheses. 
-This is implemented using a density-based spatial clustering algorithm 
-(DBSCAN), which considers both positional and velocity similarity.
+
 
 Calibration of this module focused on tuning the clustering sensitivity 
 and filtering thresholds to reduce false positives while preserving the 
@@ -3968,9 +3963,6 @@ This configuration allowed the clustering module to consistently detect
 relevant motion groups in both static and dynamic scenarios. By adjusting 
 the weights and thresholds, the detector was made robust to noise and 
 sensitive to subtle but consistent movement patterns.
-
-
-
 
 
 \subsection{Results, limitations and motivation for replacement}
@@ -4043,19 +4035,14 @@ To ensure compatibility with the EDGAR software and hardware architecture~\cite{
 a set of mandatory requirements was defined:
 
 \begin{itemize}
-  \item \textbf{Driver compatibility:} ROS~2 support under the Humble distribution, 
+  \item \textbf{Driver compatibility:} ROS~2 Humble support, 
         with active maintenance and documentation.
   \item \textbf{Timestamp synchronization:} Support for IEEE 1588 PTP to ensure 
         temporal alignment with other sensors.
   \item \textbf{Depth range:} Reliable stereo depth beyond 15\,m in outdoor settings, 
         sufficient to detect and track objects before critical TTC thresholds are reached
-\end{itemize}
-
-Two optional features were also considered advantageous:
-\begin{itemize}
   \item \textbf{On-board processing:} To enable local computation and reduce CPU load 
         on the ego vehicle main computer.
-  \item \textbf{Power over Ethernet (PoE):} To simplify wiring and reduce connector count.
   \item \textbf{Environmental sealing:} Resistance to water, dust, and sunlight exposure, 
         with at least IP65 protection rating.
   \item \textbf{Communication:} Ethernet connectivity (Gigabit) for high-bandwidth 
@@ -4064,15 +4051,20 @@ Two optional features were also considered advantageous:
         the vehicle’s forward sector. 
   \item \textbf{Frame rate:} At least 20\,Hz to maintain sufficient temporal resolution 
         for 6D motion estimation.
+\end{itemize}
+
+Two optional features were also considered advantageous:
+\begin{itemize}
+  \item \textbf{Power over Ethernet (PoE):} To simplify wiring and reduce connector count.
   \item \textbf{Cost limit:} Total acquisition cost, including necessary accessories, 
         below €3000.
 \end{itemize}
 
 \paragraph{Evaluated candidates}
 
-Following a market survey and review of all stereo cameras listed in ROS Industrial, 
-three final candidates were evaluated in detail: the \textbf{Stereolabs ZED X + ZED Box}, 
-the \textbf{Luxonis OAK-D Long Range}, and the \textbf{Carnegie Robotics Multisense S30}. 
+Following a market survey and review of all stereo cameras listed in ROS Industrial~\cite{rosindustrialCameraSurvey}, 
+three final candidates were evaluated in detail: the Stereolabs ZED X + ZED Box, 
+the Luxonis OAK-D Long Range, and the Carnegie Robotics Multisense S30. 
 Table~\ref{tab:candidate_summary} summarizes key aspects of each.
 
 \begin{table}[H]
@@ -4088,7 +4080,7 @@ Table~\ref{tab:candidate_summary} summarizes key aspects of each.
     ROS~2 driver & Proprietary & Unstable & Maintained \\
     PTP synchronization & No & No & Yes \\
     On-board compute & Yes (Jetson) & Yes & Yes (Quad-core ARM) \\
-    Native PoE & No & Yes & No (external splitter supported) \\
+    Native PoE & No & Yes & No  \\
     Outdoor protection & IP66 & IP65 & IP68 \\
     Approx. cost & €2900 & €900 & €2495 \\
     \bottomrule
@@ -4100,12 +4092,13 @@ Table~\ref{tab:candidate_summary} summarizes key aspects of each.
 The \textbf{ZED X + ZED Box} was disqualified due to its complex network configuration 
 and tight budget constraints. All data processing is routed through an intermediate Jetson 
 unit (ZED Box), adding latency and integration complexity. Furthermore, the combined system 
-cost approached the €3000 limit without additional accessories.
+cost approached the €3000, which is comparable to the cost of other candidates with better 
+specifications.
 
 The \textbf{OAK-D Long Range} featured impressive specifications on paper, including 
 global shutter sensors and theoretical depth precision up to 30\,m. However, its 
 lack of PTP support and instability of the ROS~2 driver—as reported by the community—
-ruled it out for time-sensitive vehicle applications.
+ruled it out for this time-sensitive vehicle application.
 
 \paragraph{Selection of the Carnegie Multisense S30}
 
@@ -4114,7 +4107,7 @@ and offered a well-supported ROS~2 driver with PTP capability. It features a 30\
 stereo baseline with 91 {} HFOV and IP68 environmental protection. The internal 
 architecture includes a quad-core ARM processor, capable of local pre-processing or 
 network handling. Although it does not support PoE natively, standard PoE splitters 
-(IEEE 802.3at) can be used to simplify cabling with minimal cost overhead.
+(IEEE 802.3at) could be used to simplify cabling with minimal cost overhead.
 
 To further validate its performance, Carnegie Robotics was contacted to provide 
 a \texttt{rosbag} sample. The perception pipeline was executed offline using this 
@@ -4130,8 +4123,7 @@ architecture, three key differences led to the selection of the S30:
 
 \begin{itemize}
   \item \textbf{Mounting configuration:} The S30 can be mounted parallel to the ground, 
-        unlike the S27, which has a fixed optical tilt of 24 {} downward. This 
-        simplifies mechanical integration and ensures alignment with the camera 
+        unlike the S27, which has a fixed optical tilt of 24 {} downward. This ensures alignment with the camera 
         coordinate frame.
   \item \textbf{Stereo baseline:} The S30 extends the stereo baseline to 30\,cm, 
         slightly improving depth precision at long distances.
@@ -4169,7 +4161,7 @@ and unified imaging configuration, the Carnegie Multisense S30 was selected as
 the primary sensor for all subsequent phases of development, calibration, and 
 evaluation.
 
-\todo{Add images of the cameras}
+
 
 
 \subsection{Calibration and dataset recording with Carnegie}
