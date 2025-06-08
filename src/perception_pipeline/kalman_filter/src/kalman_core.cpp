@@ -252,7 +252,7 @@ KalmanCoreErrorCode KalmanCore::predict(
         cv::Mat x = cv::Mat::zeros(6,1, CV_64FC1);
         wp.getX(x);
         local.out_vec = formatOutput(x, 1.0f);
-        local.keep = true;   // still havent checked collision
+        local.keep = true;   // still havent checked collisio
         break;
       }
       case WorldPointErrorCode::BAD_DEPTH_VALUE_ERROR:
@@ -357,8 +357,6 @@ KalmanCoreErrorCode KalmanCore::predict(
 
           Mat x = Mat::zeros(6,1,CV_64FC1);
           worldpoints_.back()->getX(x);
-          output_debug_image.at<cv::Vec3b>(new_v, new_u) = cv::Vec3b(0, 255, 0);
-          output_6d.at<OutVec>(new_v, new_u) = formatOutput(x, 1);
         }
       }
     }
@@ -419,10 +417,6 @@ KalmanCoreErrorCode KalmanCore::setNewWorldPoints(Mat &occupancy_grid, Mat &outp
         occupancy_grid);
 
       worldpoints_.back()->getX(x);
-
-      // Update the output matrices
-      output_debug_image.at<cv::Vec3b>(row, col) = cv::Vec3b(0, 255, 0); // Green color
-      output_6d.at<OutVec>(row, col) = formatOutput(x, 1);
     }
   }
 

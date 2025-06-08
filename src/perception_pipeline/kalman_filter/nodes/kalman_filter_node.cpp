@@ -173,7 +173,7 @@
 
     // Register the synchronized callback
     sync_->registerCallback(&KalmanFilterNode::updateSync, this);
-    sync_->setMaxIntervalDuration(rclcpp::Duration::from_seconds(0.5));
+    sync_->setMaxIntervalDuration(rclcpp::Duration::from_seconds(0.1));
 
     // Camera info subscription (standard rclcpp subscription)
     camera_info_sub_ = this->create_subscription<sensor_msgs::msg::CameraInfo>(
@@ -273,14 +273,14 @@
 
     kalman_core_->getOutput(output_6d ,output_debug_image);
     delta_time = kalman_core_->getDeltaTime();
-
+    
 
     // Create header object
     std_msgs::msg::Header header;
     header.stamp = this->now();
     header.frame_id = frame_id_;
 
-    // Convert to sensor_msgs
+    // Convert output_6d and output_debug_image to sensor_msgs::msg::Image
     sensor_msgs::msg::Image::SharedPtr output_6d_msg =
       cv_bridge::CvImage(header, "32FC7", output_6d).toImageMsg();
     sensor_msgs::msg::Image::SharedPtr debug_image_msg =
@@ -292,10 +292,11 @@
 
     visualization_msgs::msg::MarkerArray markers =  
       createMarkers(output_6d, delta_time);  
+      
     
+    output_6d_pub_->publish(*output_6d_msg);
     debug_image_pub_->publish(*debug_image_msg);
     debug_markers_pub_->publish(markers);
-    output_6d_pub_->publish(*output_6d_msg);
   }
 
   // Camera info callback
