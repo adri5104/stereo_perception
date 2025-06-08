@@ -3,7 +3,7 @@ PARENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )"/../../.. &> /dev/null && pw
 GITNAME="gitlab.lrz.de:5005/teleoperiertes_fahren/research_brecht/stereo_perception"
 NAME="perception_pipeline"
 TAG="1.1.0"
-
+#-e CYCLONEDDS_URI=file:///home/ubuntu/ros2_ws/config/dds/autoware.xml \
 docker run -it --rm \
     --name $NAME \
     -v $(pwd):/ros2_ws \
@@ -24,6 +24,5 @@ docker run -it --rm \
     -e QT_X11_NO_MITSHM=1 \
     -e XAUTHORITY=/root/.Xauthority \
     -v /home/edgar/david/adrian-ma/stereo_perception/config/dds/:/home/ubuntu/ros2_ws/config/dds/ \
-    -e CYCLONEDDS_URI=file:///home/ubuntu/ros2_ws/config/dds/autoware.xml \
     $GITNAME/$NAME:$TAG \
     "$@"
