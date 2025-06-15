@@ -308,14 +308,7 @@ void VisualOdometry::estimateMotion(const std::vector<cv::Point2f>& prev_points,
     ry = filterOutlier(ry, pitch_window_, max_rotation_threshold_);
     rz = filterOutlier(rz, yaw_window_, max_rotation_threshold_);
 
-    // Apply moving average or other smoothing
-    tvec.at<double>(0) = applyMovingAverage(translation_x_window_, tx);
-    tvec.at<double>(1) = applyMovingAverage(translation_y_window_, ty);
-    tvec.at<double>(2) = applyMovingAverage(translation_z_window_, tz);
 
-    rvec.at<double>(0) = applyMovingAverage(roll_window_, rx);
-    rvec.at<double>(1) = applyMovingAverage(pitch_window_, ry);
-    rvec.at<double>(2) = applyMovingAverage(yaw_window_, rz);
   }
 
   // Convert rotation vector to rotation matrix

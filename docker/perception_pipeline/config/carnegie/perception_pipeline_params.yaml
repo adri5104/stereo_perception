@@ -20,6 +20,9 @@ visual_odometry_node:
     max_depth_odom: 40.0
     min_depth_odom: 3.0
     odometry_debug_image: true
+    apply_statistical_filtering: true
+    apply_expotential_smoothing: true
+    exponential_alpha: 0.1
     frame_id: "multisense/left_camera_optical_frame"
 
 kalman_filter_node:
@@ -38,10 +41,10 @@ kalman_filter_node:
     debug_image_grid: false
     use_ego_motion: true
     use_ego_var: true
-    ego_compensation_factor: 1.5
-    sigma2_x_system: 1.0
-    sigma2_y_system: 1.0
-    sigma2_z_system: 0.5
+    ego_compensation_factor: 1.25
+    sigma2_x_system: 0.8
+    sigma2_y_system: 0.8
+    sigma2_z_system: 0.05
     sigma2_flow_y_measurement: 3.0
     sigma2_flow_x_measurement: 3.0
     sigma2_depth_measurement: 0.5
@@ -54,7 +57,7 @@ kalman_filter_node:
     min_depth: 4.0
     max_depth: 20.0
     min_height_: 1.0
-    max_height: 6.0
+    max_height: 4.0
     camera_ground_distance: 1.1
 
 
@@ -65,10 +68,10 @@ object_detector_node:
     output_clusters_topic: "/multisense/perception_pipeline/output_clusters"
     frame_id: "/multisense/left_camera_optical_frame"
     eps: 0.5
-    minPts: 4
+    minPts: 5
     pos_weight: 1.0
     vel_weight: 0.05
-    vel_threshold: 0.2
-
+    vel_threshold: 0.5
+    receding_speed_thresh: 0.3
 
 

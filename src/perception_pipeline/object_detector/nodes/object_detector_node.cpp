@@ -24,6 +24,7 @@ ObjectDetectorNode::ObjectDetectorNode() :
   this->declare_parameter("pos_weight", 1.0);
   this->declare_parameter("vel_weight", 1.0);
   this->declare_parameter("vel_threshold", 0.1);
+  this->declare_parameter("receding_speed_thresh", 0.0);
   this->get_parameter("input_6d_topic", input_6d_topic_);
   this->get_parameter("output_markers_topic", output_markers_topic_);
   this->get_parameter("output_clusters_topic", output_clusters_topic_);
@@ -49,7 +50,8 @@ ObjectDetectorNode::ObjectDetectorNode() :
     this->get_parameter("minPts").as_int(),
     this->get_parameter("pos_weight").as_double(),
     this->get_parameter("vel_weight").as_double(),
-    this->get_parameter("vel_threshold").as_double()
+    this->get_parameter("vel_threshold").as_double(),
+    this->get_parameter("receding_speed_thresh").as_double()
   );
 }
 
