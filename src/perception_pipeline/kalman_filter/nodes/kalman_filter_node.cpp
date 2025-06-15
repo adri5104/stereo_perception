@@ -61,11 +61,13 @@
     this->declare_parameter<double>("sigma2_ry_measurement", 10);
     this->declare_parameter<double>("sigma2_rz_measurement", 10);
 
-    // Camera parameters
+    // Camera parameters ego_compensation_factor_
     this->declare_parameter<double>("min_depth", 0.1);
     this->declare_parameter<double>("max_depth", 15.0);
     this->declare_parameter<double>("min_height", 0.0);
     this->declare_parameter<double>("camera_ground_distance", 4.0);
+    this->declare_parameter<double>("ego_compensation_factor", 1.0);
+
 
     // Read parameters
     optical_flow_topic_ = this->get_parameter("optical_flow_topic").as_string();
@@ -117,6 +119,7 @@
     max_depth_ = this->get_parameter("max_depth").as_double();
     min_height_ = this->get_parameter("min_height").as_double();
     camera_ground_distance_ = this->get_parameter("camera_ground_distance").as_double();
+    ego_compensation_factor_ = this->get_parameter("ego_compensation_factor").as_double();
     C_ = cv::Mat::zeros(6, 6, CV_64FC1);
     T_ = cv::Mat::zeros(3, 3, CV_64FC1);
     sigma_system_ = cv::Mat::zeros(3, 3, CV_64FC1);   
@@ -149,6 +152,7 @@
       min_height_, camera_ground_distance_, 
       use_ego_motion_,
       use_ego_var_,
+      ego_compensation_factor_,
       grid_size_,
       debug_image_grid_
     );   
@@ -169,7 +173,7 @@
 
     // Register the synchronized callback
     sync_->registerCallback(&KalmanFilterNode::updateSync, this);
-    sync_->setMaxIntervalDuration(rclcpp::Duration::from_seconds(0.5));
+    sync_->setMaxIntervalDuration(rclcpp::Duration::from_seconds(0.1));
 
     // Camera info subscription (standard rclcpp subscription)
     camera_info_sub_ = this->create_subscription<sensor_msgs::msg::CameraInfo>(
@@ -269,14 +273,14 @@
 
     kalman_core_->getOutput(output_6d ,output_debug_image);
     delta_time = kalman_core_->getDeltaTime();
-
+    
 
     // Create header object
     std_msgs::msg::Header header;
     header.stamp = this->now();
     header.frame_id = frame_id_;
 
-    // Convert to sensor_msgs
+    // Convert output_6d and output_debug_image to sensor_msgs::msg::Image
     sensor_msgs::msg::Image::SharedPtr output_6d_msg =
       cv_bridge::CvImage(header, "32FC7", output_6d).toImageMsg();
     sensor_msgs::msg::Image::SharedPtr debug_image_msg =
@@ -288,10 +292,11 @@
 
     visualization_msgs::msg::MarkerArray markers =  
       createMarkers(output_6d, delta_time);  
+      
     
+    output_6d_pub_->publish(*output_6d_msg);
     debug_image_pub_->publish(*debug_image_msg);
     debug_markers_pub_->publish(markers);
-    output_6d_pub_->publish(*output_6d_msg);
   }
 
   // Camera info callback

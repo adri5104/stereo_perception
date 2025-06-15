@@ -10,29 +10,35 @@ def main(input_file, output_dir):
     output_path = Path(output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
 
-    # Load CSV
     df = pd.read_csv(input_path)
 
-    # Convert timestamp to datetime and handle inf
+    # Convert timestamp to datetime
     df['timestamp'] = pd.to_datetime(df['timestamp'], unit='s')
-    df['min_ttc'] = pd.to_numeric(df['min_ttc'], errors='coerce')  # convert 'inf' strings
-    df['min_ttc'] = df['min_ttc'].replace([float('inf'), float('-inf')], -1).fillna(-1)
+
+    # Handle inf values in min_ttc
+    df['min_ttc'] = pd.to_numeric(df['min_ttc'], errors='coerce')
+    df['min_ttc'] = df['min_ttc'].replace([float("inf"), float("-inf")], -50).fillna(-1)
 
     source = ColumnDataSource(df)
 
-    # Plot 1: Minimum TTC
+    # First plot: Min TTC
     p1 = figure(
         title="Minimum TTC over Time",
         x_axis_type="datetime",
         x_axis_label="Time",
-        y_axis_label="Min TTC [s] (-1 = ∞)",
+        y_axis_label="Min TTC [s] (-50 = ∞)",
         width=800,
         height=300
     )
     p1.line(x='timestamp', y='min_ttc', source=source, line_width=2, color="#29788E")
-    p1.xaxis.formatter = DatetimeTickFormatter(seconds="%H:%M:%S", minutes="%H:%M:%S")
+    p1.xaxis.formatter = DatetimeTickFormatter(
+        seconds="%H:%M:%S",
+        minutes="%H:%M:%S",
+        hours="%H:%M:%S"
+    )
+    p1.xaxis.major_label_orientation = 0.5
 
-    # Plot 2: Number of Objects
+    # Second plot: Number of Objects
     p2 = figure(
         title="Number of Objects over Time",
         x_axis_type="datetime",
@@ -42,14 +48,18 @@ def main(input_file, output_dir):
         height=300
     )
     p2.line(x='timestamp', y='num_objects', source=source, line_width=2, color="#DD4968")
-    p2.xaxis.formatter = DatetimeTickFormatter(seconds="%H:%M:%S", minutes="%H:%M:%S")
+    p2.xaxis.formatter = DatetimeTickFormatter(
+        seconds="%H:%M:%S",
+        minutes="%H:%M:%S",
+        hours="%H:%M:%S"
+    )
+    p2.xaxis.major_label_orientation = 0.5
 
-    # Save to HTML
     output_file_path = output_path / (input_path.stem + ".html")
     output_file(str(output_file_path))
     save(column(p1, p2))
 
-    print(f"✅ Saved plot to: {output_file_path}")
+    print(f"✅ Plot saved at: {output_file_path}")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Plot TTC CSV log as Bokeh HTML.")

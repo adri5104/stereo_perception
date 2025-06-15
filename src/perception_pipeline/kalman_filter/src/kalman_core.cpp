@@ -14,11 +14,11 @@ namespace perception_pipeline
 {
 namespace kalman_filter
 {
-
   KalmanCore::KalmanCore() :
   time_diff_(0.0),
   include_ego_motion_(false),
   use_ego_var_(false),
+  ego_compensation_factor_(1.0),
   grid_size_worldpoints_(10),
   debug_image_grid_(false),
   fx_(421.37701),
@@ -66,11 +66,13 @@ KalmanCore::KalmanCore(
   Mat sigma_system, Mat C, Mat T, double min_depth, double max_depth, double min_height, double max_height,
   bool include_ego_motion,
   bool use_var_ego,
+  double ego_compensation_factor,
   int gridSize,
   bool debug_image_grid) : 
   time_diff_(0.0),
   include_ego_motion_(include_ego_motion),
   use_ego_var_(use_var_ego),
+  ego_compensation_factor_(ego_compensation_factor),
   grid_size_worldpoints_(gridSize),
   debug_image_grid_(debug_image_grid),
   fx_(421.37701), fy_(421.37701), cx_(424.7990), cy_(231.86268),
@@ -98,6 +100,7 @@ KalmanCore::KalmanCore(
   cout << "[KalmanCore] Grid size = " << grid_size_worldpoints_ << endl; 
   cout << "[KalmanCore] Use ego motion = " << (include_ego_motion_? "Yes" : "No") << endl; 
   cout << "[KalmanCore] Use ego motion covariance = " << (use_ego_var_? "Yes" : "No") << endl;
+  cout << "[KalmanCore] Ego motion compensation factor = " << ego_compensation_factor_ << endl;
   cout << "[KalmanCore] =================================================================" << endl << endl;
   
 
@@ -249,7 +252,7 @@ KalmanCoreErrorCode KalmanCore::predict(
         cv::Mat x = cv::Mat::zeros(6,1, CV_64FC1);
         wp.getX(x);
         local.out_vec = formatOutput(x, 1.0f);
-        local.keep = true;   // still havent checked collision
+        local.keep = true;   // still havent checked collisio
         break;
       }
       case WorldPointErrorCode::BAD_DEPTH_VALUE_ERROR:
@@ -340,6 +343,7 @@ KalmanCoreErrorCode KalmanCore::predict(
               C_, T_,
               min_depth_, max_depth_,
               min_height_, max_height_,
+              ego_compensation_factor_,
               fx_, fy_, cx_, cy_,
               include_ego_motion_,
               use_ego_var_,
@@ -353,8 +357,6 @@ KalmanCoreErrorCode KalmanCore::predict(
 
           Mat x = Mat::zeros(6,1,CV_64FC1);
           worldpoints_.back()->getX(x);
-          output_debug_image.at<cv::Vec3b>(new_v, new_u) = cv::Vec3b(0, 255, 0);
-          output_6d.at<OutVec>(new_v, new_u) = formatOutput(x, 1);
         }
       }
     }
@@ -402,9 +404,10 @@ KalmanCoreErrorCode KalmanCore::setNewWorldPoints(Mat &occupancy_grid, Mat &outp
         C_, T_,
         min_depth_, max_depth_, 
         min_height_, max_height_,
+        ego_compensation_factor_,
         fx_, fy_, cx_, cy_, 
         include_ego_motion_,
-        use_ego_var_, 
+        use_ego_var_,
         grid_size_worldpoints_));
 
       worldpoints_.back()->initKalmanFilter(
@@ -414,10 +417,6 @@ KalmanCoreErrorCode KalmanCore::setNewWorldPoints(Mat &occupancy_grid, Mat &outp
         occupancy_grid);
 
       worldpoints_.back()->getX(x);
-
-      // Update the output matrices
-      output_debug_image.at<cv::Vec3b>(row, col) = cv::Vec3b(0, 255, 0); // Green color
-      output_6d.at<OutVec>(row, col) = formatOutput(x, 1);
     }
   }
 

@@ -59,7 +59,8 @@ services:
     stdin_open: true
     tty: true
     volumes:
-      - ./criticallity_pipeline/config/carnegie:/home/ubuntu/config
+      - "./criticallity_pipeline/config/carnegie:/home/ubuntu/config"
+      - "../non_ros/ttc_comparison/ttc_logs_autoware/:/home/ubuntu/ttc_logs"
       - "/dev/shm:/dev/shm"
       - "../config/dds/:/home/ubuntu/ros2_ws/config/dds/"
     environment:

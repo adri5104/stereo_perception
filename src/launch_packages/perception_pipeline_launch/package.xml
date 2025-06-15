@@ -21,6 +21,7 @@
   <depend>stereo_perception_msgs</depend>
   <depend>ttc_calculator</depend>
   <depend>disparity_to_depth</depend>
+  <depend>edgar_odom_bridge</depend>
 
   <exec_depend>ros2launch</exec_depend>
 

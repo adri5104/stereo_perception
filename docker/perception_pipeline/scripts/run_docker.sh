@@ -6,7 +6,7 @@ TAG="1.1.0"
 #-e CYCLONEDDS_URI=file:///home/ubuntu/ros2_ws/config/dds/autoware.xml \
 docker run -it --rm \
     --name $NAME \
-    -v $(pwd):/ros2_ws \
+    -v $PARENT_DIR/:/home/ubuntu/ros2_ws \
     -w /home/ubuntu/ros2_ws \
     --network host \
     -v /tmp/.X11-unix:/tmp/.X11-unix \

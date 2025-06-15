@@ -7,56 +7,62 @@ def generate_launch_description():
 
     config_file_path = "/home/ubuntu/config/perception_pipeline_params.yaml"
 
-    return launch.LaunchDescription([
+    camera_info_pub = launch_ros.actions.Node(
+        package='camerainfo_publisher',
+        executable='camerainfo_publisher',
+        name='camerainfo_publisher',
+        output='screen',
+        parameters=[config_file_path],
+    )
+
+    opt_flow = launch_ros.actions.Node(
+        package='optical_flow_computation', 
+        executable='optical_flow_computation',
+        name='optical_flow_computation',  # so it matches the YAML top-level key
+        output='screen',
+        parameters=[config_file_path],
+    )
+    
+    visual_odometry = launch_ros.actions.Node(
+        package='visual_odometry',
+        executable='visual_odometry_node',
+        name='visual_odometry_node',  # matches YAML
+        output='screen',
+        parameters=[config_file_path],
+    )
+
+    kalman_filter = launch_ros.actions.Node(
+        package='kalman_filter',
+        executable='kalman_filter_node',
+        name='kalman_filter_node',
+        output='screen',
+        parameters=[config_file_path],
+        ros_arguments=["--log-level", "info"] 
+    )
+
+    object_detector = launch_ros.actions.Node(
+        package='object_detector',
+        executable='object_detector_node',
+        name='object_detector_node',
+        output='screen',
+        parameters=[config_file_path],
+        )
+    
+    edgar_odom_bridge = launch_ros.actions.Node(
+        package='edgar_odom_bridge',
+        executable='edgar_odom_bridge_node',
+        name='edgar_odom_bridge_node',
+        output='screen',
+        parameters=[config_file_path],
+    ) 
+    
+    ld = launch.LaunchDescription()
+    ld.add_action(opt_flow)
+    ld.add_action(camera_info_pub)
+    ld.add_action(visual_odometry)
+    ld.add_action(kalman_filter)
+    ld.add_action(object_detector)
+    #ld.add_action(edgar_odom_bridge)
+    return ld
         
-        launch_ros.actions.Node(
-            package='tf2_ros',
-            executable='static_transform_publisher',
-            name='static_tf_world_to_camera',
-            arguments=['0', '0', '0',
-                       '0.707', '0', '0', '0.707',
-                       'world', 'camera_optical_frame_initial'],
-        ),
-
-        launch_ros.actions.Node(
-            package='camerainfo_publisher',
-            executable='camerainfo_publisher',
-            name='camerainfo_publisher',
-            output='screen',
-            parameters=[config_file_path],
-        ),
-
-        launch_ros.actions.Node(
-            package='optical_flow_computation', 
-            executable='optical_flow_computation',
-            name='optical_flow_computation',  # so it matches the YAML top-level key
-            output='screen',
-            parameters=[config_file_path],
-        ),
-        
-        launch_ros.actions.Node(
-            package='visual_odometry',
-            executable='visual_odometry_node',
-            name='visual_odometry_node',  # matches YAML
-            output='screen',
-            parameters=[config_file_path],
-        ),
-
-        launch_ros.actions.Node(
-            package='kalman_filter',
-            executable='kalman_filter_node',
-            name='kalman_filter_node',
-            output='screen',
-            parameters=[config_file_path],
-            ros_arguments=["--log-level", "info"] 
-        ),
-
-        launch_ros.actions.Node(
-            package='object_detector',
-            executable='object_detector_node',
-            name='object_detector_node',
-            output='screen',
-            parameters=[config_file_path],
-        ),
-        
-    ])
+    

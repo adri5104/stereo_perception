@@ -10,9 +10,7 @@ def generate_launch_description():
     camera_info_topic = '/multisense/left/depth/camera_info'
     camera_frame_id = 'multisense/left_camera_optical_frame'
     
-    return launch.LaunchDescription([
-              
-        launch_ros.actions.Node(
+    opt_flow = launch_ros.actions.Node(
             package='optical_flow_computation', 
             executable='optical_flow_computation',
             parameters=[{
@@ -27,9 +25,9 @@ def generate_launch_description():
                 'flags': 0,
                 'use_sim_time': use_sim_time
             }],
-        ),
-        
-        launch_ros.actions.Node(
+        )
+    
+    visual_odometry = launch_ros.actions.Node(
             package='visual_odometry',
             executable='visual_odometry_node',
             parameters=[
@@ -44,10 +42,9 @@ def generate_launch_description():
                 {'frame_id': camera_frame_id},
                 {'use_sim_time': use_sim_time}
               ],
-        ),
-
-        
-        launch_ros.actions.Node(
+        )
+    
+    kalman_filter = launch_ros.actions.Node(
             package='kalman_filter',
             executable='kalman_filter_node',
             name='kalman_filter_node',
@@ -84,9 +81,9 @@ def generate_launch_description():
                 {'use_sim_time': use_sim_time}
             ],
             ros_arguments= ["--log-level", "info"] 
-        ),
-                
-        launch_ros.actions.Node(
+        )
+    
+    object_detector = launch_ros.actions.Node(
           package='object_detector',
           executable='object_detector_node',
           name='object_detector_node',
@@ -106,4 +103,11 @@ def generate_launch_description():
           ],
           
         )
-    ])  
+    
+    ld = launch.LaunchDescription()
+    ld.add_action(opt_flow)
+    ld.add_action(visual_odometry)
+    ld.add_action(kalman_filter) 
+    ld.add_action(object_detector)
+    
+    return ld

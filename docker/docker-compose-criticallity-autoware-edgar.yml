@@ -6,9 +6,10 @@ services:
     stdin_open: true
     tty: true
     volumes:
-      - ./criticallity_pipeline_autoware/config:/home/ubuntu/config
+      - ../non_ros/ttc_comparison/ttc_logs_autoware/:/home/ubuntu/ttc_logs
       - "/dev/shm:/dev/shm"
       - "../config/dds/:/home/ubuntu/ros2_ws/config/dds/"
+      - ./criticallity_pipeline_autoware/logs:home/ubuntu/ttc_logs
     environment:
       - ROS_DOMAIN_ID=${ROS_Domain_ID}
       - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp

@@ -1,8 +1,8 @@
 
 services:
   stereo_perception_bridge_multisense:
-    image: gitlab.lrz.de:5005/teleoperiertes_fahren/research_brecht/stereo_perception/stereo_perception_edgar_bridge:1.1.0
-    container_name: stereo_perception_bridge
+    image: gitlab.lrz.de:5005/teleoperiertes_fahren/research_brecht/stereo_perception/stereo_perception_edgar_bridge:1.0.0
+    container_name: stereo_perception_bridge_compose
     network_mode: "host"
     stdin_open: true
     tty: true
@@ -18,7 +18,7 @@ services:
 
   perception_pipeline_multisense:
     image: gitlab.lrz.de:5005/teleoperiertes_fahren/research_brecht/stereo_perception/perception_pipeline:1.1.0
-    container_name: perception_pipeline
+    container_name: perception_pipeline_compose
     network_mode: "host"
     deploy:
       resources:
@@ -54,7 +54,8 @@ services:
     stdin_open: true
     tty: true
     volumes:
-      - ./criticallity_pipeline/config/carnegie:/home/ubuntu/config
+      - "../non_ros/ttc_comparison/ttc_logs_sp/:/home/ubuntu/ttc_logs"
+      - "./criticallity_pipeline/config/carnegie:/home/ubuntu/config"
       - "/dev/shm:/dev/shm"
       - "../config/dds/:/home/ubuntu/ros2_ws/config/dds/"
     command:
