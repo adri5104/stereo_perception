@@ -34,27 +34,26 @@ kalman_filter_node:
     output_6d_topic: "/multisense/perception_pipeline/output_6d"
     debug_markers_topic: "/debug/image_6d_markers"
     frame_id: "/multisense/left_camera_optical_frame"
-    grid_size: 10
+    grid_size: 4
     debug_image_grid: false
     use_ego_motion: true
     use_ego_var: true
-    ego_compensation_factor: 1.5
-    sigma2_x_system: 1.0
-    sigma2_y_system: 1.0
-    sigma2_z_system: 0.5
-    sigma2_flow_y_measurement: 3.0
-    sigma2_flow_x_measurement: 3.0
-    sigma2_depth_measurement: 0.5
-    sigma2_tx_measurement: 0.0015
-    sigma2_ty_measurement: 0.0015
-    sigma2_tz_measurement: 0.0015
+    ego_compensation_factor: 1.1
+    sigma2_x_system: 0.1
+    sigma2_y_system: 0.1
+    sigma2_z_system: 0.1
+    sigma2_flow_y_measurement: 0.1
+    sigma2_flow_x_measurement: 0.1
+    sigma2_tx_measurement: 0.015
+    sigma2_ty_measurement: 0.015
+    sigma2_tz_measurement: 0.015
     sigma2_rx_measurement: 0.01
     sigma2_ry_measurement: 0.01
     sigma2_rz_measurement: 0.01
     min_depth: 4.0
     max_depth: 20.0
     min_height_: 1.0
-    max_height: 6.0
+    max_height: 4.0
     camera_ground_distance: 1.1
 
 
