@@ -102,7 +102,7 @@ namespace visual_odometry
 
 
       // Parameters for statistical filtering
-      const size_t window_size_ = 10;            // Number of recent values to track
+      const size_t window_size_ = 5;            // Number of recent values to track
       const double outlier_threshold_factor_ = 10.0; // Threshold as a multiple of stddev
 
       // Maximum thresholds for each component

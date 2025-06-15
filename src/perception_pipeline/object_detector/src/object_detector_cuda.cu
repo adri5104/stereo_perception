@@ -87,6 +87,26 @@ __global__ void filterPointsKernel(
 }
 
 /**
+ * @brief Kernel to filter points that move towards the camera
+ */
+__global__ void recFilterPointsKernel(
+  const float* data, float* filtered_data, int total_points, int* valid_count, float rec_th) 
+{
+  int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  if (idx >= total_points) return;
+
+  int input_offset = idx * 6;  
+  float speed_z = data[input_offset + 5];  
+  if (speed_z <= rec_th) 
+  {
+    int output_idx = atomicAdd(valid_count, 1);
+    for (int i = 0; i < 6; ++i) {
+      filtered_data[output_idx * 6 + i] = data[input_offset + i];
+    }
+  }
+}
+
+/**
  * @brief DBSCAN Kernel for clustering
  */
 __global__ void dbscanKernel(float* data, int* labels, int total_points, 
@@ -197,6 +217,26 @@ void filterPointsVelKernelLauncher(
     int blockSize = 256;
     int gridSize = (total_points + blockSize - 1) / blockSize;
     filterPointsKernel<<<gridSize, blockSize>>>(
+      d_data, d_filtered_data, total_points, d_valid_count, vel_th);
+
+    cudaDeviceSynchronize();
+}
+
+/**
+ * @brief Filters points based their receding velocity
+ * 
+ * @param d_data Input 6D data
+ * @param d_filtered_data Output 6D data
+ * @param d_valid_count Number of valid points
+ * @param total_points Total number of points of d_data
+ * @param rec_th Receding velocity threshold in z direction
+ */
+void filterPointsRecKernelLauncher(
+  const float* d_data, float* d_filtered_data, int* d_valid_count, int total_points, float vel_th) 
+{
+    int blockSize = 256;
+    int gridSize = (total_points + blockSize - 1) / blockSize;
+    recFilterPointsKernel<<<gridSize, blockSize>>>(
       d_data, d_filtered_data, total_points, d_valid_count, vel_th);
 
     cudaDeviceSynchronize();

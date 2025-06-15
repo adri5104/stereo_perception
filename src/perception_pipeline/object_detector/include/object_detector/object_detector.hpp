@@ -67,8 +67,10 @@ class ObjectDetector
      * @param pos_weight weight factor for position in distance computation
      * @param vel_weight weight factor for velocity in distance computation
      * @param vel_threshold velocity threshold for filtering
+     * @param receding_speed_thresh threshold for receding speed to filter out points (e.g. points that are moving away from the camera). If 0, no filtering is applied. 
+     * 
      */
-    ObjectDetector(float eps, int minPts, float pos_weight, float vel_weight, float vel_threshold);
+    ObjectDetector(float eps, int minPts, float pos_weight, float vel_weight, float vel_threshold, float receding_speed_thresh);
 
     /**
      * @brief update the 6D image stored in GPU memory using OpenCV's CUDA GPU matrix, 
@@ -141,12 +143,14 @@ class ObjectDetector
     float pos_weight_;
     float vel_weight_;
     float vel_threshold_;
+    float receding_speed_thresh_;
 
 };
 
 // CUDA kernel launchers
 void filterValidPointsKernelLauncher(const float* d_input_6d_image, float* d_valid_points, int* d_valid_count, int total_points);
 void filterPointsVelKernelLauncher(const float* d_data, float* d_filtered_data, int* d_valid_count, int total_points, float vel_th);
+void filterPointsRecKernelLauncher(const float* d_data, float* d_filtered_data, int* d_valid_count, int total_points, float rec_th);
 
 
 } // namespace object_detector

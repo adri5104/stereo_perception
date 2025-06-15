@@ -23,7 +23,7 @@ namespace perception_pipeline
 namespace object_detector
 {
 
-ObjectDetector::ObjectDetector(float eps, int minPts, float pos_weight, float vel_weight, float vel_threshold) :
+ObjectDetector::ObjectDetector(float eps, int minPts, float pos_weight, float vel_weight, float vel_threshold, float receding_speed_thresh) :
   input_6d_image_(cv::cuda::GpuMat()),
   clusters_computed_(false),
   eps_(eps),
@@ -31,6 +31,7 @@ ObjectDetector::ObjectDetector(float eps, int minPts, float pos_weight, float ve
   pos_weight_(pos_weight),
   vel_weight_(vel_weight),
   vel_threshold_(vel_threshold),
+  receding_speed_thresh_(abs(receding_speed_thresh)),
   rs_(true, false, WeightedPosVelDistance(pos_weight, vel_weight)),
 #ifdef ROS_VERSION_JAZZY
   dbscan_(eps, 
@@ -170,16 +171,57 @@ arma::mat ObjectDetector::extractAndFilterCUDA(const cv::cuda::GpuMat& image_6d,
   int filtered_points_number = 0;
   cudaMemcpy(&filtered_points_number, d_filtered_count, sizeof(int), cudaMemcpyDeviceToHost);
 
-  // Convert the filtered points to an Armadillo matrix
-  arma::mat valid_points = cudaPtrToArmaMat(d_filtered_points, 6, filtered_points_number);
+  // Filter out receding points if the threshold is set (points that are moving away from the camera with z-velocity greater than receding_speed_thresh_)
+  if (receding_speed_thresh_ > 0) {
 
-  // Free GPU memory (only after data has been copied)
-  cudaFree(d_valid_points);
-  cudaFree(d_valid_count);
-  cudaFree(d_filtered_points);
-  cudaFree(d_filtered_count);
+    // Allocate memory for the filtered points
+    float* d_non_receding_points;
+    int* d_non_receding_count;
+    cudaMalloc(&d_non_receding_points, filtered_points_number * 6 * sizeof(float));
+    cudaMalloc(&d_non_receding_count, sizeof(int));
+    cudaMemset(d_non_receding_count, 0, sizeof(int));
 
-  return valid_points;
+    filterPointsRecKernelLauncher(
+      d_filtered_points, 
+      d_non_receding_points, 
+      d_non_receding_count, 
+      filtered_points_number, 
+      receding_speed_thresh_
+    );
+
+    // Retrieve the number of non-receding points
+    int non_receding_points_number = 0;
+    cudaMemcpy(&non_receding_points_number, d_non_receding_count, sizeof(int), cudaMemcpyDeviceToHost);
+
+    // Convert the non-receding points to an Armadillo matrix
+    arma::mat valid_points = cudaPtrToArmaMat(d_non_receding_points, 6, non_receding_points_number);
+
+    // Free GPU memory (only after data has been copied)
+    cudaFree(d_non_receding_points);
+    cudaFree(d_non_receding_count);
+    cudaFree(d_filtered_points);
+    cudaFree(d_filtered_count);
+    cudaFree(d_valid_points);
+    cudaFree(d_valid_count);
+
+  
+
+    return valid_points;
+  }
+  else 
+  {
+    // If no receding speed threshold is set, we can directly use the filtered points
+    arma::mat valid_points = cudaPtrToArmaMat(d_filtered_points, 6, filtered_points_number);
+
+
+    // Free GPU memory (only after data has been copied)
+    cudaFree(d_filtered_points);
+    cudaFree(d_filtered_count);
+    cudaFree(d_valid_points);
+    cudaFree(d_valid_count);
+    return valid_points;
+    
+  }
 }
 
 arma::mat ObjectDetector::cudaPtrToArmaMat(float* d_data, int channels, int total_points)
