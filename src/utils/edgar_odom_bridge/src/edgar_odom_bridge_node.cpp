@@ -50,9 +50,7 @@ private:
     tf2::Vector3 delta_cam = R * delta_world;
 
     // 4. Convert to camera optical frame (Z forward, X right, Y down)
-    // 4. Convert to camera optical frame (Z forward, X right, Y down)
-    // Original delta_cam está en el frame base del robot
-    // 4. Convert to camera optical frame (Z forward, X right, Y down)
+
 tf2::Vector3 delta_optical;
 delta_optical.setX(  delta_cam.y() );   // optical X ← base Y
 delta_optical.setY( delta_cam.z() );   // optical Y ← -base Z
