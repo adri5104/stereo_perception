@@ -1,4 +1,5 @@
 optical_flow_computation:
+  launch: true
   ros__parameters:
     image_topic: "/multisense/left/image_mono"
     optical_flow_topic: "/multisense/perception_pipeline/optical_flow"
@@ -11,6 +12,7 @@ optical_flow_computation:
     flags: 0
 
 visual_odometry_node:
+  launch: true
   ros__parameters:
     color_image_topic: "/multisense/aux/image_rect_color"
     depth_image_topic: "/multisense/left/openni_depth"
@@ -26,6 +28,7 @@ visual_odometry_node:
     frame_id: "multisense/left_camera_optical_frame"
 
 kalman_filter_node:
+  launch: true
   ros__parameters:
     optical_flow_topic: "/multisense/perception_pipeline/optical_flow"
     depth_topic: "/multisense/left/openni_depth"
@@ -62,6 +65,7 @@ kalman_filter_node:
 
 
 object_detector_node:
+  launch: true
   ros__parameters:
     input_6d_topic: "/multisense/perception_pipeline/output_6d"
     output_markers_topic: "/multisense/perception_pipeline/output_markers"
@@ -73,5 +77,11 @@ object_detector_node:
     vel_weight: 0.05
     vel_threshold: 0.5
     receding_speed_thresh: 0.3
+
+foxglove_bridge_node:
+  launch: true
+  ros__parameters:
+    port: 8765
+    use_compression: true
 
 

@@ -1,68 +1,44 @@
 import os
-from ament_index_python.packages import get_package_share_directory
+import yaml
 import launch
-import launch_ros.actions
+from launch_ros.actions import Node
 
 def generate_launch_description():
-
     config_file_path = "/home/ubuntu/config/perception_pipeline_params.yaml"
 
-    camera_info_pub = launch_ros.actions.Node(
-        package='camerainfo_publisher',
-        executable='camerainfo_publisher',
-        name='camerainfo_publisher',
-        output='screen',
-        parameters=[config_file_path],
-    )
+    # Load YAML config
+    with open(config_file_path, 'r') as f:
+        full_config = yaml.safe_load(f)
 
-    opt_flow = launch_ros.actions.Node(
-        package='optical_flow_computation', 
-        executable='optical_flow_computation',
-        name='optical_flow_computation',  # so it matches the YAML top-level key
-        output='screen',
-        parameters=[config_file_path],
-    )
-    
-    visual_odometry = launch_ros.actions.Node(
-        package='visual_odometry',
-        executable='visual_odometry_node',
-        name='visual_odometry_node',  # matches YAML
-        output='screen',
-        parameters=[config_file_path],
-    )
+    # Utility: extract node if 'launch' is True
+    def conditional_node(name, package, executable):
+        node_config = full_config.get(name, {})
+        if node_config.get('launch', False):
+            ros_params = node_config.get('ros__parameters', {})
+            return Node(
+                package=package,
+                executable=executable,
+                name=name,
+                output='screen',
+                parameters=[ros_params]
+            )
+        return None
 
-    kalman_filter = launch_ros.actions.Node(
-        package='kalman_filter',
-        executable='kalman_filter_node',
-        name='kalman_filter_node',
-        output='screen',
-        parameters=[config_file_path],
-        ros_arguments=["--log-level", "info"] 
-    )
+    # Define nodes
+    nodes = [
+        conditional_node("camerainfo_publisher", "camerainfo_publisher", "camerainfo_publisher"),
+        conditional_node("optical_flow_computation", "optical_flow_computation", "optical_flow_computation"),
+        conditional_node("visual_odometry_node", "visual_odometry", "visual_odometry_node"),
+        conditional_node("kalman_filter_node", "kalman_filter", "kalman_filter_node"),
+        conditional_node("object_detector_node", "object_detector", "object_detector_node"),
+        conditional_node("edgar_odom_bridge_node", "edgar_odom_bridge", "edgar_odom_bridge_node"),
+        conditional_node("foxglove_bridge_node", "foxglove_bridge", "foxglove_bridge"),
+    ]
 
-    object_detector = launch_ros.actions.Node(
-        package='object_detector',
-        executable='object_detector_node',
-        name='object_detector_node',
-        output='screen',
-        parameters=[config_file_path],
-        )
-    
-    edgar_odom_bridge = launch_ros.actions.Node(
-        package='edgar_odom_bridge',
-        executable='edgar_odom_bridge_node',
-        name='edgar_odom_bridge_node',
-        output='screen',
-        parameters=[config_file_path],
-    ) 
-    
+    # Assemble LaunchDescription
     ld = launch.LaunchDescription()
-    ld.add_action(opt_flow)
-    ld.add_action(camera_info_pub)
-    ld.add_action(visual_odometry)
-    ld.add_action(kalman_filter)
-    ld.add_action(object_detector)
-    #ld.add_action(edgar_odom_bridge)
+    for node in nodes:
+        if node is not None:
+            ld.add_action(node)
+
     return ld
-        
-    
