@@ -1,4 +1,5 @@
 ttc_calculator_node:
+  launch: true
   ros__parameters:
     input_clusters_topic: "/multisense/perception_pipeline/output_clusters"
     input_twist_topic: "/stereo_perception/ego_twist"
@@ -12,3 +13,9 @@ ttc_calculator_node:
     publish_ego_marker: true
     use_path: false
     output_csv_path: "/home/ubuntu/ttc_logs"
+
+foxglove_bridge_node:
+  launch: false
+  ros__parameters:
+    port: 8765
+    use_compression: true
