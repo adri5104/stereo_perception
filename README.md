@@ -51,6 +51,11 @@ stereo_perception/
 
 ## Building and Running
 
+### Pull latest git submodules
+
+```bash
+git submodule update --init --recursive
+```
 ### Build Docker Images
 
 Each pipeline has a `scripts/` folder with `docker_build.sh` and `docker_run.sh`.

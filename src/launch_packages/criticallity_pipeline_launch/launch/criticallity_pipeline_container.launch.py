@@ -1,20 +1,38 @@
 import os
-from ament_index_python.packages import get_package_share_directory
+import yaml
 import launch
-import launch_ros.actions
+from launch_ros.actions import Node
 
 def generate_launch_description():
-
     config_file_path = "/home/ubuntu/config/criticallity_pipeline_params.yaml"
 
-    return launch.LaunchDescription([
+    # Load YAML config
+    with open(config_file_path, 'r') as f:
+        full_config = yaml.safe_load(f)
         
-        launch_ros.actions.Node(
-            package='ttc_calculator',
-            executable='ttc_calculator_node',
-            name='ttc_calculator_node',
-            output='screen',
-            parameters=[config_file_path],
-        ),
-        
-    ])
+    def conditional_node(name, package, executable):
+        node_config = full_config.get(name, {})
+        if node_config.get('launch', False):
+            ros_params = node_config.get('ros__parameters', {})
+            return Node(
+                package=package,
+                executable=executable,
+                name=name,
+                output='screen',
+                parameters=[ros_params]
+            )
+        return None
+
+    # Define nodes
+    nodes = [
+        conditional_node("ttc_calculator", "ttc_calculator_node", "ttc_calculator_node"),
+        conditional_node("foxglove_bridge_node", "foxglove_bridge", "foxglove_bridge"),
+    ]
+
+    # Assemble LaunchDescription
+    ld = launch.LaunchDescription()
+    for node in nodes:
+        if node is not None:
+            ld.add_action(node)
+
+    return ld
