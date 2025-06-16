@@ -7,22 +7,22 @@ TAG="1.1.0"
 docker run -it --rm \
     --name $NAME \
     -v $PARENT_DIR/:/home/ubuntu/ros2_ws \
-    -w /home/ubuntu/ros2_ws \
-    --network host \
     -v /tmp/.X11-unix:/tmp/.X11-unix \
     -v $HOME/.Xauthority:/root/.Xauthority \
-    -e DISPLAY=$DISPLAY \
-    --cap-add=SYS_PTRACE \
-    --cap-add=SYS_ADMIN \
-    --volume /sys/kernel/debug:/sys/kernel/debug \
-    --gpus all \
     -v /dev/shm:/dev/shm \
     -v $PARENT_DIR/docker/$NAME/config/carnegie:/home/ubuntu/config \
+    -v /home/edgar/david/adrian-ma/stereo_perception/config/dds/:/home/ubuntu/ros2_ws/config/dds/ \
+    -v /sys/kernel/debug:/sys/kernel/debug \
+    -w /home/ubuntu/ros2_ws \
+    --network host \
+    --cap-add=SYS_PTRACE \
+    --cap-add=SYS_ADMIN \
+    --gpus all \
+    -e DISPLAY=$DISPLAY \
     -e RMW_IMPLEMENTATION=rmw_cyclonedds_cpp \
-    --ipc=host \
-    --pid=host \
     -e QT_X11_NO_MITSHM=1 \
     -e XAUTHORITY=/root/.Xauthority \
-    -v /home/edgar/david/adrian-ma/stereo_perception/config/dds/:/home/ubuntu/ros2_ws/config/dds/ \
+    --ipc=host \
+    --pid=host \
     $GITNAME/$NAME:$TAG \
     "$@"

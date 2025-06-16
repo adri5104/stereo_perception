@@ -6,10 +6,13 @@ services:
     network_mode: "host"
     stdin_open: true
     tty: true
+    pid: "host"
+    ipc: "host"
     volumes:
-      - ./stereo_perception_edgar_bridge/config:/home/ubuntu/config
+      - "./stereo_perception_edgar_bridge/config:/home/ubuntu/config"
       - "/dev/shm:/dev/shm"
       - "../config/dds/:/home/ubuntu/ros2_ws/config/dds/"
+      - "/sys/kernel/debug:/sys/kernel/debug"
     command:
       - bash
       - -c
