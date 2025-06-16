@@ -21,4 +21,4 @@ services:
           echo "###########################################################" &&
           echo "" &&
           ros2 launch criticallity_pipeline_launch criticallity_pipeline_autoware_container.launch.py &
-          ros2 launch stereo_perception_autoware_auto_bridge stereo_perception_autoware_bridge_container.launch.py 
+          ros2 launch stereo_perception_autoware_bridge stereo_perception_autoware_bridge_container.launch.py 
