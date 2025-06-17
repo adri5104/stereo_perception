@@ -6,7 +6,6 @@ TAG="1.1.0"
 #-e CYCLONEDDS_URI=file:///home/ubuntu/ros2_ws/config/dds/autoware.xml \
 docker run -it --rm \
     --name $NAME \
-    -v $PARENT_DIR/:/home/ubuntu/ros2_ws \
     -v /tmp/.X11-unix:/tmp/.X11-unix \
     -v $HOME/.Xauthority:/root/.Xauthority \
     -v /dev/shm:/dev/shm \
@@ -22,6 +21,8 @@ docker run -it --rm \
     -e RMW_IMPLEMENTATION=rmw_cyclonedds_cpp \
     -e QT_X11_NO_MITSHM=1 \
     -e XAUTHORITY=/root/.Xauthority \
+    -e CYCLONEDDS_URI=file:///home/ubuntu/ros2_ws/config/dds/autoware.xml \
+    -e ROS_DOMAIN_ID=7 \
     --ipc=host \
     --pid=host \
     $GITNAME/$NAME:$TAG \
