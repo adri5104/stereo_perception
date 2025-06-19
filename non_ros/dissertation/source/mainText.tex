@@ -4161,103 +4161,445 @@ and unified imaging configuration, the Carnegie Multisense S30 was selected as
 the primary sensor for all subsequent phases of development, calibration, and 
 evaluation.
 
-
-
-
 \subsection{Calibration and dataset recording with Carnegie}
 \label{sec:CarnegieDatasets}
 
-\todo{Detail the experiments conducted with the Carnegie S30 camera. Explain the recording session performed, what data was collected and how it was used.}
-% - Describe static and dynamic test setups: alpha-angle tests, range tests, motion.
-% - List topics recorded: depth, grayscale, vehicle velocity, TF tree.
-% - Refer to the Carnegie session document and explain dataset purpose.
+Following the selection of the Carnegie Robotics Multisense S30 as the 
+main perception sensor, a new calibration phase was carried out to 
+optimize the system performance under real driving conditions. The 
+objective was to refine the parameters of the perception pipeline to 
+maximize detection range, reduce false positives, and ensure robust 
+tracking of moving objects in urban scenarios.
+
+\subsubsection{Parameter tuning and egomotion compensation}
+
+The calibration process began with the tuning of the measurement 
+model in the Kalman filter. Compared to the Framos D455e, the S30 
+camera provides significantly lower noise in depth and image signals. 
+As a result, the covariance values associated with depth and optical 
+flow measurements were lowered to reflect the improved sensor 
+quality. The observation noise introduced by the egomotion module 
+was also reduced based on visual inspection of tracked features in 
+static scenes.
+
+The second stage focused on the system model. The process noise 
+parameters controlling the 6D velocity propagation were adapted to 
+match the smoother measurements obtained with the new camera. 
+In particular, the variance along the vertical axis ($\sigma^2_z$) was 
+reduced to prevent unstable motion artifacts caused by minor 
+depth fluctuations in the road surface.
+
+To further improve robustness in dynamic scenes, an ego-motion 
+compensation gain factor was introduced. This factor scales the 
+velocity of the ego vehicle before subtracting it from each tracked 
+point. A gain of 1.25 was found to best suppress residual motion 
+artefacts without introducing overcompensation. This adjustment 
+proved essential to reduce ghost vectors and spurious motion 
+trails in scenes with strong ego movement.
+
+The final configuration of the Kalman filter is shown in 
+Table~\ref{tab:carnegie_kalman_params}.
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{l l}
+    \toprule
+    \textbf{Parameter} & \textbf{Value} \\
+    \midrule
+    \texttt{sigma2\_flow\_x\_measurement} & 3.0 \\
+    \texttt{sigma2\_flow\_y\_measurement} & 3.0 \\
+    \texttt{sigma2\_depth\_measurement}  & 0.5 \\
+    \texttt{sigma2\_tx\_measurement}     & 0.0015 \\
+    \texttt{sigma2\_ty\_measurement}     & 0.0015 \\
+    \texttt{sigma2\_tz\_measurement}     & 0.0015 \\
+    \texttt{sigma2\_rx\_measurement}     & 0.01 \\
+    \texttt{sigma2\_ry\_measurement}     & 0.01 \\
+    \texttt{sigma2\_rz\_measurement}     & 0.01 \\
+    \texttt{sigma2\_x\_system}           & 0.8 \\
+    \texttt{sigma2\_y\_system}           & 0.8 \\
+    \texttt{sigma2\_z\_system}           & 0.05 \\
+    \texttt{min\_depth}                 & 4.0 \\
+    \texttt{max\_depth}                 & 20.0 \\
+    \texttt{min\_height\_}              & 1.0 \\
+    \texttt{max\_height}                & 4.0 \\
+    \texttt{camera\_ground\_distance}   & 1.1 \\
+    \texttt{ego\_compensation\_factor}  & 1.25 \\
+    \bottomrule
+  \end{tabular}
+  \caption{Final Kalman filter parameters after Carnegie S30 calibration.}
+  \label{tab:carnegie_kalman_params}
+\end{table}
+
+\subsubsection{Filtering of invalid motion vectors}
+
+During early tests with the S30 sensor, it was observed that static objects 
+or noisy regions in the background often yielded spurious motion vectors 
+pointing away from the ego vehicle. These artefacts, typically caused by 
+imperfect depth projection or minor image misalignments, could lead to 
+false positive detections during the clustering stage.
+
+To mitigate this issue, a new filter was introduced in the object detection 
+module. This filter excludes points whose velocity vectors in the camera 
+optical axis (Z-direction) exceed a configurable receding threshold. 
+The rationale behind this strategy is that objects moving away from the 
+vehicle do not contribute to immediate collision risk, and are often 
+associated with unstable measurements in low-texture or noisy regions.
+
+The filtering logic was implemented as a CUDA kernel to allow efficient 
+parallel processing of large point sets in the 6D output array. The kernel 
+scans each vector and discards those with Z-velocity above the configured 
+limit. The final implementation is shown in 
+Listing~\ref{lst:receding_kernel}.
+
+\begin{lstlisting}[language=c++,caption={CUDA kernel to filter 
+receding motion vectors.},label={lst:receding_kernel}]
+__global__ void recFilterPointsKernel(
+  const float* data, float* filtered_data,
+  int total_points, int* valid_count, float rec_th) 
+{
+  int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  if (idx >= total_points) return;
+
+  int input_offset = idx * 6;  
+  float speed_z = data[input_offset + 5];  
+  if (speed_z <= rec_th) 
+  {
+    int output_idx = atomicAdd(valid_count, 1);
+    for (int i = 0; i < 6; ++i) {
+      filtered_data[output_idx * 6 + i] = data[input_offset + i];
+    }
+  }
+}
+\end{lstlisting}
+
+The kernel is launched with a standard grid configuration and synchronised 
+after execution. The `receding\_speed\_thresh` parameter, set to 0.3\,m/s, 
+was empirically tuned to balance between rejecting spurious background 
+vectors and preserving valid trajectories of slow-moving objects.
+
+This filter significantly reduced false positives in static scenes and 
+improved the visual coherence of object clusters in dynamic conditions. 
+The full object detector configuration is provided in 
+Table~\ref{tab:carnegie_detector_params}.
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{l l}
+    \toprule
+    \textbf{Parameter} & \textbf{Value} \\
+    \midrule
+    \texttt{eps}                   & 0.5 \\
+    \texttt{minPts}                & 5 \\
+    \texttt{pos\_weight}           & 1.0 \\
+    \texttt{vel\_weight}           & 0.05 \\
+    \texttt{vel\_threshold}        & 0.5 \\
+    \texttt{receding\_speed\_thresh} & 0.3 \\
+    \bottomrule
+  \end{tabular}
+  \caption{Final object detector parameters with receding speed filter.}
+  \label{tab:carnegie_detector_params}
+\end{table}
 
 \section{Evaluation methodology}
 \label{sec:EvaluationMethodology}
 
-\todo{Introduce the evaluation methodology. Explain that the criticallity pipeline will be runned for both the Perception pipeline and Autoware, and that the results will be compared (number of detected objects and also the computed ttcs).}
-% - Explain how the pipeline will be validated and compared to Autoware.
-% - Present evaluation goals: object detection and TTC estimation.
-% - Mention the two evaluation perspectives: qualitative and quantitative.
+The goal of this evaluation phase is to assess the performance of the 
+developed perception and criticality estimation pipeline under realistic 
+conditions. The system is compared against the baseline perception stack 
+from Autoware, a widely used open-source platform for autonomous 
+driving.
 
-\subsection{Evaluation modes}
-\label{sec:EvalModes}
+Two complementary strategies are used: a qualitative analysis based on 
+visual inspection of results, and a quantitative comparison based on 
+numerical metrics such as object counts and time-to-collision (TTC) 
+values. This dual approach enables a comprehensive evaluation of the 
+pipeline, accounting both for subjective perception quality and 
+measurable performance.
 
-\todo{Define qualitative and quantitative evaluation strategies.}
-% - Qualitative: visual inspection, number of detected objects, scene understanding.
-% - Quantitative: comparison of TTC values with ground truth or Autoware output.
-% - Justify why both methods are necessary for a complete analysis.
+All tests are performed using the Carnegie Robotics Multisense S30 
+stereo camera, which was selected after extensive analysis and 
+calibration (see Section~\ref{sec:CarnegieDatasets}). The final 
+configuration includes tuned parameters for optical flow, Kalman 
+filtering, and object detection, optimized to improve tracking accuracy 
+and reduce false positives.
 
-\subsection{Recording scenarios and conditions}
-\label{sec:RecordingScenarios}
+\subsection{Test scenarios and data collection}
+\label{sec:TestScenarios}
 
-\todo{Describe where and how the evaluation data was collected.}
-% - Mention urban test routes (e.g., Garching, Munich).
-% - List recording duration, vehicle speeds, traffic density.
-% - Describe topics recorded and weather conditions if relevant.
+The evaluation is based on structured datasets recorded at the Garching 
+campus using the EDGAR research vehicle. All tests were carried out 
+with the Multisense S30 camera mounted in its standard forward-facing 
+position. The datasets include both static and dynamic scenarios.
 
-\section{Perception pipeline evaluation}
+\subsubsection{Static tests}
+
+Three test cases were designed to evaluate the perception pipeline in 
+absence of ego-motion:
+
+\begin{itemize}
+  \item \textbf{Range test:} A person walks towards the vehicle from 
+        20\,m. This measures the maximum usable detection range.
+  \item \textbf{Lateral motion test:} A person walks laterally across 
+        the field of view at a fixed 8\,m distance, evaluating stability 
+        of motion tracking.
+  \item \textbf{Angle test:} A person approaches the vehicle 
+        diagonally from a point at 8\,m distance and 2.6\,m lateral 
+        offset, creating an 18$^\circ$ trajectory. The test checks 
+        directional sensitivity of velocity estimation.
+\end{itemize}
+
+\subsubsection{Dynamic tests}
+
+Urban driving sequences were recorded at speeds between 10 and 
+20\,km/h. These include straight and curved segments around 
+the Leichtbauhalle area, with occasional pedestrians and vehicles.
+
+The tests evaluate the pipeline under real-world conditions, including 
+camera vibration, parallax effects, occlusions, and variable 
+illumination. These sequences are also used to compute TTC 
+estimates and compare them to the Autoware baseline.
+
+\subsubsection{Recorded topics and tools}
+
+All datasets were recorded using ROS~2 Humble and stored in MCAP format. 
+The recording included both raw sensor data and vehicle state information. 
+The most relevant topics for perception and evaluation were:
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{l l}
+    \toprule
+    \textbf{Data type} & \textbf{ROS 2 topic} \\
+    \midrule
+    Grayscale image & \texttt{/multisense/left/image\_mono} \\
+    Depth image (OpenNI) & \texttt{/multisense/left/openni\_depth} \\
+    Color image (rectified) & \texttt{/multisense/aux/image\_rect\_color} \\
+    Camera info & \texttt{/multisense/left/depth/camera\_info}, \\
+                & \texttt{/multisense/left/image\_mono/camera\_info}, \\
+                & \texttt{/multisense/aux/image\_rect\_color/camera\_info} \\
+    Point cloud & \texttt{/multisense/image\_points2\_color} \\
+    IMU data & \texttt{/multisense/imu\_data} \\
+    Vehicle odometry & \texttt{/localization/kinematic\_state} \\
+    Transform tree & \texttt{/tf}, \texttt{/tf\_static} \\
+    CAN vehicle signals & \texttt{/edgar/can/motion\_vw}, \\
+                        & \texttt{/edgar/can/wheelspeed\_vw}, \\
+                        & \texttt{/edgar/can/steering\_vw}, \\
+                        & \texttt{/edgar/can/heading\_vw}, \\
+                        & \texttt{/edgar/can/gps\_vw} \\
+    Autoware detections & \texttt{/perception/object\_recognition/objects} \\
+    \bottomrule
+  \end{tabular}
+  \caption{Relevant topics recorded during evaluation sessions.}
+  \label{tab:recorded_topics}
+\end{table}
+
+
+This set of topics enables synchronized reconstruction of the full vehicle 
+state, environment perception, and baseline object detections. All data were 
+processed offline using the developed pipeline and visualized with RViz 
+and Foxglove Studio.
+
+
+\section{Perception evaluation}
 \label{sec:PerceptionEvaluation}
 
-\todo{Introduce the pipeline evaluation section.}
-% - Describe what metrics are being used to evaluate perception performance.
-% - Introduce the modules to be tested: detection, tracking, clustering.
+This section presents the results of the perception pipeline under both 
+static and dynamic conditions. The objective is to assess the system's 
+ability to detect and track moving objects based solely on stereo vision, 
+optical flow, and egomotion compensation. The evaluation focuses on 
+the accuracy, consistency, and robustness of the estimated 6D motion 
+vectors and the resulting object-level clustering.
 
 \subsection{Qualitative results}
 \label{sec:QualitativeEval}
 
-\todo{Present the qualitative comparison between your pipeline and Autoware.}
-% - Show visual outputs and describe the number and type of objects detected.
-% - Include examples of failure cases (missed or false detections).
-% - Discuss the visual coherence of clustering and motion estimation.
+A visual inspection of the output is first performed to evaluate how well 
+the system performs under different real-world conditions. Qualitative 
+analysis helps identify detection artifacts, stability issues, and clustering 
+errors that may not be evident in numerical metrics. Representative 
+scenarios were selected to highlight both the strengths and limitations 
+of the current implementation.
 
-\subsection{Quantitative TTC comparison}
-\label{sec:TTCComparison}
+\subsubsection{Static evaluation scenarios}
 
-\todo{Analyze and compare TTC values between pipelines.}
-% - Present TTC curves or distributions for selected urban driving segments.
-% - Discuss accuracy and robustness of TTC compared to Autoware baseline.
-% - Comment on differences due to velocity estimation or bounding box geometry.
+These tests were conducted with the ego vehicle at rest, in order to 
+decouple the system from egomotion-induced effects such as parallax 
+or vibration. By analyzing simple and repeatable trajectories, it becomes 
+easier to evaluate the core detection and tracking capabilities of the 
+pipeline, as well as the geometric quality of the estimated velocity 
+vectors.
 
-\section{Performance benchmarking}
+\paragraph{Range test}  
+
+This experiment was designed to evaluate the maximum effective detection 
+range of the perception pipeline. A person walked towards the vehicle 
+starting at a distance of 20\,m, following a straight path aligned with the 
+camera optical axis, and stopping approximately 2\,m in front of the sensor.
+
+The object was successfully detected and tracked from the initial frame, 
+with no intermittent losses. The motion vector remained consistent 
+throughout the sequence, corresponding to a walking speed of roughly 
+5\,km/h. The system maintained a single stable cluster for the person 
+during the full approach.
+
+Figure~\ref{fig:carnegie_range_init} and 
+Figure~\ref{fig:carnegie_range_final} show the detection results at the 
+start and near the end of the sequence, respectively.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=1.0\textwidth]
+  {figures/carnegieEval/staticTest/carnegieRangeInit.png}
+  \caption{Initial detection at 20\,m in the range test scenario.}
+  \label{fig:carnegie_range_init}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=1.0\textwidth]
+  {figures/carnegieEval/staticTest/carnegieRangeFinal.png}
+  \caption{Object tracking and clustering at close range (4\,m).}
+  \label{fig:carnegie_range_final}
+\end{figure}
+
+These results confirm a major improvement in perception range and 
+stability compared to the Framos D455e. In previous tests using the 
+Framos sensor, depth degradation and noise accumulation beyond 
+8\,m consistently led to unstable detections, loss of tracking, and 
+spurious velocity vectors. In contrast, the Carnegie S30 delivered 
+reliable measurements across the entire 20\,m path, validating its 
+selection as the new primary sensor for outdoor deployments.
+
+\paragraph{Lateral motion test}  
+This scenario aimed to assess the perception pipeline's response to 
+motion perpendicular to the optical axis of the camera. A person walked 
+at a steady pace of approximately 4--5\,km/h along a path parallel to the 
+vehicle front, maintaining a constant distance of 8\,m. The motion was 
+performed first from right to left, and then in the opposite direction, 
+crossing the full field of view of the camera.
+
+Throughout the sequence, the object was correctly detected and tracked, 
+with stable position estimates and coherent lateral velocity vectors. 
+Clustering was consistent, and no spurious detections or depth artifacts 
+were observed. The system exhibited robustness even near the image 
+borders, where disparity quality and flow estimation typically degrade.
+
+Figure~\ref{fig:lateral_motion_1} and 
+Figure~\ref{fig:lateral_motion_2} illustrate representative frames from 
+each traversal direction.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=1.0\textwidth]
+  {figures/carnegieEval/staticTest/horizontalTest1.png}
+  \caption{Lateral motion test: right-to-left traversal at 8\,m distance.}
+  \label{fig:lateral_motion_1}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=1.0\textwidth]
+  {figures/carnegieEval/staticTest/horizontalTest2.png}
+  \caption{Lateral motion test: return traversal from left to right.}
+  \label{fig:lateral_motion_2}
+\end{figure}
+
+Compared to previous tests with the Framos D455e, the Carnegie S30 
+produced significantly cleaner results, with reduced background noise and 
+greater temporal coherence. The absence of "depth shadows" and 
+false motion vectors confirmed the reliability of the new sensor and 
+validated the improvements introduced in the clustering and Kalman 
+modules.
+
+\paragraph{Angle test}  
+This test was designed to evaluate the pipeline’s sensitivity to oblique 
+motion trajectories. The subject started at a position 8\,m in front of the 
+vehicle and 2.6\,m to the right of the camera axis, walking diagonally 
+towards the sensor. The resulting motion formed an effective trajectory 
+angle of approximately $18^\circ$ with respect to the optical axis.
+
+The system consistently detected and tracked the object during the entire 
+approach. The estimated velocity vector aligned well with the expected 
+direction, and the magnitude remained consistent with human walking 
+speed. The cluster remained stable across all frames, and no artifacts 
+or estimation failures were observed.
+
+Figure~\ref{fig:angle_test} shows a frame from the test, including the 
+actual trajectory angle overlaid for reference.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=1.0\textwidth]
+  {figures/carnegieEval/staticTest/angleTest.png}
+  \caption{Angle test: diagonal motion at $18^\circ$ with respect to the 
+  optical axis.}
+  \label{fig:angle_test}
+\end{figure}
+
+The result confirms the system's ability to handle off-axis motion and 
+compute reliable 6D velocity estimates even under non-orthogonal 
+conditions. The Carnegie setup preserved full tracking performance 
+in this case, consistent with previous tests. Unlike in earlier evaluations 
+with the Framos camera, no directional drift or cluster instability was 
+observed.
+
+
+\paragraph{Dynamic evaluation scenarios}
+
+\todo{Present perception results from real driving sessions. Describe 
+clustering and tracking performance in realistic urban environments. 
+Include comparisons to Autoware perception pipeline and discuss 
+qualitative advantages or failure cases.}
+
+\subparagraph{TTC visualization and behavior}
+
+\todo{Show qualitative results of the TTC module. Include visualizations 
+in RViz or Foxglove showing predicted collision directions and values. 
+Discuss if the TTC estimation aligns with intuitive expectations in 
+scenarios with pedestrians or vehicles.}
+
+\subsection{Quantitative analysis}
+\label{sec:QuantitativeEval}
+
+\paragraph{Object detection comparison}
+
+\todo{Count the number of detected objects per frame and compare with 
+Autoware. If possible, report missed or false detections. Include plots 
+or statistical summaries.}
+
+\paragraph{TTC estimation performance}
+
+\todo{Analyze the output TTC values from both pipelines. Compare 
+temporal behavior (e.g., delay, noise), absolute values, and robustness. 
+Use plots or distributions to show differences. Explain any inconsistencies 
+and relate them to velocity estimation accuracy.}
+
+\section{Runtime and performance benchmarking}
 \label{sec:PerformanceBenchmarking}
-
-\todo{Introduce the performance benchmarking section. Explain that for the perception pipeline, a callback analysis was performed to measure the execution time of each module. Also a resource usage analysis was performed to measure 
-the CPU and GPU usage of the pipeline.}
-% - Explain why runtime and computational load are evaluated.
-% - Describe goals: deployability on embedded systems, real-time constraints.
 
 \subsection{Tested hardware platforms}
 \label{sec:HWPlatforms}
 
-\todo{List and describe the platforms used for benchmarking (computer at home and EDGAR onboard computer).}
-% - Desktop PC, Laptop 1, Laptop 2, EDGAR onboard computer.
-% - Include specs: CPU, GPU, RAM, OS.
-% - Mention containerization or compilation settings if relevant.
+\todo{List the tested machines: personal PC and EDGAR onboard computer. 
+Include CPU, GPU, RAM, OS, and Docker settings. Justify why both 
+platforms were evaluated.}
 
-\subsection{Callback analysis}
-\label{sec:HWPerformance}
+\subsection{Callback execution profiling}
+\label{sec:CallbackAnalysis}
 
-\todo{Explain how it was performed and present the results.}
-% - Use tables/figures to compare per-module execution time.
-% - Include CPU/GPU usage if measurable.
-% - Highlight bottlenecks and discuss real-time viability.
+\todo{Explain how callback times were measured (e.g., tracetools). Show 
+execution times per node or module. Identify any bottlenecks and evaluate 
+real-time feasibility.}
 
 \subsection{Resource usage analysis}
-\label{sec:HWPerformance}
+\label{sec:ResourceUsage}
 
-\todo{Explain how it was performed and present the results.}
-% - Use tables/figures to compare per-module execution time.
-% - Include CPU/GPU usage if measurable.
-% - Highlight bottlenecks and discuss real-time viability.
+\todo{Present CPU, GPU, and RAM usage per node on each platform. 
+Discuss performance differences and their implications for deployment. 
+Include summary tables or figures.}
 
-\section{Summary of results}
-\label{sec:ResultsSummary}
 
-\todo{Summarize the main experimental findings.}
-% - Provide a final table summarizing detection, TTC, performance.
-% - Reflect on whether the system meets its intended goals.
-% - Set the stage for the discussion in the next chapter.
+
 
 
 
@@ -4270,3 +4612,11 @@ the CPU and GPU usage of the pipeline.}
 \todo{Write a summary of the thesis, including the main contributions,
 the results obtained, and the implications for future work. Reflect on the
 limitations of the current implementation and suggest possible improvements.}
+
+\section{Summary of experimental results}
+\label{sec:ResultsSummary}
+
+\todo{Summarize key findings from all evaluation sections. Use a table 
+if helpful to recap detection quality, TTC estimation accuracy, and 
+performance metrics. Highlight whether the system meets the 
+requirements stated in the thesis introduction.}
