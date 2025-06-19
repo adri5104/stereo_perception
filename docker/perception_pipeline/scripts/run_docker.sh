@@ -21,8 +21,6 @@ docker run -it --rm \
     -e RMW_IMPLEMENTATION=rmw_cyclonedds_cpp \
     -e QT_X11_NO_MITSHM=1 \
     -e XAUTHORITY=/root/.Xauthority \
-    -e CYCLONEDDS_URI=file:///home/ubuntu/ros2_ws/config/dds/autoware.xml \
-    -e ROS_DOMAIN_ID=7 \
     --ipc=host \
     --pid=host \
     $GITNAME/$NAME:$TAG \

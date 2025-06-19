@@ -25,7 +25,7 @@ def generate_launch_description():
 
     # Define nodes
     nodes = [
-        conditional_node("ttc_calculator", "ttc_calculator_node", "ttc_calculator_node"),
+        conditional_node("ttc_calculator_node", "ttc_calculator", "ttc_calculator_node"),
         conditional_node("foxglove_bridge_node", "foxglove_bridge", "foxglove_bridge"),
     ]
 

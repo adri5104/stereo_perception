@@ -20,15 +20,16 @@ namespace ttc_calculator
     declare_parameter("ego_width", 1.0);
     declare_parameter("ego_length", 1.0);
     declare_parameter("ego_height", 1.0);
+    declare_parameter("distance_threshold", 4.0);
     declare_parameter("publish_ego_marker", true);
     declare_parameter("use_path", false);
+    declare_parameter("ignore_receding_objects", false);
     declare_parameter("frame_id", "camera_optical_frame");
     declare_parameter("output_csv_path", "./");
 
 
-    
 
-
+  
     // Read parameters
     get_parameter("input_clusters_topic", input_clusters_topic_);
     get_parameter("input_twist_topic", input_twist_topic_);
@@ -38,8 +39,10 @@ namespace ttc_calculator
     get_parameter("ego_width", ego_width_);
     get_parameter("ego_length", ego_length_);
     get_parameter("ego_height", ego_height_);
+    get_parameter("distance_threshold", distance_threshold_);
     get_parameter("publish_ego_marker", publish_ego_marker_);
     get_parameter("use_path", use_path_);
+    get_parameter("ignore_receding_objects", ignore_receding_objects_);
     get_parameter("frame_id", frame_id_);
     get_parameter("output_csv_path", output_csv_path_);
 
@@ -49,11 +52,13 @@ namespace ttc_calculator
     RCLCPP_INFO(this->get_logger(), "input_clusters_topic: %s", input_clusters_topic_.c_str());
     RCLCPP_INFO(this->get_logger(), "input_twist_topic: %s", input_twist_topic_.c_str());
     RCLCPP_INFO(this->get_logger(), "input_path_topic: %s", input_path_topic_.c_str());
-    RCLCPP_INFO(this->get_logger(), "output_ttc__topic: %s", output_ttc_topic_.c_str());
+    RCLCPP_INFO(this->get_logger(), "output_ttc_topic: %s", output_ttc_topic_.c_str());
+    RCLCPP_INFO(this->get_logger(), "output_min_ttc_topic: %s", output_min_ttc_topic_.c_str());
     RCLCPP_INFO(this->get_logger(), "output_marker_topic: %s", output_marker_topic_.c_str());
     RCLCPP_INFO(this->get_logger(), "ego_width: %f", ego_width_);
     RCLCPP_INFO(this->get_logger(), "ego_length: %f", ego_length_);
     RCLCPP_INFO(this->get_logger(), "ego_height: %f", ego_height_);
+    RCLCPP_INFO(this->get_logger(), "distance_threshold: %f", distance_threshold_);
     RCLCPP_INFO(this->get_logger(), "publish_ego_marker: %d", publish_ego_marker_);
     RCLCPP_INFO(this->get_logger(), "use_path: %d", use_path_);
     RCLCPP_INFO(this->get_logger(), "frame_id: %s", frame_id_.c_str());
@@ -144,7 +149,7 @@ namespace ttc_calculator
     output_ttc_.header = msg->header;
     current_min_ttc_ = std::numeric_limits<double>::infinity();
     vel_of_min_ttc_ = 0.0;
-  
+
     // Extract ego velocity
     Eigen::Vector3d ego_velocity(
       last_twist_.linear.x,
@@ -153,37 +158,72 @@ namespace ttc_calculator
     );
   
     double ego_speed = ego_velocity.norm();
-  
+    
     for (const auto& obj : msg->objects)
     {
       stereo_perception_msgs::msg::ClusteredObject obj_with_ttc = obj;
+
+      if (ignore_receding_objects_ && obj.velocity.z > 0.0)
+      {
+        RCLCPP_DEBUG(this->get_logger(), "Ignoring receding object");
+        continue; // Skip receding objects
+      }
   
       // Object state
       Eigen::Vector3d obj_position(obj.position.x, obj.position.y, obj.position.z);
       Eigen::Vector3d obj_velocity(obj.velocity.x, obj.velocity.y, obj.velocity.z);
+
+      
   
       double ttc = std::numeric_limits<double>::infinity();
+      double d_min = std::numeric_limits<double>::infinity();
   
       // ---- PATH-BASED TTC ----
       if (use_path_ && current_path_.poses.size() > 1 && ego_speed > 1e-3)
       {
         ttc = computeTTCFromPath(obj_position, obj_velocity);
-        RCLCPP_DEBUG(this->get_logger(), "Computed TTC using path: %.2f", ttc);
+        RCLCPP_DEBUG(this->get_logger(), "AAA Computed TTC using path: %.2f", ttc);
       }
       else
       {
-        // ---- FALLBACK: TWIST-BASED TTC ----
+        // ---- TWIST-BASED TTC CALCULATION ----
         Eigen::Vector3d direction = obj_position.normalized();
         Eigen::Vector3d rel_velocity = obj_velocity - ego_velocity;
         double closing_velocity = rel_velocity.dot(direction);
         double distance = obj_position.norm();
-  
+        
         if (closing_velocity < 0.0 && distance > 0.01)
         {
-          ttc = distance / std::abs(closing_velocity);
+          // 1. Compute candidate TTC assuming linear motion
+          double ttc_candidate = distance / std::abs(closing_velocity);
+
+          // 2. Project future positions at TTC
+          Eigen::Vector3d future_ego_pos = Eigen::Vector3d::Zero();  // ego is at origin
+          Eigen::Vector3d future_obj_pos = obj_position + obj_velocity * ttc_candidate;
+
+          // 3. Compute future distance (d_min)
+          d_min = (future_obj_pos - future_ego_pos).norm();
+      
+          // 4. Check if object gets close enough to be considered a collision risk
+          if (d_min < distance_threshold_)
+          {
+            // If the candidate TTC is valid, use it
+            if (ttc_candidate > 0.0 && ttc_candidate < std::numeric_limits<double>::infinity())
+            {
+              ttc = ttc_candidate;
+              RCLCPP_DEBUG(this->get_logger(), "Valid TTC: %.2f seconds", ttc);
+            }
+          }
+          else
+          {
+            RCLCPP_DEBUG(this->get_logger(), "Object not close enough, d_min: %.2f m", d_min);
+          }
+          {
+            // If the candidate is valid, use it
+            ttc = ttc_candidate;
+          }
+        
         }
-  
-        RCLCPP_DEBUG(this->get_logger(), "Computed TTC using twist: %.2f", ttc);
       }
   
       // Update min TTC
@@ -192,6 +232,7 @@ namespace ttc_calculator
         current_min_ttc_ = ttc;
         vel_of_min_ttc_ = (obj_velocity - ego_velocity).norm();
       }
+
   
       obj_with_ttc.ttc = ttc;
       output_ttc_.objects.push_back(obj_with_ttc);
@@ -200,10 +241,14 @@ namespace ttc_calculator
     // Publish results
     std_msgs::msg::Float64 min_ttc_msg;
     min_ttc_msg.data = current_min_ttc_;
+    output_min_ttc_pub_->publish(min_ttc_msg);
+    output_ttc_pub_->publish(output_ttc_);
   
     double vel_km_h = vel_of_min_ttc_ * 3.6;
-    RCLCPP_INFO(this->get_logger(), "Minimum TTC: %.2f s with rel. velocity: %.2f m/s | %.2f km/h", 
-                current_min_ttc_, vel_of_min_ttc_, vel_km_h);
+    
+    // Print min ttc and min_d
+    RCLCPP_INFO(this->get_logger(), "Current min TTC: %.2f seconds", 
+                current_min_ttc_);
 
     // Log to CSV
     rclcpp::Time timestamp = this->now();
@@ -216,8 +261,6 @@ namespace ttc_calculator
               
     csv_file_.flush();
   
-    output_min_ttc_pub_->publish(min_ttc_msg);
-    output_ttc_pub_->publish(output_ttc_);
   }
   
 
@@ -255,7 +298,7 @@ namespace ttc_calculator
       Eigen::Vector3d future_obj_pos = obj_pos + accumulated_time * obj_vel;
       double distance = (p_curr - future_obj_pos).norm();
 
-      if (distance < 1.0)  // threshold for collision
+      if (distance < distance_threshold_) // threshold for collision
       {
         return accumulated_time;
       }

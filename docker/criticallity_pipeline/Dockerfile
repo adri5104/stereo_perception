@@ -84,6 +84,7 @@ RUN apt-get install -y expect
 # ==============================
 FROM tracing AS deploy
 
+RUN apt-get update && apt-get install -y ros-humble-rmw-cyclonedds-cpp
 # Copy source files
 COPY --chown=ubuntu:ubuntu src/criticallity_pipeline /home/ubuntu/ros2_ws/src/criticallity_pipeline
 COPY --chown=ubuntu:ubuntu src/utils /home/ubuntu/ros2_ws/src/utils
@@ -92,7 +93,7 @@ WORKDIR /home/ubuntu/ros2_ws/
 
 
 # Build the workspace
-RUN /bin/bash -c "source /opt/ros/humble/setup.bash && colcon build --symlink-install --packages-up-to criticallity_pipeline_launch --parallel-workers $(nproc) --cmake-args -DCMAKE_CUDA_ARCHITECTURES=86"
+RUN /bin/bash -c "source /opt/ros/humble/setup.bash && colcon build  --packages-up-to criticallity_pipeline_launch ttc_calculator --parallel-workers $(nproc) --cmake-args -DCMAKE_CUDA_ARCHITECTURES=86"
 
 # Source the workspace
 RUN echo "source /home/ubuntu/ros2_ws/install/setup.bash" >> ~/.bashrc
@@ -102,11 +103,10 @@ RUN echo "source /home/ubuntu/ros2_ws/install/setup.bash" >> ~/.bashrc
 RUN mkdir -p /home/ubuntu/ttc_logs
 
 # Set entrypoint
-RUN apt-get update && apt-get install -y ros-humble-rmw-cyclonedds-cpp
 RUN echo '#!/bin/bash' > /ros_entrypoint.sh
 RUN echo 'set -e' >> /ros_entrypoint.sh
+RUN echo "source /home/ubuntu/ros2_ws/install/setup.bash" >> /ros_entrypoint.sh
 RUN echo 'source "/opt/ros/$ROS_DISTRO/setup.bash"' >> /ros_entrypoint.sh 
-RUN echo 'source /home/ubuntu/ros2_ws/install/local_setup.bash' >> /ros_entrypoint.sh
 RUN echo 'exec "$@"' >> /ros_entrypoint.sh
 RUN chmod +x /ros_entrypoint.sh
 USER ubuntu

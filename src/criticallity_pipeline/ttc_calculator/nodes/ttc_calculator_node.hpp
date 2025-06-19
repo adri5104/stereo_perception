@@ -109,8 +109,10 @@ namespace ttc_calculator
     double ego_width_;
     double ego_length_;
     double ego_height_;
+    double distance_threshold_;
     bool publish_ego_marker_;
     bool use_path_;
+    bool ignore_receding_objects_;
     std::string frame_id_;
     std::string output_csv_path_;
 

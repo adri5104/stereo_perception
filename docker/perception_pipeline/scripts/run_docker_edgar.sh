@@ -1,24 +1,29 @@
 #!/bin/bash
 PARENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )"/../../.. &> /dev/null && pwd )"
 GITNAME="gitlab.lrz.de:5005/teleoperiertes_fahren/research_brecht/stereo_perception"
-NAME="criticallity_pipeline"
+NAME="perception_pipeline"
 TAG="1.1.0"
-
-
+#-e CYCLONEDDS_URI=file:///home/ubuntu/ros2_ws/config/dds/autoware.xml \
 docker run -it --rm \
     --name $NAME \
-    -v $(pwd):/ros2_ws \
-    -w /home/ubuntu/ros2_ws \
-    --network host \
     -v /tmp/.X11-unix:/tmp/.X11-unix \
     -v $HOME/.Xauthority:/root/.Xauthority \
-    -e DISPLAY=$DISPLAY \
-    --gpus all \
     -v /dev/shm:/dev/shm \
     -v $PARENT_DIR/docker/$NAME/config/carnegie:/home/ubuntu/config \
+    -v /home/edgar/david/adrian-ma/stereo_perception/config/dds/:/home/ubuntu/ros2_ws/config/dds/ \
+    -v /sys/kernel/debug:/sys/kernel/debug \
+    -w /home/ubuntu/ros2_ws \
+    --network host \
+    --cap-add=SYS_PTRACE \
+    --cap-add=SYS_ADMIN \
+    --gpus all \
+    -e DISPLAY=$DISPLAY \
     -e RMW_IMPLEMENTATION=rmw_cyclonedds_cpp \
-    --ipc=host \
     -e QT_X11_NO_MITSHM=1 \
     -e XAUTHORITY=/root/.Xauthority \
+    -e CYCLONEDDS_URI=file:///home/ubuntu/ros2_ws/config/dds/autoware.xml \
+    -e ROS_DOMAIN_ID=7 \
+    --ipc=host \
+    --pid=host \
     $GITNAME/$NAME:$TAG \
     "$@"

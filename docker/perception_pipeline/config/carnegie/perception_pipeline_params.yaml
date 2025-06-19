@@ -48,8 +48,8 @@ kalman_filter_node:
     sigma2_x_system: 0.8
     sigma2_y_system: 0.8
     sigma2_z_system: 0.05
-    sigma2_flow_y_measurement: 3.0
-    sigma2_flow_x_measurement: 3.0
+    sigma2_flow_y_measurement: 10.0
+    sigma2_flow_x_measurement: 20.0
     sigma2_depth_measurement: 0.5
     sigma2_tx_measurement: 0.0015
     sigma2_ty_measurement: 0.0015
