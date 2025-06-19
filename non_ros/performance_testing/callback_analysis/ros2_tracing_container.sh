@@ -81,5 +81,5 @@ python3 "$PARENT_DIR/non_ros/performance_testing/callback_analysis/ros2_callback
   --output_html "$HTML_OUTPUT_PATH"
 
 # Clean up
-rm -rf "$HOST_TRACE_DIR"
-echo "Deleted trace directory from host: $HOST_TRACE_DIR"
+#rm -rf "$HOST_TRACE_DIR"
+#echo "Deleted trace directory from host: $HOST_TRACE_DIR"

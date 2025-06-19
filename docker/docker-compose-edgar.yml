@@ -21,7 +21,7 @@ services:
 
   perception_pipeline_multisense:
     image: gitlab.lrz.de:5005/teleoperiertes_fahren/research_brecht/stereo_perception/perception_pipeline:1.1.0
-    container_name: perception_pipeline
+    container_name: perception_pipeline_compose
     network_mode: "host"
     deploy:
       resources:
