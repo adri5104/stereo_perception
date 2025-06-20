@@ -4300,8 +4300,9 @@ Table~\ref{tab:carnegie_detector_params}.
   \label{tab:carnegie_detector_params}
 \end{table}
 
-\section{Evaluation methodology}
-\label{sec:EvaluationMethodology}
+
+\section{Perception evaluation}
+\label{sec:PerceptionEvaluation}
 
 The goal of this evaluation phase is to assess the performance of the 
 developed perception and criticality estimation pipeline under realistic 
@@ -4323,47 +4324,13 @@ configuration includes tuned parameters for optical flow, Kalman
 filtering, and object detection, optimized to improve tracking accuracy 
 and reduce false positives.
 
-\subsection{Test scenarios and data collection}
-\label{sec:TestScenarios}
-
 The evaluation is based on structured datasets recorded at the Garching 
 campus using the EDGAR research vehicle. All tests were carried out 
 with the Multisense S30 camera mounted in its standard forward-facing 
 position. The datasets include both static and dynamic scenarios.
 
-\subsubsection{Static tests}
-
-Three test cases were designed to evaluate the perception pipeline in 
-absence of ego-motion:
-
-\begin{itemize}
-  \item \textbf{Range test:} A person walks towards the vehicle from 
-        20\,m. This measures the maximum usable detection range.
-  \item \textbf{Lateral motion test:} A person walks laterally across 
-        the field of view at a fixed 8\,m distance, evaluating stability 
-        of motion tracking.
-  \item \textbf{Angle test:} A person approaches the vehicle 
-        diagonally from a point at 8\,m distance and 2.6\,m lateral 
-        offset, creating an 18$^\circ$ trajectory. The test checks 
-        directional sensitivity of velocity estimation.
-\end{itemize}
-
-\subsubsection{Dynamic tests}
-
-Urban driving sequences were recorded at speeds between 10 and 
-20\,km/h. These include straight and curved segments around 
-the Leichtbauhalle area, with occasional pedestrians and vehicles.
-
-The tests evaluate the pipeline under real-world conditions, including 
-camera vibration, parallax effects, occlusions, and variable 
-illumination. These sequences are also used to compute TTC 
-estimates and compare them to the Autoware baseline.
-
-\subsubsection{Recorded topics and tools}
-
-All datasets were recorded using ROS~2 Humble and stored in MCAP format. 
-The recording included both raw sensor data and vehicle state information. 
-The most relevant topics for perception and evaluation were:
+The recorded datasets include the following topics, which are
+relevant for perception and evaluation:
 
 \begin{table}[H]
   \centering
@@ -4393,34 +4360,12 @@ The most relevant topics for perception and evaluation were:
   \label{tab:recorded_topics}
 \end{table}
 
-
 This set of topics enables synchronized reconstruction of the full vehicle 
-state, environment perception, and baseline object detections. All data were 
-processed offline using the developed pipeline and visualized with RViz 
-and Foxglove Studio.
+state, environment perception, and autoware object detections. All data were 
+processed offline using the developed pipeline and visualized with Foxglove Studio.
 
 
-\section{Perception evaluation}
-\label{sec:PerceptionEvaluation}
-
-This section presents the results of the perception pipeline under both 
-static and dynamic conditions. The objective is to assess the system's 
-ability to detect and track moving objects based solely on stereo vision, 
-optical flow, and egomotion compensation. The evaluation focuses on 
-the accuracy, consistency, and robustness of the estimated 6D motion 
-vectors and the resulting object-level clustering.
-
-\subsection{Qualitative results}
-\label{sec:QualitativeEval}
-
-A visual inspection of the output is first performed to evaluate how well 
-the system performs under different real-world conditions. Qualitative 
-analysis helps identify detection artifacts, stability issues, and clustering 
-errors that may not be evident in numerical metrics. Representative 
-scenarios were selected to highlight both the strengths and limitations 
-of the current implementation.
-
-\subsubsection{Static evaluation scenarios}
+\subsection{Static evaluation scenarios}
 
 These tests were conducted with the ego vehicle at rest, in order to 
 decouple the system from egomotion-induced effects such as parallax 
@@ -4429,7 +4374,26 @@ easier to evaluate the core detection and tracking capabilities of the
 pipeline, as well as the geometric quality of the estimated velocity 
 vectors.
 
-\paragraph{Range test}  
+Three test cases were designed to evaluate the perception pipeline in 
+absence of ego-motion:
+
+\begin{itemize}
+  \item \textbf{Range test:} A person walks towards the vehicle from 
+        20\,m. This measures the maximum usable detection range.
+  \item \textbf{Lateral motion test:} A person walks laterally across 
+        the field of view at a fixed 8\,m distance, evaluating stability 
+        of motion tracking.
+  \item \textbf{Angle test:} A person approaches the vehicle 
+        diagonally from a point at 8\,m distance and 2.6\,m lateral 
+        offset, creating an 18$^\circ$ trajectory. The test checks 
+        directional sensitivity of velocity estimation.
+\end{itemize}
+
+The following sections describe each test in detail, including the
+experimental setup, the results obtained, and a qualitative analysis of
+the perception performance. 
+
+\subsubsection{Range test}  
 
 This experiment was designed to evaluate the maximum effective detection 
 range of the perception pipeline. A person walked towards the vehicle 
@@ -4470,7 +4434,7 @@ spurious velocity vectors. In contrast, the Carnegie S30 delivered
 reliable measurements across the entire 20\,m path, validating its 
 selection as the new primary sensor for outdoor deployments.
 
-\paragraph{Lateral motion test}  
+\subsubsection{Lateral motion test}  
 This scenario aimed to assess the perception pipeline's response to 
 motion perpendicular to the optical axis of the camera. A person walked 
 at a steady pace of approximately 4--5\,km/h along a path parallel to the 
@@ -4511,7 +4475,7 @@ false motion vectors confirmed the reliability of the new sensor and
 validated the improvements introduced in the clustering and Kalman 
 modules.
 
-\paragraph{Angle test}  
+\subsubsection{Angle test}  
 This test was designed to evaluate the pipeline’s sensitivity to oblique 
 motion trajectories. The subject started at a position 8\,m in front of the 
 vehicle and 2.6\,m to the right of the camera axis, walking diagonally 
@@ -4544,35 +4508,463 @@ with the Framos camera, no directional drift or cluster instability was
 observed.
 
 
-\paragraph{Dynamic evaluation scenarios}
+\subsection{Dynamic evaluation scenarios}
 
-\todo{Present perception results from real driving sessions. Describe 
-clustering and tracking performance in realistic urban environments. 
-Include comparisons to Autoware perception pipeline and discuss 
-qualitative advantages or failure cases.}
+This subsection presents the perception results obtained during real-world 
+urban driving sessions. The objective was to evaluate the robustness of the 
+pipeline in the presence of ego-motion, complex object interactions, and 
+urban traffic conditions. The evaluation considers not only the detection 
+and tracking of moving objects, but also the reliability of estimated 
+time-to-collision (TTC) values across various types of interactions.
 
-\subparagraph{TTC visualization and behavior}
+To allow a fair comparison with Autoware, both pipelines were executed 
+in parallel under identical conditions. The evaluation setup consisted of:
 
-\todo{Show qualitative results of the TTC module. Include visualizations 
-in RViz or Foxglove showing predicted collision directions and values. 
-Discuss if the TTC estimation aligns with intuitive expectations in 
-scenarios with pedestrians or vehicles.}
+\begin{itemize}
+  \item The stereo-based perception and criticality pipelines, running 
+        as ROS 2 nodes in a dedicated container.
+  \item A secondary container named \texttt{criticality\_pipeline\_autoware}, 
+        which launched a minimal Autoware stack configured for object 
+        detection and tracking.
+\end{itemize}
 
-\subsection{Quantitative analysis}
-\label{sec:QuantitativeEval}
+In order to ensure compatibility between both systems, a custom wrapper 
+node was developed. This node subscribes to 
+\texttt{/perception/object\_recognition/objects} from Autoware and 
+transforms each message into the custom object message format expected 
+by the \texttt{ttc\_calculator} node. As a result, the same TTC computation 
+module could be reused across both pipelines, guaranteeing a valid and 
+consistent comparison.
 
-\paragraph{Object detection comparison}
+Both systems were fed with the same rosbags using a synchronized replay, 
+and all visual outputs (object detection and TTC estimates) were recorded 
+for later inspection and analysis. Each frame was visualized in RViz and 
+Foxglove, and screenshots were extracted for side-by-side comparison.
 
-\todo{Count the number of detected objects per frame and compare with 
-Autoware. If possible, report missed or false detections. Include plots 
-or statistical summaries.}
+A total of ten dynamic scenarios were recorded and annotated. These 
+include common urban interactions such as pedestrians crossing, vehicles 
+turning, oncoming traffic, and static clutter. 
+Table~\ref{tab:scenario_summary} summarizes the key characteristics of 
+each test. Based on content richness and analytical value, scenarios 1 to 4 
+and 6 to 7 were selected for detailed discussion in the following sections.
 
-\paragraph{TTC estimation performance}
 
-\todo{Analyze the output TTC values from both pipelines. Compare 
-temporal behavior (e.g., delay, noise), absolute values, and robustness. 
-Use plots or distributions to show differences. Explain any inconsistencies 
-and relate them to velocity estimation accuracy.}
+\begin{table}[H]
+  \centering
+  \begin{tabularx}{\textwidth}{c X l l c}
+    \toprule
+    \textbf{ID} & \textbf{Description} & \textbf{Rosbag} & \textbf{Start (s)} & \textbf{Discussed in the document} \\
+    \midrule
+    1 & Pedestrian crossing during ego turn       & test2\_09\_30\_35 & 4   & Yes \\
+    2 & Pedestrian + car turning                  & test2\_09\_30\_35 & 40  & Yes \\
+    3 & Pedestrian + parked cars ahead            & test1\_09\_27\_44 & 20  & Yes \\
+    4 & Static ego: pedestrians + bus crossing    & 030625\_11\_36\_08 & 0  & Yes \\
+    5 & Incoming Crafter                          & 030625\_11\_36\_08 & 56  & No \\
+    6 & Incoming vehicle                          & 030625\_11\_36\_08 & 62  & Yes \\
+    7 & Pedestrian crossing while ego in motion   & 030625\_11\_36\_08 & 64  & Yes \\
+    8 & Three vehicles approaching                & 030625\_11\_36\_08 & 128 & No \\
+    9 & Narrow street with pedestrians            & 030625\_11\_34\_21 & 83  & No \\
+    10 & Pedestrian crossing during turn (repeat) & 030625\_11\_34\_21 & 83  & No \\
+    \bottomrule
+  \end{tabularx}
+  \caption{Summary of dynamic evaluation scenarios.}
+  \label{tab:scenario_summary}
+\end{table}
+
+
+\subsubsection{Scenario 1: Pedestrian crossing during ego turn}
+
+This scenario features a pedestrian crossing from left to right while the 
+ego vehicle initiates a left turn. The combination of ego-motion and 
+dynamic agents makes this test particularly sensitive to motion 
+compensation and flow estimation quality.
+
+\textbf{Qualitative analysis}  
+
+
+In the first frame, shown in Figure~\ref{fig:scenario1_img1}, the 
+perception pipeline detects five objects, including the pedestrian and 
+some static elements that are mistakenly identified due to imperfect 
+compensation of ego-motion. These false positives highlight the 
+sensitivity of the current system to flow inconsistencies during turns.
+
+In contrast, the second frame (Figure~\ref{fig:scenario1_img2}) shows a 
+clean detection: the pedestrian is correctly tracked, and no other 
+objects are falsely clustered. This suggests that once the ego-vehicle 
+rotation stabilizes, the system recovers and produces reliable output.
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{figures/carnegieEval/scenarioTest/1/11.png}
+  \caption{Scenario 1, frame 1: Perception}\label{fig:scenario1_img1}
+\end{figure}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{figures/carnegieEval/scenarioTest/1/12.png}
+  \caption{Scenario 1, frame 2: Perception}\label{fig:scenario1_img2}
+\end{figure}
+
+\textbf{Quantitative analysis.}  
+
+As shown in Figure~\ref{fig:scenario1_ttc1}, the perception pipeline 
+outputs a minimum TTC of 1.97\,s in the first frame, likely influenced by 
+false positives. In contrast, Autoware reports an infinite TTC, which is 
+appropriate in this case given the absence of actual collision risk.
+
+In the second frame (Figure~\ref{fig:scenario1_ttc2}), both pipelines 
+report infinite TTC values, correctly reflecting the low threat level posed 
+by the crossing pedestrian at that point in time.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{figures/carnegieEval/scenarioTest/1/11_ttc.png}
+  \caption{Scenario 1, frame 1: TTC and detections}\label{fig:scenario1_ttc1}
+\end{figure}    
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{figures/carnegieEval/scenarioTest/1/12_ttc.png}
+  \caption{Scenario 1, frame 2: TTC and detections}\label{fig:scenario1_ttc2}
+\end{figure}
+
+Overall, this test highlights the need for further improvement in 
+egomotion correction and optical flow filtering. However, it also 
+demonstrates the ability of the pipeline to recover and stabilize rapidly 
+after a transient disturbance.
+
+\subsubsection{Scenario 2: Pedestrian + car turning}
+
+This scenario involves a woman crossing in front of the ego vehicle 
+while a previously parked car begins to turn into the driving lane. 
+The situation is typical of urban environments, combining multiple 
+dynamic agents with overlapping trajectories.
+
+\textbf{Qualitative analysis}
+
+In the first frame (Figure~\ref{fig:scenario2_img1}), the pedestrian is 
+correctly detected and tracked by both pipelines. The stereo-based 
+pipeline also detects the parked car beginning to move, whereas 
+Autoware fails to identify it as an active agent at this point.\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{figures/carnegieEval/scenarioTest/2/1.png}
+  \caption{Scenario 2, frame 1: Perception}
+  \label{fig:scenario2_img1}
+\end{figure}
+In the second frame (Figure~\ref{fig:scenario2_img2}), both the car and 
+the pedestrian are correctly identified by the stereo system. The car is 
+now turning to the right, and the pedestrian is still crossing the lane. 
+Autoware detects 16 objects, which include all of the objects detected by the 360
+lidar system.
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{figures/carnegieEval/scenarioTest/2/2.png}
+  \caption{Scenario 2, frame 2: Perception}
+  \label{fig:scenario2_img2}
+\end{figure}
+
+In the third frame (Figure~\ref{fig:scenario2_img3}), the turning car has 
+fully entered the lane and is moving away from the ego vehicle. The perception 
+pipeline continues to track the car.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{figures/carnegieEval/scenarioTest/2/3.png}
+  \caption{Scenario 2, frame 3: Perception}
+  \label{fig:scenario2_img3}
+\end{figure}
+
+\textbf{Quantitative analysis}
+
+The TTC estimation is illustrated in Figures~\ref{fig:scenario2_ttc1} 
+to~\ref{fig:scenario2_ttc3}. In the first frame, the stereo system outputs 
+a TTC of 32.35\,s while Autoware reports $\infty$. Given the slow 
+approach of the pedestrian and the partial vehicle motion, the stereo 
+estimate is arguably more informative.
+
+In the second frame, the minimum TTC estimated by the stereo 
+pipeline is 15.32\,s, corresponding to the turning vehicle. Autoware 
+again reports infinite TTC despite detecting many objects, suggesting a 
+more conservative or less precise motion estimation.
+
+In the third frame, both systems report infinite TTC values, which is 
+appropriate given that the vehicle is now moving away.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{figures/carnegieEval/scenarioTest/2/1_ttc.png}
+  \caption{Scenario 2, frame 1: TTC and detections}
+  \label{fig:scenario2_ttc1}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{figures/carnegieEval/scenarioTest/2/2_ttc.png}
+  \caption{Scenario 2, frame 2: TTC and detections}
+  \label{fig:scenario2_ttc2}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{figures/carnegieEval/scenarioTest/2/3_ttc.png}
+  \caption{Scenario 2, frame 3: TTC and detections}
+  \label{fig:scenario2_ttc3}
+\end{figure}
+
+This scenario demonstrates the ability of the stereo-based pipeline to 
+identify and prioritize relevant dynamic agents. While Autoware offers a 
+broader situational overview, its TTC estimates may lack responsiveness 
+in close interactions with turning vehicles or crossing pedestrians.
+
+\subsubsection{Scenario 3: Pedestrian + parked cars ahead}
+
+This scenario captures a common urban driving situation: the ego 
+vehicle moves forward on a straight road while approaching several 
+parked cars and a pedestrian entering the field of view. The objective 
+is to evaluate how well the pipeline differentiates between static and 
+dynamic agents when both appear close to the ego path.
+
+\textbf{Qualitative analysis}
+
+As shown in Figure~\ref{fig:scenario3_img1}, the stereo-based 
+perception pipeline correctly detects the pedestrian in front of the 
+vehicle. However, several static parked vehicles are also erroneously 
+clustered as dynamic objects. This over-detection is likely due to 
+residual motion artifacts or minor depth inconsistencies amplified by 
+optical flow noise.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{figures/carnegieEval/scenarioTest/3/1.png}
+  \caption{Scenario 3, frame 1: Perception}\label{fig:scenario3_img1}
+\end{figure}
+
+The clustering and velocity estimation remain consistent in shape and 
+direction, but the false positives reduce the clarity of the scene 
+interpretation. 
+
+\textbf{Quantitative analysis}
+
+The TTC output is shown in Figure~\ref{fig:scenario3_ttc1}. The stereo 
+pipeline estimates a minimum TTC of 2.53\,s, which is consistent with 
+the presence of the crossing pedestrian. Autoware, on the other hand, 
+outputs a TTC of nearly 2 million seconds, indicating a failure in 
+initializing the relative velocity of detected objects or a default fallback 
+value.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{figures/carnegieEval/scenarioTest/3/1_ttc.png}\caption{Scenario 3, frame 1: TTC and detections}\label{fig:scenario3_ttc1}
+\end{figure}
+
+This scenario highlights the challenge of distinguishing between 
+stationary and moving obstacles using purely geometric cues. While 
+the stereo-based TTC estimation proves more realistic in this case, 
+further refinement of object classification logic and filtering thresholds 
+may be required to suppress false positives in dense urban scenes.
+
+\subsubsection{Scenario 4: Static ego: pedestrians + bus crossing}
+
+This scenario evaluates the system performance when the ego vehicle 
+remains stationary, in this case stoping for a zebra crossing. It features multiple dynamic agents, including 
+pedestrians crossing in both directions and a bus driving behind them, 
+as well as a van.
+
+\textbf{Qualitative analysis}
+
+In the first frame (Figure~\ref{fig:scenario4_img1}), two pedestrians 
+cross in front of the vehicle. Both are successfully detected and 
+tracked by the stereo pipeline, with clear bounding boxes and 
+coherent motion vectors. Autoware detects 23 objects, a number that 
+includes background agents and static elements due to its 360° 
+broader coverage.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{figures/carnegieEval/scenarioTest/4/1.png}
+  \caption{Scenario 4, frame 1: Perception}\label{fig:scenario4_img1}
+\end{figure}
+
+In the second frame (Figure~\ref{fig:scenario4_img2}), another 
+pedestrian crosses from the opposite direction while a large bus drives 
+through the background. Both are correctly detected by the stereo 
+pipeline. Clustering and orientation of motion vectors remain stable. It's important to mention 
+that the bus is detected as several clusters, since in the clustering there is a tradeoff between the correct detection of large objects in one cluster
+and the risk of merging multiple objects into a single cluster. It has been prioritized to avoid detecting small objects as large clusters, which would lead to false positives in the TTC estimation.
+In addition, detecting large objects as multiple clusters does not affect the TTC estimation, since the TTC is computed based on the minimum distance to the object, which is always the closest cluster.
+Autoware reports 22 detections, consistent with its broader scene 
+coverage.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{figures/carnegieEval/scenarioTest/4/2.png}
+  \caption{Scenario 4, frame 2: Perception}\label{fig:scenario4_img2}
+\end{figure}
+
+In the third frame (Figure~\ref{fig:scenario4_img3}), a van crosses the field of view from right to left. Again, the stereo pipeline 
+detects and tracks the vehicle accurately, with no spurious clusters 
+observed.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{figures/carnegieEval/scenarioTest/4/3.png}
+  \caption{Scenario 4, frame 3: Perception}\label{fig:scenario4_img3}
+\end{figure}
+
+\textbf{Quantitative analysis}  
+
+TTC results for the three frames are shown in 
+Figures~\ref{fig:scenario4_ttc1} to~\ref{fig:scenario4_ttc3}. In all cases, 
+the stereo pipeline estimates TTC as inf, which is appropriate since the 
+ego vehicle is stationary and no object is directly on a collision course.
+
+Autoware, by contrast, outputs TTC values in the order of 
+$10^6$ to $10^7$ seconds, likely as a result of negligible initial velocity 
+components in its tracking filter or due to limited relative motion.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{figures/carnegieEval/scenarioTest/4/1_ttc.png}
+  \caption{Scenario 4, frame 1 ttc and detections}
+  \label{fig:scenario4_ttc1}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{figures/carnegieEval/scenarioTest/4/2_ttc.png}
+  \caption{Scenario 4, frame 2 ttc and detections}
+  \label{fig:scenario4_ttc2}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{figures/carnegieEval/scenarioTest/4/3_ttc.png}
+  \caption{Scenario 4, frame 3 ttc and detections}
+  \label{fig:scenario4_ttc3}
+\end{figure}
+
+This scenario confirms the capability of the stereo perception pipeline to maintain 
+detection quality in the absence of ego motion. TTC estimation remains 
+stable and interpretable, offering more readable values than 
+the extreme TTCs of Autoware under slow-motion or static-ego conditions.
+ 
+\subsubsection{Scenario 6: Infront coming vehicle}
+
+In this scenario, a vehicle approaches the ego vehicle head-on. The 
+stereo perception pipeline correctly detects and tracks the car with 
+several bounding boxes, as shown in 
+Figure~\ref{fig:scenario6_img1}. The main motion vector is directed 
+toward the ego vehicle, with no spurious detections.
+
+\textbf{Qualitative analysis}
+
+Autoware detects 48 objects, mostly outside the field of view of the 
+stereo setup.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{figures/carnegieEval/scenarioTest/6/1.png}
+  \caption{Scenario 6, frame 1: Perception}\label{fig:scenario6_img1}
+\end{figure}
+
+\textbf{Quantitative analysis}
+
+The TTC estimated by the stereo pipeline is 2.11\,s, reflecting the 
+closing distance (Figure~\ref{fig:scenario6_ttc1}). Autoware outputs a 
+TTC of over 148000\,s, likely due to low relative velocity estimation.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{figures/carnegieEval/scenarioTest/6/1_ttc.png}
+  \caption{Scenario 6, frame 1: TTC and detections}\label{fig:scenario6_ttc1}
+\end{figure}
+
+\subsubsection{Scenario 7: Pedestrian crossing with moving vehicle}
+
+This scenario involves two groups of pedestrians crossing in front of the 
+ego vehicle, along with a vehicle moving in the background.
+
+\textbf{Qualitative analysis}
+
+In the first frame (Figure~\ref{fig:scenario7_img1}), both pedestrian 
+groups are detected and tracked. The clustering appears correct, and 
+the motion vectors are coherent. One additional bounding box is 
+assigned to a roadside pole, representing a false positive.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{figures/carnegieEval/scenarioTest/7/1.png}
+  \caption{Scenario 7, frame 1: Perception}\label{fig:scenario7_img1}
+\end{figure}
+
+In the second frame (Figure~\ref{fig:scenario7_img2}), the false 
+positive is still present, but the actual pedestrians continue to be 
+correctly tracked.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{figures/carnegieEval/scenarioTest/7/2.png}
+  \caption{Scenario 7, frame 1: Perception}\label{fig:scenario7_img2}
+\end{figure}
+
+\textbf{Quantitative analysis}
+
+Figure~\ref{fig:scenario7_ttc1} shows a TTC of 4.67s from the stereo 
+pipeline. Autoware reports 97958s, which underestimates the 
+criticality. In the second frame (Figure~\ref{fig:scenario7_ttc2}), stereo 
+TTC increases to 7.93s as pedestrians move further away. Autoware 
+TTC remains above 100000s.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{figures/carnegieEval/scenarioTest/7/1_ttc.png}
+  \caption{Scenario 7, frame 1: TTC and detections}\label{fig:scenario7_ttc1}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{figures/carnegieEval/scenarioTest/7/2_ttc.png}
+  \caption{Scenario 7, frame 2: TTC and detections}\label{fig:scenario7_ttc2}
+\end{figure}
+
+This test confirms good performance in multi-agent scenarios, though 
+additional filtering could help reduce false positives on static elements.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 \section{Runtime and performance benchmarking}
 \label{sec:PerformanceBenchmarking}
