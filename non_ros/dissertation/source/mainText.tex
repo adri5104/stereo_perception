@@ -4524,8 +4524,9 @@ in parallel under identical conditions. The evaluation setup consisted of:
   \item The stereo-based perception and criticality pipelines, running 
         as ROS 2 nodes in a dedicated container.
   \item A secondary container named \texttt{criticality\_pipeline\_autoware}, 
-        which launched a minimal Autoware stack configured for object 
-        detection and tracking.
+        which launched a wrapper for the Autoware perception detected objects topic, and a second
+        instance of the developed TTC calculator node.
+  \item The Autoware perception stack, configured to use the
 \end{itemize}
 
 In order to ensure compatibility between both systems, a custom wrapper 
@@ -4538,17 +4539,15 @@ consistent comparison.
 
 Both systems were fed with the same rosbags using a synchronized replay, 
 and all visual outputs (object detection and TTC estimates) were recorded 
-for later inspection and analysis. Each frame was visualized in RViz and 
-Foxglove, and screenshots were extracted for side-by-side comparison.
+for later inspection and analysis. Each frame was visualized in Foxglove (with the custom layout available in the repository), 
+and screenshots were extracted for side-by-side comparison.
 
-A total of ten dynamic scenarios were recorded and annotated. These 
+A total of ten dynamic scenarios were identified across the recorded rosbags and annotated. These 
 include common urban interactions such as pedestrians crossing, vehicles 
 turning, oncoming traffic, and static clutter. 
 Table~\ref{tab:scenario_summary} summarizes the key characteristics of 
 each test. Based on content richness and analytical value, scenarios 1 to 4 
 and 6 to 7 were selected for detailed discussion in the following sections.
-
-
 \begin{table}[H]
   \centering
   \begin{tabularx}{\textwidth}{c X l l c}
@@ -4929,32 +4928,52 @@ This test confirms good performance in multi-agent scenarios, though
 additional filtering could help reduce false positives on static elements.
 
 
+\subsection{Summary and insights}
 
+The evaluation results demonstrate that the stereo-based perception 
+pipeline is capable of reliably detecting and tracking dynamic objects 
+in a wide range of real-world scenarios. The estimated velocity vectors 
+are consistent, and the clustering logic based on Kalman output 
+proves robust under both static and dynamic conditions. Time-to-collision 
+(TTC) estimates are generally interpretable and responsive, even 
+in short-range situations.
 
+The most critical limitation identified is the occurrence of false positives 
+in dynamic scenes. These are primarily attributed to residual ego-motion 
+effects not fully compensated by the Kalman-based prediction model. 
+The root cause is believed to lie in the limitations of the optical flow 
+estimation, particularly under fast rotations or image blur. While 
+alternative visual odometry sources were tested (including Autoware 
+odometry), the results did not improve significantly, suggesting that 
+the issue is not due to drift but to inaccuracies in the short-term 
+relative motion between consecutive frames.
 
+In contrast, the clustering module consistently grouped coherent motion 
+vectors into distinct objects, even under partial occlusions or non-linear 
+trajectories. The TTC estimation module, in turn, provided stable outputs 
+closely tied to the motion and geometry of each cluster.
 
+Comparison with Autoware reveals key differences in system design. 
+While Autoware benefits from 360-degree LiDAR coverage and longer 
+detection range, its velocity initialization is often insufficient for 
+short-term TTC estimation. Moreover, its high object count frequently 
+includes background elements or static objects, which can dilute the 
+criticality assessment. In contrast, the stereo-based pipeline, although 
+more range-limited, offers higher resolution in the near field and does 
+not depend on pretrained models or semantic classification. This makes 
+it better suited for detecting novel or unstructured agents in close-range 
+urban scenarios.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+Finally, the system demonstrated robustness against partial occlusions, 
+e.g., when multiple pedestrians crossed paths. Motion estimation 
+remained stable and individual clusters were preserved. These results 
+confirm the viability of a purely geometry-based perception approach 
+for criticality estimation in constrained sensor setups. Nonetheless, the 
+current implementation could benefit from enhancements in optical 
+flow estimation. In particular, integrating learning-based augmentation 
+modules could help suppress flow inconsistencies in challenging scenes, 
+such as fast turns or low-contrast areas, ultimately improving both 
+tracking stability and false positive rejection.
 
 
 
@@ -4969,31 +4988,458 @@ additional filtering could help reduce false positives on static elements.
 \section{Runtime and performance benchmarking}
 \label{sec:PerformanceBenchmarking}
 
+This section presents a runtime and resource usage evaluation of the
+developed stereo-based perception pipeline. The goal is to assess its
+feasibility for real-time deployment on embedded platforms with limited
+computational resources.
+
+Performance measurements were conducted on two platforms: a personal
+workstation and the EDGAR onboard computer. On the PC, tests were
+performed offline using pre-recorded rosbags. On EDGAR, the system
+ran in real-time, processing sensor data as it arrived.
+
+The evaluation focuses on the most computationally intensive modules
+of the pipeline: optical flow estimation, Kalman filtering, visual
+odometry, and object clustering. These components are likely to
+dominate runtime and resource usage.
+
+Two complementary strategies were applied: monitoring of system-level
+resource usage (CPU, GPU, RAM) per module, and callback-level
+profiling using ROS~2 tracing tools. The results aim to identify
+potential bottlenecks and evaluate the real-time suitability of the
+implementation.
+
 \subsection{Tested hardware platforms}
 \label{sec:HWPlatforms}
 
-\todo{List the tested machines: personal PC and EDGAR onboard computer. 
-Include CPU, GPU, RAM, OS, and Docker settings. Justify why both 
-platforms were evaluated.}
+To evaluate runtime performance, the perception pipeline was tested 
+on two representative hardware setups: a desktop-class development 
+machine and the onboard computer of the EDGAR research vehicle. 
+These two platforms cover both offline replay analysis and real-time 
+operation during driving.
+
+The desktop system was used for profiling with recorded rosbags 
+and enables reproducible measurements under controlled conditions. 
+The EDGAR platform was used for online evaluation with live data 
+streams and represents the actual deployment environment of the 
+pipeline.
+
+Both systems executed the same containerized application, based on 
+the image \texttt{perception\_pipeline:1.1.0}. All results refer to this 
+identical configuration. Table~\ref{tab:hardware_platforms} summarizes 
+the main specifications of both setups.
+\begin{table}[H]
+  \centering
+  \begin{tabularx}{\textwidth}{l X X}
+    \toprule
+    \textbf{Property} & \textbf{PC (Development)} & \textbf{EDGAR (Deployment)} \\
+    \midrule
+    CPU & Intel i7-10700K (8C/16T, 5.1\,GHz) & Xeon E-2276ME (6C/12T, 4.5\,GHz) \\
+    GPU & NVIDIA RTX 3060 (12\,GB VRAM) & NVIDIA RTX A4000 (16\,GB VRAM) \\
+    RAM & 16\,GB & 64\,GB \\
+    OS & Ubuntu 24.04 + kernel 6.11 & Ubuntu 22.04 + RT kernel \\
+    Docker & 26.0.2 & 26.0.2 \\
+    Evaluation mode & Offline rosbag replay & Live data during driving \\
+    Container image & \multicolumn{2}{c}{\texttt{perception\_pipeline:1.1.0}} \\
+    \bottomrule
+  \end{tabularx}
+  \caption{Hardware and software configuration of tested platforms.}
+  \label{tab:hardware_platforms}
+\end{table}
+
+
+\newpage
+\subsection{Resource usage analysis}
+\label{sec:ResourceUsage}
+
+To evaluate the computational cost of the perception pipeline,
+three main metrics were measured: CPU load, RAM usage, and GPU memory
+consumption. The evaluation focused on the core modules of the system:
+optical flow, Kalman filtering, object clustering, and visual odometry.
+
+A custom Python script (\texttt{ressource\_monitor.py}) was used for
+data collection. It is located in the
+\texttt{non\_ros/performance\_testing/ressource\_analysis} directory,
+and relies on the \texttt{psutil} and \texttt{pynvml} libraries to
+record per-process statistics.
+
+CPU usage is reported as the sum across all cores, so values above
+100\% are expected in multithreaded workloads. RAM is measured in MiB.
+For GPU, only memory usage was recorded, as accurately capturing compute
+utilization on Linux systems with the NVIDIA driver proved unreliable.
+
+Each run lasted approximately two minutes and covered a realistic
+perception scenario. Logging started once the system reached steady
+state, to avoid initialization effects.
+
+Results are presented separately for the desktop PC and the EDGAR
+onboard computer.
+
+\subsubsection{Desktop PC results}
+\label{sec:PCResults}
+
+The following paragraphs provide a breakdown of each module's 
+performance on the desktop PC.
+
+\textbf{Optical flow node}
+
+The optical flow node (\texttt{optical\_flow\_co}) exhibited a mean CPU 
+usage of 120.2\% with a standard deviation of 11.4\%. This high and 
+sustained CPU load is expected, as the node performs dense flow 
+estimation using multi-level pyramids. The CPU usage above 100\% 
+corresponds to parallel usage across multiple cores.
+
+GPU memory usage averaged 176.4\,MB, with frequent small drops likely 
+caused by memory synchronization operations. RAM usage remained stable 
+throughout the session, with a mean RSS of 369.7\,MB and a standard 
+deviation of 11.5\,MB.
+
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}{0.32\textwidth}
+    \includegraphics[width=\linewidth]
+    {figures/performanceEval/PC/ressourceAnalysis/res_pc_optflow_cpu.png}
+    \caption{CPU usage}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}{0.32\textwidth}
+    \includegraphics[width=\linewidth]
+    {figures/performanceEval/PC/ressourceAnalysis/res_pc_optflow_gpu.png}
+    \caption{GPU memory}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}{0.32\textwidth}
+    \includegraphics[width=\linewidth]
+    {figures/performanceEval/PC/ressourceAnalysis/res_pc_optflow_ram.png}
+    \caption{RAM usage (RSS)}
+  \end{subfigure}
+  \caption{Resource usage of the optical flow node on desktop PC.}
+  \label{fig:res_pc_optflow_all}
+\end{figure}
+
+\textbf{Visual odometry}
+
+The visual odometry node exhibits moderate CPU usage, averaging 
+63.25\,\% with a standard deviation of 21.38\,\%. As shown in 
+Figure~\ref{fig:res_pc_vio}, this indicates a partially parallelized 
+workload, likely related to feature tracking and depth alignment.
+
+GPU memory usage is low and stable, with an average of 118.64\,MiB and 
+minimal variance. This suggests that GPU acceleration is used only for 
+specific stages, and not consistently across all frames.
+
+RAM usage remains within a narrow band, with a mean value of 465.27\,MiB 
+and a standard deviation of 12.78\,MiB. This points to consistent 
+temporal memory allocation, with no signs of leakage or overload.
+
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}[b]{0.32\textwidth}
+    \includegraphics[width=\textwidth]
+    {figures/performanceEval/PC/ressourceAnalysis/res_pc_vio_cpu.png}
+    \caption{CPU usage}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.32\textwidth}
+    \includegraphics[width=\textwidth]
+    {figures/performanceEval/PC/ressourceAnalysis/res_pc_vio_gpu.png}
+    \caption{GPU memory usage}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.32\textwidth}
+    \includegraphics[width=\textwidth]
+    {figures/performanceEval/PC/ressourceAnalysis/res_pc_vio_ram.png}
+    \caption{RAM usage (RSS)}
+  \end{subfigure}
+  \caption{Resource usage of the visual\_odometry node on the desktop PC.}
+  \label{fig:res_pc_vio}
+\end{figure}
+
+\textbf{Kalman filter node}
+
+This node performs all Kalman filtering computations in the perception
+pipeline, including prediction, update, and uncertainty propagation for
+each tracked point. As shown in Figure~\ref{fig:kalman_pc_perf}, it 
+exhibits the highest memory usage of all modules, with a mean RSS of
+1101\,MiB and a standard deviation of 45\,MiB. This is expected, given
+the need to store multiple state vectors, covariances, and Jacobians in
+parallel.
+
+CPU usage is also relatively high, with an average of 125.02\,\% and
+bursts up to 300\,\%, reflecting the use of parallel processing through
+OpenMP. Spikes are visible in the trace, especially during frame 
+transitions or ego-motion updates. No GPU is used by this node.
+
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}[b]{0.32\textwidth}
+    \includegraphics[width=\textwidth]
+    {figures/performanceEval/PC/ressourceAnalysis/res_pc_kalman_cpu.png}
+    \caption{CPU usage}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.32\textwidth}
+    \includegraphics[width=\textwidth]
+    {figures/performanceEval/PC/ressourceAnalysis/res_pc_kalman_gpu.png}
+    \caption{GPU memory usage}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.32\textwidth}
+    \includegraphics[width=\textwidth]
+    {figures/performanceEval/PC/ressourceAnalysis/res_pc_kalman_ram.png}
+    \caption{RAM usage (RSS)}
+  \end{subfigure}
+  \caption{Resource usage of \texttt{kalman\_filter\_n} on desktop PC.}
+  \label{fig:kalman_pc_perf}
+\end{figure}
+
+\textbf{Object detector}
+
+The \texttt{object\_detector} node is responsible for clustering the
+6D point cloud and computing object-level features. Its average CPU usage
+was relatively low at 30.06\% (Figure~\ref{fig:objdet_cpu_pc}), reflecting the
+modest computational load of the DBSCAN-based clustering algorithm.
+RAM usage remained stable around 725\,MB, and GPU memory usage fluctuated
+around 120\,MB due to intermittent calls to CUDA-based receding speed
+filtering.
+
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}[b]{0.32\textwidth}
+    \includegraphics[width=\textwidth]{figures/performanceEval/PC/ressourceAnalysis/res_pc_clust_cpu.png}
+    \caption{CPU usage}
+    \label{fig:objdet_cpu_pc}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.32\textwidth}
+    \includegraphics[width=\textwidth]{figures/performanceEval/PC/ressourceAnalysis/res_pc_clust_gpu.png}
+    \caption{GPU memory usage}
+    \label{fig:objdet_gpu_pc}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.32\textwidth}
+    \includegraphics[width=\textwidth]{figures/performanceEval/PC/ressourceAnalysis/res_pc_clust_ram.png}
+    \caption{RAM usage (RSS)}
+    \label{fig:objdet_ram_pc}
+  \end{subfigure}
+  \caption{Resource usage of the \texttt{object\_detector} node on PC.}
+  \label{fig:objdet_ressource_pc}
+\end{figure}
+
+\subsubsection{EDGAR  results}
+\label{sec:EdgarResults}
+
+\todo{Analyze the resource usage on EDGAR when  available}
 
 \subsection{Callback execution profiling}
 \label{sec:CallbackAnalysis}
 
-\todo{Explain how callback times were measured (e.g., tracetools). Show 
-execution times per node or module. Identify any bottlenecks and evaluate 
-real-time feasibility.}
+This subsection presents the per-callback execution time for the core 
+nodes of the perception pipeline. Callback duration is a key indicator 
+for evaluating real-time performance, especially under high sensor 
+frequency or embedded hardware.
 
-\subsection{Resource usage analysis}
-\label{sec:ResourceUsage}
+Measurements were collected using the \texttt{ros2\_tracing} suite. A 
+custom script, \texttt{ros2\_tracing\_container.sh}, was used to 
+automatically launch a tracing session inside the selected Docker 
+container. Once completed, the recorded data was analyzed using 
+\texttt{ros2\_callback\_analysis.py}, which extracts and processes the 
+callback durations.
 
-\todo{Present CPU, GPU, and RAM usage per node on each platform. 
-Discuss performance differences and their implications for deployment. 
-Include summary tables or figures.}
+For each callback, two plots are shown: one representing the callback 
+execution time over the trace duration, and one showing the histogram 
+of durations. This combination allows us to assess both the real-time 
+variability and the typical runtime of each module.
 
+The callbacks analyzed are:
 
+\begin{itemize}
+  \item \textbf{Optical flow}: subscriber to the left grayscale image, 
+        where all optical flow computations are performed.
+  \item \textbf{Visual odometry}: synchronized callbacks for rectified 
+        color and depth images. The depth stream introduces the 
+        computational bottleneck.
+  \item \textbf{Kalman filter}: subscriber to optical flow messages. 
+        These messages are synchronized with the rest of the image data.
+  \item \textbf{Object detector}: subscriber to the 6D estimation output, 
+        which triggers the clustering and filtering steps.
+\end{itemize}
 
+All durations are reported in milliseconds. Each plot reflects only the 
+user-space callback execution time, excluding scheduling latency or 
+inter-process overhead.
 
+\subsubsection{Desktop PC analysis}
 
+The first set of measurements was obtained by running the full 
+perception pipeline on the desktop PC, using a previously recorded 
+rosbag. This ensured deterministic input and avoided variability due to 
+sensor latency or system load fluctuations.
+
+Each callback was traced for approximately two minutes of runtime, 
+covering a representative segment of urban driving data. The 
+evaluation focuses on the same core nodes analyzed in the resource 
+usage section: optical flow, visual odometry, Kalman filter, and object 
+detector.
+
+\textbf{optical\_flow\_computation \- input image subscriber}  
+\label{sec:callback_optflow_pc}
+
+This callback processes the grayscale image stream used for dense optical 
+flow computation. As shown in 
+Figure~\ref{fig:callback_optflow_pc_combined}, execution times remain mostly 
+within the 45\-65\,ms range, with few outliers. The histogram shows a 
+narrow distribution centered around 50\-60\,ms, indicating consistent 
+performance.
+
+Given the 20\,Hz input rate of the Multisense S30 camera (i.e., one frame 
+every 50\,ms), the callback operates near the real-time limit. Although 
+there is a small margin, further optimization or parallelization might be 
+required under higher system load.
+
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]
+    {figures/performanceEval/PC/callbackAnalysis/callback_pc_optflow.png}
+    \caption{Callback duration over time}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]
+    {figures/performanceEval/PC/callbackAnalysis/callback_pc_optflow_hist.png}
+    \caption{Execution time histogram}
+  \end{subfigure}
+  \caption{Callback execution for optical flow image subscriber.}
+  \label{fig:callback_optflow_pc_combined}
+\end{figure}
+
+\textbf{visual\_odometry \- color image subscriber}
+
+The color image callback processes RGB input from the auxiliary camera
+at 20\,Hz. Execution times remain very low, with an average duration 
+below 0.02\,ms. 
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]
+    {figures/performanceEval/PC/callbackAnalysis/callback_pc_vio_color.png}
+    \caption{Execution time over time}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]
+    {figures/performanceEval/PC/callbackAnalysis/callback_pc_vio_color_hist.png}
+    \caption{Duration histogram}
+  \end{subfigure}
+  \caption{Callback analysis for color image input (visual\_odometry).}
+  \label{fig:callback_pc_vio_color}
+\end{figure}
+
+\textbf{visual\_odometry \- depth image subscriber}
+
+This callback is responsible for processing depth images and is the 
+main bottleneck of the visual odometry node. Execution durations vary 
+between 10\,ms and 70\,ms, with an average near 30\,ms. Given the 20\,Hz
+input rate (50\,ms interval), this component operates near the real-time
+limit. Performance tuning or GPU offloading could help improve robustness.
+
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]
+    {figures/performanceEval/PC/callbackAnalysis/callback_pc_vio_depth.png}
+    \caption{Execution time over time}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]
+    {figures/performanceEval/PC/callbackAnalysis/callback_pc_vio_depth_hist.png}
+    \caption{Duration histogram}
+  \end{subfigure}
+  \caption{Callback analysis for depth image input (visual\_odometry).}
+  \label{fig:callback_pc_vio_depth}
+\end{figure}
+
+\paragraph{\textbf{kalman\_filter \- input optical flow subscriber}}
+
+The Kalman filter node processes optical flow data to update the 6D state
+estimates of tracked points. As shown in 
+Figure~\ref{fig:callback_kalman}, its execution time is 
+more variable than previous callbacks, with a mean of approximately 
+40\,ms and sporadic drops to near-zero values. These drops correspond to 
+frames with low feature count, where the update step can be skipped.
+
+The histogram indicates a multimodal distribution, with one peak around
+0\,ms and another near 40\,ms, reflecting the adaptive nature of the 
+Kalman processing step. Despite the variability, the average callback 
+duration remains well below the 50\,ms limit imposed by the 20\,Hz 
+pipeline rate.
+
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]
+    {figures/performanceEval/PC/callbackAnalysis/callback_pc_kalman.png}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]
+    {figures/performanceEval/PC/callbackAnalysis/callback_pc_kalman_hist.png}
+  \end{subfigure}
+  \caption{Callback duration for \texttt{kalman\_filter} node.}
+  \label{fig:callback_kalman}
+\end{figure}
+
+\paragraph{\textbf{object\_detector \- input 6D image subscriber}}
+
+The object detector node clusters the velocity vectors output by the 
+Kalman filter to produce object-level detections. As shown in 
+Figure~\ref{fig:callback_clust}, the average execution time is well 
+below the real-time threshold, with most values under 20\,ms and 
+occasional peaks reaching 70\,ms. These spikes are correlated with 
+scenes of increased complexity, e.g., several objects with overlapping 
+motion.
+
+Overall, the node shows stable and bounded runtime behavior, confirming 
+its suitability for real-time deployment.
+
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]
+    {figures/performanceEval/PC/callbackAnalysis/callback_pc_clust.png}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]
+    {figures/performanceEval/PC/callbackAnalysis/callback_pc_clust_hist.png}
+  \end{subfigure}
+  \caption{Callback duration and histogram for object detector node.}
+  \label{fig:callback_clust}
+\end{figure}
+
+\subsubsection{EDGAR analysis}
+
+\todo{Analyze the callback execution times on EDGAR when available}
+
+\subsection{Summary and insights}
+\label{sec:CallbackAnalysis}
+
+\todo{amalize the key findings from the resource usage and callback profiling
+sections. Discuss the implications for real-time performance and
+resource constraints. Highlight any bottlenecks or areas for improvement.
+Discuss how the results compare to the requirements stated in the
+introduction, such as the need for real-time operation and low resource
+usage.}
+
+\section{Summary of experimental results}
+\label{sec:ResultsSummary}
+
+\todo{Summarize key findings from all evaluation sections. Use a table 
+if helpful to recap detection quality, TTC estimation accuracy, and 
+performance metrics. Highlight whether the system meets the 
+requirements stated in the thesis introduction.}
 
 % ====================================================================
 % ================== Discussion ======================================
@@ -5005,10 +5451,6 @@ Include summary tables or figures.}
 the results obtained, and the implications for future work. Reflect on the
 limitations of the current implementation and suggest possible improvements.}
 
-\section{Summary of experimental results}
-\label{sec:ResultsSummary}
+\todo{Write down future work that could be done to improve the system,}
 
-\todo{Summarize key findings from all evaluation sections. Use a table 
-if helpful to recap detection quality, TTC estimation accuracy, and 
-performance metrics. Highlight whether the system meets the 
-requirements stated in the thesis introduction.}
+
