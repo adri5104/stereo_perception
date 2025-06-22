@@ -718,7 +718,7 @@ of object in the scene that is later used by the \textbf{criticality pipeline} t
 \begin{figure}[htb]
   \centering
   \resizebox{1.0\textwidth}{!}{\includegraphics{figures/overall_system.drawio.png}
-  \caption{High level overall system}\label{fig:system_high_level}
+  \caption{High level diagram of the overall developed system}\label{fig:system_high_level}
   }
 \end{figure}%
 
@@ -748,7 +748,7 @@ The pipeline consists of several submodules as illustrated in figure~\ref{fig:pe
 \begin{figure}[H]
   \centering
   \resizebox{0.8\textwidth}{!}{\input{figures/high_level_pp.tikz}}
-  \caption{High level perception pipeline}\label{fig:perception_pipeline_high_level}
+  \caption{High level diagram of the perception pipeline}\label{fig:perception_pipeline_high_level}
 \end{figure}%
 
 As shown in the figure, the perception pipeline comprises the following core modules: 
@@ -780,7 +780,7 @@ metrics serve as indicators of potential hazards in the environment.
 \begin{figure}[h]
   \centering
   \resizebox{0.2\textwidth}{!}{\input{figures/high_level_cp.tikz}}
-  \caption{High level criticality pipeline}\label{fig:cp_high_level}
+  \caption{High level diagram of the criticality pipeline}\label{fig:cp_high_level}
 \end{figure}%
 
 This pipeline is designed to be independent of the perception pipeline, allowing for
@@ -833,8 +833,8 @@ The repository is structured into three main directories:
   \end{enumerate}
   \item \texttt{non\_ros/} Contains all non ROS2 packages related files.
   \begin{enumerate} 
-    \item \texttt{performance\_testing} Scripts for the performance
-    \item \texttt{dissertation} \LaTeX~code for this thesis.
+    \item \texttt{performance\_testing/} Scripts for the performance
+    \item \texttt{dissertation/ } \LaTeX~code for this thesis.
   \end{enumerate}
 \end{enumerate}
 
@@ -852,7 +852,7 @@ standard message types used by the other two containers.
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\linewidth]{figures/docker_containers.png}
-  \caption{Container architecture and data flow}\label{fig:docker_architecture}
+  \caption{Deployed container architecture and data flow}\label{fig:docker_architecture}
 \end{figure}
 
 This separation allows both the perception and criticality pipelines to operate 
@@ -1084,7 +1084,8 @@ To make the tuning and implementation easier, the following ROS2 parameters were
   pre\_filter\_cap             & Pre-filtering parameter for the image to improve disparity computation        \\ \hline
   use\_sim\_time               & Flag to use simulation time instead of system time                            \\ \hline
   \end{tabular}
-  \end{table}
+  \caption{ROS2 parameters for the stereo computation package}\label{tab:stereo_computation_params}
+\end{table}
 and the node can be added to a launch file as seen in the following example:
 
 \begin{lstlisting}[language=FTMpython,style=PythonStyleFTM,caption={Stereo computation launch},label={code:scl}]
@@ -1131,7 +1132,7 @@ one of the essential inputs to the Kalman Filter stage.
 \begin{figure}[H]
   \centering
   \resizebox{0.6\textwidth}{!}{\includegraphics{figures/opt_flw_concept.png}}
-  \caption{Optical flow}\label{fig:optical_flow_concept}
+  \caption{Optical flow concept}\label{fig:optical_flow_concept}
 \end{figure}%
 
 Optical flow estimation relies on the assumotion that the brightness of a pixel remains constant
@@ -1346,7 +1347,7 @@ To facilitate tuning and configuration, the following ROS2 parameters were added
   flags                & Operation flags passed to the Farneback function \\ \hline
   use\_sim\_time       & Boolean indicating whether to use simulation time (\texttt{/clock}) instead of system time \\ \hline
   \end{tabular}
-  \caption{ROS2 parameters for the optical flow computation node}
+  \caption{ROS2 parameters for the optical flow computation package}
   \label{tab:opf_flw_ros2_params}
 \end{table}
 
@@ -1392,7 +1393,7 @@ and the color represents its direction.
     \centering
     \includegraphics[width=\textwidth]{figures/debug_colored_image.png}
   \end{minipage}
-  \caption{Optical flow debug images. Left: Optical flow vectors superimposed on the original image. Right: RGB image where the intensity represents the magnitude and the color represents the direction of the optical flow vector. Source: own work}\label{fig:opt_flw_debug}%
+  \caption{Optical flow debug images. Left: Optical flow vectors superimposed on the original image. Right: RGB image where the intensity represents the magnitude and the color represents the direction of the optical flow vector}\label{fig:opt_flw_debug}%
 \end{figure}%
 
 These additional debug outputs greatly facilitate the qualitative evaluation of the optical flow results and enable faster identification of potential errors during the development and testing phases.
@@ -1494,7 +1495,7 @@ the visual odometry computation.
     \centering
     \includegraphics[width=\textwidth]{figures/TF_tree.png}
   \end{minipage}
-  \caption{Coordinate frames and ROS2 TF tee. Left: Coordinate frames visualized using Foxglove. Right: ROS2 Transform Tree of the project generated using tf2\_tools. Source: own work}\label{fig:tf}%
+  \caption{Coordinate frames and ROS2 TF tee. Left: Coordinate frames visualized using Foxglove. Right: ROS2 Transform Tree of the project generated using tf2\_tools}\label{fig:tf}%
 \end{figure}%
 
 \subsubsection{Visual odometry algorithm}\label{sec:OverviewAlgorithm}
@@ -1598,7 +1599,7 @@ set of detected keypoint can be seen. The ones with valid depth are shown in gre
 \begin{figure}[H]
   \centering
   \resizebox{1.0\textwidth}{!}{\includegraphics{figures/Keypoints.png}}
-  \caption{Odometry Keypoints with depth filtering and RGB Image. Source: own work}\label{fig:3D2D_correspondences}
+  \caption{Odometry Keypoints with depth filtering and RGB Image}\label{fig:3D2D_correspondences}
 \end{figure}%
 
 \subsubsection{Motion estimation using PnP and RANSAC}\label{sec:MotionEstimationPnP}
@@ -1756,7 +1757,7 @@ Once the computation is finished, the node publishes the results on the followin
 \begin{figure}[H]
   \centering
   \resizebox{0.6\textwidth}{!}{\includegraphics{figures/Path.png}}
-  \caption{Path and depth camera topics. Source: own work}\label{fig:Path}
+  \caption{Path and depth camera topics visualized in Rviz}\label{fig:Path}
 \end{figure}%
 
 To configure the node, the following ROS2 parameters were added:
@@ -2406,7 +2407,7 @@ measurement update, and error code handling. In the following figure \ref{fig:wp
 \begin{figure}[H]
   \centering
   \includegraphics[scale = 0.5]{figures/WorldPoint.png}
-  \caption{WorldPoint class. Source: own work} %
+  \caption{WorldPoint class} %
   \label{fig:wp}
 \end{figure}%
 
@@ -2485,7 +2486,7 @@ uniform filtering process across the image.
 \begin{figure}[H]
   \centering
   \includegraphics[scale = 0.5]{figures/KalmanCore.png}
-  \caption{KalmanCore class.}
+  \caption{KalmanCore class}
   \label{fig:kalmanCoreClass}
 \end{figure}
 
@@ -2499,7 +2500,7 @@ the entire field of view.
 \begin{figure}[H]
   \centering
   \includegraphics[scale = 0.3]{figures/gridApproach.png}
-  \caption{KalmanCore grid.}
+  \caption{KalmanCore grid}
   \label{fig:grid}
 \end{figure}
 
@@ -2591,7 +2592,7 @@ The output of the Kalman Filter is shown in the figure \ref{fig:kalman_output}.
 \begin{figure}[H]
   \centering
   \includegraphics[scale = 0.2]{figures/kalmanOutput.png}
-  \caption{Kalman Filter output. Source: own work}\label{fig:kalman_output}
+  \caption{Kalman Filter output. 6D motion vectors on the left, and tracked WorldPoints on the right image}\label{fig:kalman_output}
 \end{figure}
 
 \section{Perception pipeline: Object detection}\label{sec:PerceptionPipelineObjectDetection}
@@ -2802,7 +2803,7 @@ during the detection process.
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.3\textwidth]{figures/ObjectDetector.png}
-  \caption{UML diagram of the \texttt{ObjectDetector} class. Source: own work}
+  \caption{UML diagram of the \texttt{ObjectDetector} class}
   \label{fig:object_detector_uml}
 \end{figure}
 
@@ -2913,7 +2914,7 @@ interface of the implementation.
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.3\textwidth]{figures/WorldEntity.png}
-  \caption{UML diagram of the \texttt{WorldEntity} class. Source: own work}
+  \caption{UML diagram of the \texttt{WorldEntity} class}
   \label{fig:world_entity_uml}
 \end{figure}
 
@@ -2962,13 +2963,12 @@ of the pipeline, such as the criticality assessment.
 In parallel to structured outputs, the node publishes markers for visualization. These
 include the bounding box as a wireframe, the motion vector as an arrow, and the
 clustered points as spheres, all in the \texttt{camera\_optical\_frame}. This visualization
-output is shown in the following figure \ref{fig:object_detection_output}.
+output is shown in the following figure~\ref{fig:object_detection_output}.
 
 \begin{figure}
   \centering
   \includegraphics[width=1.0\textwidth]{figures/outputObjectDetector.png}
-  \caption{Object detection output. Source: own work}
-  \label{fig:object_detection_output}
+  \caption{Object detection output. Clustered WordlPoints and bounding box on the left, and tracked WorldPoints in upper right image}~\label{fig:object_detection_output}
 \end{figure}
 
 All relevant parameters of the node are loaded from the ROS2 parameter server. These
@@ -3153,7 +3153,7 @@ collision axis.
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.85\textwidth]{figures/ttc_twist.png}
-  \caption{Geometric interpretation of time-to-collision.}
+  \caption{Geometric interpretation of time-to-collision}
   \label{fig:ttc_twist_diagram}
 \end{figure}
 
@@ -3175,7 +3175,7 @@ $\mathbf{v}_o$ be the current position and velocity of the object.
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.85\textwidth]{figures/ttc_path.png}
-  \caption{Time-to-collision with ego path consideration. Source: own work}
+  \caption{Time-to-collision with ego path consideration}
   \label{fig:ttc_path_diagram}
 \end{figure}
 
@@ -3326,15 +3326,14 @@ describes the camera hardware evaluation and calibration procedures. Section~\re
 design with the final setup as well as the actual performed tests. Section~\ref{sec:PerformanceBenchmarking} presents a runtime performance analysis, respectively. Finally, 
 Section~\ref{sec:ResultsSummary} summarizes the main findings of this Chapter.
 
-\section{Camera hardware selection and calibration}
-\label{sec:CameraHardware}
+\section{Camera hardware selection and calibration}\label{sec:CameraHardware}
 
 The perception pipeline developed in this thesis is based exclusively on 
 stereo vision. Consequently, selecting a suitable camera system was a 
 critical initial step. Rather than introducing external hardware, the 
 evaluation started with the camera systems already available on the 
 EDGAR research platform. These included: (i) a pair of Framos D455e 
-depth cameras, (ii) six Basler acA1920-50gc cameras mounted for 
+depth cameras, (ii) six Basler acA1920\-50gc cameras mounted for 
 surround view and long-range sensing, and (iii) a set of fisheye cameras 
 dedicated to vehicle teleoperation.
 
@@ -3346,7 +3345,7 @@ the most relevant technical characteristics for stereo vision evaluation.
 
 \begin{table}[H]
   \centering
-  \caption{Comparison of available camera systems on EDGAR}
+  \caption{Comparison of available camera systems on the EDGAR platform}
   \label{tab:camera_specs}
   \begin{tabular}{p{2.7cm} p{1.4cm} p{1.1cm} p{2.8cm}}
     \toprule
@@ -3432,7 +3431,7 @@ reliable motion tracking.
   \centering
   \includegraphics[width=0.7\textwidth]
   {figures/framosEval/session1/depthResults/2.png}
-  \caption{Raw 2D depth image at 2\,m distance.}
+  \caption{Raw 2D depth image of Framos at 2\,m distance}
   \label{fig:framos_2m_2d}
 \end{figure}
 
@@ -3440,7 +3439,7 @@ reliable motion tracking.
   \centering
   \includegraphics[width=0.7\textwidth]
   {figures/framosEval/session1/depthResults3D/2_1.png}
-  \caption{3D depth visualization at 2\,m distance.}
+  \caption{3D depth visualization of Framos at 2\,m distance}
   \label{fig:framos_2m_3d}
 \end{figure}
 
@@ -3448,7 +3447,7 @@ reliable motion tracking.
   \centering
   \includegraphics[width=0.7\textwidth]
   {figures/framosEval/session1/depthResults/10.png}
-  \caption{Raw 2D depth image at 10\,m distance.}
+  \caption{Raw 2D depth image of Framos at 10\,m distance}
   \label{fig:framos_10m_2d}
 \end{figure}
 
@@ -3456,7 +3455,7 @@ reliable motion tracking.
   \centering
   \includegraphics[width=0.7\textwidth]
   {figures/framosEval/session1/depthResults3D/10_1.png}
-  \caption{3D depth visualization at 10\,m distance.}
+  \caption{3D depth visualization of Framos at 10\,m distance}
   \label{fig:framos_10m_3d}
 \end{figure}
 
@@ -3538,7 +3537,7 @@ the optical axis of the Framos camera.
   \centering
   \includegraphics[width=0.5\textwidth]
   {figures/framosEval/session2/rangeTest/rangeTest.png}
-  \caption{Range test experiment setup. Source: own work}
+  \caption{Range test experiment setup}
   \label{fig:rangeTest}
 \end{figure}
 
@@ -3578,7 +3577,7 @@ with the one inferred by the Kalman filter.
   \centering
   \includegraphics[width=0.6\textwidth]
   {figures/framosEval/session2/angleTest/angleTest.png}
-  \caption{Angle test experiment setup. Source: own work}\label{fig:alphaTest}
+  \caption{Angle test experiment setup}\label{fig:alphaTest}
 \end{figure}
 
 The camera was mounted on the EDGAR vehicle in a fixed position, and the 
@@ -3671,7 +3670,7 @@ Table~\ref{tab:alpha_tests}.
     Test21\_6 & (-7, 5) & (5, 3) & 80.54 \\
     \bottomrule
   \end{tabular}
-  \caption{Coordinates and angles of recorded trajectories.}\label{tab:alpha_tests}
+  \caption{Coordinates and angles of recorded trajectories for the Framos camera evaluation angle tests}\label{tab:alpha_tests}
 \end{table}
 
 This test provided valuable insight into how trajectory orientation affects the 
@@ -3986,7 +3985,7 @@ Table~\ref{tab:candidate_summary} summarizes key aspects of each.
     Approx. cost & €2900 & €900 & €2495 \\
     \bottomrule
   \end{tabular}
-  \caption{Comparison of final stereo camera candidates.}
+  \caption{Comparison of final stereo camera candidates}
   \label{tab:candidate_summary}
 \end{table}
 
@@ -4009,6 +4008,14 @@ stereo baseline with 91 {} HFOV and IP68 environmental protection. The internal
 architecture includes a quad-core ARM processor, capable of local pre-processing or 
 network handling. Although it does not support PoE natively, standard PoE splitters 
 (IEEE 802.3at) could be used to simplify cabling with minimal cost overhead.
+
+% Figure of the camera
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.5\textwidth]{figures/carnegieCamera.png}
+  \caption{new Carnegie Robotics Multisense S30 stereo camera. Source: Carnegie Robotics}
+  \label{fig:carnegie_s30}
+\end{figure}
 
 To further validate its performance, Carnegie Robotics was contacted to provide 
 a \texttt{rosbag} sample. The perception pipeline was executed offline using this 
@@ -4053,7 +4060,7 @@ Table~\ref{tab:s27_s30_comparison}.
     Price & \$1995 & \$2495 \\
     \bottomrule
   \end{tabular}
-  \caption{Comparison between Carnegie Multisense S27 and S30 models.}
+  \caption{Comparison between Carnegie Multisense S27 and S30 models}
   \label{tab:s27_s30_comparison}
 \end{table}
 
@@ -4126,7 +4133,7 @@ Table~\ref{tab:carnegie_kalman_params}.
     \texttt{ego\_compensation\_factor}  & 1.25 \\
     \bottomrule
   \end{tabular}
-  \caption{Final Kalman filter parameters after Carnegie S30 calibration.}
+  \caption{Final Kalman filter parameters after Carnegie S30 calibration}
   \label{tab:carnegie_kalman_params}
 \end{table}
 
@@ -4196,7 +4203,7 @@ Table~\ref{tab:carnegie_detector_params}.
     \texttt{receding\_speed\_thresh} & 0.3 \\
     \bottomrule
   \end{tabular}
-  \caption{Final object detector parameters with receding speed filter.}\label{tab:carnegie_detector_params}
+  \caption{Final object detector parameters with receding speed filter}\label{tab:carnegie_detector_params}
 \end{table}
 
 
@@ -4254,7 +4261,7 @@ relevant for perception and evaluation:
     Autoware detections & \texttt{/perception/object\_recognition/objects} \\
     \bottomrule
   \end{tabular}
-  \caption{Relevant topics recorded during evaluation sessions.}\label{tab:recorded_topics}
+  \caption{Relevant topics recorded during final evaluation sessions}\label{tab:recorded_topics}
 \end{table}
 
 This set of topics enables synchronized reconstruction of the full vehicle 
@@ -4311,7 +4318,7 @@ start and near the end of the sequence, respectively.
   \centering
   \includegraphics[width=1.0\textwidth]
   {figures/carnegieEval/staticTest/carnegieRangeInit.png}
-  \caption{Initial detection at 20\,m in the range test scenario.}
+  \caption{Initial detection at 20\,m in the range test scenario}
   \label{fig:carnegie_range_init}
 \end{figure}
 
@@ -4352,14 +4359,14 @@ each traversal direction.
   \centering
   \includegraphics[width=1.0\textwidth]
   {figures/carnegieEval/staticTest/horizontalTest1.png}
-  \caption{Lateral motion test: right-to-left traversal at 8\,m distance.}\label{fig:lateral_motion_1}
+  \caption{Lateral motion test: right-to-left traversal at 8\,m distance}\label{fig:lateral_motion_1}
 \end{figure}
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=1.0\textwidth]
   {figures/carnegieEval/staticTest/horizontalTest2.png}
-  \caption{Lateral motion test: return traversal from left to right.}\label{fig:lateral_motion_2}
+  \caption{Lateral motion test: return traversal from left to right}\label{fig:lateral_motion_2}
 \end{figure}
 
 Compared to previous tests with the Framos D455e, the Carnegie S30 
