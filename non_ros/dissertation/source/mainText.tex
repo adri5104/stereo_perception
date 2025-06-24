@@ -4421,11 +4421,11 @@ in parallel under identical conditions. The evaluation setup consisted of:
 
 \begin{itemize}
   \item The stereo-based perception and criticality pipelines, running 
-        as ROS 2 nodes in a dedicated container.
+        as ROS~2 nodes in a dedicated container.
   \item A secondary container named \texttt{criticality\_pipeline\_autoware}, 
-        which launched a wrapper for the Autoware perception detected objects topic, and a second
-        instance of the developed TTC calculator node.
-  \item The Autoware perception stack, configured to use the
+        which launched a wrapper for the Autoware perception detected 
+        objects topic, and a second instance of the developed TTC 
+        calculator node.
 \end{itemize}
 
 In order to ensure compatibility between both systems, a custom wrapper 
@@ -4438,8 +4438,17 @@ consistent comparison.
 
 Both systems were fed with the same rosbags using a synchronized replay, 
 and all visual outputs (object detection and TTC estimates) were recorded 
-for later inspection and analysis. Each frame was visualized in Foxglove (with the custom layout available in the repository), 
-and screenshots were extracted for side-by-side comparison.
+for later inspection and analysis. For the quantitative evaluation, new 
+comparison plots were generated showing the number of detected objects 
+and minimum TTC over time for both systems. These plots do not include 
+frame-level annotations; therefore, exact TTC and detection values used in 
+the discussion were retrieved from synchronized visualizations in 
+Foxglove Studio. Screenshots of these views are provided in Appendix~B 
+for reference.
+
+Note that missing TTC values in the generated plots correspond to infinite 
+TTC estimates, which indicate that no imminent collision was predicted by 
+the pipeline at that frame.
 
 A total of ten dynamic scenarios were identified across the recorded rosbags and annotated. These 
 include common urban interactions such as pedestrians crossing, vehicles 
@@ -4501,33 +4510,38 @@ rotation stabilizes, the system recovers and produces reliable output.
   \caption{Scenario 1, frame 2: Perception}\label{fig:scenario1_img2}
 \end{figure}
 
-\textbf{Quantitative analysis.}  
+\textbf{Quantitative analysis.}
 
-As shown in Figure~\ref{fig:scenario1_ttc1}, the perception pipeline 
-outputs a minimum TTC of 1.97\,s in the first frame, likely influenced by 
-false positives. In contrast, Autoware reports an infinite TTC, which is 
-appropriate in this case given the absence of actual collision risk.
+Figure~\ref{fig:scenario1_plot} shows the number of detected objects and
+minimum TTC values over time for both the stereo perception pipeline
+and the Autoware baseline.
 
-In the second frame (Figure~\ref{fig:scenario1_ttc2}), both pipelines 
-report infinite TTC values, correctly reflecting the low threat level posed 
-by the crossing pedestrian at that point in time.
+In the initial frames, the stereo system outputs a minimum TTC of 1.97\,s,
+likely influenced by false positives due to imperfect motion compensation.
+Autoware reports no TTC value (interpreted as infinite), which is 
+appropriate given the absence of imminent threat.
 
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.95\textwidth]{figures/carnegieEval/scenarioTest/1/11_ttc.png}
-  \caption{Scenario 1, frame 1: TTC and detections}\label{fig:scenario1_ttc1}
-\end{figure}    
+Later in the sequence, both systems return infinite TTC values, 
+consistently reflecting the low collision risk once the pedestrian has
+moved further from the trajectory.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.95\textwidth]{figures/carnegieEval/scenarioTest/1/12_ttc.png}
-  \caption{Scenario 1, frame 2: TTC and detections}\label{fig:scenario1_ttc2}
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]
+    {figures/carnegieEval/scenarioTest/Scenario1_sp.png}
+    \caption{Stereo perception}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]
+    {figures/carnegieEval/scenarioTest/Scenario1_autoware.png}
+    \caption{Autoware perception}
+  \end{subfigure}
+  \caption{Scenario 1: Object detection and TTC comparison.}
+  \label{fig:scenario1_plot}
 \end{figure}
 
-Overall, this test highlights the need for further improvement in 
-egomotion correction and optical flow filtering. However, it also 
-demonstrates the ability of the pipeline to recover and stabilize rapidly 
-after a transient disturbance.
 
 \subsubsection{Scenario 2: Pedestrian + car turning}
 
@@ -4571,8 +4585,7 @@ pipeline continues to track the car.
 
 \textbf{Quantitative analysis}
 
-The TTC estimation is illustrated in Figures~\ref{fig:scenario2_ttc1} 
-to~\ref{fig:scenario2_ttc3}. In the first frame, the stereo system outputs 
+  In the first frame, the stereo system outputs 
 a TTC of 32.35\,s while Autoware reports $\infty$. Given the slow 
 approach of the pedestrian and the partial vehicle motion, the stereo 
 estimate is arguably more informative.
@@ -4585,24 +4598,23 @@ more conservative or less precise motion estimation.
 In the third frame, both systems report infinite TTC values, which is 
 appropriate given that the vehicle is now moving away.
 
-\begin{figure}[H]
+Toward the end, both pipelines detect the situation as non-critical, reporting infinite 
+or very large TTCs. While the summary plots reveal trends and differences in detection 
+density and temporal TTC response, the exact values referenced above were taken directly 
+from the synchronized Foxglove visualization (see Annex~B).\begin{figure}[H]
   \centering
-  \includegraphics[width=0.95\textwidth]{figures/carnegieEval/scenarioTest/2/1_ttc.png}
-  \caption{Scenario 2, frame 1: TTC and detections}\label{fig:scenario2_ttc1}
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{figures/carnegieEval/scenarioTest/Scenario2_sp.png}
+    \caption{Stereo-based pipeline}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{figures/carnegieEval/scenarioTest/Scenario2_autoware.png}
+    \caption{Autoware-based pipeline}
+  \end{subfigure}
+  \caption{Scenario 2: Object detection and TTC comparison.}
+  \label{fig:scenario2_ttc_combined}
 \end{figure}
-
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.95\textwidth]{figures/carnegieEval/scenarioTest/2/2_ttc.png}
-  \caption{Scenario 2, frame 2: TTC and detections}\label{fig:scenario2_ttc2}
-\end{figure}
-
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.95\textwidth]{figures/carnegieEval/scenarioTest/2/3_ttc.png}
-  \caption{Scenario 2, frame 3: TTC and detections}\label{fig:scenario2_ttc3}
-\end{figure}
-
 This scenario demonstrates the ability of the stereo-based pipeline to 
 identify and prioritize relevant dynamic agents. While Autoware offers a 
 broader situational overview, its TTC estimates may lack responsiveness 
@@ -4623,30 +4635,44 @@ perception pipeline correctly detects the pedestrian in front of the
 vehicle. However, several static parked vehicles are also erroneously 
 clustered as dynamic objects. This over-detection is likely due to 
 residual motion artifacts or minor depth inconsistencies amplified by 
-optical flow noise.
-
-\begin{figure}[H]
+optical flow noise.\begin{figure}[H]
   \centering
   \includegraphics[width=0.95\textwidth]{figures/carnegieEval/scenarioTest/3/1.png}
   \caption{Scenario 3, frame 1: Perception}\label{fig:scenario3_img1}
-\end{figure}
-
-The clustering and velocity estimation remain consistent in shape and 
+\end{figure}The clustering and velocity estimation remain consistent in shape and 
 direction, but the false positives reduce the clarity of the scene 
 interpretation. 
 
 \textbf{Quantitative analysis}
 
-The TTC output is shown in Figure~\ref{fig:scenario3_ttc1}. The stereo 
-pipeline estimates a minimum TTC of 2.53\,s, which is consistent with 
+The stereo pipeline estimates a minimum TTC of 2.53\,s, which is consistent with 
 the presence of the crossing pedestrian. Autoware, on the other hand, 
 outputs a TTC of nearly 2 million seconds, indicating a failure in 
 initializing the relative velocity of detected objects or a default fallback 
 value.
 
+A temporal comparison of both pipelines across the full scenario is shown in 
+Figure~\ref{fig:scenario3_ttcall}. The stereo pipeline consistently reports 
+low TTC values around 3\,s, reflecting the pedestrian's presence. Autoware 
+produces extremely high TTC values (in the order of $10^6$\,s) despite 
+detecting over 15 objects, suggesting inaccurate velocity estimation or 
+overcautious filtering. The number of detected objects also remains 
+significantly higher in Autoware, due to the wider sensor coverage 
+and the inclusion of static elements. 
+
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.95\textwidth]{figures/carnegieEval/scenarioTest/3/1_ttc.png}\caption{Scenario 3, frame 1: TTC and detections}\label{fig:scenario3_ttc1}
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{figures/carnegieEval/scenarioTest/Scenario3_sp.png}
+    \caption{Stereo perception pipeline}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{figures/carnegieEval/scenarioTest/Scenario3_autoware.png}
+    \caption{Autoware perception stack}
+  \end{subfigure}
+  \caption{Scenario 3: Object detection and TTC comparison}
+  \label{fig:scenario4_comparison}
 \end{figure}
 
 This scenario highlights the challenge of distinguishing between 
@@ -4703,33 +4729,35 @@ observed.
   \caption{Scenario 4, frame 3: Perception}\label{fig:scenario4_img3}
 \end{figure}
 
+
 \textbf{Quantitative analysis}  
 
-TTC results for the three frames are shown in 
-Figures~\ref{fig:scenario4_ttc1} to~\ref{fig:scenario4_ttc3}. In all cases, 
-the stereo pipeline estimates TTC as inf, which is appropriate since the 
-ego vehicle is stationary and no object is directly on a collision course.
+Figure~\ref{fig:scenario4_comparison} summarizes the TTC and object 
+detection evolution throughout the full sequence. The stereo pipeline 
+only outputs TTC values when actual motion is detected, and otherwise 
+considers objects as non-threatening, leading to infinite TTC values (not 
+shown in the chart). Autoware, by contrast, frequently estimates TTCs 
+in the range of $10^6$ to $10^7$ seconds, reflecting minimal or 
+uncertain relative velocities in its tracking model.
 
-Autoware, by contrast, outputs TTC values in the order of 
-$10^6$ to $10^7$ seconds, likely as a result of negligible initial velocity 
-components in its tracking filter or due to limited relative motion.
-
+The number of detected objects in the stereo pipeline ranges from 0 to 8, 
+in line with the number of moving pedestrians and vehicles within the 
+narrow field of view. Autoware consistently reports more than 20 
+objects, capturing static elements and distant agents through its 360° 
+LiDAR coverage and classification modules.
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.95\textwidth]{figures/carnegieEval/scenarioTest/4/1_ttc.png}
-  \caption{Scenario 4, frame 1 ttc and detections}\label{fig:scenario4_ttc1}
-\end{figure}
-
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.95\textwidth]{figures/carnegieEval/scenarioTest/4/2_ttc.png}
-  \caption{Scenario 4, frame 2 ttc and detections}\label{fig:scenario4_ttc2}
-\end{figure}
-
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.95\textwidth]{figures/carnegieEval/scenarioTest/4/3_ttc.png}
-  \caption{Scenario 4, frame 3 ttc and detections}\label{fig:scenario4_ttc3}
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{figures/carnegieEval/scenarioTest/Scenario4_sp.png}
+    \caption{Stereo perception pipeline}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{figures/carnegieEval/scenarioTest/Scenario4_autoware.png}
+    \caption{Autoware perception stack}
+  \end{subfigure}
+  \caption{Scenario 4: Object detection and TTC comparison}
+  \label{fig:scenario4_comparison}
 \end{figure}
 
 This scenario confirms the capability of the stereo perception pipeline to maintain 
@@ -4758,15 +4786,35 @@ stereo setup.
 
 \textbf{Quantitative analysis}
 
-The TTC estimated by the stereo pipeline is 2.11\,s, reflecting the 
-closing distance (Figure~\ref{fig:scenario6_ttc1}). Autoware outputs a 
-TTC of over 148000\,s, likely due to low relative velocity estimation.
+The temporal evolution of object detections and minimum TTC values for 
+this scenario is shown in Figure~\ref{fig:scenario6_comparison}. The stereo-based 
+pipeline consistently detects between 1 and 6 objects and estimates TTC values 
+ranging from 8\,s down to below 2\,s as the oncoming vehicle approaches. These 
+estimates follow the expected decreasing trend and remain within a plausible 
+range throughout the sequence.
+
+By contrast, Autoware reports over 40 objects at all times, many of which lie 
+outside the stereo field of view. The reported TTC values remain in the range 
+of $10^5$ to $1.6\cdot 10^5$\,s and show little correlation with the actual 
+closing motion. This suggests that the velocity estimation of Autoware does 
+not sufficiently capture the relative motion of objects in this scenario.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.95\textwidth]{figures/carnegieEval/scenarioTest/6/1_ttc.png}
-  \caption{Scenario 6, frame 1: TTC and detections}\label{fig:scenario6_ttc1}
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{figures/carnegieEval/scenarioTest/Scenario6_sp.png}
+    \caption{Stereo perception pipeline}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{figures/carnegieEval/scenarioTest/Scenario6_autoware.png}
+    \caption{Autoware perception stack}
+  \end{subfigure}
+  \caption{Scenario 6: Object detection and TTC comparison}
+  \label{fig:scenario6_comparison}
 \end{figure}
+
+
 
 \subsubsection{Scenario 7: Pedestrian crossing with moving vehicle}
 
@@ -4798,26 +4846,33 @@ correctly tracked.
 
 \textbf{Quantitative analysis}
 
-Figure~\ref{fig:scenario7_ttc1} shows a TTC of 4.67s from the stereo 
-pipeline. Autoware reports 97958s, which underestimates the 
-criticality. In the second frame (Figure~\ref{fig:scenario7_ttc2}), stereo 
-TTC increases to 7.93s as pedestrians move further away. Autoware 
-TTC remains above 100000s.
+The TTC comparison is shown in 
+Figure~\ref{fig:scenario7_combined}. The stereo pipeline outputs a 
+minimum TTC of approximately 4.67\,s during the initial part of the scene, 
+gradually increasing as the pedestrians move away from the ego vehicle. 
+Autoware, on the other hand, reports TTC values in the order of $10^5$\,s 
+throughout the scene, underestimating the criticality of the interaction.
+
+This example reinforces the differences in responsiveness between 
+both pipelines. While the stereo perception system provides time-varying 
+estimates that reflect dynamic changes, Autoware tends to output 
+conservative and constant TTCs, possibly due to limited motion estimation.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.95\textwidth]{figures/carnegieEval/scenarioTest/7/1_ttc.png}
-  \caption{Scenario 7, frame 1: TTC and detections}\label{fig:scenario7_ttc1}
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{figures/carnegieEval/scenarioTest/Scenario7_sp.png}
+    \caption{Stereo-based pipeline}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{figures/carnegieEval/scenarioTest/Scenario7_autoware.png}
+    \caption{Autoware pipeline}
+  \end{subfigure}
+  \caption{Scenario 7: Object detection and TTC comparison}
+  \label{fig:scenario7_combined}
 \end{figure}
 
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.95\textwidth]{figures/carnegieEval/scenarioTest/7/2_ttc.png}
-  \caption{Scenario 7, frame 2: TTC and detections}\label{fig:scenario7_ttc2}
-\end{figure}
-
-This test confirms good performance in multi-agent scenarios, though 
-additional filtering could help reduce false positives on static elements.
 
 
 \subsection{Summary and insights}
@@ -4914,25 +4969,23 @@ the image \texttt{perception\_pipeline:1.1.0}. All results refer to this
 identical configuration. Table~\ref{tab:hardware_platforms} summarizes 
 the main specifications of both setups:
 
-\todo{Check edgar docker and kernel version}
-\todo{Check exact version of edgar gpu and cpu}
-\todo{basically run a neofetch on edgar}
 \begin{table}[H]
   \centering
   \begin{tabularx}{\textwidth}{l X X}
     \toprule
     \textbf{Property} & \textbf{PC (Development)} & \textbf{EDGAR (Deployment)} \\
     \midrule
-    CPU & Intel i7-10700K (8C/16T, 5.1\,GHz) & Xeon E-2276ME (6C/12T, 4.5\,GHz) \\
-    GPU & NVIDIA RTX 3060 (12\,GB VRAM) & NVIDIA RTX A4000 (16\,GB VRAM) \\
-    RAM & 16\,GB & 64\,GB \\
-    OS & Ubuntu 24.04 + kernel 6.11 & Ubuntu 22.04  \\
-    Docker & 27.5.1 & 26.0.2 \\
+    CPU & Intel i7-10700K (8C/16T, 5.1\,GHz) & AMD EPYC 7713 (64C, 2.0\,GHz) \\
+    GPU & NVIDIA RTX 3060 (12\,GB VRAM) & NVIDIA RTX A6000 (48\,GB VRAM) \\
+    RAM & 16\,GB & 128\,GB \\
+    OS & Ubuntu 24.04 + kernel 6.11 & Ubuntu 22.04.4 + kernel 6.8.0-52 \\
+    Docker & 27.5.1 & 27.5.1 \\
     Evaluation mode & Offline rosbag replay & Live data during driving \\
     Container image & \multicolumn{2}{c}{\texttt{perception\_pipeline:1.1.0}} \\
     \bottomrule
   \end{tabularx}
-  \caption{Hardware and software configuration of tested platforms.}\label{tab:hardware_platforms}
+  \caption{Hardware and software configuration of tested platforms.}
+  \label{tab:hardware_platforms}
 \end{table}
 
 
@@ -5103,9 +5156,111 @@ around 120\,MB due to intermittent calls to CUDA-based operations.
   \caption{Resource usage of the \texttt{object\_detector} node on PC.}\label{fig:objdet_ressource_pc}
 \end{figure}
 
-\subsubsection{EDGAR  results}\label{sec:EdgarResults}
+\subsubsection{EDGAR results}\label{sec:EdgarResults}
 
-\todo{Analyze the resource usage on EDGAR when  available}
+This section reports the resource usage of the perception pipeline 
+when deployed on the EDGAR research vehicle. Unlike the PC test, 
+measurements were taken during live operation. No data was available 
+for the visual odometry module due to a logging issue.
+
+\textbf{Optical flow node}
+
+The \texttt{optical\_flow\_co} node exhibited the highest resource 
+demand. CPU load averaged 133.2\,\% with relatively low variance 
+($\sigma = 10.9$), indicating sustained multithreaded computation 
+(Figure~\ref{fig:res_edgar_optflow}). 
+
+GPU memory usage increased compared to the PC, averaging 336.8\,MB. 
+This may be due to longer frame queues or higher resolution input. 
+RAM usage displayed a cyclic pattern with a mean of 616.6\,MB, 
+suggesting frequent allocation and deallocation during pyramid 
+construction.
+
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}{0.32\textwidth}
+    \includegraphics[width=\linewidth]
+    {figures/performanceEval/EDGAR/resourceAnalysis/res_edgar_optflow_cpu.png}
+    \caption{CPU usage}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}{0.32\textwidth}
+    \includegraphics[width=\linewidth]
+    {figures/performanceEval/EDGAR/resourceAnalysis/res_edgar_optflow_gpu.png}
+    \caption{GPU memory}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}{0.32\textwidth}
+    \includegraphics[width=\linewidth]
+    {figures/performanceEval/EDGAR/resourceAnalysis/res_edgar_optflow_ram.png}
+    \caption{RAM usage (RSS)}
+  \end{subfigure}
+  \caption{Resource usage of the optical flow node on EDGAR.}\label{fig:res_edgar_optflow}
+\end{figure}
+
+\textbf{Kalman filter node}
+
+The \texttt{kalman\_filter\_n} node had a significantly lower CPU 
+utilization than on PC, with a mean of 13.5\,\%. This reflects the 
+lower frame rate and smaller number of tracked points during 
+real-time operation.
+
+As expected, no GPU usage was reported. RAM usage peaked during 
+initialization and then stabilized, with a mean of 1281\,MB. The 
+higher memory footprint compared to PC may result from longer 
+frame history or internal buffer growth.
+
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}{0.32\textwidth}
+    \includegraphics[width=\linewidth]
+    {figures/performanceEval/EDGAR/resourceAnalysis/res_edgar_kalman_cpu.png}
+    \caption{CPU usage}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}{0.32\textwidth}
+    \includegraphics[width=\linewidth]
+    {figures/performanceEval/EDGAR/resourceAnalysis/res_edgar_kalman_gpu.png}
+    \caption{GPU memory}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}{0.32\textwidth}
+    \includegraphics[width=\linewidth]
+    {figures/performanceEval/EDGAR/resourceAnalysis/res_edgar_kalman_ram.png}
+    \caption{RAM usage (RSS)}
+  \end{subfigure}
+  \caption{Resource usage of the Kalman filter node on EDGAR.}\label{fig:res_edgar_kalman}
+\end{figure}
+
+\textbf{Object detector node}
+
+Due to the low number of clusters formed during the short window 
+analyzed, the \texttt{object\_detector} node showed negligible 
+resource usage. CPU and GPU usage were close to zero most of the time, 
+with only brief spikes. RAM usage remained constant at around 68\,MB.
+
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}{0.32\textwidth}
+    \includegraphics[width=\linewidth]
+    {figures/performanceEval/EDGAR/resourceAnalysis/res_edgar_clust_cpu.png}
+    \caption{CPU usage}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}{0.32\textwidth}
+    \includegraphics[width=\linewidth]
+    {figures/performanceEval/EDGAR/resourceAnalysis/res_edgar_clust_gpu.png}
+    \caption{GPU memory}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}{0.32\textwidth}
+    \includegraphics[width=\linewidth]
+    {figures/performanceEval/EDGAR/resourceAnalysis/res_edgar_clust_ram.png}
+    \caption{RAM usage (RSS)}
+  \end{subfigure}
+  \caption{Resource usage of the object detector node on EDGAR.}\label{fig:res_edgar_objdet}
+\end{figure}
+
 
 \subsection{Callback execution profiling}\label{sec:CallbackAnalysis}
 
@@ -5291,16 +5446,204 @@ its suitability for real-time deployment.
 
 \subsubsection{EDGAR analysis}
 
-\todo{Analyze the callback execution times on EDGAR when available}
+This section presents the callback execution times measured while the perception
+pipeline was running live on the EDGAR research vehicle. The system was subjected 
+to realistic driving scenarios for a duration of approximately two minutes, with 
+all sensors active.
+
+Each figure shows the duration of callback execution over time, and the corresponding
+histogram to highlight distribution patterns and potential outliers.
+
+\textbf{optical\_flow\_computation \- input image subscriber}
+
+As shown in Figure~\ref{fig:callback_optflow_edgar_combined}, the callback for 
+processing grayscale images in the optical flow module exhibits a mean duration 
+around 75–85\,ms. This is significantly higher than in the desktop setup, where 
+execution stayed mostly below 60\,ms.
+
+The increase in runtime is likely due to the limited CPU headroom and concurrent 
+resource usage on the embedded system. The histogram also confirms a compact 
+distribution, with a slight tail reaching up to 100\,ms, exceeding the real-time 
+threshold of 50\,ms at 20\,Hz. These results suggest that real-time dense flow 
+computation is a limiting factor on EDGAR.
+
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{figures/performanceEval/EDGAR/callbackAnalysis/callback_edgar_optfloe.png}
+    \caption{Execution time over time}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{figures/performanceEval/EDGAR/callbackAnalysis/callback_edgar_optflow_hist.png}
+    \caption{Duration histogram}
+  \end{subfigure}
+  \caption{Callback analysis for \texttt{optical\_flow\_computation}.}
+  \label{fig:callback_optflow_edgar_combined}
+\end{figure}
+
+\textbf{visual\_odometry \- color image subscriber}
+
+This callback shows very short and stable execution times, consistently
+under 0.05\,ms. The histogram in 
+Figure~\ref{fig:callback_edgar_vio_color} confirms tight clustering
+around 0.02\,ms, with negligible variance. This confirms that the RGB 
+input callback is not a computational concern on EDGAR.
+
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{figures/performanceEval/EDGAR/callbackAnalysis/callback_edgar_vio_color.png}
+    \caption{Execution time over time}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{figures/performanceEval/EDGAR/callbackAnalysis/callback_edgar_vio_color_hist.png}
+    \caption{Duration histogram}
+  \end{subfigure}
+  \caption{Callback duration for color input (visual\_odometry).}
+  \label{fig:callback_edgar_vio_color}
+\end{figure}
+
+\textbf{visual\_odometry \- depth image subscriber}
+
+This callback processes the main depth input for visual odometry. 
+Execution times range from 55\,ms to 80\,ms, with an average around 
+65\,ms. As in the desktop setup, the depth callback remains the 
+primary bottleneck in the visual odometry module.
+
+The histogram (Figure~\ref{fig:callback_edgar_vio_depth}) reveals 
+a centered peak around 60–65\,ms, confirming sustained high load.
+
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{figures/performanceEval/EDGAR/callbackAnalysis/callback_edgar_vio_depth.png}
+    \caption{Execution time over time}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{figures/performanceEval/EDGAR/callbackAnalysis/callback_edgar_vio_depth_hist.png}
+    \caption{Duration histogram}
+  \end{subfigure}
+  \caption{Callback duration for depth input (visual\_odometry).}
+  \label{fig:callback_edgar_vio_depth}
+\end{figure}
+
+\textbf{kalman\_filter \- optical flow subscriber}
+
+The Kalman filter node processes optical flow input to estimate
+object velocities. Execution times are more variable on EDGAR than on 
+PC, with many callbacks completing under 5\,ms but spikes reaching 
+up to 80\,ms.
+
+This is confirmed by the bimodal distribution shown in the histogram
+(Figure~\ref{fig:callback_edgar_kalman_combined}), which includes a sharp
+peak near zero and a long tail. This behavior is consistent with the 
+adaptive nature of the Kalman update step, and further highlights the 
+sensitivity of this node to CPU availability.
+
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{figures/performanceEval/EDGAR/callbackAnalysis/callback_edgar_kalman.png}
+    \caption{Execution time over time}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{figures/performanceEval/EDGAR/callbackAnalysis/callback_edgar_kalman_hist.png}
+    \caption{Duration histogram}
+  \end{subfigure}
+  \caption{Callback duration for \texttt{kalman\_filter} node.}
+  \label{fig:callback_edgar_kalman_combined}
+\end{figure}
+
+\textbf{object\_detector \- 6D image subscriber}
+
+Finally, the object detector callback exhibits stable execution times
+in the range of 5–15\,ms. The lower usage compared to the PC setup is 
+explained by the fact that few clusters were detected during the 
+EDGAR run, due to a less dynamic environment.
+
+The histogram in Figure~\ref{fig:callback_edgar_clust} shows that most
+executions fall under 20\,ms, confirming low processing load for this
+module under the tested conditions.
+
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{figures/performanceEval/EDGAR/callbackAnalysis/callback_edgar_clust.png}
+    \caption{Execution time over time}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{figures/performanceEval/EDGAR/callbackAnalysis/callback_edgar_clust_hist.png}
+    \caption{Duration histogram}
+  \end{subfigure}
+  \caption{Callback execution of \texttt{object\_detector} node.}
+  \label{fig:callback_edgar_clust}
+\end{figure}
+
 
 \subsection{Summary and insights}\label{subsec:SummaryAndInsights}
 
-\todo{amalize the key findings from the resource usage and callback profiling
-sections. Discuss the implications for real-time performance and
-resource constraints. Highlight any bottlenecks or areas for improvement.
-Discuss how the results compare to the requirements stated in the
-introduction, such as the need for real-time operation and low resource
-usage.}
+The performance evaluation of the perception pipeline focused on two 
+complementary aspects: resource usage (CPU, GPU, RAM) and per-callback 
+execution times. Both offline (desktop PC) and real-time (EDGAR onboard) 
+scenarios were analyzed, providing a comprehensive view of the system's 
+behavior under realistic conditions.
+
+CPU and memory profiling revealed that the \texttt{optical\_flow\_co} 
+and \texttt{kalman\_filter\_n} nodes were the most computationally 
+demanding. On the desktop PC, both exhibited sustained CPU usage above 
+100\,\% due to multithreaded execution. On EDGAR, the optical flow node 
+reached an average of 133\,\%, reflecting its high processing demand. 
+GPU memory usage remained moderate across all nodes, typically below 
+400\,MB, with peaks in the optical flow module. RAM usage was highest in 
+the Kalman filter, reaching up to 1.4\,GB, as expected due to the storage 
+of multiple tracked states and covariances.
+
+Callback execution times confirmed that most components operate within 
+real-time constraints. The optical flow and visual odometry (depth) 
+callbacks were the most time-critical, with average runtimes near 
+50--60\,ms and occasional spikes. These results indicate tight timing 
+margins and motivate further optimization or parallelization. Other 
+callbacks, such as visual odometry (color) and object detector, 
+maintained consistently low durations, below 5--15\,ms. The Kalman 
+filter callback showed a bimodal distribution, with durations near zero 
+for sparse frames and longer runtimes when many points were updated. 
+This adaptive behavior helps maintain responsiveness under varying 
+conditions.
+
+To validate runtime frequency, the \texttt{ros2 topic hz} tool was used 
+to measure the output rate of the final topic 
+\texttt{/multisense/perception\_pipeline/output\_6d}. During multiple 
+driving tests on EDGAR, the system consistently produced outputs above 
+12\,Hz, which satisfies the 10\,Hz requirement defined in 
+Section~\ref{sec:req}. This confirms the real-time viability of the 
+pipeline in deployment conditions.
+
+Finally, the overall structure of the perception pipeline is i  llustrated 
+in Figure~\ref{fig:rosgraph_pipeline}. The ROS graph shows a modular 
+architecture, with well-defined interfaces between raw sensor 
+processing, state estimation, and object-level clustering. All nodes 
+communicate via ROS topics and are executed inside a single Docker 
+container for reproducibility and portability.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\linewidth]{figures/rosgraph.png}
+  \caption{ROS graph of the perception pipeline. Each core module runs in
+  its own node and communicates via ROS topics.}
+  \label{fig:rosgraph_pipeline}
+\end{figure}
+
+In summary, the pipeline meets its intended performance targets, with 
+only the optical flow and depth callbacks operating near the system's 
+real-time limit. Future improvements may focus on reducing these 
+bottlenecks through code optimization, frame skipping, or algorithmic 
+alternatives.
+
 
 \section{Summary of experimental results}\label{sec:ResultsSummary}
 
