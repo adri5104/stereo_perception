@@ -261,6 +261,7 @@ objects, with a focus on deterministic approaches relevant to the scope of this 
 
 
 \section{Algorithms for Moving Object Detection}\label{sec:AlgorithmsForMovingObjectDetection}
+\label{sec:algorithms_for_moving_object_detection}
 
 Beyond sensor selection, the effectiveness of a perception system depends heavily on the algorithms 
 used to process sensor data and detect dynamic elements in the environment. These algorithms are 
@@ -278,6 +279,7 @@ The following sections provide an overview of both categories, highlighting repr
 their operational characteristics, and their relevance to the goals of this thesis.
 
 \subsubsection{Learning-Based Approaches}
+\label{sec:learning_based_approaches}
 
 Learning-based approaches have become predominant in many domains of computer vision, including 
 object detection, tracking, and scene understanding. These methods use models such as 
@@ -313,6 +315,7 @@ This limitation motivates the use of complementary, model-based approaches, espe
 fallback or redundancy mechanism in high-assurance systems.
 
 \subsubsection{Deterministic Approaches}
+\label{sec:deterministic_approaches}
 
 Deterministic approaches rely on physically grounded models and algorithms to estimate object motion 
 from sensor data. They do not require training and are typically more interpretable, making them 
@@ -643,31 +646,72 @@ conditions, the system must fulfill the following functional and technical
 requirements:
 
 \begin{enumerate}
-  \item \textbf{Real-time performance:} Minimum processing frequency of 10\,Hz
-        to meet vehicle control latency constraints.
-  \item \textbf{Stereo-only sensing:} Exclusive use of stereo vision to reduce
-        hardware cost and simplify sensor integration.
+  \item \textbf{Real-time performance:} The system must maintain a minimum
+processing frequency of 10\,Hz to satisfy latency constraints of autonomous
+vehicle control loops. This requirement aligns with timing guidelines reported
+in safety-critical perception pipelines~\cite{req_freq}. To meet this
+constraint under embedded hardware limitations, the implementation incorporates
+gpu acceleration and multithreadeding for computationally intensive components.
+
+  \item \textbf{Stereo‑only sensing:} Exclusive use of stereo vision to reduce
+    system complexity and avoid reliance on expensive lidar sensors.
+    Previous research has demonstrated that stereo-only pipelines can reliably
+    perform dynamic obstacle detection and scene understanding without requiring
+    additional sensor modalities~\cite{eppenberger_leveraging_2020, ess_moving_2009}. This design decision is also consistent with
+    deployment constraints on the EDGAR platform, where the total sensor budget was
+    limited to approximately €3,000.
+
   \item \textbf{Semantic independence:} Object detection must operate without
-        class labels or training data, enabling generalization to unknown
-        object types.
-  \item \textbf{Egomotion compensation:} Accurate transformation of point
-        observations into a consistent ego vehicle frame.
-  \item \textbf{6D output:} Estimation of both 3D position and velocity for all
-        detected scene points or objects.
-  \item \textbf{Temporal consistency:} Persistent motion tracking over time
-        through recursive filtering and data association.
-  \item \textbf{Clustering:} Aggregation of dynamic points into coherent
-        object-level clusters for further analysis.
-  \item \textbf{Criticality estimation:} Online computation of risk metrics
-        based on relative motion and ego trajectory.
-  \item \textbf{Modular ROS2 architecture:} Each processing stage implemented
-        as an independent ROS2 service to support reusability and scalability.
-  \item \textbf{Robustness to occlusion:} Reliable operation in presence of
-        partial or intermittent visibility.
-  \item \textbf{Parallelism and acceleration:} Use of CUDA and OpenMP to
-        accelerate compute-intensive components.
-  \item \textbf{Portability and deployment:} Docker-based containerization for
-        reproducible deployment on the EDGAR research platform.
+    class labels or training data, enabling generalization to unknown object types
+    and rare scenarios. This is particularly important for fallback perception in
+    safety-critical applications, where learning-based methods may fail due to
+    dataset bias or degraded inputs~\cite{learning_based_perception_survey}.
+    As discussed in Section~\ref{sec:AlgorithmsForMovingObjectDetection}, this
+    thesis adopts a deterministic paradigm inspired by 6D Vision~\cite{6d_vision_daimler},
+    where dynamic scene points are tracked independently of semantic categories.
+    This approach provides interpretable motion reasoning and increases robustness
+    in scenarios where learned models may be unreliable.
+
+  \item \textbf{Egomotion compensation:} Accurate transformation of observations
+    into a consistent reference frame is essential for distinguishing between
+    static and dynamic objects. Without compensating for the motion of the ego
+    vehicle, apparent motion induced by the camera itself would confound motion
+    estimation and object tracking~\cite{6d_vision_detailed}.
+  \item \textbf{6D output:} The system must estimate both 3D position and
+    velocity for each observed point or object to enable a dynamic representation
+    of the environment. This enriched state information is essential for
+    differentiating between moving and stationary objects, predicting future
+    trajectories, and computing runtime risk metrics such as Time-to-Collision
+    (TTC)~\cite{cricitality_metrics}.
+    \item \textbf{Clustering:} Aggregation of dynamic points into coherent
+  object-level clusters is required to enable object-centric reasoning and
+  risk analysis. This abstraction also enables comparison with established
+  perception architectures such as Autoware, which operate on object-level
+  representations~\cite{autowarefoundationPerceptionComponent}.
+  \item \textbf{Criticality estimation:} The system must support online
+computation of risk metrics that quantify the potential for collision or unsafe
+interactions based on relative object motion and the planned ego trajectory.
+This includes metrics such as Time-to-Collision (TTC), which are widely used in
+automated driving to assess dynamic risk levels~\cite{cricitality_metrics}.
+  \item \textbf{Modular ROS2 architecture:} Each processing stage is encapsulated
+as an independent ROS2 package to enable isolated development, testing, and
+maintenance. This modular structure facilitates the improvement of individual
+components without affecting the rest of the system and supports the
+interchangeability of alternative implementations for tasks such as depth
+estimation, clustering, or criticality evaluation.
+
+  \item \textbf{Robustness to occlusion:} Reliable operation in the presence of
+partial or intermittent visibility is essential for real-world deployment.
+Occlusion handling enhances the detection and tracking of dynamic objects even
+when they are temporarily obscured (e.g. when two pedestrians cross
+paths in opposite directions in front of the camera)
+
+  \item \textbf{Portability and deployment:} The system must be packaged and
+deployed using Docker to ensure compatibility with the software infrastructure
+of the EDGAR research platform~\cite{edgar_hardware}. Containerization facilitates integration with
+existing components, simplifies dependency management, and enables consistent
+runtime behavior across development and deployment environments.
+
 \end{enumerate}
 
 These requirements are derived from both the theoretical analysis in the
@@ -4488,7 +4532,6 @@ compensation and flow estimation quality.
 
 \textbf{Qualitative analysis}  
 
-
 In the first frame, shown in Figure~\ref{fig:scenario1_img1}, the 
 perception pipeline detects five objects, including the pedestrian and 
 some static elements that are mistakenly identified due to imperfect 
@@ -4652,7 +4695,7 @@ initializing the relative velocity of detected objects or a default fallback
 value.
 
 A temporal comparison of both pipelines across the full scenario is shown in 
-Figure~\ref{fig:scenario3_ttcall}. The stereo pipeline consistently reports 
+Figure~\ref{fig:scenario3_comparison}. The stereo pipeline consistently reports 
 low TTC values around 3\,s, reflecting the pedestrian's presence. Autoware 
 produces extremely high TTC values (in the order of $10^6$\,s) despite 
 detecting over 15 objects, suggesting inaccurate velocity estimation or 
@@ -4672,7 +4715,7 @@ and the inclusion of static elements.
     \caption{Autoware perception stack}
   \end{subfigure}
   \caption{Scenario 3: Object detection and TTC comparison}
-  \label{fig:scenario4_comparison}
+  \label{fig:scenario3_comparison}
 \end{figure}
 
 This scenario highlights the challenge of distinguishing between 
@@ -4989,7 +5032,6 @@ the main specifications of both setups:
 \end{table}
 
 
-\newpage
 \subsection{Resource usage analysis}\label{sec:ResourceUsage}
 
 To evaluate the computational cost of the perception pipeline,
@@ -5050,7 +5092,7 @@ deviation of 11.5\,MB.
   \begin{subfigure}{0.32\textwidth}
     \includegraphics[width=\linewidth]
     {figures/performanceEval/PC/ressourceAnalysis/res_pc_optflow_ram.png}
-    \caption{RAM usage (RSS)}
+    \caption{RAM usage}
   \end{subfigure}
   \caption{Resource usage of the optical flow node on desktop PC.}\label{fig:res_pc_optflow_all}
 \end{figure}
@@ -5087,7 +5129,7 @@ temporal memory allocation, with no signs of leakage or overload.
   \begin{subfigure}[b]{0.32\textwidth}
     \includegraphics[width=\textwidth]
     {figures/performanceEval/PC/ressourceAnalysis/res_pc_vio_ram.png}
-    \caption{RAM usage (RSS)}
+    \caption{RAM usage}
   \end{subfigure}
   \caption{Resource usage of the visual\_odometry node on the desktop PC.}\label{fig:res_pc_vio}
 \end{figure}
@@ -5097,7 +5139,7 @@ temporal memory allocation, with no signs of leakage or overload.
 This node performs all Kalman filtering computations in the perception
 pipeline, including prediction, update, and uncertainty propagation for
 each tracked point. As shown in Figure~\ref{fig:kalman_pc_perf}, it 
-exhibits the highest memory usage of all modules, with a mean RSS of
+exhibits the highest memory usage of all modules, with a mean of
 1101\,MiB and a standard deviation of 45\,MiB. This is expected, given
 the need to store multiple state vectors, covariances, and Jacobians in
 parallel.
@@ -5124,7 +5166,7 @@ transitions or ego-motion updates. No GPU is used by this node.
   \begin{subfigure}[b]{0.32\textwidth}
     \includegraphics[width=\textwidth]
     {figures/performanceEval/PC/ressourceAnalysis/res_pc_kalman_ram.png}
-    \caption{RAM usage (RSS)}
+    \caption{RAM usage}
   \end{subfigure}
   \caption{Resource usage of \texttt{kalman\_filter\_n} on desktop PC.}\label{fig:kalman_pc_perf}
 \end{figure}
@@ -5151,7 +5193,7 @@ around 120\,MB due to intermittent calls to CUDA-based operations.
   \hfill
   \begin{subfigure}[b]{0.32\textwidth}
     \includegraphics[width=\textwidth]{figures/performanceEval/PC/ressourceAnalysis/res_pc_clust_ram.png}
-    \caption{RAM usage (RSS)}\label{fig:objdet_ram_pc}
+    \caption{RAM usage}\label{fig:objdet_ram_pc}
   \end{subfigure}
   \caption{Resource usage of the \texttt{object\_detector} node on PC.}\label{fig:objdet_ressource_pc}
 \end{figure}
@@ -5193,7 +5235,7 @@ construction.
   \begin{subfigure}{0.32\textwidth}
     \includegraphics[width=\linewidth]
     {figures/performanceEval/EDGAR/resourceAnalysis/res_edgar_optflow_ram.png}
-    \caption{RAM usage (RSS)}
+    \caption{RAM usage}
   \end{subfigure}
   \caption{Resource usage of the optical flow node on EDGAR.}\label{fig:res_edgar_optflow}
 \end{figure}
@@ -5227,7 +5269,7 @@ frame history or internal buffer growth.
   \begin{subfigure}{0.32\textwidth}
     \includegraphics[width=\linewidth]
     {figures/performanceEval/EDGAR/resourceAnalysis/res_edgar_kalman_ram.png}
-    \caption{RAM usage (RSS)}
+    \caption{RAM usage}
   \end{subfigure}
   \caption{Resource usage of the Kalman filter node on EDGAR.}\label{fig:res_edgar_kalman}
 \end{figure}
@@ -5256,7 +5298,7 @@ with only brief spikes. RAM usage remained constant at around 68\,MB.
   \begin{subfigure}{0.32\textwidth}
     \includegraphics[width=\linewidth]
     {figures/performanceEval/EDGAR/resourceAnalysis/res_edgar_clust_ram.png}
-    \caption{RAM usage (RSS)}
+    \caption{RAM usage}
   \end{subfigure}
   \caption{Resource usage of the object detector node on EDGAR.}\label{fig:res_edgar_objdet}
 \end{figure}
@@ -5281,24 +5323,20 @@ execution time over the trace duration, and one showing the histogram
 of durations. This combination allows us to assess both the real-time 
 variability and the typical runtime of each module.
 
-The callbacks analyzed are:
-
-\begin{itemize}
-  \item \textbf{Optical flow}: subscriber to the left grayscale image, 
-        where all optical flow computations are performed.
-  \item \textbf{Visual odometry}: synchronized callbacks for rectified 
-        color and depth images. The depth stream introduces the 
-        computational bottleneck.
-  \item \textbf{Kalman filter}: subscriber to optical flow messages. 
-        These messages are synchronized with the rest of the image data.
-  \item \textbf{Object detector}: subscriber to the 6D estimation output, 
-        which triggers the clustering and filtering steps.
-\end{itemize}
-
 All durations are reported in milliseconds. Each plot reflects only the 
 user-space callback execution time, excluding scheduling latency or 
 inter-process overhead. Its important to note, that these durations do not reflect the total processing time for 
 each node, since they do not include some other operations like the publishing time.
+
+The callbacks analyzed are:
+
+
+\begin{itemize}
+  \item \textbf{Optical flow}: subscriber to the left grayscale image
+  \item \textbf{Visual odometry}: synchronized callbacks for rectified color and depth images
+  \item \textbf{Kalman filter}: subscriber to optical flow messages
+  \item \textbf{Object detector}: subscriber to the 6D estimation output
+\end{itemize}
 
 \subsubsection{Desktop PC analysis}
 
@@ -5313,7 +5351,7 @@ evaluation focuses on the same core nodes analyzed in the resource
 usage section: optical flow, visual odometry, Kalman filter, and object 
 detector.
 
-\textbf{optical\_flow\_computation \- input image subscriber}\label{sec:callback_optflow_pc}
+\textbf{optical\_flow\_computation (input image subscriber) }\label{sec:callback_optflow_pc}
 
 This callback processes the grayscale image stream used for dense optical 
 flow computation. As shown in 
@@ -5343,7 +5381,7 @@ required under higher system load.
   \caption{Callback execution for optical flow image subscriber.}\label{fig:callback_optflow_pc_combined}
 \end{figure}
 
-\textbf{visual\_odometry \- color image subscriber}
+\textbf{visual\_odometry (color image subscriber)}
 
 The color image callback processes RGB input from the auxiliary camera
 at 20\,Hz. Execution times remain very low, with an average duration 
@@ -5364,7 +5402,7 @@ below 0.02\,ms.
   \caption{Callback analysis for color image input (visual\_odometry).}\label{fig:callback_pc_vio_color}
 \end{figure}
 
-\textbf{visual\_odometry \- depth image subscriber}
+\textbf{visual\_odometry (depth image subscriber)}
 
 This callback is responsible for processing depth images and is the 
 main bottleneck of the visual odometry node. Execution durations vary 
@@ -5388,7 +5426,7 @@ limit. Performance tuning or GPU offloading could help improve robustness.
   \caption{Callback analysis for depth image input (visual\_odometry).}\label{fig:callback_pc_vio_depth}
 \end{figure}
 
-\paragraph{\textbf{kalman\_filter \- input optical flow subscriber}}
+\textbf{kalman\_filter (input optical flow subscriber)}
 
 The Kalman filter node processes optical flow data to update the 6D state
 estimates of tracked points. As shown in 
@@ -5414,10 +5452,10 @@ pipeline rate.
     \includegraphics[width=\textwidth]
     {figures/performanceEval/PC/callbackAnalysis/callback_pc_kalman_hist.png}
   \end{subfigure}
-  \caption{Callback duration for \texttt{kalman\_filter} node.}\label{fig:callback_kalman}
+  \caption{Callback duration for kalman\_filter node}\label{fig:callback_kalman}
 \end{figure}
 
-\paragraph{\textbf{object\_detector \- input 6D image subscriber}}
+\textbf{object\_detector (input 6D image subscriber)}
 
 The object detector node clusters the velocity vectors output by the 
 Kalman filter to produce object-level detections. As shown in 
@@ -5441,23 +5479,22 @@ its suitability for real-time deployment.
     \includegraphics[width=\textwidth]
     {figures/performanceEval/PC/callbackAnalysis/callback_pc_clust_hist.png}
   \end{subfigure}
-  \caption{Callback duration and histogram for object detector node.}\label{fig:callback_clust}
+  \caption{Callback duration and histogram for object detector node}\label{fig:callback_clust}
 \end{figure}
 
 \subsubsection{EDGAR analysis}
 
 This section presents the callback execution times measured while the perception
-pipeline was running live on the EDGAR research vehicle. The system was subjected 
-to realistic driving scenarios for a duration of approximately two minutes, with 
-all sensors active.
+pipeline was running live on the EDGAR research vehicle. The system was started 
+in real time conditions for a duration of approximately two minutes.
 
 Each figure shows the duration of callback execution over time, and the corresponding
 histogram to highlight distribution patterns and potential outliers.
 
-\textbf{optical\_flow\_computation \- input image subscriber}
+\textbf{optical\_flow\_computation (input image subscriber) }
 
 As shown in Figure~\ref{fig:callback_optflow_edgar_combined}, the callback for 
-processing grayscale images in the optical flow module exhibits a mean duration 
+processing grayscale images in the optic  al flow module exhibits a mean duration 
 around 75–85\,ms. This is significantly higher than in the desktop setup, where 
 execution stayed mostly below 60\,ms.
 
@@ -5478,11 +5515,11 @@ computation is a limiting factor on EDGAR.
     \includegraphics[width=\textwidth]{figures/performanceEval/EDGAR/callbackAnalysis/callback_edgar_optflow_hist.png}
     \caption{Duration histogram}
   \end{subfigure}
-  \caption{Callback analysis for \texttt{optical\_flow\_computation}.}
+  \caption{Callback analysis for optical\_flow\_computation}
   \label{fig:callback_optflow_edgar_combined}
 \end{figure}
 
-\textbf{visual\_odometry \- color image subscriber}
+\textbf{visual\_odometry (color image subscriber)}
 
 This callback shows very short and stable execution times, consistently
 under 0.05\,ms. The histogram in 
@@ -5505,7 +5542,7 @@ input callback is not a computational concern on EDGAR.
   \label{fig:callback_edgar_vio_color}
 \end{figure}
 
-\textbf{visual\_odometry \- depth image subscriber}
+\textbf{visual\_odometry (depth image subscriber)}
 
 This callback processes the main depth input for visual odometry. 
 Execution times range from 55\,ms to 80\,ms, with an average around 
@@ -5526,11 +5563,11 @@ a centered peak around 60–65\,ms, confirming sustained high load.
     \includegraphics[width=\textwidth]{figures/performanceEval/EDGAR/callbackAnalysis/callback_edgar_vio_depth_hist.png}
     \caption{Duration histogram}
   \end{subfigure}
-  \caption{Callback duration for depth input (visual\_odometry).}
+  \caption{Callback duration for depth input (visual\_odometry)}
   \label{fig:callback_edgar_vio_depth}
 \end{figure}
 
-\textbf{kalman\_filter \- optical flow subscriber}
+\textbf{kalman\_filter (optical flow subscriber)}
 
 The Kalman filter node processes optical flow input to estimate
 object velocities. Execution times are more variable on EDGAR than on 
@@ -5554,11 +5591,11 @@ sensitivity of this node to CPU availability.
     \includegraphics[width=\textwidth]{figures/performanceEval/EDGAR/callbackAnalysis/callback_edgar_kalman_hist.png}
     \caption{Duration histogram}
   \end{subfigure}
-  \caption{Callback duration for \texttt{kalman\_filter} node.}
+  \caption{Callback duration for kalman\_filter node}
   \label{fig:callback_edgar_kalman_combined}
 \end{figure}
 
-\textbf{object\_detector \- 6D image subscriber}
+\textbf{object\_detector (6D image subscriber)}
 
 Finally, the object detector callback exhibits stable execution times
 in the range of 5–15\,ms. The lower usage compared to the PC setup is 
@@ -5580,7 +5617,7 @@ module under the tested conditions.
     \includegraphics[width=\textwidth]{figures/performanceEval/EDGAR/callbackAnalysis/callback_edgar_clust_hist.png}
     \caption{Duration histogram}
   \end{subfigure}
-  \caption{Callback execution of \texttt{object\_detector} node.}
+  \caption{Callback execution of object\_detector node}
   \label{fig:callback_edgar_clust}
 \end{figure}
 
@@ -5620,15 +5657,13 @@ to measure the output rate of the final topic
 \texttt{/multisense/perception\_pipeline/output\_6d}. During multiple 
 driving tests on EDGAR, the system consistently produced outputs above 
 12\,Hz, which satisfies the 10\,Hz requirement defined in 
-Section~\ref{sec:req}. This confirms the real-time viability of the 
+Section~\ref{sec:RequirementsForTheThesis}. This confirms the real-time viability of the 
 pipeline in deployment conditions.
 
-Finally, the overall structure of the perception pipeline is i  llustrated 
-in Figure~\ref{fig:rosgraph_pipeline}. The ROS graph shows a modular 
-architecture, with well-defined interfaces between raw sensor 
-processing, state estimation, and object-level clustering. All nodes 
-communicate via ROS topics and are executed inside a single Docker 
-container for reproducibility and portability.
+Finally, the resulting rosgraph is llustrated 
+in Figure~\ref{fig:rosgraph_pipeline}. The ROS graph shows the modular 
+architecture of the perception pipeline, with each core module running in its own
+node and communicating via ROS topics. 
 
 \begin{figure}[H]
   \centering
@@ -5647,87 +5682,80 @@ alternatives.
 
 \section{Summary of experimental results}\label{sec:ResultsSummary}
 
-The experiments conducted throughout this chapter confirm that the perception and 
-criticality estimation pipeline meets the majority of the design requirements 
-outlined in Section~\ref{sec:RequirementsForTheThesis}. The following paragraphs 
-review each requirement individually, based on the data collected during sensor 
+The experiments conducted throughout this chapter confirm that the perception and
+criticality estimation pipeline meets the majority of the design requirements
+outlined in Section~\ref{sec:RequirementsForTheThesis}. The following paragraphs
+review each requirement individually, based on data collected during sensor
 evaluation, static and dynamic tests, and performance benchmarking.
 
-\textbf{1. Real-time performance:} The complete pipeline achieves a processing 
-frequency of 20\,Hz on the desktop machine and operates near the 10\,Hz 
-threshold on the EDGAR onboard computer. Although some callbacks occasionally 
-approach the frame deadline, the system remains functional within real-time 
-constraints, provided adequate hardware acceleration is available.
+\textbf{1. Real-time performance:} The complete pipeline achieves a processing
+frequency above 12\,Hz on the EDGAR onboard computer, thereby satisfying the
+real-time requirement of 10\,Hz. Although some callbacks occasionally approach
+the frame deadline, the system consistently operates within real-time
+constraints, supported by CUDA-accelerated stereo processing and multithreaded
+Kalman filtering.
 
-\textbf{2. Stereo-only sensing:} All perception and estimation stages rely 
-exclusively on stereo images from the Carnegie Robotics S30. No LiDAR, radar, 
-or monocular modules are used. The initial Framos-based system was also stereo, 
-but failed to deliver sufficient depth quality for outdoor motion tracking.
 
-\textbf{3. Semantic independence:} Object detection is entirely class-agnostic, 
-based on clustering of consistent 6D motion vectors. The system does not require 
-training data or predefined categories, enabling generalization to unknown 
-objects. This differs from Autoware, which depends on pretrained networks and 
-semantic classification.
+\textbf{2. Stereo-only sensing:} All perception and estimation stages rely
+exclusively on stereo images from the Carnegie Robotics S30. No LiDAR, radar,
+or monocular modules are used. The earlier Framos-based pipeline was also stereo,
+but its limited depth range and outdoor noise sensitivity prompted the switch
+to the Carnegie platform.
 
-\textbf{4. Egomotion compensation:} An egomotion correction module transforms 
-point trajectories to the camera reference frame using visual odometry. The 
-introduction of a compensation gain and receding vector filter improved 
-stability. Nonetheless, some false positives still arise from incomplete 
-compensation during sharp turns or accelerations.
+\textbf{3. Semantic independence:} Object detection is entirely class-agnostic,
+based on clustering of coherent 6D motion vectors. No semantic segmentation,
+training data, or object labels are used. This allows the system to detect and
+track previously unseen objects, in contrast to Autoware, which depends on
+pretrained neural networks and semantic categories.
 
-\textbf{5. 6D output:} The core Kalman filter tracks position and velocity for 
-each point, producing consistent 6D estimates across time. These are validated 
-qualitatively in Figures~\ref{fig:lateral_motion_1}, 
-\ref{fig:angle_test}, and others. This capability was not achievable with the 
-Framos sensor, due to insufficient range and noise robustness.
+\textbf{4. Egomotion compensation:} A visual odometry-based module transforms
+point trajectories into a consistent camera-centric frame. A tunable compensation
+gain and receding vector filter increase robustness. However, sharp turns and
+sudden acceleration still introduce transient estimation errors in some
+scenarios.
 
-\textbf{6. Temporal consistency:} Recursive filtering ensures temporal 
-continuity in motion estimation. Objects maintain coherent velocity vectors 
-across multiple frames, even under partial occlusion. The clustering module 
-preserves object identity through time, as shown in the dynamic scenarios.
+\textbf{5. 6D output:} The core Kalman filter maintains per-point estimates of
+3D position and velocity, enabling consistent 6D output across time. These
+estimates were validated qualitatively in Figures~\ref{fig:lateral_motion_1},
+\ref{fig:angle_test}, and others. With the Carnegie S30, sufficient depth
+range and temporal stability was achieved to support this feature reliably.
 
-\textbf{7. Clustering:} The object detector groups dynamic points into 
-coherent clusters based on spatial and velocity proximity. A receding motion 
-filter discards unstable vectors. While large objects may be fragmented 
-into multiple clusters, this behavior prioritizes robustness and false 
-positive rejection.
+\textbf{6. Clustering:} The object detector groups dynamic points into spatially
+and kinematically coherent clusters. A receding motion filter is used to reject
+unstable points. While some large objects may be split into multiple clusters,
+this behavior favors robustness and avoids premature over-grouping.
 
-\textbf{8. Criticality estimation:} A dedicated module computes time-to-collision 
-(TTC) per object based on relative velocity and vehicle trajectory. The 
-estimates are interpretable and responsive in all tested scenarios, often 
-providing more actionable values than Autoware, especially in short-range 
-interactions.
+\textbf{7. Criticality estimation:} A dedicated module computes time-to-collision
+(TTC) for each detected object based on relative velocity and the ego trajectory.
+This metric responds well to changes in scene configuration and provides
+interpretable estimates in all evaluated test cases. In short-range scenarios,
+it often outperforms the risk outputs provided by Autoware.
 
-\textbf{9. Modular ROS2 architecture:} Each major processing step is implemented 
-as an independent ROS~2 node with clearly defined interfaces. This modularity 
-enabled parallel development, containerized deployment, and straightforward 
-integration with external pipelines such as Autoware.
+\textbf{8. Modular ROS2 architecture:} Each processing stage is implemented as
+an independent ROS~2 package. This structure supported parallel development, facilitated testing,
+and allowed for modular integration or replacement of components such as
+depth estimation and criticality analysis.
 
-\textbf{10. Robustness to occlusion:} The Kalman filter and clustering logic 
-enable the system to maintain object tracking under partial occlusion. 
-Occlusion robustness is particularly visible in Scenario~4 and the angle 
-test, where overlapping motion trajectories were handled without major 
-tracking errors.
+\textbf{9. Robustness to occlusion:} The Kalman tracker and clustering logic
+enable the system to maintain object identities through temporary occlusions,
+e.g., when two pedestrians cross paths in opposite directions. Occlusion handling
+was particularly successful in Scenario~4, where overlapping
+motion patterns were resolved without major drift or track loss.
 
-\textbf{11. Parallelism and acceleration:} The implementation leverages OpenMP 
-for multi-threaded execution of the Kalman filter and CUDA for GPU-accelerated 
-motion vector filtering. This enabled real-time performance despite the high 
-dimensionality of the data.
+\textbf{10. Portability and deployment:} The full perception stack is packaged
+as Docker containers and deployed on the EDGAR research vehicle. It integrates
+with the onboard sensor infrastructure and operates directly on live input
+from the Carnegie S30, producing consistent object detections and risk metrics
+in real-time conditions.
 
-\textbf{12. Portability and deployment:} The full pipeline is containerized 
-using Docker and has been successfully deployed on the EDGAR research vehicle. 
-It operates using the live sensor feed from the Carnegie S30 camera and 
-produces real-time outputs, including object detections and criticality 
-estimates.
+In summary, the stereo-based system developed in this thesis satisfies the
+primary requirements for geometry-driven motion perception and runtime risk
+analysis in teleoperation scenarios. Compared to the initial Framos-based
+prototype, it delivers improved depth range, robustness, and modularity. While
+semantic-free operation remains a distinguishing strength over learned systems
+such as Autoware, future work should improve egomotion handling and reduce
+false positives in highly dynamic environments.
 
-In summary, the stereo-based system developed in this thesis fulfills the 
-core requirements for geometry-based perception and risk estimation in 
-teleoperation contexts. Compared to the initial Framos setup, it provides 
-superior depth range, lower noise, and higher tracking stability. While 
-semantic-free operation remains a key strength over Autoware, further work 
-is required to improve egomotion compensation and reduce the number of 
-false positive detections in complex scenes.
 
 
 % ====================================================================
@@ -5767,7 +5795,7 @@ The results demonstrate the feasibility of geometry-based motion perception as a
 complementary approach in autonomous driving systems, particularly in fallback or 
 low-confidence situations.
 
-The system was designed to fulfill a set of twelve technical and functional 
+The system was designed to fulfill a set of ten technical and functional 
 requirements, introduced in Chapter~\ref{sec:RequirementsForTheThesis}. These 
 requirements covered aspects such as stereo-only sensing, semantic independence, 
 real-time operation, modular implementation in ROS~2, robustness to occlusion, 

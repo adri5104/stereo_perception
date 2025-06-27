@@ -1,0 +1,448 @@
+\glsdefs@newdocentry{px}%
+{%
+name={\acronymfont {\glsentryshort {px}}},%
+sort={px},%
+type={acronym},%
+first={px},%
+firstplural={pxs},%
+text={px},%
+plural={pxs},%
+description={Pixel},%
+descriptionplural={Pixel},%
+symbol={\relax },%
+symbolplural={\relax },%
+user1={},%
+user2={},%
+user3={},%
+user4={},%
+user5={},%
+user6={},%
+long={Pixel},%
+longplural={Pixels},%
+short={px},%
+shortplural={pxs},%
+counter={page},%
+parent={},%
+%
+}%
+
+\glsdefs@newdocentry{GPU}%
+{%
+name={\acronymfont {\glsentryshort {GPU}}},%
+sort={GPU},%
+type={acronym},%
+first={GPU},%
+firstplural={GPUs},%
+text={GPU},%
+plural={GPUs},%
+description={Graphics Processing Unit},%
+descriptionplural={Graphics Processing Unit},%
+symbol={\relax },%
+symbolplural={\relax },%
+user1={},%
+user2={},%
+user3={},%
+user4={},%
+user5={},%
+user6={},%
+long={Graphics Processing Unit},%
+longplural={Graphics Processing Units},%
+short={GPU},%
+shortplural={GPUs},%
+counter={page},%
+parent={},%
+%
+}%
+
+\glsdefs@newdocentry{CPU}%
+{%
+name={\acronymfont {\glsentryshort {CPU}}},%
+sort={CPU},%
+type={acronym},%
+first={CPU},%
+firstplural={CPUs},%
+text={CPU},%
+plural={CPUs},%
+description={Central Processing Unit},%
+descriptionplural={Central Processing Unit},%
+symbol={\relax },%
+symbolplural={\relax },%
+user1={},%
+user2={},%
+user3={},%
+user4={},%
+user5={},%
+user6={},%
+long={Central Processing Unit},%
+longplural={Central Processing Units},%
+short={CPU},%
+shortplural={CPUs},%
+counter={page},%
+parent={},%
+%
+}%
+
+\glsdefs@newdocentry{RAM}%
+{%
+name={\acronymfont {\glsentryshort {RAM}}},%
+sort={RAM},%
+type={acronym},%
+first={RAM},%
+firstplural={RAMs},%
+text={RAM},%
+plural={RAMs},%
+description={Random Access Memory},%
+descriptionplural={Random Access Memory},%
+symbol={\relax },%
+symbolplural={\relax },%
+user1={},%
+user2={},%
+user3={},%
+user4={},%
+user5={},%
+user6={},%
+long={Random Access Memory},%
+longplural={Random Access Memorys},%
+short={RAM},%
+shortplural={RAMs},%
+counter={page},%
+parent={},%
+%
+}%
+
+\glsdefs@newdocentry{ROS}%
+{%
+name={\acronymfont {\glsentryshort {ROS}}},%
+sort={ROS},%
+type={acronym},%
+first={ROS},%
+firstplural={ROSs},%
+text={ROS},%
+plural={ROSs},%
+description={Robot Operating System},%
+descriptionplural={Robot Operating System},%
+symbol={\relax },%
+symbolplural={\relax },%
+user1={},%
+user2={},%
+user3={},%
+user4={},%
+user5={},%
+user6={},%
+long={Robot Operating System},%
+longplural={Robot Operating Systems},%
+short={ROS},%
+shortplural={ROSs},%
+counter={page},%
+parent={},%
+%
+}%
+
+\glsdefs@newdocentry{TF}%
+{%
+name={\acronymfont {\glsentryshort {TF}}},%
+sort={TF},%
+type={acronym},%
+first={TF},%
+firstplural={TFs},%
+text={TF},%
+plural={TFs},%
+description={Transform System},%
+descriptionplural={Transform System},%
+symbol={\relax },%
+symbolplural={\relax },%
+user1={},%
+user2={},%
+user3={},%
+user4={},%
+user5={},%
+user6={},%
+long={Transform System},%
+longplural={Transform Systems},%
+short={TF},%
+shortplural={TFs},%
+counter={page},%
+parent={},%
+%
+}%
+
+\glsdefs@newdocentry{BM}%
+{%
+name={\acronymfont {\glsentryshort {BM}}},%
+sort={BM},%
+type={acronym},%
+first={BM},%
+firstplural={BMs},%
+text={BM},%
+plural={BMs},%
+description={Block Matching},%
+descriptionplural={Block Matching},%
+symbol={\relax },%
+symbolplural={\relax },%
+user1={},%
+user2={},%
+user3={},%
+user4={},%
+user5={},%
+user6={},%
+long={Block Matching},%
+longplural={Block Matchings},%
+short={BM},%
+shortplural={BMs},%
+counter={page},%
+parent={},%
+%
+}%
+
+\glsdefs@newdocentry{SGM}%
+{%
+name={\acronymfont {\glsentryshort {SGM}}},%
+sort={SGM},%
+type={acronym},%
+first={SGM},%
+firstplural={SGMs},%
+text={SGM},%
+plural={SGMs},%
+description={Semi-Global Matching},%
+descriptionplural={Semi-Global Matching},%
+symbol={\relax },%
+symbolplural={\relax },%
+user1={},%
+user2={},%
+user3={},%
+user4={},%
+user5={},%
+user6={},%
+long={Semi-Global Matching},%
+longplural={Semi-Global Matchings},%
+short={SGM},%
+shortplural={SGMs},%
+counter={page},%
+parent={},%
+%
+}%
+
+\glsdefs@newdocentry{VO}%
+{%
+name={\acronymfont {\glsentryshort {VO}}},%
+sort={VO},%
+type={acronym},%
+first={VO},%
+firstplural={VOs},%
+text={VO},%
+plural={VOs},%
+description={Visual Odometry},%
+descriptionplural={Visual Odometry},%
+symbol={\relax },%
+symbolplural={\relax },%
+user1={},%
+user2={},%
+user3={},%
+user4={},%
+user5={},%
+user6={},%
+long={Visual Odometry},%
+longplural={Visual Odometrys},%
+short={VO},%
+shortplural={VOs},%
+counter={page},%
+parent={},%
+%
+}%
+
+\glsdefs@newdocentry{PnP}%
+{%
+name={\acronymfont {\glsentryshort {PnP}}},%
+sort={PnP},%
+type={acronym},%
+first={PnP},%
+firstplural={PnPs},%
+text={PnP},%
+plural={PnPs},%
+description={Perspective-n-Point},%
+descriptionplural={Perspective-n-Point},%
+symbol={\relax },%
+symbolplural={\relax },%
+user1={},%
+user2={},%
+user3={},%
+user4={},%
+user5={},%
+user6={},%
+long={Perspective-n-Point},%
+longplural={Perspective-n-Points},%
+short={PnP},%
+shortplural={PnPs},%
+counter={page},%
+parent={},%
+%
+}%
+
+\glsdefs@newdocentry{ORB}%
+{%
+name={\acronymfont {\glsentryshort {ORB}}},%
+sort={ORB},%
+type={acronym},%
+first={ORB},%
+firstplural={ORBs},%
+text={ORB},%
+plural={ORBs},%
+description={Oriented FAST and Rotated BRIEF},%
+descriptionplural={Oriented FAST and Rotated BRIEF},%
+symbol={\relax },%
+symbolplural={\relax },%
+user1={},%
+user2={},%
+user3={},%
+user4={},%
+user5={},%
+user6={},%
+long={Oriented FAST and Rotated BRIEF},%
+longplural={Oriented FAST and Rotated BRIEFs},%
+short={ORB},%
+shortplural={ORBs},%
+counter={page},%
+parent={},%
+%
+}%
+
+\glsdefs@newdocentry{FAST}%
+{%
+name={\acronymfont {\glsentryshort {FAST}}},%
+sort={FAST},%
+type={acronym},%
+first={FAST},%
+firstplural={FASTs},%
+text={FAST},%
+plural={FASTs},%
+description={Features from Accelerated Segment Test},%
+descriptionplural={Features from Accelerated Segment Test},%
+symbol={\relax },%
+symbolplural={\relax },%
+user1={},%
+user2={},%
+user3={},%
+user4={},%
+user5={},%
+user6={},%
+long={Features from Accelerated Segment Test},%
+longplural={Features from Accelerated Segment Tests},%
+short={FAST},%
+shortplural={FASTs},%
+counter={page},%
+parent={},%
+%
+}%
+
+\glsdefs@newdocentry{BRIEF}%
+{%
+name={\acronymfont {\glsentryshort {BRIEF}}},%
+sort={BRIEF},%
+type={acronym},%
+first={BRIEF},%
+firstplural={BRIEFs},%
+text={BRIEF},%
+plural={BRIEFs},%
+description={Binary Robust Invariant Scalable Keypoints},%
+descriptionplural={Binary Robust Invariant Scalable Keypoints},%
+symbol={\relax },%
+symbolplural={\relax },%
+user1={},%
+user2={},%
+user3={},%
+user4={},%
+user5={},%
+user6={},%
+long={Binary Robust Invariant Scalable Keypoints},%
+longplural={Binary Robust Invariant Scalable Keypointss},%
+short={BRIEF},%
+shortplural={BRIEFs},%
+counter={page},%
+parent={},%
+%
+}%
+
+\glsdefs@newdocentry{RANSAC}%
+{%
+name={\acronymfont {\glsentryshort {RANSAC}}},%
+sort={RANSAC},%
+type={acronym},%
+first={RANSAC},%
+firstplural={RANSACs},%
+text={RANSAC},%
+plural={RANSACs},%
+description={Random Sample Consensus},%
+descriptionplural={Random Sample Consensus},%
+symbol={\relax },%
+symbolplural={\relax },%
+user1={},%
+user2={},%
+user3={},%
+user4={},%
+user5={},%
+user6={},%
+long={Random Sample Consensus},%
+longplural={Random Sample Consensuss},%
+short={RANSAC},%
+shortplural={RANSACs},%
+counter={page},%
+parent={},%
+%
+}%
+
+\glsdefs@newdocentry{KF}%
+{%
+name={\acronymfont {\glsentryshort {KF}}},%
+sort={KF},%
+type={acronym},%
+first={KF},%
+firstplural={KFs},%
+text={KF},%
+plural={KFs},%
+description={Kalman Filter},%
+descriptionplural={Kalman Filter},%
+symbol={\relax },%
+symbolplural={\relax },%
+user1={},%
+user2={},%
+user3={},%
+user4={},%
+user5={},%
+user6={},%
+long={Kalman Filter},%
+longplural={Kalman Filters},%
+short={KF},%
+shortplural={KFs},%
+counter={page},%
+parent={},%
+%
+}%
+
+\glsdefs@newdocentry{EKF}%
+{%
+name={\acronymfont {\glsentryshort {EKF}}},%
+sort={EKF},%
+type={acronym},%
+first={EKF},%
+firstplural={EKFs},%
+text={EKF},%
+plural={EKFs},%
+description={Extended Kalman Filter},%
+descriptionplural={Extended Kalman Filter},%
+symbol={\relax },%
+symbolplural={\relax },%
+user1={},%
+user2={},%
+user3={},%
+user4={},%
+user5={},%
+user6={},%
+long={Extended Kalman Filter},%
+longplural={Extended Kalman Filters},%
+short={EKF},%
+shortplural={EKFs},%
+counter={page},%
+parent={},%
+%
+}%
+
