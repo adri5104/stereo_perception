@@ -46,7 +46,7 @@ using the DBSCAN algorithm to identify coherent moving objects.
 
 To assess potential hazards, a criticality evaluation module calculates safety 
 metrics based on predicted trajectories of both the ego-vehicle and the detected 
-objects. One key metric, Time-To-Collision (TTC), provides insight into the 
+objects. One key metric, \gls{TTC}, provides insight into the 
 urgency of evasive actions. These evaluations are performed in real time to 
 support both autonomous fallback strategies and teleoperated decision-making.
 
@@ -54,16 +54,16 @@ This work builds on previous research at the Chair of Automotive Technology,
 which investigated stereo vision and deterministic motion estimation. The 
 present study focuses on integrating these methods into a modular, reusable 
 software component. A major contribution is the development of an independent 
-ROS2 servie, based on the Humble distribution, 
-designed for seamless integration with the \textbf{EDGAR research vehicle} and 
+\gls{ROS2} service, based on the Humble distribution, 
+designed for seamless integration with the EDGAR research vehicle~\cite{edgar_hardware} and 
 adaptability to other platforms.
 
-The system is implemented in \textbf{C++}, with performance-critical components 
-accelerated using \textbf{CUDA} and parallelized via \textbf{OpenMP}. This ensures 
+The system is implemented in C++, with performance critical components 
+accelerated using \gls{CUDA} and parallelized via OpenMP. This ensures 
 that real-time constraints are met while maintaining scalability and robustness. 
 Each major function—depth estimation, optical flow, Kalman filtering, clustering, 
-and criticality analysis—is encapsulated in its own ROS~2 node, supporting modular 
-development, testing, and integration. The use of \textbf{Docker} for containerization 
+and criticality assessment encapsulated in its own \gls{ROS2} node, supporting modular 
+development, testing, and integration. The use of Docker for containerization 
 ensures portability and simplifies deployment across heterogeneous systems.
 
 The system architecture consists of two main processing pipelines:
@@ -84,12 +84,17 @@ generalization to novel scenarios, and independence from large-scale labeled dat
 It also complements neural-network-based methods by enhancing robustness in 
 adverse or edge-case conditions.
 
-System evaluation is carried out in two stages. First, individual components are 
-tested on public benchmarks such as KITTI, which provide ground truth for depth, 
-optical flow, and odometry. Second, the complete system is deployed on the EDGAR 
-vehicle and assessed in real-world driving situations. Its performance is compared 
-to that of the existing learning-based perception stack to evaluate reliability 
-and robustness.
+The evaluation of the system is structured in three phases. First, the stereo
+camera hardware is tested and calibrated to ensure suitability for accurate 6D
+motion estimation. If necessary, alternative hardware is assessed and integrated.
+Second, the computational performance of the full perception and criticality
+pipeline is benchmarked to verify real-time capabilities.
+Finally, the system is deployed on the EDGAR research vehicle for real-world
+validation, where its outputs are compared against the existing Autowarelearning-based perception stack to
+assess robustness and reliability. All experiments aim to verify compliance with
+the functional requirements defined in Chapter~\ref{sec:RequirementsForTheThesis},
+including stereo-only sensing, semantic independence, modularity, real-time
+operation, and robustness under occlusion.
 
 In summary, this thesis presents a deterministic, modular, and real-time capable 
 perception system for automated driving. By leveraging stereo vision and geometric 
@@ -430,22 +435,21 @@ example of the sensor layout is shown in Figure~\ref{fig:edgar}.
 
 To support sensor fusion and deterministic perception, precise time 
 synchronization is required. For this purpose, the vehicle implements a full 
-Precision Time Protocol (PTP) network. A master clock (GMR5000) provides global 
+\gls{PTP} network. A master clock (GMR5000) provides global 
 time, and all sensors and computing units synchronize as PTP clients. The 
-network infrastructure is based on a Netgear M4250 switch with Time Sensitive 
-Networking (TSN) support and PoE capabilities.
+network infrastructure is based on a Netgear M4250 switch with \gls{TSN} support and PoE capabilities.
 
 All connected sensors must fulfill the following integration requirements:
 
 \begin{itemize}
   \item Support for hardware-level PTP time synchronization
   \item Preferably PoE interface to reduce cabling complexity
-  \item Availability of a stable ROS~2-compatible driver (Humble version)
+  \item Availability of a stable ROS2-compatible driver (Humble version)
   \item Compatibility with high-throughput network architecture (40\,Gbit uplink)
 \end{itemize}
 
 The EDGAR system contains two high-performance computers: one x86-based and 
-one ARM-based. Both platforms support GPU acceleration, have CAN interfaces 
+one ARM-based. Both platforms support \gls{GPU} acceleration, have CAN interfaces 
 to access the actuator bus, and are synchronized via the internal PTP system. The overall
 network architecture is shown in Figure~\ref{fig:edgar_network}.
 
@@ -457,7 +461,7 @@ network architecture is shown in Figure~\ref{fig:edgar_network}.
 
 This architecture imposes specific constraints on any new sensing or 
 perception component. In particular, any new camera to be integrated into 
-the EDGAR platform must be fully PTP-compatible, support a stable ROS~2 
+the EDGAR platform must be fully PTP-compatible, support a stable ROS2 
 driver, and preferably offer PoE functionality to ensure seamless deployment 
 within the existing infrastructure.
 
@@ -484,7 +488,7 @@ for automated vehicles with 6D vision. Some of the key contributions include:
   \item \textbf{Weiterentwicklung und echtzeitfähige Umsetzung eines Stereo-Vision-basierten Bewegungsprädiktionssystems für die aktive Sicherheit von teleoperierten Fahrzeugen}
   Some time later in~\cite{previous_tfm_gpu_implementation} Rotar continued Bauers work by implementing the system in GPU using CUDA to speed up the computationally intensive tasks.
 
-  \item \textbf{Validation of an Obstacle Detection Approach for Teleoperation of Automated Vehicles:} Finally Pastor~\cite{previous_tfm_pastor} started porting the system to ROS1
+  \item \textbf{Validation of an Obstacle Detection Approach for Teleoperation of Automated Vehicles:} Finally Pastor~\cite{previous_tfm_pastor} started porting the system to ROS
    to facilitate the integration with other modules in the EDGAR vehicle. The system was implemented without CUDA GPU acceleration
    and was not deployed in the EDGAR vehicle. The system also has some problem with the object detection.
 \end{enumerate}
@@ -499,13 +503,13 @@ and system deployment within ROS2. These improvements will be detailed in the ne
 This section reviews stereo vision technologies relevant to autonomous driving
 applications. Stereo cameras provide dense depth estimation, enabling motion
 perception, obstacle detection, and environment reconstruction without active
-range sensing. While early systems such as Daimler’s 6D Vision relied on passive
+range sensing. While early systems such as 6D Vision of Daimler relied on passive
 stereo only~\cite{6d_vision_daimler}, modern cameras integrate active lighting,
 neural inference, and time synchronization for robust deployment.
 
 The classification used here distinguishes passive stereo, active infrared
 stereo, laser-structured light, and smart stereo systems with onboard
-processing. The overview is based on the ROS-Industrial survey
+processing. The overview is based on the ROS2-Industrial survey
 ~\cite{rosindustrialCameraSurvey}, a general technology review~\cite{stereoCameraTech},
 and recent empirical studies in robotics and autonomous navigation.
 
@@ -637,7 +641,7 @@ testing, extension, and integration with additional modules.
 
 In contrast to previous work at the FTM~\cite{previous_tfm_bauer,
 previous_tfm_gpu_implementation, previous_tfm_pastor}, which used ADTF or
-partial ROS1 based implementations with limited deployment, this thesis
+partial ROS based implementations with limited deployment, this thesis
 delivers a fully containerized, real-time capable perception system. The system
 is tested under real-world conditions using the Framos D455e stereo camera and
 the EDGAR vehicle's PTP-synchronized infrastructure. Furthermore, a new
@@ -790,10 +794,10 @@ the criticality pipeline. The latter evaluates the relative risk posed by each o
 to the ego-vehicle's planned trajectory by computing relevant criticality metrics.
 
 
-Both pipelines are deployed jointly as a single ROS 2 service on the EDGAR research vehicle. This 
+Both pipelines are deployed jointly as a single ROS2 service on the EDGAR research vehicle. This 
 design decision ensures a clean separation between external interfaces and internal implementation, 
 thereby promoting system portability across different vehicle platforms and stereo camera configurations. 
-The service exposes standardized ROS 2 messages for input and output, enabling seamless integration 
+The service exposes standardized ROS2 messages for input and output, enabling seamless integration 
 within heterogeneous software stacks. Internally, the system remains agnostic to vehicle-specific 
 details, facilitating reuse and simplifying deployment across varied hardware setups.
 
@@ -855,7 +859,7 @@ repository to simplify development, integration, and deployment.
 The repository is structured into three main directories:
 
 \begin{enumerate}
-  \item \texttt{src/} Contains all ROS 2 source code.
+  \item \texttt{src/} Contains all ROS2 source code.
   \begin{enumerate}
     \item \texttt{launch\_packages/} Contains all launch files used to start the system.
     \begin{enumerate}
@@ -904,7 +908,7 @@ environments called containers. These encapsulate code and dependencies,
 ensuring consistency across developmel. The second container contains the 
 criticality pipeline, which computes criticality metrics based on object 
 detection results and ego-vehicle trajectory. The third container serves as a 
-ROS 2 bridge that converts custom messages from the EDGAR platform into 
+ROS2 bridge that converts custom messages from the EDGAR platform into 
 standard message types used by the other two containers.
 
 \begin{figure}[htbp]
@@ -1039,8 +1043,8 @@ between computational complexity, robustness, and accuracy. Some of the most com
 matching algorithms include:
 
 \begin{itemize}
-  \item \textbf{Block Matching (BM):} A local method that compares fixed-size blocks between the left and right images. While computationally efficient, it often struggles with textureless regions and depth discontinuities (\cite{disparity_block_matching}). 
-  \item \textbf{Semi-Global Matching (SGM):} An algorithm that balances accuracy and computational efficiency by aggregating matching costs along multiple paths through the image (\cite{disparity_sgm}).
+  \item \textbf{\gls{BM}:} A local method that compares fixed-size blocks between the left and right images. While computationally efficient, it often struggles with textureless regions and depth discontinuities (\cite{disparity_block_matching}). 
+  \item \textbf{\gls{SGM}:} An algorithm that balances accuracy and computational efficiency by aggregating matching costs along multiple paths through the image (\cite{disparity_sgm}).
 \end{itemize}
 
 Comparative studies (\cite{disparity_survey}) have shown that SGM offers a good trade-off between accuracy and performance, making it suitable for real-time applications where both speed and quality are essential.
@@ -1048,7 +1052,7 @@ Comparative studies (\cite{disparity_survey}) have shown that SGM offers a good 
 
 \subsection{Semi-Global Matching (SGM)}\label{sec:SGM}
 
-Semi-Global Matching (SGM) is a stereo matching algorithm that offers a compromise between the 
+\gls{SGM} is a stereo matching algorithm that offers a compromise between the 
 accuracy of global optimization methods and the computational efficiency of local methods. It was first
 introduced by Hirschmüller~\cite{disparity_sgm} and has become widely implemented in real-time 
 applications.
@@ -1105,7 +1109,7 @@ performed directly on the GPU. Taking advantage of GPU acceleration is crucial t
 performance requirements of the perception pipeline.
 
 The OpenCV implementation of SGM is highly optimized and designed to exploit the parallel 
-architecture of modern GPUs, significantly reducing the runtime compared to CPU-based methods. 
+architecture of modern GPUs, significantly reducing the runtime compared to \gls{CPU} basedmethods. 
 After computing the disparity map, the depth map is generated by applying the classical 
 pinhole camera equation:
 
@@ -1469,7 +1473,7 @@ This information is essential for the Kalman Filter step where the 6D field will
 is relative to the camera frame, and the Kalman Filter requires knowledge of the camera's position in the world frame
 to properly compensate for its motion.
 
-For this purpose, visual odometry (VO) techniques are used to estimate the required information
+For this purpose, \gls{VO} techniques are used to estimate the required information
 using the stereo setup input. Incorporating the depth information from the stereo camera allows the
 direct recovery of metric information, providing robustness and accuracy.
 
@@ -1479,12 +1483,12 @@ algorithmic approach that was implemented, as well as the ROS2 implementation de
 \subsection{Visual odometry}
 \label{sec:VisualOdometryConcept}
 
-Visual odometry (VO) refers to the process of estimating the motion of a camera by analyzing a
+\gls{VO} refers to the process of estimating the motion of a camera by analyzing a
 sequence of images it captures. Originally introduced by Moravec~\cite{vo_moravec} and later
-formalized by Nist\'er et al.~\cite{vo_nister}, VO has become a fundamental technique for mobile
+formalized by Nist\'er et al.~\cite{vo_nister}, \gls{VO} has become a fundamental technique for mobile
 robotics and autonomous driving~\cite{visual_odometry_review}.
 
-The core idea behind VO is to track visual features across consecutive frames and infer the relative
+The core idea behind \gls{VO} is to track visual features across consecutive frames and infer the relative
 motion of the camera from these observations. The estimated motion provides a continuous estimate
 of the vehicle trajectory without relying on external localization systems.
 
@@ -1492,14 +1496,14 @@ Visual odometry methods are generally categorized based on the type of input and
 approach used:
 
 \begin{itemize}
-  \item \textbf{Monocular VO:} Utilizes a single camera as input. It is cost-effective but suffers from
+  \item \textbf{Monocular \gls{VO}:} Utilizes a single camera as input. It is cost-effective but suffers from
   scale ambiguity, meaning that the absolute scale of the motion (e.g., in meters) cannot be determined
-  without additional information. Monocular VO is often used in conjunction with other sensors
+  without additional information. Monocular \gls{VO} is often used in conjunction with other sensors
   (e.g., IMU) to resolve this ambiguity~\cite{visual_odometry_review}.
 
-  \item \textbf{Stereo VO:} Used two synchronized cameras to estimate depth through triangulation,
+  \item \textbf{Stereo \gls{VO}:} Used two synchronized cameras to estimate depth through triangulation,
   which allows direct recovery of metric scale. This removes the scale ambiguity present in monocular
-  systems, producing more accurate and robust motion estimation. Stereo VO is especially beneficial
+  systems, producing more accurate and robust motion estimation. Stereo \gls{VO} is especially beneficial
   in environments where monocular methods struggle, such as in low-texture areas or during large
   baseline movements, thanks to the additional geometric constraints provided by the known baseline
   distance between the cameras~\cite{visual_odometry_review}.
@@ -1521,11 +1525,11 @@ different types neural networks to estimate motion directly from image sequences
 These methods aim to improve robustness under challenging conditions, such as illumination
 changes and textureless environments~\cite{visual_odometry_review}.
 
-This work adopts a \textbf{Stereo VO:} and \textbf{stereo feature-based} since the depth information is already available
+This work adopts a \textbf{Stereo \gls{VO}:} and \textbf{stereo feature-based} since the depth information is already available
 from the stereo Camera and using feature matching to estimate motion robustly. This choice provides a good
 balance between accuracy and computational efficiency, making it suitable for real-time applications
 
-\subsection{Coordinate systems}\label{sec:ReferenceFramesCoordinateSystems and ROS transforms}
+\subsection{Coordinate systems}\label{sec:ReferenceFramesCoordinateSystems and ROS2 transforms}
 
 To properly understand the visual odometry algorithm and this work, it is important to define the
 coordinate systems used in the implementation. The following coordinate frames are
@@ -1553,7 +1557,7 @@ the visual odometry computation.
     \centering
     \includegraphics[width=\textwidth]{figures/TF_tree.png}
   \end{minipage}
-  \caption{Coordinate frames and ROS2 TF tee. Left: Coordinate frames visualized using Foxglove. Right: ROS2 Transform Tree of the project generated using tf2\_tools}\label{fig:tf}%
+  \caption{Coordinate frames and ROS2 \gls{TF} tee. Left: Coordinate frames visualized using Foxglove. Right: ROS2 Transform Tree of the project generated using tf2\_tools}\label{fig:tf}%
 \end{figure}%
 
 \subsubsection{Visual odometry algorithm}\label{sec:OverviewAlgorithm}
@@ -1561,7 +1565,7 @@ the visual odometry computation.
 The visual odometry algorithm implemented in this work follows a stereo vo and feature-based stereo approach. It
 estimates the relative motion of the camera by detecting and matching visual features between
 consecutive frames, reconstructing their 3D positions using the depth image, and solving the camera
-pose using a Perspective-n-Point (PnP) algorithm~\cite{vo_pnp_survey} with RANSAC for outlier rejection.
+pose using a \gls{PnP} algorithm~\cite{vo_pnp_survey} with RANSAC for outlier rejection.
 
 A schematic overview of the algorithm steps is presented in Algorithm~\ref{alg:visual_odometry}.
 
@@ -1573,8 +1577,8 @@ A schematic overview of the algorithm steps is presented in Algorithm~\ref{alg:v
   \State Detect ORB features in $I_{k-1}$ and $I_k$ using GPU acceleration
   \State Match ORB features between $I_{k-1}$ and $I_k$
   \State Reproject matched keypoints from $I_{k-1}$ into 3D using $D_{k-1}$
-  \State Solve PnP with RANSAC using 3D-2D correspondences
-  \State Refine the pose estimation with standard solvePnP using inliers
+  \State Solve \gls{PnP} with RANSAC using 3D-2D correspondences
+  \State Refine the pose estimation with standard solve\gls{PnP} using inliers
   \State Estimate covariance based on reprojection residuals
   \State Apply statistical filtering and optional exponential smoothing
   \State Output $(R, t)$, covariance matrix, and debug images
@@ -1589,9 +1593,9 @@ described in detail.
 
 Feature detection and matching constitute the first step in the visual odometry pipeline. In this phase, 
 some points, that will serve to compute the desired transformation, will be detected in two consequtive frames.
-For this, the ORB (Oriented FAST and Rotated BRIEF) \cite{vo_orb} algorithm will be used.
+For this, the \gls{ORB}~\cite{vo_orb} algorithm will be used.
 
-ORB is a binary feature descriptor that builds upon two classical methods: FAST (Features from
+\gls{ORB} is a binary feature descriptor that builds upon two classical methods: FAST (Features from
 Accelerated Segment Test) \cite{vo_fast} for keypoint detection and BRIEF (Binary Robust Independent Elementary
 Features) \cite{vo_brief} for descriptor computation. 
 
@@ -1609,7 +1613,7 @@ by comparing the intensity of random pairs of pixels in a small patch around the
   \caption{FAST algorithm. Source: \cite{IntroductionFAST}}
 \end{figure}%
 
-ORB enhances these methods by introducing rotation and scale invariance. The orientation of each
+\gls{ORB} enhances these methods by introducing rotation and scale invariance. The orientation of each
 keypoint is computed to make BRIEF descriptors rotation-invariant, and a multi-scale pyramid is used
 to handle changes in scale. 
 
@@ -1619,7 +1623,7 @@ This allows real-time processing even at high image resolutions.
 The steps involved are:
 
 \begin{enumerate}
-  \item Detect ORB features separately in the previous and current grayscale images.
+  \item Detect \gls{ORB} features separately in the previous and current grayscale images.
   \item Compute binary descriptors for each detected feature.
   \item Match descriptors between the previous and current frames using brute-force Hamming distance.
   \item Extract the coordinates of matched keypoints for subsequent motion estimation.
@@ -1629,7 +1633,7 @@ The steps involved are:
 
 Once the feature matching step is completed, the next task is to establish 3D-2D correspondences
 between the previous and current frames. This is necessary for estimating the camera motion through
-Perspective-n-Point (PnP) techniques.
+\gls{PnP} techniques.
 
 For each matched keypoint in the previous frame, the corresponding depth value is retrieved from the
 depth image associated with that frame. If the depth value is within a valid range, the 2D keypoint is
@@ -1660,10 +1664,10 @@ set of detected keypoint can be seen. The ones with valid depth are shown in gre
   \caption{Odometry Keypoints with depth filtering and RGB Image}\label{fig:3D2D_correspondences}
 \end{figure}%
 
-\subsubsection{Motion estimation using PnP and RANSAC}\label{sec:MotionEstimationPnP}
+\subsubsection{Motion estimation using \gls{PnP} and RANSAC}\label{sec:MotionEstimationPnP}
 
 Once 3D-2D correspondences are available, the relative camera motion between two frames can be 
-estimated by solving the Perspective-n-Point (PnP) problem~\cite{vo_pnp_survey}. The goal is to compute the rotation 
+estimated by solving the \gls{PnP} problem~\cite{vo_pnp_survey}. The goal is to compute the rotation 
 $\mathbf{R}$ and translation $\mathbf{t}$ that map the 3D points observed in the previous frame to 
 their 2D projections in the current image.
 
@@ -1675,7 +1679,7 @@ their 2D projections in the current image.
 
 Given a set of $n$ correspondences $\{ (\mathbf{X}_i, \mathbf{x}_i) \}$, where $\mathbf{X}_i$ are 3D 
 points in the previous frame and $\mathbf{x}_i$ their 2D image projections in the current frame, 
-PnP finds a transformation that minimizes the reprojection error under the pinhole camera model:
+\gls{PnP} finds a transformation that minimizes the reprojection error under the pinhole camera model:
 
 \begin{equation}
 \begin{bmatrix}
@@ -1697,9 +1701,9 @@ scale in homogeneous coordinates.
 
 In practice, 3D-2D correspondences may include mismatches or noisy observations. To robustly estimate 
 the pose in the presence of such outliers, RANSAC (Random Sample Consensus) is used in conjunction 
-with PnP.
+with \gls{PnP}.
 
-RANSAC operates by randomly selecting minimal subsets of correspondences, solving the PnP problem for 
+RANSAC operates by randomly selecting minimal subsets of correspondences, solving the \gls{PnP} problem for 
 each subset, and evaluating how many correspondences agree with the estimated pose. The solution with 
 the highest number of inliers is selected, and the pose is then refined using all inliers to minimize 
 the overall reprojection error.
@@ -1734,7 +1738,7 @@ be used for pose chaining, trajectory estimation, or visual odometry back-end in
 
 \subsubsection{Covariance estimation}\label{sec:CovarianceEstimation}
 
-After estimating the camera pose using PnP and RANSAC, it is often useful to quantify the uncertainty 
+After estimating the camera pose using \gls{PnP} and RANSAC, it is often useful to quantify the uncertainty 
 associated with this estimate. This is particularly relevant when integrating the pose into filtering 
 frameworks, such as an Extended Kalman Filter (EKF), where a covariance is required.
 
@@ -1760,7 +1764,7 @@ matched points.
 
 \subsubsection{Motion filtering and smoothing}\label{sec:MotionFilteringSmoothing}
 
-The pose estimates obtained via PnP are subject to noise due to imperfect keypoint matching, depth
+The pose estimates obtained via \gls{PnP} are subject to noise due to imperfect keypoint matching, depth
 errors, or small instabilities in the feature geometry. To improve the consistency of the estimated
 trajectory, a filtering and smoothing step is applied.
 Two approaches are combined:
@@ -1839,7 +1843,7 @@ To configure the node, the following ROS2 parameters were added:
   path\_topic & Topic where the estimated path is published. \\ \hline
   use\_sim\_time & Uses simulation time instead of system time (for Gazebo, etc.). \\ \hline
   \end{tabular}
-  \caption{ROS 2 parameters used in visual\_odometry package}\label{tab:ros2_vo_params}
+  \caption{ROS2 parameters used in visual\_odometry package}\label{tab:ros2_vo_params}
 \end{table}
 
 
@@ -1856,7 +1860,7 @@ dynamic state of the scene.
 
 This idea aligns with the concept of 6D vision (see Section~\ref{sec:6D_Vision}),
 which was initially explored at the FTM Chair by Bauer~\cite{previous_tfm_bauer} and later validated in a
-ROS1 implementation by Pastor~\cite{previous_tfm_pastor}.
+ROS implementation by Pastor~\cite{previous_tfm_pastor}.
 
 Each point is represented by a \texttt{WorldPoint}, which maintains its own Kalman 
 filter and a 6D state vector composed of 3D position and velocity in world coordinates. 
@@ -1880,7 +1884,7 @@ Points are initialized or removed based on visibility, depth consistency, and mo
 A regular grid helps initialize new points, and the use of OpenMP~\cite{openMP} allows for paralellizing the updates of all active filters
 tracked points, leading to a significant speedup in the computation.
 
-The system architecture separates the Kalman logic into a core module that operates independently of ROS, 
+The system architecture separates the Kalman logic into a core module that operates independently of ROS2, 
 and a ROS2 node that manages communication, timing, and visualization. The output includes a 6D image representation, 
 debug data, and visualization markers for use in tools such as RViz and Foxglove. 
 
@@ -2610,7 +2614,7 @@ resolutions.
 
 \subsection{ROS2 integration}\label{sec:ROS2IntegrationKalmanFilter}
 
-The \texttt{KalmanFilterNode} is the central ROS 2 component that connects the Kalman 
+The \texttt{KalmanFilterNode} is the central ROS2 component that connects the Kalman 
 filter logic with the perception pipeline. It handles all data flow by subscribing to 
 synchronized data input streams, applying the filter update loop, and publishing processed 
 outputs and debug information.
@@ -2621,7 +2625,7 @@ flow, and the ego-motion transform. Synchronization is performed using
 modalities. Accurate synchronization is crucial to prevent inconsistencies in the filter 
 prediction and correction steps.
 
-In addition, runtime behavior is fully configurable via ROS 2 parameters. These include the grid 
+In addition, runtime behavior is fully configurable via ROS2 parameters. These include the grid 
 size, filter parameters such height limits to consider, and whether ego-motion should be used. 
 It also allows configuring all relevant noise sources via scalar parameters, 
 including the standard deviations of optical flow, depth, process model, and ego-motion 
@@ -2814,7 +2818,7 @@ a metric combining spatial distance and velocity similarity is used. The motivat
 and details of this distance function are presented in the following subsection.
 
 DBSCAN is configured with parameters $\varepsilon$ and $minPts$, which are specified
-as ROS parameters. These control the local density required to initiate a cluster and
+as ROS2 parameters. These control the local density required to initiate a cluster and
 the radius used to define neighborhoods. Clusters with fewer than the minimum size are
 discarded as noise. This helps remove isolated points or spurious detections that may
 pass the filtering stage but do not correspond to any coherent object. \paragraph{3. Cluster-to-object conversion}
@@ -2963,7 +2967,7 @@ computation of the criticallity metric. Thanks to the bounding boxes, its not ne
 to assume the objects to be point-like, but they can be represented as 3D boxes. This allows for a more accurate
 
 In addition to geometric information, the class assigns a unique identifier to each
-entity and includes utility methods for converting its contents into ROS-compatible
+entity and includes utility methods for converting its contents into ROS2-compatible
 messages. These include a method for generating a visualization marker and another for
 publishing the entity as part of a message array. The class diagram shown in
 Figure~\ref{fig:world_entity_uml} summarizes the internal structure and public
@@ -3432,7 +3436,7 @@ The Framos D455e camera was ultimately selected for the first phase of
 pipeline development. It integrates a stereo pair with a 95\,mm baseline 
 and computes depth maps on board using active infrared projection. The 
 camera offers VGA resolution at 30\,Hz, includes an IMU, and is 
-natively compatible with ROS 2. These characteristics allowed rapid 
+natively compatible with ROS2. These characteristics allowed rapid 
 integration and made it possible to collect initial datasets without 
 extensive driver development.
 
@@ -3471,7 +3475,7 @@ structured rosbag recordings integrated with the full pipeline.
 
 \subsubsection{Session 1: Visual depth quality inspection}
 
-In this session, the camera was operated outside the ROS 2 pipeline. A human 
+In this session, the camera was operated outside the ROS2 pipeline. A human 
 subject walked laterally with respect to the camera’s optical axis at fixed 
 distances of 2, 4, 6, 8, 10, and 12 meters. For each distance, a pair of frames 
 was recorded: one showing the raw 2D depth image, and one showing the 
@@ -3819,7 +3823,7 @@ of large displacementes.
 \end{table}
 
 The module was configured to process grayscale images from the left 
-camera, publishing the resulting flow field to the corresponding ROS 2 topic 
+camera, publishing the resulting flow field to the corresponding ROS2 topic 
 for consumption by downstream modules.
 
 
@@ -3993,7 +3997,7 @@ To ensure compatibility with the EDGAR software and hardware architecture~\cite{
 a set of mandatory requirements was defined:
 
 \begin{itemize}
-  \item \textbf{Driver compatibility:} ROS~2 Humble support, 
+  \item \textbf{Driver compatibility:} ROS2 Humble support, 
         with active maintenance and documentation.
   \item \textbf{Timestamp synchronization:} Support for IEEE 1588 PTP to ensure 
         temporal alignment with other sensors.
@@ -4020,7 +4024,7 @@ Two optional features were also considered advantageous:
 
 \paragraph{Evaluated candidates}
 
-Following a market survey and review of all stereo cameras listed in ROS Industrial~\cite{rosindustrialCameraSurvey}, 
+Following a market survey and review of all stereo cameras listed in ROS2 Industrial~\cite{rosindustrialCameraSurvey}, 
 three final candidates were evaluated in detail: the Stereolabs ZED X + ZED Box, 
 the Luxonis OAK-D Long Range, and the Carnegie Robotics Multisense S30. 
 Table~\ref{tab:candidate_summary} summarizes key aspects of each.
@@ -4035,7 +4039,7 @@ Table~\ref{tab:candidate_summary} summarizes key aspects of each.
     Max depth (claimed) & $>$20\,m & 30\,m & 30\,m \\
     HFOV (deg) & $\sim$110 & 82--100 & 91 \\
     Global shutter & No & Yes & Yes \\
-    ROS~2 driver & Proprietary & Unstable & Maintained \\
+    ROS2 driver & Proprietary & Unstable & Maintained \\
     PTP synchronization & No & No & Yes \\
     On-board compute & Yes (Jetson) & Yes & Yes (Quad-core ARM) \\
     Native PoE & No & Yes & No  \\
@@ -4055,13 +4059,13 @@ specifications.
 
 The \textbf{OAK-D Long Range} featured impressive specifications on paper, including 
 global shutter sensors and theoretical depth precision up to 30\,m. However, its 
-lack of PTP support and instability of the ROS~2 driver—as reported by the community—
+lack of PTP support and instability of the ROS2 driver—as reported by the community—
 ruled it out for this time-sensitive vehicle application.
 
 \paragraph{Selection of the Carnegie Multisense S30}
 
 The \textbf{Multisense S30} was the only camera that fulfilled all critical requirements 
-and offered a well-supported ROS~2 driver with PTP capability. It features a 30\,cm 
+and offered a well-supported ROS2 driver with PTP capability. It features a 30\,cm 
 stereo baseline with 91 {} HFOV and IP68 environmental protection. The internal 
 architecture includes a quad-core ARM processor, capable of local pre-processing or 
 network handling. Although it does not support PoE natively, standard PoE splitters 
@@ -4299,7 +4303,7 @@ relevant for perception and evaluation:
   \centering
   \begin{tabular}{l l}
     \toprule
-    \textbf{Data type} & \textbf{ROS 2 topic} \\
+    \textbf{Data type} & \textbf{ROS2 topic} \\
     \midrule
     Grayscale image & \texttt{/multisense/left/image\_mono} \\
     Depth image (OpenNI) & \texttt{/multisense/left/openni\_depth} \\
@@ -4479,7 +4483,7 @@ in parallel under identical conditions. The evaluation setup consisted of:
 
 \begin{itemize}
   \item The stereo-based perception and criticality pipelines, running 
-        as ROS~2 nodes in a dedicated container.
+        as ROS2 nodes in a dedicated container.
   \item A secondary container named \texttt{criticality\_pipeline\_autoware}, 
         which launched a wrapper for the Autoware perception detected 
         objects topic, and a second instance of the developed TTC 
@@ -5003,7 +5007,7 @@ These components are likely to dominate runtime and resource usage.
 
 Two complementary strategies were applied: monitoring of system-level
 resource usage (CPU, GPU, RAM) per module, and callback-level
-profiling using ROS~2 tracing tools. The results aim to identify
+profiling using ROS2 tracing tools. The results aim to identify
 potential bottlenecks and evaluate the real-time suitability of the
 implementation.
 
@@ -5675,15 +5679,15 @@ Section~\ref{sec:RequirementsForTheThesis}. This confirms the real-time viabilit
 pipeline in deployment conditions.
 
 Finally, the resulting rosgraph is llustrated 
-in Figure~\ref{fig:rosgraph_pipeline}. The ROS graph shows the modular 
+in Figure~\ref{fig:rosgraph_pipeline}. The ROS2 graph shows the modular 
 architecture of the perception pipeline, with each core module running in its own
-node and communicating via ROS topics. 
+node and communicating via ROS2 topics. 
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.95\linewidth]{figures/rosgraph.png}
-  \caption{ROS graph of the perception pipeline. Each core module runs in
-  its own node and communicates via ROS topics.}
+  \caption{ROS2 graph of the perception pipeline. Each core module runs in
+  its own node and communicates via ROS2 topics.}
   \label{fig:rosgraph_pipeline}
 \end{figure}
 
@@ -5746,7 +5750,7 @@ interpretable estimates in all evaluated test cases. In short-range scenarios,
 it often outperforms the risk outputs provided by Autoware.
 
 \textbf{8. Modular ROS2 architecture:} Each processing stage is implemented as
-an independent ROS~2 package. This structure supported parallel development, facilitated testing,
+an independent ROS2 package. This structure supported parallel development, facilitated testing,
 and allowed for modular integration or replacement of components such as
 depth estimation and criticality analysis.
 
@@ -5791,7 +5795,7 @@ stereo vision and does not require semantic labels, training data, or prior obje
 models. The pipeline should be able to detect and track moving objects in 3D, 
 estimate their 6D motion (position and velocity), and compute criticality metrics 
 such as time-to-collision (TTC) at runtime. All components were implemented in 
-C++ and ROS~2, designed for deployment on the EDGAR research vehicle.
+C++ and ROS2, designed for deployment on the EDGAR research vehicle.
 
 The methodology consisted of two main modules: a perception stack based on 
 stereo depth, optical flow, and recursive Kalman filtering; and a criticality 
@@ -5812,7 +5816,7 @@ low-confidence situations.
 The system was designed to fulfill a set of ten technical and functional 
 requirements, introduced in Chapter~\ref{sec:RequirementsForTheThesis}. These 
 requirements covered aspects such as stereo-only sensing, semantic independence, 
-real-time operation, modular implementation in ROS~2, robustness to occlusion, 
+real-time operation, modular implementation in ROS2, robustness to occlusion, 
 and online estimation of 6D motion and criticality metrics.
 
 All design goals were met and validated experimentally. The pipeline relies 
@@ -5860,10 +5864,10 @@ following directions are proposed for future work:
       improved accuracy of deep models in challenging scenes.
 
   \item \textbf{Improve the visual odometry:} The current module relies on 
-      ORB feature matching and RANSAC-based pose estimation. It achieves 
+      \gls{ORB} feature matching and RANSAC-based pose estimation. It achieves 
       good performance in frame-to-frame tracking but accumulates drift 
       over longer sequences and remains sensitive to abrupt motion. As a 
-      potential improvement, the integration of MAC-VO~\cite{macvo}, a 
+      potential improvement, the integration of MAC-\gls{VO}~\cite{macvo}, a 
       learning-based stereo visual odometry method with covariance 
       prediction, could enhance robustness and long-term consistency. 
       Given its promising formulation, it would be worthwhile to evaluate 
