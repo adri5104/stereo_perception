@@ -98,6 +98,20 @@ deep learning methods may fall short. Its deployment as a ROS2 service, optimize
 for performance and portability, enables easy integration into diverse research 
 and development workflows.
 
+Finally, with regard to the structure of this document,it is organized 
+into the following chapters. Chapter~\ref{chap:StateOfTheArt} surveys existing 
+environment perception systems for automated driving, including LiDAR-, radar-, 
+and image-based methods. It further reviews algorithms for detecting moving 
+objects, distinguishes learning-based from deterministic approaches, and 
+summarizes relevant research conducted at the Chair of Automotive Technology. 
+Chapter~\ref{chap:MethodsAndImplementation} presents the design and 
+implementation of the proposed system, separating the perception and criticality 
+pipelines into distinct modules. Chapter~\ref{chap:ExperimentsAndResults} 
+describes the evaluation process, including both component-level tests and 
+experiments conducted on the EDGAR research vehicle. 
+Chapter~\ref{chap:SummaryAndConclusion} concludes the thesis by 
+summarizing the main contributions and outlining future work.
+
 
 
 
@@ -309,7 +323,7 @@ validation, which is costly and time-consuming to obtain, especially for edge-ca
 such as rare weather events, unusual object classes, or emergency maneuvers. Additionally, the 
 black-box nature of neural networks complicates formal verification and interpretability, which 
 are essential for safety critical applications such as automated driving.
-
+ the thesis
 In unstructured or previously unseen environments, these models may fail to generalize correctly. 
 This limitation motivates the use of complementary, model-based approaches, especially as a 
 fallback or redundancy mechanism in high-assurance systems.
@@ -5679,7 +5693,7 @@ real-time limit. Future improvements may focus on reducing these
 bottlenecks through code optimization, frame skipping, or algorithmic 
 alternatives.
 
-
+\cite{optical_flw_raft}
 \section{Summary of experimental results}\label{sec:ResultsSummary}
 
 The experiments conducted throughout this chapter confirm that the perception and
@@ -5834,20 +5848,114 @@ To address these limitations and extend the capabilities of the system, the
 following directions are proposed for future work:
 
 \begin{enumerate}
-  \item \textbf{Augment the optical flow module} using learning-based models to 
-        improve robustness in low-texture regions and under strong illumination 
-        variations, and fusing it with the deterministic computated optical flow.
-  \item \textbf{Improve the visual odometry} to reduce long-term drift, possibly 
-        by integrating learning-based methods or fusing multiple motion inputs.
-  \item \textbf{Accelerate the Kalman filter} on GPU to increase point density 
-        without compromising runtime, enabling finer-grained motion estimation.
-  \item \textbf{Estimate input covariances dynamically} in both the flow and 
-        odometry nodes to allow adaptive filtering in response to scene changes.
-  \item \textbf{Evaluate LiDAR fusion} as a potential extension, the 
-        semantic-free design of the pipeline is preserved.
-  \item \textbf{Enhance TTC computation} by incorporating trajectory-based 
-        prediction models to detect converging paths more accurately than 
-        linear extrapolation.
+  \item \textbf{Augment the optical flow module:} The current implementation 
+      uses the Farnebäck algorithm, which provides reliable performance 
+      in well-textured regions but degrades under strong illumination 
+      changes or in areas with low visual detail. To address these 
+      limitations, future work could integrate learning-based optical 
+      flow predictions from RAFT~\cite{optical_flw_raft}, executed in 
+      real time and fused with the deterministic estimates. A confidence-
+      based fusion strategy could preserve the robustness and 
+      interpretability of the current method while leveraging the 
+      improved accuracy of deep models in challenging scenes.
+
+  \item \textbf{Improve the visual odometry:} The current module relies on 
+      ORB feature matching and RANSAC-based pose estimation. It achieves 
+      good performance in frame-to-frame tracking but accumulates drift 
+      over longer sequences and remains sensitive to abrupt motion. As a 
+      potential improvement, the integration of MAC-VO~\cite{macvo}, a 
+      learning-based stereo visual odometry method with covariance 
+      prediction, could enhance robustness and long-term consistency. 
+      Given its promising formulation, it would be worthwhile to evaluate 
+      its suitability for the current pipeline.
+
+  \item \textbf{Accelerate the Kalman filter on GPU:} The current tracking 
+      framework executes a separate Kalman filter for each world point, 
+      parallelized using multithreading on the CPU. While this setup performs 
+      well for medium point densities (e.g., grid spacing of 15 pixels), it 
+      does not scale efficiently for denser configurations. Offloading the 
+      prediction and update steps to the GPU via CUDA could enable a 
+      significant increase in spatial resolution without compromising real-time 
+      performance. A possible starting point would be the GPU-based approach 
+      presented in~\cite{previous_tfm_gpu_implementation}.  
+
+  \item \textbf{Refine Kalman filter initialization and logic:} The current 
+      strategy initializes one Kalman tracker per grid cell, with a fixed 
+      spacing that ensures uniform coverage across the image. Although 
+      simple and effective, this approach does not take into account which 
+      regions of the image are more suitable for tracking. A promising 
+      extension, inspired by the Daimler 6D Vision system~\cite{6d_vision_daimler}, 
+      would be to initialize multiple filters per location, each with 
+      different velocity hypotheses. This could improve robustness in areas 
+      with ambiguous or noisy motion. Additionally, the selection of 
+      initialization points could be guided by local image properties. 
+      For example, filters could be concentrated in regions with high edge 
+      content or rich texture, such as object contours or visually structured 
+      surfaces, while flat areas like the sky or uniform road patches would 
+      be avoided. These properties can be detected using standard techniques 
+      such as image gradients or corner detectors, without requiring full 
+      motion segmentation, which remains challenging in a moving frame 
+      of reference.
+
+      Furthermore, the logic that governs which points are used for downstream 
+      tasks could be refined by considering the age of each tracker. 
+      For instance, very recent \texttt{WorldPoint} instances might be excluded 
+      from output until the underlying filter has had time to converge. This 
+      would help reduce the influence of unstable measurements on later stages 
+      such as clustering or criticality analysis. 
+
+  
+  \item \textbf{Introduce temporal tracking of object clusters:} While the 
+      underlying 6D points are tracked across multiple frames via individual 
+      Kalman filters, the clustering of these points into object-level 
+      representations is currently performed independently at each frame. 
+      This frame-by-frame approach does not preserve object identities 
+      over time, making it difficult to reason about long-term behavior 
+      or motion history. A promising extension would be to implement a 
+      temporal tracking mechanism for clusters, assigning consistent IDs 
+      to objects as they evolve through the scene. Several strategies could 
+      be investigated. For example, clusters in consecutive frames could be 
+      matched based on the distance and velocity difference between their 
+      centroids, using gating techniques similar to multi-object tracking. 
+      Alternatively, cluster correspondence could be established by 
+      computing the overlap of their constituent 6D points, leveraging the 
+      fact that individual points are already being tracked. These approaches 
+      would enable more coherent temporal reasoning and open the door to 
+      higher-level tasks such as maneuver classification or intent prediction.
+
+  \item \textbf{Enhance TTC computation:} The current module could be extended 
+      by incorporating object trajectory prediction and estimating whether 
+      these predicted paths intersect with the ego-vehicle's planned 
+      trajectory. This would allow the system to distinguish between 
+      actual collision risks and cases of parallel motion. Furthermore, 
+      the bounding boxes computed by the object detector could be leveraged 
+      to improve collision estimation. Since position, size, and orientation 
+      information is already available, these boxes could be propagated 
+      along predicted trajectories to perform geometric overlap checks 
+      over time. This would provide a more realistic estimate of collision 
+      likelihood compared to point-based proximity alone. Similar ideas 
+      have been proposed in~\cite{improved_ttc} and could be integrated 
+      into the existing framework.
+
+  \item \textbf{Expand camera coverage:} The current configuration uses a single 
+      front-facing stereo camera, which limits perception to the forward 
+      field of view. Incorporating additional stereo cameras with lateral 
+      or rear-facing orientations would enable wider scene coverage and 
+      support detection of objects approaching from multiple directions. 
+      This would be particularly useful in dynamic environments such as 
+      intersections or merging lanes. Moreover, it would facilitate a more 
+      meaningful comparison with Autoware, whose 360-degree perception is 
+      achieved through LiDAR units mounted in all directions. To support 
+      multi-camera operation, an additional package could be added to the 
+      perception pipeline to fuse outputs from different object detector 
+      nodes, transforming their results into a common frame using the TF 
+      tree of the platform. A more advanced extension could involve merging the underlying 
+      6D vision images from each camera into a unified spatial map, 
+      effectively performing geometric stitching across views. Given the 
+      modularity of the current architecture, such additions would be 
+      technically feasible and align with the philosophy of the system.
+
+
 \end{enumerate}
 
 
