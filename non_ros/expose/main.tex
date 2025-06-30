@@ -1,0 +1,25 @@
+  % !TeX spellcheck = en_US
+  \documentclass[FTMstudentexpose%      style
+                ,optBiber%              bibliography tool
+                ,optBibstyleAlphabetic% bibliography style
+                ,optEnglish%            language
+                ]{FTMlatex}%
+  
+  % Set paths
+  \graphicspath{{figures/}}%
+  \addbibresource{source/literature.bib}%
+  \usetikzlibrary{positioning, shapes, arrows.meta, fit}
+  \begin{document}%
+  \FTMstudentexposeTitlePageMastersThesis{Stereo Camera-Based Environment Perception for Automated Vehicles}{Adrian Rieker}{03782083}{adrian.rieker@tum.de}{David Brecht, MSc.; Prof. Dr.-Ing. Markus Lienkamp}{\FTMutilsToday}%
+
+ 
+  \include{source/chapter01_topic}
+  \include{source/chapter02_stateofart}
+  \include{source/chapter03_objective}
+  \include{source/chapter04_workplan}
+
+  \include{source/chapter05_literature}
+
+  
+  
+  \end{document}%
