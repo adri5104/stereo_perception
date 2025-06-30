@@ -27,7 +27,7 @@ Current state-of-the-art perception systems are predominantly learning-based,
 with deep neural networks trained on large annotated datasets. These methods 
 perform well in structured, well-represented environments but struggle to 
 generalize to rare or previously unseen scenarios. Their lack of transparency 
-also raises concerns about interpretability and systematic validation—key 
+also raises concerns about interpretability and systematic validation, key 
 requirements in safety-critical applications.
 
 To address these limitations, this thesis explores a complementary, deterministic 
@@ -42,7 +42,7 @@ setup to produce 6D motion estimates: three dimensional positions and the corres
 velocities of selected scene points. A Kalman filter-based framework, inspired by the 
 Daimler 6D Vision approach, integrates depth, optical flow, and ego-motion 
 information to compute these estimates. The resulting motion field is clustered 
-using the DBSCAN algorithm to identify coherent moving objects.
+using the \gls{DBSCAN} algorithm to identify coherent moving objects.
 
 To assess potential hazards, a criticality evaluation module calculates safety 
 metrics based on predicted trajectories of both the ego-vehicle and the detected 
@@ -61,8 +61,8 @@ adaptability to other platforms.
 The system is implemented in C++, with performance critical components 
 accelerated using \gls{CUDA} and parallelized via OpenMP. This ensures 
 that real-time constraints are met while maintaining scalability and robustness. 
-Each major function—depth estimation, optical flow, Kalman filtering, clustering, 
-and criticality assessment encapsulated in its own \gls{ROS2} node, supporting modular 
+Each major function, depth estimation, optical flow, Kalman filtering, clustering, 
+and criticality assessment, is encapsulated in its own \gls{ROS2} package, supporting modular 
 development, testing, and integration. The use of Docker for containerization 
 ensures portability and simplifies deployment across heterogeneous systems.
 
@@ -105,8 +105,8 @@ and development workflows.
 
 Finally, with regard to the structure of this document,it is organized 
 into the following chapters. Chapter~\ref{chap:StateOfTheArt} surveys existing 
-environment perception systems for automated driving, including LiDAR-, radar-, 
-and image-based methods. It further reviews algorithms for detecting moving 
+environment perception systems for automated driving, including \gls{LiDAR}, \gls{RADAR}, 
+and image based methods. It further reviews algorithms for detecting moving 
 objects, distinguishes learning-based from deterministic approaches, and 
 summarizes relevant research conducted at the Chair of Automotive Technology. 
 Chapter~\ref{chap:MethodsAndImplementation} presents the design and 
@@ -230,7 +230,7 @@ produce multipath effects or suffer from interference in complex environments.
 Camera-based systems provide rich visual information that can be used for a variety of 
 perception tasks, including classification, semantic segmentation, visual odometry, and depth estimation.
 They are an essential part of most autonomous driving stacks and, in some designs, serve as the 
-primary perception modality—as exemplified by Tesla's Autopilot system~\cite{tesla_autopilot}.
+primary perception modality, as exemplified by the Autopilot system of Tesla~\cite{tesla_autopilot}.
 
 \paragraph{Monocular vision}
 
@@ -302,7 +302,7 @@ their operational characteristics, and their relevance to the goals of this thes
 
 Learning-based approaches have become predominant in many domains of computer vision, including 
 object detection, tracking, and scene understanding. These methods use models such as 
-convolutional neural networks (CNNs), recurrent neural networks (RNNs), and transformer-based 
+\gls{CNN}, \gls{RNN}, and transformer-based 
 architectures to learn mappings from raw sensor inputs to high-level perception outputs.
 
 In the context of moving object detection, learning-based methods typically combine object detection 
@@ -375,7 +375,7 @@ The key components of 6D Vision are:
 \end{enumerate}
 
 The result is a sparse but dynamic representation of the scene, where each tracked point has an associated 6D state. 
-These points can then be grouped into moving objects through clustering techniques such as DBSCAN, enabling object-level 
+These points can then be grouped into moving objects through clustering techniques such as \gls{DBSCAN}, enabling object-level 
 motion understanding without the need for prior object models.
 
 Because it is model-free and data-independent, 6D Vision is especially useful in scenarios where learning-based 
@@ -444,7 +444,7 @@ All connected sensors must fulfill the following integration requirements:
 \begin{itemize}
   \item Support for hardware-level PTP time synchronization
   \item Preferably PoE interface to reduce cabling complexity
-  \item Availability of a stable ROS2-compatible driver (Humble version)
+  \item Availability of a stable ROS2-compatible driver (Hu mble version)
   \item Compatibility with high-throughput network architecture (40\,Gbit uplink)
 \end{itemize}
 
@@ -541,7 +541,7 @@ controlled illumination, but their performance may degrade under direct sunlight
 \begin{itemize}
   \item \textbf{Intel RealSense D455}: Incorporates a global shutter stereo pair
   and infrared projector. It supports depth estimation up to 10\,m. Its
-  suitability for SLAM was evaluated in~\cite{paperIntel}, which found that
+  suitability for \gls{SLAM} was evaluated in~\cite{paperIntel}, which found that
   depth accuracy decreases significantly with distance and oblique incidence,
   though it remains competitive in short-range indoor mapping.
 
@@ -743,39 +743,24 @@ automated driving.
 % ===================================================================
 \chapter{Methods and Implementation}\label{chap:MethodsAndImplementation}
 
-This chapter presents the methodological and implementation framework that form the core the system 
-developed in this thesis. The system is designed to perform deterministic, stereo camera-based 
-environment perception and criticality assessment for automated vehicles, with an emphasis on 
-real-time applicability and modular deployment.
+This chapter details the methodology and implementation of the system developed.
 
-The chapter begins by outlining the high-level architecture, describing the interaction between 
-core subsystems that process raw visual data and generate semantically structured information 
-regarding the dynamic environment. This architecture is conceptually divided into two main 
-pipelines: the perception pipeline, which estimates the motion of surrounding objects based on 
-the stereo camera input, and the criticality pipeline, which evaluates the potential 
-risk posed by these objects relative to the ego-vehicle trajectory.
-
-Subsequent sections will provide a detailed examination of each of the individual components
-presented in the overall architecture. Special emphasis will be placed on the design choices made
-to ensure real-time performance, modularity, and ease of integration with the existing software
-infrastructure of the EDGAR research vehicle. 
-
-The modular decomposition of the system facilitates scalability, systematic testing, and 
-independent development of components. It also ensures compatibility with the software 
-infrastructure of the EDGAR research vehicle, enabling seamless integration with existing modules 
-responsible for data acquisition, actuation, and supervisory control. Through this design, the 
-system provides a reproducible and extensible foundation for further development in the context 
-of teleoperated and autonomous driving research.
+It begins with an overview of the system architecture, and follows with an
+examination of each component in detail, focusing on design choices that ensure
+real-time performance, modularity, and integration with the EDGAR research
+vehicle software.
 
 
 \section{System Architecture}\label{sec:SystemArchitecture}
 
-In this section the high level architecture of the system will be presented. 
+This section introduces the high-level architecture of the system developed in this thesis.
 
-The system is conceptually divided into two main pipelines: the perception pipeline and the criticality pipeline. The
-\textbf{perception pipeline} processes raw sensor data captured by the stereo camera to build a dynamic representation of 
-the environment and estimating the position and speed vectors of the moving objects. The output of this pipeline is a list
-of object in the scene that is later used by the \textbf{criticality pipeline} to compute the criticality score of the detected objects.
+The overall system is structured into two principal pipelines: the \textbf{perception pipeline} 
+and the \textbf{criticality pipeline}. The perception pipeline operates on raw stereo image data, 
+constructing a dynamic model of the environment by estimating the 3D positions and velocity vectors 
+of moving objects. Its output is a structured list of detected objects, which serves as input to 
+the criticality pipeline. The criticality pipeline evaluates the relative risk posed by each object with respect 
+to the ego-vehicle's planned trajectory by computing relevant criticality metrics.
 
 \begin{figure}[htb]
   \centering
@@ -784,21 +769,12 @@ of object in the scene that is later used by the \textbf{criticality pipeline} t
   }
 \end{figure}%
 
-This section introduces the high-level architecture of the system developed in this thesis.
 
-The overall system is structured into two principal pipelines: the \textbf{perception pipeline} 
-and the \textbf{criticality pipeline}. The perception pipeline operates on raw stereo image data, 
-constructing a dynamic model of the environment by estimating the 3D positions and velocity vectors 
-of moving objects. Its output is a structured list of detected objects, which serves as input to 
-the criticality pipeline. The latter evaluates the relative risk posed by each object with respect 
-to the ego-vehicle's planned trajectory by computing relevant criticality metrics.
-
-
-Both pipelines are deployed jointly as a single ROS2 service on the EDGAR research vehicle. This 
+Both pipelines are deployed as two ROS2 services on the EDGAR platform. This 
 design decision ensures a clean separation between external interfaces and internal implementation, 
 thereby promoting system portability across different vehicle platforms and stereo camera configurations. 
-The service exposes standardized ROS2 messages for input and output, enabling seamless integration 
-within heterogeneous software stacks. Internally, the system remains agnostic to vehicle-specific 
+The service exposes standardized ROS2 messages for input and output, enabling easy integration 
+within the existing software stack. Internally, the system remains agnostic to vehicle-specific 
 details, facilitating reuse and simplifying deployment across varied hardware setups.
 
 
@@ -824,14 +800,14 @@ As shown in the figure, the perception pipeline comprises the following core mod
   matching (SGM) algorithm.
   \item \textbf{Kalman filter:}  Central module of the perception pipeline. It uses depth and optical flow data to
   estimate the 6D state (position and velocity) of a sparse set of points over time.
-  \item \textbf{Object detection:} Applies a clustering algorithm (DBSCAN~\cite{dbscan_original}) to group similar 6D points into
+  \item \textbf{Object detection:} Applies a clustering algorithm (\gls{DBSCAN}~\cite{dbscan_original}) to group similar 6D points into
   detected objects.
 \end{enumerate}
 
 Each of the previous presented modules will be implemented as a separate ROS2 package, allowing for
 modular development and testing. 
 
-\subsection{Criticallity pipeline}\label{sec:CriticallityPipeline}
+\subsection{criticality pipeline}\label{sec:CriticallityPipeline}
 
 The criticality pipeline (Figure~\ref{fig:cp_high_level}) assesses the risk posed by each detected
 object. Based on the output of the perception pipeline and the current trajectory of the ego-vehicle,
@@ -853,10 +829,10 @@ as a separate ROS2 package.
 \subsection{Repository structure}
 \label{sec:RepositoryStructure}
 
-The project is implemented as a monorepo, consolidating all system components into a single, unified 
-repository to simplify development, integration, and deployment.
+The project is implemented as a mono-repository, consolidating all system components into a single, unified 
+repository to simplify developmet.
 
-The repository is structured into three main directories:
+The repository is structured into the following main directories:
 
 \begin{enumerate}
   \item \texttt{src/} Contains all ROS2 source code.
@@ -864,7 +840,7 @@ The repository is structured into three main directories:
     \item \texttt{launch\_packages/} Contains all launch files used to start the system.
     \begin{enumerate}
       \item \texttt{perception\_pipeline\_launch/} Package that contains the launch files for the perception pipeline.
-      \item \texttt{criticallity\_pipeline\_launch/} Package that contains the launch files for the criticallity pipeline.
+      \item \texttt{criticality\_pipeline\_launch/} Package that contains the launch files for the criticality pipeline.
     \end{enumerate}
     \item \texttt{perception\_pipeline/} Contains all the packages used in the perception pipeline.
     \begin{enumerate}
@@ -874,7 +850,7 @@ The repository is structured into three main directories:
       \item \texttt{kalman\_filter/} Package that performs the 6D state estimation of the points in the scene.
       \item \texttt{object\_detector/} Package that performs the object detection and clustering of the points in the scene.
     \end{enumerate}
-    \item \texttt{criticallity\_pipeline/} Contains all the packages used in the criticality pipeline.
+    \item \texttt{criticality\_pipeline/} Contains all the packages used in the criticality pipeline.
     \begin{enumerate}
       \item \texttt{ttc\_calculator/} Package that computes the Time-to-Collision (TTC) of the detected objects.
     \end{enumerate}
@@ -890,7 +866,7 @@ The repository is structured into three main directories:
   \item \texttt{docker/} Contains all Docker image related files, including the Dockerfile and configuration files.
   \begin{enumerate}
     \item \texttt{perception\_pipeline/} Contains all the Dockerfiles and configuration files for the perception pipeline.
-    \item \texttt{criticallity\_pipeline/} Contains all the Dockerfiles and configuration files for the criticallity pipeline.
+    \item \texttt{criticality\_pipeline/} Contains all the Dockerfiles and configuration files for the criticality pipeline.
     \item \texttt{stereo\_perception\_edgar\_bridge/} Contains all the Dockerfiles and configuration files for the bridge between the custom messages used in the EDGAR vehicle and standard ROS2 messages.
   \end{enumerate}
   \item \texttt{non\_ros/} Contains all non ROS2 packages related files.
@@ -905,9 +881,9 @@ The repository is structured into three main directories:
 
 Docker is a platform that enables the execution of software in isolated 
 environments called containers. These encapsulate code and dependencies, 
-ensuring consistency across developmel. The second container contains the 
-criticality pipeline, which computes criticality metrics based on object 
-detection results and ego-vehicle trajectory. The third container serves as a 
+ensuring an easier deployment. 
+
+The stereo perception stack is separated in three main container. The first two contain the perception and criticallity pipeline respectively. The third container serves as a 
 ROS2 bridge that converts custom messages from the EDGAR platform into 
 standard message types used by the other two containers.
 
@@ -952,8 +928,7 @@ The stereo image computation module is responsible for generating a dense depth 
 rectified stereo images and its calibration parameters. This component is particularly relevant when 
 working with datasets or sensors that provide raw stereo image pairs but no precomputed depth information. Although this
 module is not used in the final deployment of the system on the EDGAR research vehicle, since its
-stereo camera setup provides depth images directly—it plays a crucial role in training, testing, and
-benchmarking the system using external datasets. It can also be used in the future to integrate other
+stereo camera setup provides depth images directly, it can be used in the future to integrate other
 stereo camera sets that do not provide depth images.
 
 \subsection{Mathematical Background: Pinhole Camera Model and Disparity}
@@ -1078,8 +1053,7 @@ The algorithm operates in two main steps:
 
 \textbf{1. Cost computation:}  
 For each possible disparity, a matching cost calculation happens between the left picture plus 
-the right picture at each pixel. This calculation uses methods like the Sum of Absolute Differences 
-or measurements that use census transform.
+the right picture at each pixel.
 
 \textbf{2. Cost aggregation:}  
 SGM does not do a full 2D global optimization. That process demands a lot of computation, so it 
@@ -1265,7 +1239,7 @@ Some of the most common optical flow algorithms include \cite{optical_flow_estim
   
   This approach refines the variational method of Horn and Schunck by introducing a total variation (TV) 
   regularization term and an L1 norm for the data term. The resulting algorithm is more robust and was 
-  implemented in the previous work of Bauer \cite{previous_tfm_bauer}. Neverthet is computationally
+  implemented in the previous work of Bauer \cite{previous_tfm_bauer}. Nevertheless is computationally
   expensive and may not be the best choice for real-time applications.
 
   \item \textbf{Farneback method~\cite{opf_flw_farneback}:}
@@ -1392,7 +1366,7 @@ requires manually building OpenCV with CUDA support.
   \caption{CUDA Farneback class. Source: OpenCV}\label{fig:opf_flw_cuda}
 \end{figure}%
 
-To facilitate tuning and configuration, the following ROS2 parameters were added to the node:
+To facilitate the tuning and configuration, the following ROS2 parameters were added to the node:
 
 \begin{table}[H]
   \begin{tabular}{|l|l|}
@@ -1458,7 +1432,7 @@ and the color represents its direction.
   \caption{Optical flow debug images. Left: Optical flow vectors superimposed on the original image. Right: RGB image where the intensity represents the magnitude and the color represents the direction of the optical flow vector}\label{fig:opt_flw_debug}%
 \end{figure}%
 
-These additional debug outputs greatly facilitate the qualitative evaluation of the optical flow results and enable faster identification of potential errors during the development and testing phases.
+These additional debug outputs facilitate the qualitative evaluation of the optical flow results and enable faster identification of potential errors during the development and testing phases.
 
 
 \newpage
@@ -1477,7 +1451,7 @@ For this purpose, \gls{VO} techniques are used to estimate the required informat
 using the stereo setup input. Incorporating the depth information from the stereo camera allows the
 direct recovery of metric information, providing robustness and accuracy.
 
-This section describes the concept behind visual odometry, the coordinate systems used, the specific
+This section describes the concept behind \gls{VO}, the coordinate systems used, the specific
 algorithmic approach that was implemented, as well as the ROS2 implementation details.
 
 \subsection{Visual odometry}
@@ -1492,14 +1466,14 @@ The core idea behind \gls{VO} is to track visual features across consecutive fra
 motion of the camera from these observations. The estimated motion provides a continuous estimate
 of the vehicle trajectory without relying on external localization systems.
 
-Visual odometry methods are generally categorized based on the type of input and processing
+\gls{VO} methods are generally categorized based on the type of input and processing
 approach used:
 
 \begin{itemize}
   \item \textbf{Monocular \gls{VO}:} Utilizes a single camera as input. It is cost-effective but suffers from
   scale ambiguity, meaning that the absolute scale of the motion (e.g., in meters) cannot be determined
   without additional information. Monocular \gls{VO} is often used in conjunction with other sensors
-  (e.g., IMU) to resolve this ambiguity~\cite{visual_odometry_review}.
+  (e.g., \gls{IMU}) to resolve this ambiguity~\cite{visual_odometry_review}.
 
   \item \textbf{Stereo \gls{VO}:} Used two synchronized cameras to estimate depth through triangulation,
   which allows direct recovery of metric scale. This removes the scale ambiguity present in monocular
@@ -1525,7 +1499,7 @@ different types neural networks to estimate motion directly from image sequences
 These methods aim to improve robustness under challenging conditions, such as illumination
 changes and textureless environments~\cite{visual_odometry_review}.
 
-This work adopts a \textbf{Stereo \gls{VO}:} and \textbf{stereo feature-based} since the depth information is already available
+This work adopts a \textbf{Stereo \gls{VO}} and \textbf{stereo feature-based} since the depth information is already available
 from the stereo Camera and using feature matching to estimate motion robustly. This choice provides a good
 balance between accuracy and computational efficiency, making it suitable for real-time applications
 
@@ -1565,7 +1539,7 @@ the visual odometry computation.
 The visual odometry algorithm implemented in this work follows a stereo vo and feature-based stereo approach. It
 estimates the relative motion of the camera by detecting and matching visual features between
 consecutive frames, reconstructing their 3D positions using the depth image, and solving the camera
-pose using a \gls{PnP} algorithm~\cite{vo_pnp_survey} with RANSAC for outlier rejection.
+pose using a \gls{PnP} algorithm~\cite{vo_pnp_survey} with \gls{RANSAC} for outlier rejection.
 
 A schematic overview of the algorithm steps is presented in Algorithm~\ref{alg:visual_odometry}.
 
@@ -1595,16 +1569,14 @@ Feature detection and matching constitute the first step in the visual odometry 
 some points, that will serve to compute the desired transformation, will be detected in two consequtive frames.
 For this, the \gls{ORB}~\cite{vo_orb} algorithm will be used.
 
-\gls{ORB} is a binary feature descriptor that builds upon two classical methods: FAST (Features from
-Accelerated Segment Test) \cite{vo_fast} for keypoint detection and BRIEF (Binary Robust Independent Elementary
-Features) \cite{vo_brief} for descriptor computation. 
+\gls{ORB} is a binary feature descriptor that builds upon two classical methods: \gls{FAST}~\cite{vo_fast} for keypoint detection and \gls{BRIEF}~\cite{vo_brief} for descriptor computation. 
 
 In this context, a keypoint is a point in the image that is distinctive and repeatable (typically corners or blobs), that can be reliably identified across multiple frames.
 Around each keypoint, a descriptor is computed: a compact representation of the visual appearance in its local neighborhood. 
 These descriptors allow the system to match corresponding features between frames, even under variations in viewpoint.
 
-FAST is a corner keypoint detection algorithm that quickly identifies points in the image with significant intensity
-change compared to their surroundings. BRIEF, on the other hand, generates a binary string descriptor
+\gls{FAST} is a corner keypoint detection algorithm that quickly identifies points in the image with significant intensity
+change compared to their surroundings. \gls{BRIEF}, on the other hand, generates a binary string descriptor
 by comparing the intensity of random pairs of pixels in a small patch around the keypoint.
 
 \begin{figure}[H]
@@ -1614,7 +1586,7 @@ by comparing the intensity of random pairs of pixels in a small patch around the
 \end{figure}%
 
 \gls{ORB} enhances these methods by introducing rotation and scale invariance. The orientation of each
-keypoint is computed to make BRIEF descriptors rotation-invariant, and a multi-scale pyramid is used
+keypoint is computed to make \gls{BRIEF} descriptors rotation-invariant, and a multi-scale pyramid is used
 to handle changes in scale. 
 
 The feature extraction and matching process is performed on the GPU using OpenCV's CUDA modules.
@@ -1664,7 +1636,7 @@ set of detected keypoint can be seen. The ones with valid depth are shown in gre
   \caption{Odometry Keypoints with depth filtering and RGB Image}\label{fig:3D2D_correspondences}
 \end{figure}%
 
-\subsubsection{Motion estimation using \gls{PnP} and RANSAC}\label{sec:MotionEstimationPnP}
+\subsubsection{Motion estimation using PnP and RANSAC}\label{sec:MotionEstimationPnP}
 
 Once 3D-2D correspondences are available, the relative camera motion between two frames can be 
 estimated by solving the \gls{PnP} problem~\cite{vo_pnp_survey}. The goal is to compute the rotation 
@@ -1700,10 +1672,10 @@ pose of the current frame with respect to the previous one. The symbol $\sim$ de
 scale in homogeneous coordinates.
 
 In practice, 3D-2D correspondences may include mismatches or noisy observations. To robustly estimate 
-the pose in the presence of such outliers, RANSAC (Random Sample Consensus) is used in conjunction 
+the pose in the presence of such outliers, \gls{RANSAC} is used in conjunction 
 with \gls{PnP}.
 
-RANSAC operates by randomly selecting minimal subsets of correspondences, solving the \gls{PnP} problem for 
+\gls{RANSAC} operates by randomly selecting minimal subsets of correspondences, solving the \gls{PnP} problem for 
 each subset, and evaluating how many correspondences agree with the estimated pose. The solution with 
 the highest number of inliers is selected, and the pose is then refined using all inliers to minimize 
 the overall reprojection error.
@@ -1738,12 +1710,12 @@ be used for pose chaining, trajectory estimation, or visual odometry back-end in
 
 \subsubsection{Covariance estimation}\label{sec:CovarianceEstimation}
 
-After estimating the camera pose using \gls{PnP} and RANSAC, it is often useful to quantify the uncertainty 
+After estimating the camera pose using \gls{PnP} and \gls{RANSAC}, it is often useful to quantify the uncertainty 
 associated with this estimate. This is particularly relevant when integrating the pose into filtering 
-frameworks, such as an Extended Kalman Filter (EKF), where a covariance is required.
+frameworks, such as an \gls{EKF}, where a covariance is required.
 
 In this work, the pose covariance is approximated based on the reprojection residuals of the inlier 
-correspondences identified by RANSAC. Once the best pose has been selected, all 3D points are projected 
+correspondences identified by \gls{RANSAC}. Once the best pose has been selected, all 3D points are projected 
 onto the image using the estimated transform, and the residual reprojection errors are computed as:
 
 \begin{equation}
@@ -1769,9 +1741,9 @@ errors, or small instabilities in the feature geometry. To improve the consisten
 trajectory, a filtering and smoothing step is applied.
 Two approaches are combined:
 \begin{itemize}
-  \item \textbf{Statistical filtering} To detect and remove outliers in both translation and rotation
+  \item \textbf{Statistical filtering:} To detect and remove outliers in both translation and rotation
   components based on deviation from a local history.
-  \item \textbf{Exponential smoothing} To smooth the motion estimate over time using a weighted moving
+  \item \textbf{Exponential smoothing:} To smooth the motion estimate over time using a weighted moving
   average.
 \end{itemize}
 
@@ -1933,7 +1905,7 @@ $\mathbf{R}$:
 \end{equation}
 
 When both models are linear, as in the equations above, the standard Kalman filter can be used. However, if 
-either model is nonlinear, the Extended Kalman Filter (EKF)~\cite{ekf} must be applied. The EKF approximates 
+either model is nonlinear, the \gls{EKF}~\cite{ekf} must be applied. The \gls{EKF} approximates 
 nonlinear functions by linearizing them around the current state estimate using the Jacobian (first order Taylor series approximation).
 
 \subsubsection{Standard Kalman filter}\label{sec:KalmanFilterClassic}
@@ -2028,11 +2000,11 @@ covariance $\mathbf{P}_k$ serve as the input for the next prediction step.
 \subsubsection{Extended Kalman filter}\label{sec:ExtendedKalmanFilter}
 
 When the system or measurement model is nonlinear, the standard Kalman filter cannot be applied directly.
-In such cases, the Extended Kalman Filter (EKF) is used. The EKF extends the classical Kalman filter by
+In such cases, the Extended Kalman Filter (EKF) is used. The \gls{EKF} extends the classical Kalman filter by
 linearizing the nonlinear functions around the current estimate using a first-order Taylor expansion.
 
 Let $\mathbf{f}(\cdot)$ represent the nonlinear system model, and $\mathbf{h}(\cdot)$ the nonlinear measurement
-model. The EKF performs the prediction step by applying the nonlinear dynamics to the previous state:
+model. The \gls{EKF} performs the prediction step by applying the nonlinear dynamics to the previous state:
 
 \begin{equation}
   \hat{\mathbf{x}}_k = \mathbf{f}(\mathbf{x}_{k-1}, \mathbf{u}_k)
@@ -2364,7 +2336,7 @@ This expression captures how the uncertainty in the ego-motion parameters propag
 covariance, and allows the filter to adapt to the quality of the visual odometry estimates in a principled way. 
 The Jacobian \( \mathbf{J}_k \) is re-evaluated at each time step based on the current predicted state and ego-motion estimate.
 
-Now that the full state prediction model—including ego-motion and its uncertainty—has been defined, we turn our attention 
+Now that the full state prediction model, including ego-motion and its uncertainty, has been defined, we turn our attention 
 to the measurement model, which relates the predicted state to the observations available from the stereo camera and 
 optical flow pipeline.
 
@@ -2426,7 +2398,7 @@ $\mathbf{h}(\mathbf{x}_{k})$ is defined as:
 \end{equation}
 
 This maps the predicted 3D point to the expected image coordinates $(u, v)$ and depth \( d = Z \). Since this model 
-is nonlinear, the Extended Kalman Filter is used. To apply the correction step of the EKF, the Jacobian of the 
+is nonlinear, the Extended Kalman Filter is used. To apply the correction step of the \gls{EKF}, the Jacobian of the 
 measurement model with respect to the state vector is required.
 
 \begin{equation}
@@ -2703,15 +2675,15 @@ Among the most common are:
   \item \textbf{Mean Shift~\cite{mean_shift_original}}: a mode-seeking algorithm that clusters based on density
         peaks. It can discover arbitrarily shaped clusters, but tends to be
         computationally expensive and sensitive to bandwidth selection.
-  \item \textbf{DBSCAN~\cite{dbscan_original}}: a density-based algorithm that identifies clusters as
+  \item \textbf{\gls{DBSCAN}~\cite{dbscan_original}}: a density-based algorithm that identifies clusters as
         connected regions of high point density. It does not require the number of
         clusters in advance and handles noise explicitly.
 \end{itemize}
 
-Given the requirements of this project—unstructured input, unknown number of
-objects, and frequent outliers—DBSCAN was selected. It is well suited to segment
+Given the requirements of this project: unstructured input, unknown number of
+objects, and frequent outliers, DBSCAN was selected. It is well suited to segment
 point clouds where object boundaries are defined by density rather than geometry.
-Moreover, DBSCAN can be extended with a custom distance function, enabling the
+Moreover, \gls{DBSCAN} can be extended with a custom distance function, enabling the
 integration of both spatial and motion cues into the clustering process.
 
 In this implementation, the algorithm considers two points as neighbors if they
@@ -2723,10 +2695,10 @@ multiple objects may temporarily overlap in 3D space.
 \subsection{DBSCAN clustering}
 \label{sec:DBSCANClustering}
 
-DBSCAN (Density-Based Spatial Clustering of Applications with Noise) is a
+\gls{DBSCAN} (Density-Based Spatial Clustering of Applications with Noise) is a
 non-parametric clustering algorithm introduced by Ester et al.~\cite{dbscan_original}.
 It defines clusters as areas of high point density and treats sparse regions as
-separators or noise. This density-based definition allows DBSCAN to discover clusters
+separators or noise. This density-based definition allows \gls{DBSCAN} to discover clusters
 of arbitrary shape and to operate without requiring the number of clusters in advance.
 
 The algorithm operates on a dataset of points and requires two parameters:
@@ -2750,7 +2722,7 @@ Two points are considered \textit{density-connected} if there exists a chain of 
 points such that each is within $\varepsilon$ of the next. This enables clusters to
 grow organically around dense regions and stop at natural boundaries.
 
-Figure~\ref{fig:dbscan_clusters} illustrates the basic idea of DBSCAN. Core points have
+Figure~\ref{fig:dbscan_clusters} illustrates the basic idea of \gls{DBSCAN}. Core points have
 dense neighborhoods and initiate clusters. Border points lie within the neighborhood
 of a core point but lack enough neighbors to be core points themselves. Noise points
 do not belong to any cluster.
@@ -2762,12 +2734,12 @@ do not belong to any cluster.
   \label{fig:dbscan_clusters}
 \end{figure}
 
-This structure makes DBSCAN robust to spurious detections and suitable for real-world
+This structure makes \gls{DBSCAN} robust to spurious detections and suitable for real-world
 scenarios with irregular object shapes. In dynamic environments, it is common for
-moving objects to generate clusters of varying density. DBSCAN handles this without
+moving objects to generate clusters of varying density. \gls{DBSCAN} handles this without
 the need to fit a global model or impose strict geometric assumptions.
 
-In our application, the algorithm is applied not in pure Euclidean space, but using a
+In our application, the algorithm is applied not in pure euclidean space, but using a
 distance function that incorporates both spatial and motion similarity. The definition
 of this distance and its implementation are described in the following sections.
 
@@ -2812,18 +2784,18 @@ is low.
 \paragraph{2. DBSCAN clustering}
 
 The second stage takes the filtered 6D points and performs density-based clustering
-using DBSCAN. This is implemented using the \texttt{mlpack} C++ library, which provides
+using \gls{DBSCAN}. This is implemented using the \texttt{mlpack} C++ library, which provides
 an extensible interface for clustering with custom distance functions. In this case,
 a metric combining spatial distance and velocity similarity is used. The motivation
 and details of this distance function are presented in the following subsection.
 
-DBSCAN is configured with parameters $\varepsilon$ and $minPts$, which are specified
+\gls{DBSCAN} is configured with parameters $\varepsilon$ and $minPts$, which are specified
 as ROS2 parameters. These control the local density required to initiate a cluster and
 the radius used to define neighborhoods. Clusters with fewer than the minimum size are
 discarded as noise. This helps remove isolated points or spurious detections that may
 pass the filtering stage but do not correspond to any coherent object. \paragraph{3. Cluster-to-object conversion}
 
-For each valid cluster found by DBSCAN, a new \texttt{WorldEntity} object is created.
+For each valid cluster found by \gls{DBSCAN}, a new \texttt{WorldEntity} object is created.
 This class encapsulates the aggregate properties of the cluster, including its 3D
 bounding box, average velocity, and center position. The conversion is straightforward:
 all points in the cluster are passed to the constructor of the \texttt{WorldEntity},
@@ -2894,10 +2866,10 @@ d(\mathbf{a}, \mathbf{b}) = w_p \cdot d_p + w_v \cdot \theta
 \end{equation}
 
 where \(w_p\) and \(w_v\) are the position and velocity weights, \(d_p\) is the
-Euclidean distance between the 3D positions, and \(\theta\) is the angle between
+euclidean distance between the 3D positions, and \(\theta\) is the angle between
 the velocity vectors of the two points.
 
-The Euclidean position distance is computed as:
+The euclidean position distance is computed as:
 
 \begin{equation}
 d_p = \| \mathbf{p}_a - \mathbf{p}_b \|_2 = \sqrt{(x_a - x_b)^2 + (y_a - y_b)^2 + (z_a - z_b)^2}
@@ -2932,7 +2904,7 @@ information and is a key enabler for robust clustering in dynamic environments.
 \subsubsection{WorldEntity class}
 \label{sec:WorldEntityClass}
 
-Each cluster produced by the DBSCAN algorithm is converted into a \texttt{WorldEntity}
+Each cluster produced by the \gls{DBSCAN} algorithm is converted into a \texttt{WorldEntity}
 object, which encapsulates its geometric and kinematic properties in a compact
 representation. The class is initialized with a list of 3D points and corresponding
 velocity vectors, from which it computes the centroid, average velocity, and an
@@ -2941,7 +2913,7 @@ getter methods. The centroid is computed as the arithmetic mean of all 3D positi
 and the average velocity is calculated analogously from the velocity vectors. These two
 features provide a representative location and motion estimate for the object.
 
-The bounding box is computed using a Principal Component Analysis (PCA), which enables
+The bounding box is computed using a Principal Component Analysis (PCA)~\Cite{pca_bounding_box}, which enables
 an orientation-aware description of the cluster's shape. The procedure consists of the
 following steps:
 
@@ -2963,7 +2935,7 @@ too low to perform PCA reliably, a fallback axis-aligned bounding box is compute
 directly from the minimum and maximum values in each coordinate dimension.
 
 This bounding box serves not only as a geometric representation of the object, but also for the 
-computation of the criticallity metric. Thanks to the bounding boxes, its not necessary anymore
+computation of the criticality metric. Thanks to the bounding boxes, its not necessary anymore
 to assume the objects to be point-like, but they can be represented as 3D boxes. This allows for a more accurate
 
 In addition to geometric information, the class assigns a unique identifier to each
@@ -3204,7 +3176,7 @@ Thus, the TTC can be interpreted as:
   \cdot \hat{\mathbf{p}}_{\text{rel}}}
 \end{equation}
 
-The numerator is the Euclidean distance between the object and 
+The numerator is the earlier euclidean distance between the object and 
 the ego vehicle, while the denominator is the closing velocity. 
 
 This geometric interpretation is illustrated in Figure~\ref{fig:ttc_twist_diagram}, 
@@ -3531,8 +3503,8 @@ noise and outliers that affect the reliability of the perception modules.
 
 This session also revealed an important phenomenon related to the motion 
 of objects across the image plane. When a tracked \texttt{WorldPoint} lies on 
-the border of a moving object—such as a person walking laterally across 
-the field of view—it can be erroneously reassigned to the background in 
+the border of a moving object, such as a person walking laterally across 
+the field of view, it can be erroneously reassigned to the background in 
 the following frame if the object moves past it. As a result, the Kalman 
 filter receives an invalid depth measurement from a distant surface, 
 causing a sharp discontinuity in the estimated position.
@@ -4059,8 +4031,7 @@ specifications.
 
 The \textbf{OAK-D Long Range} featured impressive specifications on paper, including 
 global shutter sensors and theoretical depth precision up to 30\,m. However, its 
-lack of PTP support and instability of the ROS2 driver—as reported by the community—
-ruled it out for this time-sensitive vehicle application.
+lack of PTP support ruled it out for this application.
 
 \paragraph{Selection of the Carnegie Multisense S30}
 
@@ -4528,8 +4499,8 @@ and 6 to 7 were selected for detailed discussion in the following sections.
     2 & Pedestrian + car turning                  & test2\_09\_30\_35 & 40  & Yes \\
     3 & Pedestrian + parked cars ahead            & test1\_09\_27\_44 & 20  & Yes \\
     4 & Static ego: pedestrians + bus crossing    & 030625\_11\_36\_08 & 0  & Yes \\
-    5 & Incoming Crafter                          & 030625\_11\_36\_08 & 56  & No \\
-    6 & Incoming vehicle                          & 030625\_11\_36\_08 & 62  & Yes \\
+    5 & Oncoming Crafter                          & 030625\_11\_36\_08 & 56  & No \\
+    6 & Oncoming vehicle                          & 030625\_11\_36\_08 & 62  & Yes \\
     7 & Pedestrian crossing while ego in motion   & 030625\_11\_36\_08 & 64  & Yes \\
     8 & Three vehicles approaching                & 030625\_11\_36\_08 & 128 & No \\
     9 & Narrow street with pedestrians            & 030625\_11\_34\_21 & 83  & No \\
@@ -4826,7 +4797,7 @@ detection quality in the absence of ego motion. TTC estimation remains
 stable and interpretable, offering more readable values than 
 the extreme TTCs of Autoware under slow-motion or static-ego conditions.
  
-\subsubsection{Scenario 6: Infront coming vehicle}
+\subsubsection{Scenario 6: Oncoming vehicle}
 
 In this scenario, a vehicle approaches the ego vehicle head-on. The 
 stereo perception pipeline correctly detects and tracks the car with 
@@ -5718,7 +5689,8 @@ Kalman filtering.
 exclusively on stereo images from the Carnegie Robotics S30. No LiDAR, radar,
 or monocular modules are used. The earlier Framos-based pipeline was also stereo,
 but its limited depth range and outdoor noise sensitivity prompted the switch
-to the Carnegie platform.
+to the Carnegie platform. The new system also complies with the maximum budget of 
+3000\,EUR.
 
 \textbf{3. Semantic independence:} Object detection is entirely class-agnostic,
 based on clustering of coherent 6D motion vectors. No semantic segmentation,
@@ -5761,7 +5733,7 @@ was particularly successful in Scenario~4, where overlapping
 motion patterns were resolved without major drift or track loss.
 
 \textbf{10. Portability and deployment:} The full perception stack is packaged
-as Docker containers and deployed on the EDGAR research vehicle. It integrates
+as two Docker containers and deployed on the EDGAR research vehicle. It integrates
 with the onboard sensor infrastructure and operates directly on live input
 from the Carnegie S30, producing consistent object detections and risk metrics
 in real-time conditions.
@@ -5790,7 +5762,7 @@ During disengagements or unstructured scenarios, learning-based perception stack
 unreliable outputs. In such cases, deterministic geometry-based pipelines can offer 
 complementary capabilities, enhancing overall system robustness.
 
-The primary objective was to create a fully modular system that relies solely on 
+The primary objective was to create a fully modular system that relies only on 
 stereo vision and does not require semantic labels, training data, or prior object 
 models. The pipeline should be able to detect and track moving objects in 3D, 
 estimate their 6D motion (position and velocity), and compute criticality metrics 
@@ -5800,9 +5772,7 @@ C++ and ROS2, designed for deployment on the EDGAR research vehicle.
 The methodology consisted of two main modules: a perception stack based on 
 stereo depth, optical flow, and recursive Kalman filtering; and a criticality 
 estimation module that computes TTC values using the relative motion between the 
-ego vehicle and detected clusters. A key design principle was to avoid dependence 
-on semantic classification, instead relying on physical motion cues derived from 
-dense image measurements.
+ego vehicle and detected clusters. 
 
 The implementation leveraged parallel processing through OpenMP and CUDA 
 acceleration for real-time performance. All components were encapsulated different docker containers
@@ -5819,7 +5789,7 @@ requirements covered aspects such as stereo-only sensing, semantic independence,
 real-time operation, modular implementation in ROS2, robustness to occlusion, 
 and online estimation of 6D motion and criticality metrics.
 
-All design goals were met and validated experimentally. The pipeline relies 
+Almost all design goals were met and validated experimentally. The resulting pipeline relies 
 entirely on stereo vision and does not depend on class labels or neural 
 networks. Real-time constraints were satisfied on both the development platform 
 and the EDGAR research vehicle. Temporal consistency and clustering were 
@@ -5836,7 +5806,7 @@ dynamic scenes.
 
 Despite the successful implementation and deployment of the proposed system, 
 several limitations were identified during the experimental phase. The most 
-notable issue concerns the imperfect compensation of ego-motion, which can lead 
+notable issue, as mentioned before, is the imperfect compensation of ego-motion, which can lead 
 to static objects being erroneously detected as moving when the vehicle is in 
 motion. This behavior was particularly evident during turns or accelerations and 
 is likely caused by inaccuracies in optical flow estimation, as well as the 
@@ -5864,7 +5834,7 @@ following directions are proposed for future work:
       improved accuracy of deep models in challenging scenes.
 
   \item \textbf{Improve the visual odometry:} The current module relies on 
-      \gls{ORB} feature matching and RANSAC-based pose estimation. It achieves 
+      \gls{ORB} feature matching and \gls{RANSAC}-based pose estimation. It achieves 
       good performance in frame-to-frame tracking but accumulates drift 
       over longer sequences and remains sensitive to abrupt motion. As a 
       potential improvement, the integration of MAC-\gls{VO}~\cite{macvo}, a 
