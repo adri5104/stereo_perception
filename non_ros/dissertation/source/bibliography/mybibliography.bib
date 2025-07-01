@@ -928,6 +928,15 @@ journal = {Mathematics},
 doi = {10.3390/math10142365}
 }
 
+@inproceedings{pca_bounding_box,
+author = {Dimitrov, Darko and Knauer, Christian and Kriegel, Klaus and Rote, Günter},
+year = {2006},
+month = {03},
+pages = {},
+title = {On the bounding boxes obtained by principal component analysis}
+}
+
+
 @inproceedings{opt_flw_lukas_canade,
 author = {Lucas, Bruce and Kanade, Takeo},
 year = {1981},
@@ -1511,4 +1520,40 @@ title = {An Improved Method to Calculate the Time-to-Collision of Two Vehicles},
 volume = {11},
 journal = {International Journal of Intelligent Transportation Systems Research},
 doi = {10.1007/s13177-012-0054-4}
+}
+
+
+
+@article{req_freq,
+	title = {Time-aware and task-transferable adversarial attack for perception of autonomous vehicles},
+	volume = {178},
+	issn = {0167-8655},
+	url = {https://www.sciencedirect.com/science/article/pii/S0167865524000102},
+	doi = {https://doi.org/10.1016/j.patrec.2024.01.010},
+	abstract = {With rapid development of self-driving vehicles, recent work in adversarial machine learning started to study adversarial examples (AEs) for perception of autonomous driving (AD). However, generating practical AEs for the perception module remains a significant challenge. Traditional adversarial attacks tend to focus on a single computer vision task, making it difficult to compromise multiple perception tasks such as object detection and segmentation simultaneously. Additionally, the limited computational resources available on-board and the necessity for online operation pose further obstacles to deploying adversarial attacks on real autonomous driving platforms. To address the aforementioned issues, we propose the Time-aware Perception Attack (TPA), which is a real-time cross-task adversarial attack for perception of autonomous driving. In particular, we propose a novel backbone based adversarial attack method to modify input images to approach Lipschitz Constant Point (LCP), which results in erroneous inferences for all the sub-models in perception module. The novel part of this work is proposing an efficient yet effective LCP approaching algorithm. Comparing to conventional LCP based attacks, which consume significant amount of computation resources and can be only applied on small DNNs, TPA generates AEs on an intermediate layer of surrogate backbone, significantly enhancing the cross-task transferability and accelerates the attack process. Evaluation results on Berkeley Driving Dataset 100k (BDD100k) show that, comparing to the state-of-the-art baselines, the proposed TPA achieves higher attack effectiveness and faster processing speed and outperforms the baselines by a large margin.},
+	journal = {Pattern Recognition Letters},
+	author = {Lu, Yantao and Ren, Haining and Chai, Weiheng and Velipasalar, Senem and Li, Yilan},
+	year = {2024},
+	keywords = {Adversarial attack, Black-box, Perception, Real-time},
+	pages = {145--152},
+}
+
+
+@misc{autowarefoundationPerceptionComponent,
+	author = {Autoware},
+	title = {{P}erception {C}omponent {D}esign - {A}utoware {D}ocumentation --- autowarefoundation.github.io},
+	howpublished = {\url{https://autowarefoundation.github.io/autoware-documentation/main/design/autoware-architecture/perception/}},
+	year = {2024},
+	note = {[Accessed 27-06-2025]},
+}
+
+
+@misc{macvo,
+      title={MAC-VO: Metrics-aware Covariance for Learning-based Stereo Visual Odometry}, 
+      author={Yuheng Qiu and Yutian Chen and Zihao Zhang and Wenshan Wang and Sebastian Scherer},
+      year={2025},
+      eprint={2409.09479},
+      archivePrefix={arXiv},
+      primaryClass={cs.RO},
+      url={https://arxiv.org/abs/2409.09479}, 
 }
