@@ -5,25 +5,24 @@
 \chapter{Introduction}\label{chap:Introduction}
 
 Autonomous vehicles are quickly heading towards a widespread deployment, with 
-the potential to significantly enhance traffic safety, alleviate congestion, 
+the potential to significantly improve traffic safety, alleviate congestion, 
 and increase overall transportation efficiency. 
 
-At the heart of this 
-transformation lies the ability to perceive the surrounding environment with 
+At the heart of this transformation lies the ability to perceive the surrounding environment with 
 high accuracy and robustness. Perception systems enable vehicles to detect 
-obstacles, interpret the behavior of other traffic participants, and understand 
+obstacles, understand the behavior of other traffic agents, and understand 
 the overall context of the driving scene. However, the real world is dynamic and 
 often unstructured, presenting substantial challenges to perception algorithms.
 
-Failures in perception can lead to \emph{disengagements}, situations in which the 
+Failures in perception can lead to disengagements, situations in which the 
 automated driving system can no longer identify a safe course of action and 
-must transfer control to a human operator, often via teleoperation. These events 
-typically occur outside the nominal operating conditions of the syste, and are 
+must transfer control to a human operator. These events 
+typically occur outside the optimal operating conditions of the system, and are 
 especially critical. Even in such scenarios, the vehicle must maintain a  
 of situational awareness to support fallback strategies or assist the operator 
 in resolving the situation safely.
 
-Current state-of-the-art perception systems are predominantly learning-based, 
+Current state-of-the-art perception systems are often learning-based, 
 with deep neural networks trained on large annotated datasets. These methods 
 perform well in structured, well-represented environments but struggle to 
 generalize to rare or previously unseen scenarios. Their lack of transparency 
@@ -31,7 +30,7 @@ also raises concerns about interpretability and systematic validation, key
 requirements in safety-critical applications.
 
 To address these limitations, this thesis explores a complementary, deterministic 
-approach using stereo camera data. The goal is to design and implement a 
+approach using stereo camera information. The goal is to design and implement a 
 perception system capable of estimating the position and motion of surrounding 
 objects without reliance on prior training or semantic annotations. By focusing 
 on geometric cues such as disparity and optical flow, the system aims to achieve 
@@ -50,12 +49,11 @@ objects. One key metric, \gls{TTC}, provides insight into the
 urgency of evasive actions. These evaluations are performed in real time to 
 support both autonomous fallback strategies and teleoperated decision-making.
 
-This work builds on previous research at the Chair of Automotive Technology, 
+This work builds on previous research at the Chair of Automotive Technology of the Technical University of Munich, 
 which investigated stereo vision and deterministic motion estimation. The 
 present study focuses on integrating these methods into a modular, reusable 
 software component. A major contribution is the development of an independent 
-\gls{ROS2} service, based on the Humble distribution, 
-designed for seamless integration with the EDGAR research vehicle~\cite{edgar_hardware} and 
+\gls{ROS2} service, designed for seamless integration with the EDGAR research vehicle and 
 adaptability to other platforms.
 
 The system is implemented in C++, with performance critical components 
@@ -79,10 +77,6 @@ The system architecture consists of two main processing pipelines:
   support fallback decisions and driver assistance.
 \end{itemize}
 
-Unlike purely learning-based systems, this approach emphasizes interpretability, 
-generalization to novel scenarios, and independence from large-scale labeled data. 
-It also complements neural-network-based methods by enhancing robustness in 
-adverse or edge-case conditions.
 
 The evaluation of the system is structured in three phases. First, the stereo
 camera hardware is tested and calibrated to ensure suitability for accurate 6D
@@ -116,8 +110,6 @@ describes the evaluation process, including both component-level tests and
 experiments conducted on the EDGAR research vehicle. 
 Chapter~\ref{chap:SummaryAndConclusion} concludes the thesis by 
 summarizing the main contributions and outlining future work.
-
-
 
 
 % =====================================================================
@@ -154,13 +146,12 @@ based approaches.
 \section{Perception Systems for Autonomous Vehicles}\label{sec:PerceptionSystemsForAutonomousVehicles}
 
 Perception systems are a core component of autonomous and automated vehicles. They enable the continuous 
-interpretation of the environment by converting raw sensor data into structured information, which is 
-subsequently used by planning and control modules. The accuracy, reliability, and completeness of this 
+interpretation of the environment by converting raw sensor data into structured information, which is then used by planning and control modules. The accuracy, reliability, and completeness of this 
 information directly influence the vehicle's ability to operate safely and efficiently in various driving 
 conditions~\cite{autonomous_vehicles_perception_survey}.
 
 To obtain a comprehensive representation of the surrounding environment, modern autonomous systems integrate 
-data from multiple sensor modalities. These include LiDAR, radar, and camera systems, each offering distinct 
+data from multiple sensor modalities. These include LiDAR, RADAR, and camera systems, each offering distinct 
 capabilities and constraints. The fusion of these sensors allows the vehicle to mitigate individual 
 sensor limitations and achieve a more robust perception. However, understanding the characteristics 
 of each sensor independently remains essential, especially in system design or in the development 
@@ -211,8 +202,7 @@ avoidance.
 Radar sensors emit radio signals that reflect off surfaces in the environment. The time delay 
 between emission and reception, combined with the known wave propagation speed, enables the 
 computation of object distances. The Doppler shift in the frequency of the reflected waves 
-further allows the estimation of relative velocities~\cite{radarbased_velocity}. Automotive 
-radars typically operate in the 77~GHz band, balancing resolution and penetration capabilities.
+further allows the estimation of relative velocities~\cite{radarbased_velocity}. 
 
 \paragraph{Advantages and Limitations}
 
@@ -249,14 +239,14 @@ dense, low-cost depth estimation in structured environments.
 
 \paragraph{Advantages and Limitations}
 
-Image-based perception provides access to texture, color, and appearance features, enabling detailed 
-scene understanding. Cameras are compact, power-efficient, and inexpensive relative to other sensors. 
+Image-based perception provides access to texture, color, and appearance features, allowing detailed 
+scene understanding. Cameras are compact, power-efficient, and cheap relative to other sensors. 
 Nonetheless, their performance is susceptible to lighting variations, shadows, glare, and occlusions. 
 Depth estimation from stereo vision requires careful calibration and performs poorly in textureless 
 regions or when the baseline is insufficient. Computational demands can also be significant, 
 particularly when processing high-resolution frames or running complex algorithms in real time.
 
-\bigskip
+
 
 The following table summarizes the strengths and limitations of the three major sensor types discussed:
 
@@ -271,19 +261,18 @@ The following table summarizes the strengths and limitations of the three major 
   \caption{Summary of sensor types used in autonomous vehicles}\label{tab:sensor_summary}
 \end{table}
 
-\bigskip
 
 While each sensor type offers distinct advantages, their integration and the interpretation of their 
-data through perception algorithms ultimately determine the system’s effectiveness. The next sections 
+data through perception algorithms ultimately determine the performance of the system. The next sections 
 will provide a more detailed overview of algorithmic strategies used for detecting and tracking moving 
-objects, with a focus on deterministic approaches relevant to the scope of this thesis.
+objects, with a focus on deterministic approaches relevant to the scope of this work.
 
 
 \section{Algorithms for Moving Object Detection}\label{sec:AlgorithmsForMovingObjectDetection}
 \label{sec:algorithms_for_moving_object_detection}
 
 Beyond sensor selection, the effectiveness of a perception system depends heavily on the algorithms 
-used to process sensor data and detect dynamic elements in the environment. These algorithms are 
+used to process the raw sensor data. These algorithms are 
 responsible for interpreting raw measurements to estimate the presence, position, and motion of 
 objects relevant to driving decisions.
 
@@ -442,10 +431,10 @@ network infrastructure is based on a Netgear M4250 switch with \gls{TSN} support
 All connected sensors must fulfill the following integration requirements:
 
 \begin{itemize}
-  \item Support for hardware-level PTP time synchronization
+  \item Support for PTP time synchronization
   \item Preferably PoE interface to reduce cabling complexity
-  \item Availability of a stable ROS2-compatible driver (Hu mble version)
-  \item Compatibility with high-throughput network architecture (40\,Gbit uplink)
+  \item Availability of a stable ROS2-compatible driver (Humble version)
+  \item Compatibility with high-throughput network architecture (Ethernet interface)
 \end{itemize}
 
 The EDGAR system contains two high-performance computers: one x86-based and 
@@ -468,10 +457,6 @@ within the existing infrastructure.
 The modularity of EDGAR allows rapid software integration, reproducible 
 validation, and testing of deterministic perception systems such as the one 
 developed in this thesis.
-
-
-
-
 
 
 \subsection{Previous Work in the FTM}
@@ -584,8 +569,6 @@ increasingly used in embedded perception stacks for autonomous platforms.
   its relevance for perception systems with limited computational budgets.
 \end{itemize}
 
-
-
 Stereo vision is employed as the primary sensing modality for motion estimation
 in this work. The Framos D455e, an active stereo camera with infrared projection,
 is currently deployed on the EDGAR platform. Its real-time
@@ -605,9 +588,7 @@ interest in deterministic alternatives, which leverage geometric and physical
 priors to infer motion from raw sensor data without the need for training.
 
 Among these, LiDAR-based methods have demonstrated strong performance due to
-their accurate depth estimation. Voxel-based segmentation approaches such as
-~\cite{asvadi_3d_2016} and mapless, distortion-compensated techniques such as
-~\cite{yoon_mapless_2018} show that dynamic object detection can be performed
+their accurate depth estimation. Voxel-based segmentation approaches such as~\cite{asvadi_3d_2016} and mapless, distortion-compensated techniques like~\cite{yoon_mapless_2018} show that dynamic object detection can be performed
 in real time using 3D geometry alone. However, LiDAR sensors remain expensive,
 weather-sensitive, and difficult to integrate into embedded platforms. These
 limitations motivate the use of stereo vision, which provides dense spatial
@@ -644,7 +625,7 @@ previous_tfm_gpu_implementation, previous_tfm_pastor}, which used ADTF or
 partial ROS based implementations with limited deployment, this thesis
 delivers a fully containerized, real-time capable perception system. The system
 is tested under real-world conditions using the Framos D455e stereo camera and
-the EDGAR vehicle's PTP-synchronized infrastructure. Furthermore, a new
+the infrastructure of the EDGAR vehicle. Furthermore, a new
 egomotion compensation module is introduced to enable consistent alignment to
 the world frame, separating ego movement from external object motion.
 
@@ -734,9 +715,7 @@ runtime behavior across development and deployment environments.
 
 These requirements are derived from both the theoretical analysis in the
 literature and the practical constraints of the target deployment platform.
-They reflect the system-level vision of enabling a deployable, deterministic,
-and transparent perception pipeline as a fallback for learned approaches in
-automated driving.
+
 
 % =====================================================================
 % ================== Methods and Implementation ====================
@@ -750,17 +729,16 @@ examination of each component in detail, focusing on design choices that ensure
 real-time performance, modularity, and integration with the EDGAR research
 vehicle software.
 
-
 \section{System Architecture}\label{sec:SystemArchitecture}
 
 This section introduces the high-level architecture of the system developed in this thesis.
 
 The overall system is structured into two principal pipelines: the \textbf{perception pipeline} 
-and the \textbf{criticality pipeline}. The perception pipeline operates on raw stereo image data, 
+and the \textbf{criticality pipeline}, as introduced before. The perception pipeline operates on raw stereo image data, 
 constructing a dynamic model of the environment by estimating the 3D positions and velocity vectors 
 of moving objects. Its output is a structured list of detected objects, which serves as input to 
 the criticality pipeline. The criticality pipeline evaluates the relative risk posed by each object with respect 
-to the ego-vehicle's planned trajectory by computing relevant criticality metrics.
+to the planned trajectory of the ego-vehicle, by computing criticality metrics.
 
 \begin{figure}[htb]
   \centering
@@ -776,7 +754,6 @@ thereby promoting system portability across different vehicle platforms and ster
 The service exposes standardized ROS2 messages for input and output, enabling easy integration 
 within the existing software stack. Internally, the system remains agnostic to vehicle-specific 
 details, facilitating reuse and simplifying deployment across varied hardware setups.
-
 
 \subsection{Perception pipeline}\label{sec:PerceptionPipeline}  
 
@@ -805,9 +782,9 @@ As shown in the figure, the perception pipeline comprises the following core mod
 \end{enumerate}
 
 Each of the previous presented modules will be implemented as a separate ROS2 package, allowing for
-modular development and testing. 
+parallel development and testing. 
 
-\subsection{criticality pipeline}\label{sec:CriticallityPipeline}
+\subsection{Criticality pipeline}\label{sec:CriticallityPipeline}
 
 The criticality pipeline (Figure~\ref{fig:cp_high_level}) assesses the risk posed by each detected
 object. Based on the output of the perception pipeline and the current trajectory of the ego-vehicle,
@@ -815,7 +792,7 @@ it computes criticality metrics such as the Time-to-Collision (TTC)~\cite{cricit
 metrics serve as indicators of potential hazards in the environment.
 
 
-\begin{figure}[h]
+\begin{figure}[H]
   \centering
   \resizebox{0.2\textwidth}{!}{\input{figures/high_level_cp.tikz}}
   \caption{High level diagram of the criticality pipeline}\label{fig:cp_high_level}
@@ -830,7 +807,7 @@ as a separate ROS2 package.
 \label{sec:RepositoryStructure}
 
 The project is implemented as a mono-repository, consolidating all system components into a single, unified 
-repository to simplify developmet.
+software stack to simplify the developmet.
 
 The repository is structured into the following main directories:
 
@@ -883,7 +860,7 @@ Docker is a platform that enables the execution of software in isolated
 environments called containers. These encapsulate code and dependencies, 
 ensuring an easier deployment. 
 
-The stereo perception stack is separated in three main container. The first two contain the perception and criticallity pipeline respectively. The third container serves as a 
+The stereo perception stack is separated in three main containers. The first two contain the perception and criticallity pipeline respectively. The third container serves as a 
 ROS2 bridge that converts custom messages from the EDGAR platform into 
 standard message types used by the other two containers.
 
@@ -918,9 +895,6 @@ official NVIDIA documentation~\cite{nvidiaVersions}.
 If the host system lacks a compatible GPU, the container must be rebuilt with 
 adjusted CUDA settings in the Dockerfile.
 
-
-
-
 \newpage
 \section{Perception pipeline: Stereo image computation}\label{sec:PerceptionPipelineStereoImageComputation}
 
@@ -937,7 +911,7 @@ In stereo vision, depth estimation relies on the triangulation of corresponding 
 images captured from slightly different viewpoints. The pinhole camera model (figure:~\ref{fig:pinhole_camera_model}) is commonly used to describe the 
 relationship between 3D world coordinates and 2D image coordinates. In this model, a 3D point $\mathbf{P} = (X, Y, Z)$ 
 is projected onto the image plane as a 2D point $\mathbf{p} = (x, y)$ using the camera's intrinsic parameters (\cite{pin_hole_camera_model}).
-These parameters include the focal length $f$ and the principal point $(c_x, c_y)$, which define the camera's optical center and field of view.
+These parameters include the focal length $f$ and the principal point $(c_x, c_y)$, which define the optical center and field of view of the camara.
 
 \begin{figure}[H]
   \centering
@@ -1162,7 +1136,7 @@ of the pixels between two consequtive frames of a video stream. The output is  a
 each vector describes the position of a pixel or a small region in the current frame relative to its 
 position in the previous frame.
 
-This module is crucial for estimating the information of how the pixels in the image are moving, which is
+This module is crucial for estimating the information of how the pixels in the image are moving between frames, which is
 one of the essential inputs to the Kalman Filter stage. 
 
 \begin{figure}[H]
@@ -1589,7 +1563,7 @@ by comparing the intensity of random pairs of pixels in a small patch around the
 keypoint is computed to make \gls{BRIEF} descriptors rotation-invariant, and a multi-scale pyramid is used
 to handle changes in scale. 
 
-The feature extraction and matching process is performed on the GPU using OpenCV's CUDA modules.
+The feature extraction and matching process is performed on the GPU using the CUDA modules of OpenCV.
 This allows real-time processing even at high image resolutions.
 
 The steps involved are:
@@ -1834,17 +1808,15 @@ This idea aligns with the concept of 6D vision (see Section~\ref{sec:6D_Vision})
 which was initially explored at the FTM Chair by Bauer~\cite{previous_tfm_bauer} and later validated in a
 ROS implementation by Pastor~\cite{previous_tfm_pastor}.
 
-Each point is represented by a \texttt{WorldPoint}, which maintains its own Kalman 
+Each point (tracked pixel) is represented by a WorldPoint object, which maintains its own Kalman 
 filter and a 6D state vector composed of 3D position and velocity in world coordinates. 
-At each timestep, the point’s state is updated using three main sources of input: 
+At each timestep, the state of the point is updated using three main sources of input: 
 
 \begin{itemize} 
   \item Optical flow, providing pixel-level motion information between frames. 
   \item Depth data, used to reconstruct the 3D location of the point via reprojection. 
   \item Ego-motion, which accounts for the movement of the camera relative to the environment. 
 \end{itemize}
-
-
 
 
 The Kalman filter follows a standard constant-velocity model in 3D space. Predicted states are projected back into 
@@ -2913,8 +2885,8 @@ getter methods. The centroid is computed as the arithmetic mean of all 3D positi
 and the average velocity is calculated analogously from the velocity vectors. These two
 features provide a representative location and motion estimate for the object.
 
-The bounding box is computed using a Principal Component Analysis (PCA)~\Cite{pca_bounding_box}, which enables
-an orientation-aware description of the cluster's shape. The procedure consists of the
+In addion, a bounding box of the cluster is computed using a Principal Component Analysis (PCA)~\Cite{pca_bounding_box}, which enables
+an orientation-aware description of its shape. The procedure consists of the
 following steps:
 
 \begin{enumerate}
@@ -3193,10 +3165,9 @@ collision axis.
 
 
 Equation~\eqref{eq:ttc_twist} assumes rectilinear motion at constant 
-velocity, with both agents approximated as point masses. It does not 
-account for lateral motion, acceleration, or non-holonomic constraints. 
+velocity, with both agents approximated as point masses. 
 Moreover, the formulation implicitly assumes that a collision occurs 
-when the object reaches the ego vehicle's current position, ignoring 
+when the object reaches the current position of the ego-vehicle, ignoring 
 their respective shapes and orientations.
 
 To overcome some of these limitations, a second approach is 
@@ -3257,8 +3228,7 @@ In the current pipeline, each object is already associated with an
 oriented bounding box derived from clustering (see 
 Section~\ref{sec:WorldEntityClass}). This enables a future 
 extension where the collision threshold $d_{\text{th}}$ is replaced 
-by geometric contact prediction between the ego vehicle’s 
-bounding box and that of the object. This enhancement would 
+by geometric contact prediction between the bounding box of the ego-vehicle and the one of the object. This enhancement would 
 lead to more accurate criticality assessments, particularly in 
 dense urban scenarios or during turning maneuvers.
 
@@ -3266,7 +3236,7 @@ dense urban scenarios or during turning maneuvers.
 \label{sec:TTCImplementation}
 
 The TTC estimation described above is implemented as a dedicated 
-ROS2 node named \texttt{ttc\_calculator\_node}. This component 
+ROS2 node named ttc\_calculator\_node inside the ttc\_calculator package. This component 
 serves as the bridge between the object-level output of the 
 perception pipeline and the criticality estimation required for 
 downstream decision-making modules.
@@ -3274,7 +3244,7 @@ downstream decision-making modules.
 The node operates in two modes: twist-based or path-based TTC, 
 depending on a configurable parameter. In both cases, it receives 
 as input the list of detected objects, each represented as a 
-\texttt{ClusteredObject} message containing position, velocity, and 
+\texttt{ClusteredObject} custom message containing position, velocity, and 
 bounding box information. The output is a list of the same objects, 
 each annotated with a TTC estimate.
 
@@ -3286,6 +3256,8 @@ provides the linear velocity of the ego vehicle; and optionally
 \texttt{/ego\_path} (\texttt{nav\_msgs::Path}), which defines the 
 planned trajectory in path-based mode.
 
+
+
 The output topics are:
 \texttt{/object\_ttc}, publishing the list of objects with updated 
 TTC values;
@@ -3293,6 +3265,7 @@ TTC values;
 current frame;
 and \texttt{/ego\_marker}, which publishes RViz markers for 
 visualizing the ego vehicle geometry and velocity vector.
+
 
 When a new object array is received, the node computes the TTC 
 for each object based on the selected mode. In path mode, the future 
@@ -3615,7 +3588,7 @@ with the one inferred by the Kalman filter.
 \end{figure}
 
 The camera was mounted on the EDGAR vehicle in a fixed position, and the 
-subject's path was defined by marking the start and end points on the ground 
+path of the subject was defined by marking the start and end points on the ground 
 using measuring tape. These positions were chosen to produce \(\alpha\) values 
 ranging from 14° to over 80°, as summarized in Table~\ref{tab:alpha_tests}. The 
 subject maintained approximately constant speed during all recordings.
@@ -3908,7 +3881,7 @@ camera, the experiments revealed critical limitations that significantly hindere
 its suitability for mobile perception tasks.
 
 The most prominent issue was related to depth range and noise. Although the 
-sensor's theoretical range was specified as 6 meters, in practice, depth values 
+theoretical range of the sensor was specified as 6 meters, in practice, depth values 
 could be obtained up to approximately 10 meters. However, in outdoor conditions, 
 the depth image became dominated by static noise beyond 6--7 meters, rendering 
 it ineffective for object detection. This degradation was attributed to the use of 
@@ -3996,7 +3969,7 @@ Two optional features were also considered advantageous:
 
 \paragraph{Evaluated candidates}
 
-Following a market survey and review of all stereo cameras listed in ROS2 Industrial~\cite{rosindustrialCameraSurvey}, 
+Following a market survey and review of all stereo cameras listed in ROS Industrial~\cite{rosindustrialCameraSurvey}, 
 three final candidates were evaluated in detail: the Stereolabs ZED X + ZED Box, 
 the Luxonis OAK-D Long Range, and the Carnegie Robotics Multisense S30. 
 Table~\ref{tab:candidate_summary} summarizes key aspects of each.
