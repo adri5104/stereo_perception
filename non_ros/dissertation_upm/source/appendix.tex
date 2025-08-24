@@ -1,0 +1,202 @@
+
+
+% ---------------------------
+% Framos Depth Appendix
+% ---------------------------
+\chapter{Raw Depth and 3D Visualizations from Framos Camera}
+\label{app:framos_depth}
+
+This appendix provides the full set of raw 2D depth images and corresponding 
+3D point cloud visualizations obtained during the first test session with the 
+Framos D455e camera. These results demonstrate how depth quality 
+deteriorates progressively with distance in outdoor conditions.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.7\textwidth]
+  {figures/framosEval/session1/depthResults/2.png}
+  \caption{Raw 2D depth image at 2\,m distance.}
+  \label{fig:app_2m_2d}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.7\textwidth]
+  {figures/framosEval/session1/depthResults3D/2_1.png}
+  \caption{3D depth visualization at 2\,m distance.}
+  \label{fig:app_2m_3d}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.7\textwidth]
+  {figures/framosEval/session1/depthResults/4.png}
+  \caption{Raw 2D depth image at 4\,m distance.}
+  \label{fig:app_4m_2d}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.7\textwidth]
+  {figures/framosEval/session1/depthResults3D/4_1.png}
+  \caption{3D depth visualization at 4\,m distance.}
+  \label{fig:app_4m_3d}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.7\textwidth]
+  {figures/framosEval/session1/depthResults/6.png}
+  \caption{Raw 2D depth image at 6\,m distance.}
+  \label{fig:app_6m_2d}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.7\textwidth]
+  {figures/framosEval/session1/depthResults3D/6_1.png}
+  \caption{3D depth visualization at 6\,m distance.}
+  \label{fig:app_6m_3d}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.7\textwidth]
+  {figures/framosEval/session1/depthResults/8.png}
+  \caption{Raw 2D depth image at 8\,m distance.}
+  \label{fig:app_8m_2d}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.7\textwidth]
+  {figures/framosEval/session1/depthResults3D/8_1.png}
+  \caption{3D depth visualization at 8\,m distance.}
+  \label{fig:app_8m_3d}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.7\textwidth]
+  {figures/framosEval/session1/depthResults/10.png}
+  \caption{Raw 2D depth image at 10\,m distance.}
+  \label{fig:app_10m_2d}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.7\textwidth]
+  {figures/framosEval/session1/depthResults3D/10_1.png}
+  \caption{3D depth visualization at 10\,m distance.}
+  \label{fig:app_10m_3d}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.7\textwidth]
+  {figures/framosEval/session1/depthResults/12.png}
+  \caption{Raw 2D depth image at 12\,m distance.}
+  \label{fig:app_12m_2d}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.7\textwidth]
+  {figures/framosEval/session1/depthResults3D/12_1.png}
+  \caption{3D depth visualization at 12\,m distance.}
+  \label{fig:app_12m_3d}
+\end{figure}
+
+% ---------------------------
+% TTC Appendix
+% ---------------------------
+\chapter{Stereo Perception Dynamic Evaluation: Per-Frame Comparison Values}
+\label{app:ttc_per_frame}
+
+This appendix provides the individual Foxglove screenshots used to extract TTC values and object counts 
+per frame for the dynamic scenarios discussed in the evaluation. These visualizations offer frame-accurate 
+ground truth for the plots presented in the main text.
+
+\section*{Scenario 1: Pedestrian crossing during ego turn}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{figures/carnegieEval/scenarioTest/1/11_ttc.png}
+  \caption{Scenario 1, frame 1: TTC and detections}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{figures/carnegieEval/scenarioTest/1/12_ttc.png}
+  \caption{Scenario 1, frame 2: TTC and detections}
+\end{figure}
+
+\section*{Scenario 2: Pedestrian + car turning}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{figures/carnegieEval/scenarioTest/2/1_ttc.png}
+  \caption{Scenario 2, frame 1: TTC and detections}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{figures/carnegieEval/scenarioTest/2/2_ttc.png}
+  \caption{Scenario 2, frame 2: TTC and detections}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{figures/carnegieEval/scenarioTest/2/3_ttc.png}
+  \caption{Scenario 2, frame 3: TTC and detections}
+\end{figure}
+
+\section*{Scenario 3: Pedestrian + parked cars ahead}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{figures/carnegieEval/scenarioTest/3/1_ttc.png}
+  \caption{Scenario 3, frame 1: TTC and detections}
+\end{figure}
+
+\section*{Scenario 4: Static ego: pedestrians + bus crossing}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{figures/carnegieEval/scenarioTest/4/1_ttc.png}
+  \caption{Scenario 4, frame 1: TTC and detections}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{figures/carnegieEval/scenarioTest/4/2_ttc.png}
+  \caption{Scenario 4, frame 2: TTC and detections}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{figures/carnegieEval/scenarioTest/4/3_ttc.png}
+  \caption{Scenario 4, frame 3: TTC and detections}
+\end{figure}
+
+\section*{Scenario 6: Oncoming vehicle}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{figures/carnegieEval/scenarioTest/6/1_ttc.png}
+  \caption{Scenario 6, frame 1: TTC and detections}
+\end{figure}
+
+\section*{Scenario 7: Pedestrian crossing with moving vehicle}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{figures/carnegieEval/scenarioTest/7/1_ttc.png}
+  \caption{Scenario 7, frame 1: TTC and detections}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{figures/carnegieEval/scenarioTest/7/2_ttc.png}
+  \caption{Scenario 7, frame 2: TTC and detections}
+\end{figure}

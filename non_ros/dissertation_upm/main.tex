@@ -1,0 +1,93 @@
+% !TeX spellcheck = de_DE
+% English option for spellcheck: en_US
+\documentclass[%
+FTMstudentthesis%		baseclass
+,optArial%				font setting (alternative fonts for debugging purposes: optHelvetica, optCharter)
+,optBiber%				bibliography tool (alternative: optBibtex)
+,optEnglish%				[optional] deutsche Vorlage: optGerman, english version: optEnglish
+%,optTikzExternalize%	[optional] compiles faster for large tikz images
+,optHideTodos%			[optional] disables the todonotespackage and hides any todos and missingfigures
+%,optGroupedAbbreviation%	[optional] gruppieren der Abkürzungen nach Buchstaben	
+%optCMYK%					printing text pages as black and white
+]{FTMlatex}%
+%
+%
+\include{source/definitions/your_own_definitions}
+%
+% Set paths
+\graphicspath{{figures/}}%
+\addbibresource{source/bibliography/literature.bib}%
+\addbibresource{source/bibliography/bibliographyTest.bib}%
+\addbibresource{source/bibliography/mybibliography.bib}%
+\usetikzlibrary{fit}
+\usepackage{float} % In your preamble
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{graphicx}
+
+
+% Definition of Acronyms
+\DeclareUnicodeCharacter{2063}{}
+
+%
+%
+\include{source/lists/abbreviations}%
+\begin{document}%
+%% ========================
+%% ------ Title Page ------
+%% ========================
+\include{source/resumenUPM}
+\FTMPreText%
+% Info: separate multiple supervisors by \newline
+%\FTMstudentthesisTitlePageFTMDesignDiplomarbeit{Hier steht der Titel der Arbeit, der auch zweizeilig sein kann}{Hier kommt der englische Titel hin, der dann wohl auch zweizeilig sein muss}{Dipl.-Ing. Max Mustermann, B.Sc. \vskip0pt Musterweg 20 \vskip0pt 80999 München}{\FTMnamesProfLienkamp}{\FTMnamesStaffPonn}{\FTMutilsDate{31}{08}{2021}}{./figures/ImagePDF}%
+%\FTMstudentthesisTitlePageFTMDesignBachelorsThesis{Hier steht der Titel der Arbeit, der auch zweizeilig sein kann}{Hier kommt der englische Titel hin, der dann wohl auch zweizeilig sein muss}{Dipl.-Ing. Max Mustermann, B.Sc. \vskip0pt Musterweg 20 \vskip0pt 80999 München}{\FTMnamesProfLienkamp}{\FTMnamesStaffPonn}{\FTMutilsDate{31}{08}{2021}}{./figures/ImagePDF}%
+%\FTMstudentthesisTitlePageFTMDesignSemesterThesis{Hier steht der Titel der Arbeit, der auch zweizeilig sein kann}{Hier kommt der englische Titel hin, der dann wohl auch zweizeilig sein muss}{Dipl.-Ing. Max Mustermann, B.Sc. \vskip0pt Musterweg 20 \vskip0pt 80999 München}{\FTMnamesProfLienkamp}{\FTMnamesStaffPonn}{\FTMutilsDate{31}{08}{2021}}{./figures/ImagePDF}%
+\FTMstudentthesisTitlePageFTMDesignMastersThesis{Stereo Camera-Based Environment Perception for Automated Vehicles}{Stereokamera-Basierte Umfeldwahrnemung für automatisierte Fahrzeuge}{Adrian Rieker, B.Sc. \vskip0pt Schleißheimer Str. 126 \vskip0pt 80797 München}{\FTMnamesProfLienkamp}{David Brecht, M.Sc.}{\FTMutilsDate{02}{07}{2025}}{./figures/portada1.png}%
+%
+%
+%% ========================
+%% --- Student's Thesis ---
+%% ========================
+\includepdf[pages=-]{source/Aufgabenstellung.pdf}
+
+\FTMstudentthesisForms{Herr}{Adrian}{Rieker}{\FTMutilsDate{2}{7}{2025}}{\FTMutilsDate{14}{08}{2000}}{Masterthesis}{2025}{, B.Sc.}
+% Explanation:
+% \FTMstudentthesisForms{Herr/Frau}{Forename}{Lastname}{Submission date}{Date of birth}{Type of Thesis}{Current year}{Your title (optional)}
+%
+%
+%% =========================
+%% --- Content/Gloassary ---
+%% =========================
+  \FTMPrintTableOfContents%
+\include{source/lists/formulasymbols}%
+
+%
+%
+%% =========================
+%% ------- Main Text -------
+%% =========================
+\FTMMainText%
+
+
+\include{source/mainText}%
+
+%% =========================
+%% ------ LOF/LOT/Bib ------
+%% =========================
+\FTMPostText%
+\include{source/lists/literature}
+%
+%
+%% =========================
+%% ------- Appendix --------
+%% =========================
+\begin{appendices}%
+	\FTMAppendix%
+	\FTMPrintTableOfAppendix%
+	\include{source/appendix}%
+\end{appendices}%
+%
+%
+\end{document}%
+%
+%

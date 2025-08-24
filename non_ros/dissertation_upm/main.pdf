@@ -1,0 +1,480 @@
+%PDF-1.4
+%ÐÔÅØ
+4 0 obj
+<< /S /GoTo /D (chapter.1) >>
+endobj
+7 0 obj
+(1\040Resumen\040en\040Espa\361ol)
+endobj
+8 0 obj
+<< /S /GoTo /D (section.1.1) >>
+endobj
+11 0 obj
+(1.1\040Introducci\363n)
+endobj
+12 0 obj
+<< /S /GoTo /D (section.1.2) >>
+endobj
+15 0 obj
+(1.2\040Estado\040del\040arte)
+endobj
+16 0 obj
+<< /S /GoTo /D (section.1.3) >>
+endobj
+19 0 obj
+(1.3\040Pipeline\040de\040percepci\363n)
+endobj
+20 0 obj
+<< /S /GoTo /D (section.1.4) >>
+endobj
+23 0 obj
+(1.4\040Pipeline\040de\040criticidad)
+endobj
+24 0 obj
+<< /S /GoTo /D (section.1.5) >>
+endobj
+27 0 obj
+(1.5\040Evaluaci\363n\040experimental)
+endobj
+28 0 obj
+<< /S /GoTo /D (section.1.6) >>
+endobj
+31 0 obj
+(1.6\040Conclusiones\040y\040trabajo\040futuro)
+endobj
+32 0 obj
+<< /S /GoTo /D (Contents.0) >>
+endobj
+35 0 obj
+(Contents)
+endobj
+36 0 obj
+<< /S /GoTo /D (section*.4) >>
+endobj
+39 0 obj
+(List\040of\040Abbreviations)
+endobj
+40 0 obj
+<< /S /GoTo /D (chapter*.6) >>
+endobj
+43 0 obj
+(Formula\040Symbols)
+endobj
+44 0 obj
+<< /S /GoTo /D (chapter.2) >>
+endobj
+47 0 obj
+(2\040Introduction)
+endobj
+48 0 obj
+<< /S /GoTo /D (chapter.3) >>
+endobj
+51 0 obj
+(3\040State\040of\040the\040Art)
+endobj
+52 0 obj
+<< /S /GoTo /D (section.3.1) >>
+endobj
+55 0 obj
+(3.1\040Perception\040Systems\040for\040Autonomous\040Vehicles)
+endobj
+56 0 obj
+<< /S /GoTo /D (section.3.2) >>
+endobj
+59 0 obj
+(3.2\040Algorithms\040for\040Moving\040Object\040Detection)
+endobj
+60 0 obj
+<< /S /GoTo /D (section.3.3) >>
+endobj
+63 0 obj
+(3.3\040State\040of\040the\040Art\040in\040the\040FTM)
+endobj
+64 0 obj
+<< /S /GoTo /D (subsection.3.3.1) >>
+endobj
+67 0 obj
+(3.3.1\040EDGAR\040Research\040Vehicle)
+endobj
+68 0 obj
+<< /S /GoTo /D (subsection.3.3.2) >>
+endobj
+71 0 obj
+(3.3.2\040Previous\040Work\040in\040the\040FTM)
+endobj
+72 0 obj
+<< /S /GoTo /D (section.3.4) >>
+endobj
+75 0 obj
+(3.4\040Stereo\040Camera\040Technology)
+endobj
+76 0 obj
+<< /S /GoTo /D (subsection.3.4.1) >>
+endobj
+79 0 obj
+(3.4.1\040Passive\040Stereo\040Vision)
+endobj
+80 0 obj
+<< /S /GoTo /D (subsection.3.4.2) >>
+endobj
+83 0 obj
+(3.4.2\040Active\040Infrared\040Stereo)
+endobj
+84 0 obj
+<< /S /GoTo /D (subsection.3.4.3) >>
+endobj
+87 0 obj
+(3.4.3\040Laser-Structured\040Stereo)
+endobj
+88 0 obj
+<< /S /GoTo /D (subsection.3.4.4) >>
+endobj
+91 0 obj
+(3.4.4\040Smart\040Stereo\040Cameras\040with\040Onboard\040Processing)
+endobj
+92 0 obj
+<< /S /GoTo /D (section.3.5) >>
+endobj
+95 0 obj
+(3.5\040Requirements\040for\040the\040Thesis)
+endobj
+96 0 obj
+<< /S /GoTo /D (chapter.4) >>
+endobj
+99 0 obj
+(4\040Methods\040and\040Implementation)
+endobj
+100 0 obj
+<< /S /GoTo /D (section.4.1) >>
+endobj
+103 0 obj
+(4.1\040System\040Architecture)
+endobj
+104 0 obj
+<< /S /GoTo /D (subsection.4.1.1) >>
+endobj
+107 0 obj
+(4.1.1\040Perception\040pipeline)
+endobj
+108 0 obj
+<< /S /GoTo /D (subsection.4.1.2) >>
+endobj
+111 0 obj
+(4.1.2\040Criticality\040pipeline)
+endobj
+112 0 obj
+<< /S /GoTo /D (subsection.4.1.3) >>
+endobj
+115 0 obj
+(4.1.3\040Repository\040structure)
+endobj
+116 0 obj
+<< /S /GoTo /D (subsection.4.1.4) >>
+endobj
+119 0 obj
+(4.1.4\040Containerization\040and\040Deployment)
+endobj
+120 0 obj
+<< /S /GoTo /D (section.4.2) >>
+endobj
+123 0 obj
+(4.2\040Perception\040pipeline:\040Stereo\040image\040computation)
+endobj
+124 0 obj
+<< /S /GoTo /D (subsection.4.2.1) >>
+endobj
+127 0 obj
+(4.2.1\040Mathematical\040Background:\040Pinhole\040Camera\040Model\040and\040Disparity)
+endobj
+128 0 obj
+<< /S /GoTo /D (subsection.4.2.2) >>
+endobj
+131 0 obj
+(4.2.2\040Stereo\040Matching\040Algorithms)
+endobj
+132 0 obj
+<< /S /GoTo /D (subsection.4.2.3) >>
+endobj
+135 0 obj
+(4.2.3\040Semi-Global\040Matching\040\(SGM\))
+endobj
+136 0 obj
+<< /S /GoTo /D (subsection.4.2.4) >>
+endobj
+139 0 obj
+(4.2.4\040ROS2\040Implementation)
+endobj
+140 0 obj
+<< /S /GoTo /D (section.4.3) >>
+endobj
+143 0 obj
+(4.3\040Perception\040pipeline:\040Optical\040flow\040computation)
+endobj
+144 0 obj
+<< /S /GoTo /D (subsection.4.3.1) >>
+endobj
+147 0 obj
+(4.3.1\040Optical\040flow\040concept)
+endobj
+148 0 obj
+<< /S /GoTo /D (subsection.4.3.2) >>
+endobj
+151 0 obj
+(4.3.2\040Optical\040flow\040algorithms)
+endobj
+152 0 obj
+<< /S /GoTo /D (subsection.4.3.3) >>
+endobj
+155 0 obj
+(4.3.3\040Farneback\040algorithm)
+endobj
+156 0 obj
+<< /S /GoTo /D (subsection.4.3.4) >>
+endobj
+159 0 obj
+(4.3.4\040Implementation)
+endobj
+160 0 obj
+<< /S /GoTo /D (section.4.4) >>
+endobj
+163 0 obj
+(4.4\040Perception\040pipeline:\040Ego\040motion\040estimation)
+endobj
+164 0 obj
+<< /S /GoTo /D (subsection.4.4.1) >>
+endobj
+167 0 obj
+(4.4.1\040Visual\040odometry)
+endobj
+168 0 obj
+<< /S /GoTo /D (subsection.4.4.2) >>
+endobj
+171 0 obj
+(4.4.2\040Coordinate\040systems)
+endobj
+172 0 obj
+<< /S /GoTo /D (subsection.4.4.3) >>
+endobj
+175 0 obj
+(4.4.3\040ROS2\040Implementation)
+endobj
+176 0 obj
+<< /S /GoTo /D (section.4.5) >>
+endobj
+179 0 obj
+(4.5\040Perception\040pipeline:\040Kalman\040filter)
+endobj
+180 0 obj
+<< /S /GoTo /D (subsection.4.5.1) >>
+endobj
+183 0 obj
+(4.5.1\040Kalman\040filter\040algorithm)
+endobj
+184 0 obj
+<< /S /GoTo /D (subsection.4.5.2) >>
+endobj
+187 0 obj
+(4.5.2\040Mathematical\040model)
+endobj
+188 0 obj
+<< /S /GoTo /D (subsection.4.5.3) >>
+endobj
+191 0 obj
+(4.5.3\040Implementation)
+endobj
+192 0 obj
+<< /S /GoTo /D (subsection.4.5.4) >>
+endobj
+195 0 obj
+(4.5.4\040ROS2\040integration)
+endobj
+196 0 obj
+<< /S /GoTo /D (section.4.6) >>
+endobj
+199 0 obj
+(4.6\040Perception\040pipeline:\040Object\040detection)
+endobj
+200 0 obj
+<< /S /GoTo /D (subsection.4.6.1) >>
+endobj
+203 0 obj
+(4.6.1\040Clustering)
+endobj
+204 0 obj
+<< /S /GoTo /D (subsection.4.6.2) >>
+endobj
+207 0 obj
+(4.6.2\040DBSCAN\040clustering)
+endobj
+208 0 obj
+<< /S /GoTo /D (section.4.7) >>
+endobj
+211 0 obj
+(4.7\040Criticality\040pipeline:\040TTC\040computation)
+endobj
+212 0 obj
+<< /S /GoTo /D (subsection.4.7.1) >>
+endobj
+215 0 obj
+(4.7.1\040Time-to-Collision\040metric)
+endobj
+216 0 obj
+<< /S /GoTo /D (subsection.4.7.2) >>
+endobj
+219 0 obj
+(4.7.2\040Implementation:\040TTC\040detection\040module)
+endobj
+220 0 obj
+<< /S /GoTo /D (chapter.5) >>
+endobj
+223 0 obj
+(5\040Experiments\040and\040Results)
+endobj
+224 0 obj
+<< /S /GoTo /D (section.5.1) >>
+endobj
+227 0 obj
+(5.1\040Camera\040hardware\040selection\040and\040calibration)
+endobj
+228 0 obj
+<< /S /GoTo /D (subsection.5.1.1) >>
+endobj
+231 0 obj
+(5.1.1\040Initial\040tests\040with\040Framos\040camera)
+endobj
+232 0 obj
+<< /S /GoTo /D (subsection.5.1.2) >>
+endobj
+235 0 obj
+(5.1.2\040Calibration\040of\040the\040perception\040pipeline)
+endobj
+236 0 obj
+<< /S /GoTo /D (subsection.5.1.3) >>
+endobj
+239 0 obj
+(5.1.3\040Results,\040limitations\040and\040motivation\040for\040replacement)
+endobj
+240 0 obj
+<< /S /GoTo /D (subsection.5.1.4) >>
+endobj
+243 0 obj
+(5.1.4\040Selection\040of\040the\040Carnegie\040S30\040stereo\040camera)
+endobj
+244 0 obj
+<< /S /GoTo /D (subsection.5.1.5) >>
+endobj
+247 0 obj
+(5.1.5\040Calibration\040and\040dataset\040recording\040with\040Carnegie)
+endobj
+248 0 obj
+<< /S /GoTo /D (section.5.2) >>
+endobj
+251 0 obj
+(5.2\040Perception\040evaluation)
+endobj
+252 0 obj
+<< /S /GoTo /D (subsection.5.2.1) >>
+endobj
+255 0 obj
+(5.2.1\040Static\040evaluation\040scenarios)
+endobj
+256 0 obj
+<< /S /GoTo /D (subsection.5.2.2) >>
+endobj
+259 0 obj
+(5.2.2\040Dynamic\040evaluation\040scenarios)
+endobj
+260 0 obj
+<< /S /GoTo /D (subsection.5.2.3) >>
+endobj
+263 0 obj
+(5.2.3\040Summary\040and\040insights)
+endobj
+264 0 obj
+<< /S /GoTo /D (section.5.3) >>
+endobj
+267 0 obj
+(5.3\040Runtime\040and\040performance\040benchmarking)
+endobj
+268 0 obj
+<< /S /GoTo /D (subsection.5.3.1) >>
+endobj
+271 0 obj
+(5.3.1\040Tested\040hardware\040platforms)
+endobj
+272 0 obj
+<< /S /GoTo /D (subsection.5.3.2) >>
+endobj
+275 0 obj
+(5.3.2\040Resource\040usage\040analysis)
+endobj
+276 0 obj
+<< /S /GoTo /D (subsection.5.3.3) >>
+endobj
+279 0 obj
+(5.3.3\040Callback\040execution\040profiling)
+endobj
+280 0 obj
+<< /S /GoTo /D (subsection.5.3.4) >>
+endobj
+283 0 obj
+(5.3.4\040Summary\040and\040insights)
+endobj
+284 0 obj
+<< /S /GoTo /D (section.5.4) >>
+endobj
+287 0 obj
+(5.4\040Summary\040of\040experimental\040results)
+endobj
+288 0 obj
+<< /S /GoTo /D (chapter.6) >>
+endobj
+291 0 obj
+(6\040Summary\040and\040Conclusion)
+endobj
+292 0 obj
+<< /S /GoTo /D (chapter*.171) >>
+endobj
+295 0 obj
+(List\040of\040Figures)
+endobj
+296 0 obj
+<< /S /GoTo /D (chapter*.172) >>
+endobj
+299 0 obj
+(List\040of\040Tables)
+endobj
+300 0 obj
+<< /S /GoTo /D (chapter*.173) >>
+endobj
+303 0 obj
+(Bibliography)
+endobj
+304 0 obj
+<< /S /GoTo /D (section*.174) >>
+endobj
+307 0 obj
+(Appendix)
+endobj
+308 0 obj
+<< /S /GoTo /D (appendix.Appendix.A) >>
+endobj
+311 0 obj
+(A\040Raw\040Depth\040and\0403D\040Visualizations\040from\040Framos\040Camera)
+endobj
+312 0 obj
+<< /S /GoTo /D (appendix.Appendix.B) >>
+endobj
+315 0 obj
+(B\040Stereo\040Perception\040Dynamic\040Evaluation:\040Per-Frame\040Comparison\040Values)
+endobj
+316 0 obj
+<< /S /GoTo /D [317 0 R /Fit] >>
+endobj
+319 0 obj
+<<
+/Length 30        
+/Filter /FlateDecode
+>>
+stream
+xÚ3P0 Â¢t0e äÎe  â€hLÂ" pœi

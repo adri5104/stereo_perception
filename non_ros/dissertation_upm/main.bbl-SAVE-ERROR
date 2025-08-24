@@ -1,0 +1,3090 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.2 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \datalist[entry]{none/global//global/global}
+    \entry{autonomous_vehicles_perception_survey}{article}{}
+      \name{author}{4}{}{%
+        {{hash=715494d7f89f03d2761eb4eb0a55ce71}{%
+           family={Van\bibnamedelima Brummelen},
+           familyi={V\bibinitperiod\bibinitdelim B\bibinitperiod},
+           given={Jessica},
+           giveni={J\bibinitperiod}}}%
+        {{hash=015baba0969ef10832f9f128326d0159}{%
+           family={O’Brien},
+           familyi={O\bibinitperiod},
+           given={Marie},
+           giveni={M\bibinitperiod}}}%
+        {{hash=7196983c7c3040eb6b28bc7ffe682319}{%
+           family={Gruyer},
+           familyi={G\bibinitperiod},
+           given={Dominique},
+           giveni={D\bibinitperiod}}}%
+        {{hash=cf9988489350e38fdae92cd02972a100}{%
+           family={Najjaran},
+           familyi={N\bibinitperiod},
+           given={Homayoun},
+           giveni={H\bibinitperiod}}}%
+      }
+      \list{language}{1}{%
+        {en}%
+      }
+      \strng{namehash}{e044dc9e44a681761aaba2d70a3e205e}
+      \strng{fullhash}{e044dc9e44a681761aaba2d70a3e205e}
+      \strng{bibnamehash}{e044dc9e44a681761aaba2d70a3e205e}
+      \strng{authorbibnamehash}{e044dc9e44a681761aaba2d70a3e205e}
+      \strng{authornamehash}{e044dc9e44a681761aaba2d70a3e205e}
+      \strng{authorfullhash}{e044dc9e44a681761aaba2d70a3e205e}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{abstract}{Perception system design is a vital step in the development of an autonomous vehicle (AV). With the vast selection of available oﬀ-the-shelf schemes and seemingly endless options of sensor systems implemented in research and commercial vehicles, it can be diﬃcult to identify the optimal system for one’s AV application. This article presents a comprehensive review of the state-of-the-art AV perception technology available today. It provides up-to-date information about the advantages, disadvantages, limits, and ideal applications of speciﬁc AV sensors; the most prevalent sensors in current research and commercial AVs; autonomous features currently on the market; and localization and mapping methods currently implemented in AV research. This information is useful for newcomers to the AV ﬁeld to gain a greater understanding of the current AV solution landscape and to guide experienced researchers towards research areas requiring further development. Furthermore, this paper highlights future research areas and draws conclusions about the most eﬀective methods for AV perception and its eﬀect on localization and mapping. Topics discussed in the Perception and Automotive Sensors section focus on the sensors themselves, whereas topics discussed in the Localization and Mapping section focus on how the vehicle perceives where it is on the road, providing context for the use of the automotive sensors. By improving on current state-of-the-art perception systems, AVs will become more robust, reliable, safe, and accessible, ultimately providing greater eﬃciency, mobility, and safety beneﬁts to the public.}
+      \field{annotation}{Important notes Classification of perception algorithms A) Classification 1 -{>} mediated perception -{>} behaviour reflex perception -{>} direct perception ! B) Tipe of data -{>} Vision based -{>} Point cloud based}
+      \field{issn}{0968090X}
+      \field{journaltitle}{Transportation Research Part C: Emerging Technologies}
+      \field{month}{4}
+      \field{shorttitle}{Autonomous vehicle perception}
+      \field{title}{Autonomous vehicle perception: {The} technology of today and tomorrow}
+      \field{volume}{89}
+      \field{year}{2018}
+      \field{pages}{384\bibrangedash 406}
+      \range{pages}{23}
+      \verb{doi}
+      \verb 10.1016/j.trc.2018.02.012
+      \endverb
+      \keyw{Survey,Perception paradigms}
+    \endentry
+    \entry{lidarbased_bmw}{misc}{}
+      \name{author}{1}{}{%
+        {{hash=bcb48dddff8c14b5f452ee573b4db770}{%
+           family={BMW},
+           familyi={B\bibinitperiod}}}%
+      }
+      \list{language}{1}{%
+        {en}%
+      }
+      \strng{namehash}{bcb48dddff8c14b5f452ee573b4db770}
+      \strng{fullhash}{bcb48dddff8c14b5f452ee573b4db770}
+      \strng{bibnamehash}{bcb48dddff8c14b5f452ee573b4db770}
+      \strng{authorbibnamehash}{bcb48dddff8c14b5f452ee573b4db770}
+      \strng{authornamehash}{bcb48dddff8c14b5f452ee573b4db770}
+      \strng{authorfullhash}{bcb48dddff8c14b5f452ee573b4db770}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{+++ Highly automated driving as a new option for customers in Germany +++ For the first time, the vehicle takes over the task of driving in full including in the dark +++ New hands-free function means drivers can switch to other in-vehicle activities while travelling at up to 60 km/h (37 mph) +++}
+      \field{title}{Level 3 highly automated driving available in the new {BMW} 7 {Series} from next spring.}
+      \field{urlday}{26}
+      \field{urlmonth}{2}
+      \field{urlyear}{2025}
+      \field{year}{2023}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://www.press.bmwgroup.com/global/article/detail/T0438214EN/level-3-highly-automated-driving-available-in-the-new-bmw-7-series-from-next-spring?language=en
+      \endverb
+      \verb{url}
+      \verb https://www.press.bmwgroup.com/global/article/detail/T0438214EN/level-3-highly-automated-driving-available-in-the-new-bmw-7-series-from-next-spring?language=en
+      \endverb
+      \keyw{lidar-based perception}
+    \endentry
+    \entry{lidarbased_mercedes}{misc}{}
+      \name{author}{1}{}{%
+        {{hash=be956e74642d5b18c6a4864aad39f494}{%
+           family={Mercedes-Benz},
+           familyi={M\bibinithyphendelim B\bibinitperiod}}}%
+      }
+      \strng{namehash}{be956e74642d5b18c6a4864aad39f494}
+      \strng{fullhash}{be956e74642d5b18c6a4864aad39f494}
+      \strng{bibnamehash}{be956e74642d5b18c6a4864aad39f494}
+      \strng{authorbibnamehash}{be956e74642d5b18c6a4864aad39f494}
+      \strng{authornamehash}{be956e74642d5b18c6a4864aad39f494}
+      \strng{authorfullhash}{be956e74642d5b18c6a4864aad39f494}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Mercedes-Benz}
+      \field{title}{⁣{Drive} {Pilot}}
+      \field{urlday}{26}
+      \field{urlmonth}{2}
+      \field{urlyear}{2025}
+      \field{year}{2025}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://www.mercedes-benz.de/passengercars/technology/drive-pilot.html
+      \endverb
+      \verb{url}
+      \verb https://www.mercedes-benz.de/passengercars/technology/drive-pilot.html
+      \endverb
+      \keyw{lidar-based perception}
+    \endentry
+    \entry{lidarbased_waymo}{misc}{}
+      \name{author}{1}{}{%
+        {{hash=beb75dcfb476cb9abd4b5ac630a91dfb}{%
+           family={Waymo},
+           familyi={W\bibinitperiod}}}%
+      }
+      \strng{namehash}{beb75dcfb476cb9abd4b5ac630a91dfb}
+      \strng{fullhash}{beb75dcfb476cb9abd4b5ac630a91dfb}
+      \strng{bibnamehash}{beb75dcfb476cb9abd4b5ac630a91dfb}
+      \strng{authorbibnamehash}{beb75dcfb476cb9abd4b5ac630a91dfb}
+      \strng{authornamehash}{beb75dcfb476cb9abd4b5ac630a91dfb}
+      \strng{authorfullhash}{beb75dcfb476cb9abd4b5ac630a91dfb}
+      \field{sortinit}{4}
+      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{journaltitle}{Waymo}
+      \field{shorttitle}{Meet the 6th-generation {Waymo} {Driver}}
+      \field{title}{Meet the 6th-generation {Waymo} {Driver}: {Optimized} for costs, designed to handle more weather, and coming to riders faster than before}
+      \field{urlday}{26}
+      \field{urlmonth}{2}
+      \field{urlyear}{2025}
+      \field{year}{2024}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://waymo.com/blog/2024/08/meet-the-6th-generation-waymo-driver
+      \endverb
+      \verb{url}
+      \verb https://waymo.com/blog/2024/08/meet-the-6th-generation-waymo-driver
+      \endverb
+    \endentry
+    \entry{lidarbased_review}{article}{}
+      \name{author}{2}{}{%
+        {{hash=8dbac327f65c6734344493bf6ffa5dc5}{%
+           family={Li},
+           familyi={L\bibinitperiod},
+           given={You},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=ece3fc2f9f91eaec5a73f56d42409d33}{%
+           family={Ibanez-Guzman},
+           familyi={I\bibinithyphendelim G\bibinitperiod},
+           given={Javier},
+           giveni={J\bibinitperiod}}}%
+      }
+      \strng{namehash}{28ddaf24bf1e29a3373b9eb832276e98}
+      \strng{fullhash}{28ddaf24bf1e29a3373b9eb832276e98}
+      \strng{bibnamehash}{28ddaf24bf1e29a3373b9eb832276e98}
+      \strng{authorbibnamehash}{28ddaf24bf1e29a3373b9eb832276e98}
+      \strng{authornamehash}{28ddaf24bf1e29a3373b9eb832276e98}
+      \strng{authorfullhash}{28ddaf24bf1e29a3373b9eb832276e98}
+      \field{sortinit}{5}
+      \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{abstract}{Autonomous vehicles rely on their perception systems to acquire information about their immediate surroundings. It is necessary to detect the presence of other vehicles, pedestrians, and other relevant entities. Safety concerns and the need for accurate estimations have led to the introduction of lidar systems to complement camera- or radar-based perception systems. This article presents a review of state-of-the-art automotive lidar technologies and the perception algorithms used with those technologies. Lidar systems are introduced first by analyzing such a system?s main components, from laser transmitter to beamscanning mechanism. The advantages/disadvantages and the current status of various solutions are introduced and compared. Then, the specific perception pipeline for lidar data processing is detailed from an autonomous vehicle perspective. The model-driven approaches and emerging deep learning (DL) solutions are reviewed. Finally, we provide an overview of the limitations, challenges, and trends for automotive lidars and perception systems.}
+      \field{issn}{1558-0792}
+      \field{journaltitle}{IEEE Signal Processing Magazine}
+      \field{month}{7}
+      \field{number}{4}
+      \field{shorttitle}{Lidar for {Autonomous} {Driving}}
+      \field{title}{Lidar for {Autonomous} {Driving}: {The} {Principles}, {Challenges}, and {Trends} for {Automotive} {Lidar} and {Perception} {Systems}}
+      \field{volume}{37}
+      \field{year}{2020}
+      \field{pages}{50\bibrangedash 61}
+      \range{pages}{12}
+      \verb{doi}
+      \verb 10.1109/MSP.2020.2973615
+      \endverb
+      \keyw{Autonomous vehicles,Laser beams,Laser radar,lidar-based perception,Measurement by laser beam,Vertical cavity surface emitting lasers}
+    \endentry
+    \entry{radarbased_velocity}{article}{}
+      \name{author}{28}{}{%
+        {{hash=ecbba107b554ea58eb96c11473735dba}{%
+           family={Leonard},
+           familyi={L\bibinitperiod},
+           given={John},
+           giveni={J\bibinitperiod}}}%
+        {{hash=8d39f83a2796eb6c9f7f0cbf1a298a09}{%
+           family={How},
+           familyi={H\bibinitperiod},
+           given={Jonathan},
+           giveni={J\bibinitperiod}}}%
+        {{hash=e1cccf83d1bea5f335ff48b39f0bc52c}{%
+           family={Teller},
+           familyi={T\bibinitperiod},
+           given={Seth},
+           giveni={S\bibinitperiod}}}%
+        {{hash=45e88d7cb0acd277ae5a3da5cefa8571}{%
+           family={Berger},
+           familyi={B\bibinitperiod},
+           given={Mitch},
+           giveni={M\bibinitperiod}}}%
+        {{hash=b20df8f735ed5089d645c766fc84c51b}{%
+           family={Campbell},
+           familyi={C\bibinitperiod},
+           given={Stefan},
+           giveni={S\bibinitperiod}}}%
+        {{hash=c096b6389abac29ef750385f031fced9}{%
+           family={Fiore},
+           familyi={F\bibinitperiod},
+           given={Gaston},
+           giveni={G\bibinitperiod}}}%
+        {{hash=95aab1e3ef76e9b7a663bd155da5330b}{%
+           family={Fletcher},
+           familyi={F\bibinitperiod},
+           given={Luke},
+           giveni={L\bibinitperiod}}}%
+        {{hash=7fe896e8ed8d5f30af73e472ebedcec9}{%
+           family={Frazzoli},
+           familyi={F\bibinitperiod},
+           given={Emilio},
+           giveni={E\bibinitperiod}}}%
+        {{hash=81bad66d90fac60056ad8f25095d0475}{%
+           family={Huang},
+           familyi={H\bibinitperiod},
+           given={Albert},
+           giveni={A\bibinitperiod}}}%
+        {{hash=ca50b61c6d4e6ff567664ac59d4d3837}{%
+           family={Karaman},
+           familyi={K\bibinitperiod},
+           given={Sertac},
+           giveni={S\bibinitperiod}}}%
+        {{hash=97a319d83c4a7972609517e8f2cdd7c3}{%
+           family={Koch},
+           familyi={K\bibinitperiod},
+           given={Olivier},
+           giveni={O\bibinitperiod}}}%
+        {{hash=01955eb1b24a7a895c39ebba3b0a737b}{%
+           family={Kuwata},
+           familyi={K\bibinitperiod},
+           given={Yoshiaki},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=bf0da929c0fee6475cd4f91c951ed272}{%
+           family={Moore},
+           familyi={M\bibinitperiod},
+           given={David},
+           giveni={D\bibinitperiod}}}%
+        {{hash=8f743eebb2f64f75592e54ba06f94320}{%
+           family={Olson},
+           familyi={O\bibinitperiod},
+           given={Edwin},
+           giveni={E\bibinitperiod}}}%
+        {{hash=b772450edd9c8742e82817945ca8099c}{%
+           family={Peters},
+           familyi={P\bibinitperiod},
+           given={Steve},
+           giveni={S\bibinitperiod}}}%
+        {{hash=242d2892db1a68badfdde2816c0368fc}{%
+           family={Teo},
+           familyi={T\bibinitperiod},
+           given={Justin},
+           giveni={J\bibinitperiod}}}%
+        {{hash=171714e8f711cc664885f082fbc5b3a0}{%
+           family={Truax},
+           familyi={T\bibinitperiod},
+           given={Robert},
+           giveni={R\bibinitperiod}}}%
+        {{hash=c135971f0f214b5f62af497718067990}{%
+           family={Walter},
+           familyi={W\bibinitperiod},
+           given={Matthew},
+           giveni={M\bibinitperiod}}}%
+        {{hash=a1b1f461686916d4b7095bdc0b046916}{%
+           family={Barrett},
+           familyi={B\bibinitperiod},
+           given={David},
+           giveni={D\bibinitperiod}}}%
+        {{hash=1f313f6176be74210858b40f1d65f65c}{%
+           family={Epstein},
+           familyi={E\bibinitperiod},
+           given={Alexander},
+           giveni={A\bibinitperiod}}}%
+        {{hash=bec20ac3f7f12d86332aaac678b235cd}{%
+           family={Maheloni},
+           familyi={M\bibinitperiod},
+           given={Keoni},
+           giveni={K\bibinitperiod}}}%
+        {{hash=cf0030be834a585696a010a628a2f985}{%
+           family={Moyer},
+           familyi={M\bibinitperiod},
+           given={Katy},
+           giveni={K\bibinitperiod}}}%
+        {{hash=4688ecacdb649caf6bb18141b266fe1f}{%
+           family={Jones},
+           familyi={J\bibinitperiod},
+           given={Troy},
+           giveni={T\bibinitperiod}}}%
+        {{hash=84850dcca2782ee895561a32d35c8d5f}{%
+           family={Buckley},
+           familyi={B\bibinitperiod},
+           given={Ryan},
+           giveni={R\bibinitperiod}}}%
+        {{hash=096b3dc32cad3effcbe888d8536b366c}{%
+           family={Antone},
+           familyi={A\bibinitperiod},
+           given={Matthew},
+           giveni={M\bibinitperiod}}}%
+        {{hash=c130e406f1898247e894141481e2078c}{%
+           family={Galejs},
+           familyi={G\bibinitperiod},
+           given={Robert},
+           giveni={R\bibinitperiod}}}%
+        {{hash=d6e39954434cfece1019d31d9887fa8c}{%
+           family={Krishnamurthy},
+           familyi={K\bibinitperiod},
+           given={Siddhartha},
+           giveni={S\bibinitperiod}}}%
+        {{hash=7c3d809e6592a34d096000cf95a34ff9}{%
+           family={Williams},
+           familyi={W\bibinitperiod},
+           given={Jonathan},
+           giveni={J\bibinitperiod}}}%
+      }
+      \list{language}{1}{%
+        {en}%
+      }
+      \strng{namehash}{0f2c75eacb4f7defc7307438515a4c00}
+      \strng{fullhash}{96ad4fc59f85bea29a4141bd3558d23c}
+      \strng{bibnamehash}{0f2c75eacb4f7defc7307438515a4c00}
+      \strng{authorbibnamehash}{0f2c75eacb4f7defc7307438515a4c00}
+      \strng{authornamehash}{0f2c75eacb4f7defc7307438515a4c00}
+      \strng{authorfullhash}{96ad4fc59f85bea29a4141bd3558d23c}
+      \field{sortinit}{6}
+      \field{sortinithash}{b33bc299efb3c36abec520a4c896a66d}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{This paper describes the architecture and implementation of an autonomous passenger vehicle designed to navigate using locally perceived information in preference to potentially inaccurate or incomplete map data. The vehicle architecture was designed to handle the original DARPA Urban Challenge requirements of perceiving and navigating a road network with segments defined by sparse waypoints. The vehicle implementation includes many heterogeneous sensors with significant communications and computation bandwidth to capture and process high-resolution, high-rate sensor data. The output of the comprehensive environmental sensing subsystem is fed into a kinodynamic motion planning algorithm to generate all vehicle motion. The requirements of driving in lanes, three-point turns, parking, and maneuvering through obstacle fields are all generated with a unified planner. A key aspect of the planner is its use of closed-loop simulation in a rapidly exploring randomized trees algorithm, which can randomly explore the space while efficiently generating smooth trajectories in a dynamic and uncertain environment. The overall system was realized through the creation of a powerful new suite of software tools for message passing, logging, and visualization. These innovations provide a strong platform for future research in autonomous driving in global positioning system–denied and highly dynamic environments with poor a priori information. © 2008 Wiley Periodicals, Inc.}
+      \field{issn}{1556-4967}
+      \field{journaltitle}{Journal of Field Robotics}
+      \field{note}{\_eprint: https://onlinelibrary.wiley.com/doi/pdf/10.1002/rob.20262}
+      \field{number}{10}
+      \field{title}{A perception-driven autonomous urban vehicle}
+      \field{volume}{25}
+      \field{year}{2008}
+      \field{pages}{727\bibrangedash 774}
+      \range{pages}{48}
+      \verb{doi}
+      \verb 10.1002/rob.20262
+      \endverb
+      \keyw{radar-based perception,velocity}
+    \endentry
+    \entry{radarbased_weather}{inproceedings}{}
+      \name{author}{2}{}{%
+        {{hash=6fd051066740312a2f9cf80a983d6180}{%
+           family={Rasshofer},
+           familyi={R\bibinitperiod},
+           given={R.\bibnamedelimi H.},
+           giveni={R\bibinitperiod\bibinitdelim H\bibinitperiod}}}%
+        {{hash=878044e3e032cfcfb53c923511a48625}{%
+           family={Gresser},
+           familyi={G\bibinitperiod},
+           given={K.},
+           giveni={K\bibinitperiod}}}%
+      }
+      \list{language}{1}{%
+        {English}%
+      }
+      \list{publisher}{1}{%
+        {Copernicus GmbH}%
+      }
+      \strng{namehash}{0a41c4d9c9134fe709a4426bde22fef5}
+      \strng{fullhash}{0a41c4d9c9134fe709a4426bde22fef5}
+      \strng{bibnamehash}{0a41c4d9c9134fe709a4426bde22fef5}
+      \strng{authorbibnamehash}{0a41c4d9c9134fe709a4426bde22fef5}
+      \strng{authornamehash}{0a41c4d9c9134fe709a4426bde22fef5}
+      \strng{authorfullhash}{0a41c4d9c9134fe709a4426bde22fef5}
+      \field{sortinit}{7}
+      \field{sortinithash}{108d0be1b1bee9773a1173443802c0a3}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Automotive radar and lidar sensors represent key components for next generation driver assistance functions (Jones, 2001). Today, their use is limited to comfort applications in premium segment vehicles although an evolution process towards more safety-oriented functions is taking place. Radar sensors available on the market today suffer from low angular resolution and poor target detection in medium ranges (30 to 60m) over azimuth angles larger than \&\#x00B1;30°. In contrast, Lidar sensors show large sensitivity towards environmental influences (e.g. snow, fog, dirt). Both sensor technologies today have a rather high cost level, forbidding their wide-spread usage on mass markets. A common approach to overcome individual sensor drawbacks is the employment of data fusion techniques (Bar-Shalom, 2001). Raw data fusion requires a common, standardized data interface to easily integrate a variety of asynchronous sensor data into a fusion network. Moreover, next generation sensors should be able to dynamically adopt to new situations and should have the ability to work in cooperative sensor environments. As vehicular function development today is being shifted more and more towards virtual prototyping, mathematical sensor models should be available. These models should take into account the sensor's functional principle as well as all typical measurement errors generated by the sensor.}
+      \field{booktitle}{Advances in {Radio} {Science}}
+      \field{month}{5}
+      \field{note}{ISSN: 1684-9965 Issue: B.4}
+      \field{title}{Automotive {Radar} and {Lidar} {Systems} for {Next} {Generation} {Driver} {Assistance} {Functions}}
+      \field{volume}{3}
+      \field{year}{2005}
+      \field{pages}{205\bibrangedash 209}
+      \range{pages}{5}
+      \verb{doi}
+      \verb 10.5194/ars-3-205-2005
+      \endverb
+      \keyw{radar-based perception,weather}
+    \endentry
+    \entry{tesla_autopilot}{article}{}
+      \name{author}{4}{}{%
+        {{hash=06f3ce55fe2c974b33b99cddf5d070eb}{%
+           family={Maanyu},
+           familyi={M\bibinitperiod},
+           given={K\bibnamedelima Nived},
+           giveni={K\bibinitperiod\bibinitdelim N\bibinitperiod}}}%
+        {{hash=f29868904add40a7ce63dac4cc1c87af}{%
+           family={Raj},
+           familyi={R\bibinitperiod},
+           given={D\bibnamedelima Goutham},
+           giveni={D\bibinitperiod\bibinitdelim G\bibinitperiod}}}%
+        {{hash=08abbbbb72a2d592c66d073b1288e1d2}{%
+           family={Krishna},
+           familyi={K\bibinitperiod},
+           given={R\bibnamedelima Vamsi},
+           giveni={R\bibinitperiod\bibinitdelim V\bibinitperiod}}}%
+        {{hash=6bcf6cf637222db14dafe31a429aca13}{%
+           family={Choubey},
+           familyi={C\bibinitperiod},
+           given={Dr\bibnamedelima Shruthi\bibnamedelima Bhargava},
+           giveni={D\bibinitperiod\bibinitdelim S\bibinitperiod\bibinitdelim B\bibinitperiod}}}%
+      }
+      \list{language}{1}{%
+        {en}%
+      }
+      \strng{namehash}{d0a2d625b69823f49ca928081221761e}
+      \strng{fullhash}{d0a2d625b69823f49ca928081221761e}
+      \strng{bibnamehash}{d0a2d625b69823f49ca928081221761e}
+      \strng{authorbibnamehash}{d0a2d625b69823f49ca928081221761e}
+      \strng{authornamehash}{d0a2d625b69823f49ca928081221761e}
+      \strng{authorfullhash}{d0a2d625b69823f49ca928081221761e}
+      \field{sortinit}{8}
+      \field{sortinithash}{a231b008ebf0ecbe0b4d96dcc159445f}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{number}{171}
+      \field{title}{A {Study} on {Tesla} {Autopilot}}
+      \field{volume}{71}
+      \field{year}{2020}
+      \keyw{tesla\_autopilot}
+    \endentry
+    \entry{pin_hole_camera_model}{book}{}
+      \name{author}{1}{}{%
+        {{hash=f2e556c93256e7d70895d67702e14f1a}{%
+           family={Szeliski},
+           familyi={S\bibinitperiod},
+           given={Richard},
+           giveni={R\bibinitperiod}}}%
+      }
+      \list{language}{1}{%
+        {en}%
+      }
+      \list{location}{1}{%
+        {Cham}%
+      }
+      \list{publisher}{1}{%
+        {Springer International Publishing}%
+      }
+      \strng{namehash}{f2e556c93256e7d70895d67702e14f1a}
+      \strng{fullhash}{f2e556c93256e7d70895d67702e14f1a}
+      \strng{bibnamehash}{f2e556c93256e7d70895d67702e14f1a}
+      \strng{authorbibnamehash}{f2e556c93256e7d70895d67702e14f1a}
+      \strng{authornamehash}{f2e556c93256e7d70895d67702e14f1a}
+      \strng{authorfullhash}{f2e556c93256e7d70895d67702e14f1a}
+      \field{extraname}{1}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{isbn}{978-3-030-34371-2 978-3-030-34372-9}
+      \field{series}{Texts in {Computer} {Science}}
+      \field{shorttitle}{Computer {Vision}}
+      \field{title}{Computer {Vision}: {Algorithms} and {Applications}}
+      \field{year}{2022}
+      \verb{doi}
+      \verb 10.1007/978-3-030-34372-9
+      \endverb
+      \keyw{pinhole\_camera}
+    \endentry
+    \entry{centerTrack}{article}{}
+      \name{author}{3}{}{%
+        {{hash=24e39514a947d107ce59334310fc58bb}{%
+           family={Zhou},
+           familyi={Z\bibinitperiod},
+           given={Xingyi},
+           giveni={X\bibinitperiod}}}%
+        {{hash=9025300f43a193cfed8e10e924f2a117}{%
+           family={Koltun},
+           familyi={K\bibinitperiod},
+           given={Vladlen},
+           giveni={V\bibinitperiod}}}%
+        {{hash=f7c378608b911bbcd2f03a441af99088}{%
+           family={Krähenbühl},
+           familyi={K\bibinitperiod},
+           given={Philipp},
+           giveni={P\bibinitperiod}}}%
+      }
+      \strng{namehash}{11af209532228578debd7557c43b0104}
+      \strng{fullhash}{11af209532228578debd7557c43b0104}
+      \strng{bibnamehash}{11af209532228578debd7557c43b0104}
+      \strng{authorbibnamehash}{11af209532228578debd7557c43b0104}
+      \strng{authornamehash}{11af209532228578debd7557c43b0104}
+      \strng{authorfullhash}{11af209532228578debd7557c43b0104}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{eprinttype}{arXiv}
+      \field{journaltitle}{CoRR}
+      \field{title}{Tracking Objects as Points}
+      \field{volume}{abs/2004.01177}
+      \field{year}{2020}
+      \verb{eprint}
+      \verb 2004.01177
+      \endverb
+      \verb{urlraw}
+      \verb https://arxiv.org/abs/2004.01177
+      \endverb
+      \verb{url}
+      \verb https://arxiv.org/abs/2004.01177
+      \endverb
+    \endentry
+    \entry{trackRCNN}{article}{}
+      \name{author}{4}{}{%
+        {{hash=ee574291a2e6dd5157584042680e1ce3}{%
+           family={Shuai},
+           familyi={S\bibinitperiod},
+           given={Bing},
+           giveni={B\bibinitperiod}}}%
+        {{hash=4bfb7fa73ab8b94f709849a37896ee7b}{%
+           family={Berneshawi},
+           familyi={B\bibinitperiod},
+           given={Andrew\bibnamedelima G.},
+           giveni={A\bibinitperiod\bibinitdelim G\bibinitperiod}}}%
+        {{hash=317ca7e3ab15d68ef52c6a260815c816}{%
+           family={Modolo},
+           familyi={M\bibinitperiod},
+           given={Davide},
+           giveni={D\bibinitperiod}}}%
+        {{hash=6039ac67d556a71cf00264cdd2078252}{%
+           family={Tighe},
+           familyi={T\bibinitperiod},
+           given={Joseph},
+           giveni={J\bibinitperiod}}}%
+      }
+      \strng{namehash}{d0bad6e75b3c7e8a4da067994ddb7b20}
+      \strng{fullhash}{d0bad6e75b3c7e8a4da067994ddb7b20}
+      \strng{bibnamehash}{d0bad6e75b3c7e8a4da067994ddb7b20}
+      \strng{authorbibnamehash}{d0bad6e75b3c7e8a4da067994ddb7b20}
+      \strng{authornamehash}{d0bad6e75b3c7e8a4da067994ddb7b20}
+      \strng{authorfullhash}{d0bad6e75b3c7e8a4da067994ddb7b20}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{eprinttype}{arXiv}
+      \field{journaltitle}{CoRR}
+      \field{title}{Multi-Object Tracking with Siamese Track-RCNN}
+      \field{volume}{abs/2004.07786}
+      \field{year}{2020}
+      \verb{eprint}
+      \verb 2004.07786
+      \endverb
+      \verb{urlraw}
+      \verb https://arxiv.org/abs/2004.07786
+      \endverb
+      \verb{url}
+      \verb https://arxiv.org/abs/2004.07786
+      \endverb
+    \endentry
+    \entry{pointRCNN}{article}{}
+      \name{author}{3}{}{%
+        {{hash=438ad332a7cf199bc27626693bdbdb74}{%
+           family={Shi},
+           familyi={S\bibinitperiod},
+           given={Shaoshuai},
+           giveni={S\bibinitperiod}}}%
+        {{hash=e88500bd6ca50746707a22554761b61a}{%
+           family={Wang},
+           familyi={W\bibinitperiod},
+           given={Xiaogang},
+           giveni={X\bibinitperiod}}}%
+        {{hash=c727733707a60b57a65c544b07a9825e}{%
+           family={Li},
+           familyi={L\bibinitperiod},
+           given={Hongsheng},
+           giveni={H\bibinitperiod}}}%
+      }
+      \strng{namehash}{5d2d077dee1219e4fc07a9844d7b740c}
+      \strng{fullhash}{5d2d077dee1219e4fc07a9844d7b740c}
+      \strng{bibnamehash}{5d2d077dee1219e4fc07a9844d7b740c}
+      \strng{authorbibnamehash}{5d2d077dee1219e4fc07a9844d7b740c}
+      \strng{authornamehash}{5d2d077dee1219e4fc07a9844d7b740c}
+      \strng{authorfullhash}{5d2d077dee1219e4fc07a9844d7b740c}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{eprinttype}{arXiv}
+      \field{journaltitle}{CoRR}
+      \field{title}{PointRCNN: 3D Object Proposal Generation and Detection from Point Cloud}
+      \field{volume}{abs/1812.04244}
+      \field{year}{2018}
+      \verb{eprint}
+      \verb 1812.04244
+      \endverb
+      \verb{urlraw}
+      \verb http://arxiv.org/abs/1812.04244
+      \endverb
+      \verb{url}
+      \verb http://arxiv.org/abs/1812.04244
+      \endverb
+    \endentry
+    \entry{deepFusion}{misc}{}
+      \name{author}{13}{}{%
+        {{hash=77bc5e66accda9794a6b1c36b2b42619}{%
+           family={Li},
+           familyi={L\bibinitperiod},
+           given={Yingwei},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=c37c105de9c6904a9ee348d6f10c603f}{%
+           family={Yu},
+           familyi={Y\bibinitperiod},
+           given={Adams\bibnamedelima Wei},
+           giveni={A\bibinitperiod\bibinitdelim W\bibinitperiod}}}%
+        {{hash=ec1ab9aea576e53e1d630b63e4d5f85c}{%
+           family={Meng},
+           familyi={M\bibinitperiod},
+           given={Tianjian},
+           giveni={T\bibinitperiod}}}%
+        {{hash=86cb8c1f32c9a2fa4f6cb396f9341edc}{%
+           family={Caine},
+           familyi={C\bibinitperiod},
+           given={Ben},
+           giveni={B\bibinitperiod}}}%
+        {{hash=d2d0d4d79851cb75a2676c526c4cb160}{%
+           family={Ngiam},
+           familyi={N\bibinitperiod},
+           given={Jiquan},
+           giveni={J\bibinitperiod}}}%
+        {{hash=33f16324158d90f135b57918c6dfdc52}{%
+           family={Peng},
+           familyi={P\bibinitperiod},
+           given={Daiyi},
+           giveni={D\bibinitperiod}}}%
+        {{hash=5e8e9540120378f71697267661761083}{%
+           family={Shen},
+           familyi={S\bibinitperiod},
+           given={Junyang},
+           giveni={J\bibinitperiod}}}%
+        {{hash=a3467545efc97f24be8a5d66e4c70ab4}{%
+           family={Wu},
+           familyi={W\bibinitperiod},
+           given={Bo},
+           giveni={B\bibinitperiod}}}%
+        {{hash=22c396f06cecfe45f74f2edbb405c151}{%
+           family={Lu},
+           familyi={L\bibinitperiod},
+           given={Yifeng},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=797f9a226fd7356db5edc6feba1a0e87}{%
+           family={Zhou},
+           familyi={Z\bibinitperiod},
+           given={Denny},
+           giveni={D\bibinitperiod}}}%
+        {{hash=c636f146591d51579a8119b777394878}{%
+           family={Le},
+           familyi={L\bibinitperiod},
+           given={Quoc\bibnamedelima V.},
+           giveni={Q\bibinitperiod\bibinitdelim V\bibinitperiod}}}%
+        {{hash=53a8d2ea6010d6c2a2c8a7c283548c6e}{%
+           family={Yuille},
+           familyi={Y\bibinitperiod},
+           given={Alan},
+           giveni={A\bibinitperiod}}}%
+        {{hash=1e7d6abb8225099acc71f672b9ec336e}{%
+           family={Tan},
+           familyi={T\bibinitperiod},
+           given={Mingxing},
+           giveni={M\bibinitperiod}}}%
+      }
+      \strng{namehash}{59eb111bad05565f092a242f27312ffb}
+      \strng{fullhash}{9facd00a1cda1afbde3903bc479874a9}
+      \strng{bibnamehash}{59eb111bad05565f092a242f27312ffb}
+      \strng{authorbibnamehash}{59eb111bad05565f092a242f27312ffb}
+      \strng{authornamehash}{59eb111bad05565f092a242f27312ffb}
+      \strng{authorfullhash}{9facd00a1cda1afbde3903bc479874a9}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{eprintclass}{cs.CV}
+      \field{eprinttype}{arXiv}
+      \field{title}{DeepFusion: Lidar-Camera Deep Fusion for Multi-Modal 3D Object Detection}
+      \field{year}{2022}
+      \verb{eprint}
+      \verb 2203.08195
+      \endverb
+      \verb{urlraw}
+      \verb https://arxiv.org/abs/2203.08195
+      \endverb
+      \verb{url}
+      \verb https://arxiv.org/abs/2203.08195
+      \endverb
+    \endentry
+    \entry{learning_based_perception_survey}{article}{}
+      \name{author}{2}{}{%
+        {{hash=a2a03ac42b8124098a4921480949d0eb}{%
+           family={Wen},
+           familyi={W\bibinitperiod},
+           given={Li-Hua},
+           giveni={L\bibinithyphendelim H\bibinitperiod}}}%
+        {{hash=0ab0f66307f5004cdb195c726467e809}{%
+           family={Jo},
+           familyi={J\bibinitperiod},
+           given={Kang-Hyun},
+           giveni={K\bibinithyphendelim H\bibinitperiod}}}%
+      }
+      \strng{namehash}{a87499370c50de4bd057bb6e73454df8}
+      \strng{fullhash}{a87499370c50de4bd057bb6e73454df8}
+      \strng{bibnamehash}{a87499370c50de4bd057bb6e73454df8}
+      \strng{authorbibnamehash}{a87499370c50de4bd057bb6e73454df8}
+      \strng{authornamehash}{a87499370c50de4bd057bb6e73454df8}
+      \strng{authorfullhash}{a87499370c50de4bd057bb6e73454df8}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{abstract}{With the rapid development of society and the economy, autonomous driving techniques are widely applied in many areas, such as autonomous vehicles, autonomous drones, and robotics. As a dominating technique, deep learning has become more and more popular for 2-D and 3-D object detection. Numerous deep learning-based methods have been proposed to solve various vision issues. To further help with the development of unmanned systems, this paper presents a comprehensive survey of the recent processes from the past five years for 3-D object detection, road detection, traffic sign detection, and traffic light detection and classification. To summarize and analyze previous works in detail, this paper only focuses on deep learning-based object detection tasks in autonomous driving that take place when the input is a point cloud or image(s). It also presents comparative results for insight comparison and inspiring future researches.}
+      \field{issn}{0925-2312}
+      \field{journaltitle}{Neurocomputing}
+      \field{month}{6}
+      \field{shorttitle}{Deep learning-based perception systems for autonomous driving}
+      \field{title}{Deep learning-based perception systems for autonomous driving: {A} comprehensive survey}
+      \field{volume}{489}
+      \field{year}{2022}
+      \field{pages}{255\bibrangedash 270}
+      \range{pages}{16}
+      \verb{doi}
+      \verb 10.1016/j.neucom.2021.08.155
+      \endverb
+      \keyw{2-D object detection,3-D object detection,Autonomous driving,Camera,Deep learning,learningbased perception,LiDAR,Road detection,survey,Survey,Traffic light detection,Traffic sign detection}
+    \endentry
+    \entry{opt_flw_lukas_canade}{inproceedings}{}
+      \name{author}{2}{}{%
+        {{hash=a22bcf87769a1c19a0786c5acadef760}{%
+           family={Lucas},
+           familyi={L\bibinitperiod},
+           given={Bruce},
+           giveni={B\bibinitperiod}}}%
+        {{hash=45496c6a7530cfbfb4f3218a2602b77e}{%
+           family={Kanade},
+           familyi={K\bibinitperiod},
+           given={Takeo},
+           giveni={T\bibinitperiod}}}%
+      }
+      \strng{namehash}{2782b1863352e3f0093cdf6c5770291a}
+      \strng{fullhash}{2782b1863352e3f0093cdf6c5770291a}
+      \strng{bibnamehash}{2782b1863352e3f0093cdf6c5770291a}
+      \strng{authorbibnamehash}{2782b1863352e3f0093cdf6c5770291a}
+      \strng{authornamehash}{2782b1863352e3f0093cdf6c5770291a}
+      \strng{authorfullhash}{2782b1863352e3f0093cdf6c5770291a}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{[No source information available]}
+      \field{month}{04}
+      \field{title}{An Iterative Image Registration Technique with an Application to Stereo Vision (IJCAI)}
+      \field{volume}{81}
+      \field{year}{1981}
+    \endentry
+    \entry{opt_flw_schunck}{article}{}
+      \name{author}{2}{}{%
+        {{hash=ebefe287582aeffcb5a9e58331561eac}{%
+           family={Horn},
+           familyi={H\bibinitperiod},
+           given={Berthold\bibnamedelimb K.\bibnamedelimi P.},
+           giveni={B\bibinitperiod\bibinitdelim K\bibinitperiod\bibinitdelim P\bibinitperiod}}}%
+        {{hash=5e0a81f9ae5c927ed69626b3be80e28c}{%
+           family={Schunck},
+           familyi={S\bibinitperiod},
+           given={Brian\bibnamedelima G.},
+           giveni={B\bibinitperiod\bibinitdelim G\bibinitperiod}}}%
+      }
+      \strng{namehash}{60f93c89dcb350b741966bd13e9e2f24}
+      \strng{fullhash}{60f93c89dcb350b741966bd13e9e2f24}
+      \strng{bibnamehash}{60f93c89dcb350b741966bd13e9e2f24}
+      \strng{authorbibnamehash}{60f93c89dcb350b741966bd13e9e2f24}
+      \strng{authornamehash}{60f93c89dcb350b741966bd13e9e2f24}
+      \strng{authorfullhash}{60f93c89dcb350b741966bd13e9e2f24}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Optical flow cannot be computed locally, since only one independent measurement is available from the image sequence at a point, while the flow velocity has two components. A second constraint is needed. A method for finding the optical flow pattern is presented which assumes that the apparent velocity of the brightness pattern varies smoothly almost everywhere in the image. An iterative implementation is shown which successfully computes the optical flow for a number of synthetic image sequences. The algorithm is robust in that it can handle image sequences that are quantized rather coarsely in space and time. It is also insensitive to quantization of brightness levels and additive noise. Examples are included where the assumption of smoothness is violated at singular points or along lines in the image.}
+      \field{issn}{0004-3702}
+      \field{journaltitle}{Artificial Intelligence}
+      \field{month}{8}
+      \field{number}{1}
+      \field{title}{Determining optical flow}
+      \field{volume}{17}
+      \field{year}{1981}
+      \field{pages}{185\bibrangedash 203}
+      \range{pages}{19}
+      \verb{doi}
+      \verb 10.1016/0004-3702(81)90024-2
+      \endverb
+      \keyw{Optical flow}
+    \endentry
+    \entry{6d_vision_daimler}{inproceedings}{}
+      \name{author}{4}{}{%
+        {{hash=d996aac909f5d2ef612d23aaebcb75ce}{%
+           family={Franke},
+           familyi={F\bibinitperiod},
+           given={Uwe},
+           giveni={U\bibinitperiod}}}%
+        {{hash=c9204c43ca027421ca4fc00e9cdca069}{%
+           family={Rabe},
+           familyi={R\bibinitperiod},
+           given={Clemens},
+           giveni={C\bibinitperiod}}}%
+        {{hash=2448957fc836101e43a738736db9cd58}{%
+           family={Badino},
+           familyi={B\bibinitperiod},
+           given={Hernán},
+           giveni={H\bibinitperiod}}}%
+        {{hash=baf323834af127b1591e4cca7d5f1497}{%
+           family={Gehrig},
+           familyi={G\bibinitperiod},
+           given={Stefan},
+           giveni={S\bibinitperiod}}}%
+      }
+      \name{editor}{3}{}{%
+        {{hash=7481d97cb8a13e5f103b3f2ddb70738f}{%
+           family={Kropatsch},
+           familyi={K\bibinitperiod},
+           given={Walter\bibnamedelima G.},
+           giveni={W\bibinitperiod\bibinitdelim G\bibinitperiod}}}%
+        {{hash=000f60cc7a41023cdf78fbd3e7b67e5e}{%
+           family={Sablatnig},
+           familyi={S\bibinitperiod},
+           given={Robert},
+           giveni={R\bibinitperiod}}}%
+        {{hash=4fd671afc1ea168300875315d4a028d9}{%
+           family={Hanbury},
+           familyi={H\bibinitperiod},
+           given={Allan},
+           giveni={A\bibinitperiod}}}%
+      }
+      \list{language}{1}{%
+        {en}%
+      }
+      \list{location}{1}{%
+        {Berlin, Heidelberg}%
+      }
+      \list{publisher}{1}{%
+        {Springer}%
+      }
+      \strng{namehash}{5b8660163a22d0872491587004844402}
+      \strng{fullhash}{5b8660163a22d0872491587004844402}
+      \strng{bibnamehash}{5b8660163a22d0872491587004844402}
+      \strng{authorbibnamehash}{5b8660163a22d0872491587004844402}
+      \strng{authornamehash}{5b8660163a22d0872491587004844402}
+      \strng{authorfullhash}{5b8660163a22d0872491587004844402}
+      \strng{editorbibnamehash}{15028846b3bd9a07d6387978ae6f5deb}
+      \strng{editornamehash}{15028846b3bd9a07d6387978ae6f5deb}
+      \strng{editorfullhash}{15028846b3bd9a07d6387978ae6f5deb}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{abstract}{Obstacle avoidance is one of the most important challenges for mobile robots as well as future vision based driver assistance systems. This task requires a precise extraction of depth and the robust and fast detection of moving objects. In order to reach these goals, this paper considers vision as a process in space and time. It presents a powerful fusion of depth and motion information for image sequences taken from a moving observer. 3D-position and 3D-motion for a large number of image points are estimated simultaneously by means of Kalman-Filters. There is no need of prior error-prone segmentation. Thus, one gets a rich 6D representation that allows the detection of moving obstacles even in the presence of partial occlusion of foreground or background.}
+      \field{booktitle}{Pattern {Recognition}}
+      \field{isbn}{978-3-540-31942-9}
+      \field{shorttitle}{{6D}-{Vision}}
+      \field{title}{{6D}-{Vision}: {Fusion} of {Stereo} and {Motion} for {Robust} {Environment} {Perception}}
+      \field{year}{2005}
+      \field{pages}{216\bibrangedash 223}
+      \range{pages}{8}
+      \verb{doi}
+      \verb 10.1007/11550518_27
+      \endverb
+      \keyw{Perception,6D vision,Daimler}
+    \endentry
+    \entry{edgar_hardware}{misc}{}
+      \name{author}{34}{}{%
+        {{hash=93f969aab3d7fdefee6a6ef8e0fb500e}{%
+           family={Karle},
+           familyi={K\bibinitperiod},
+           given={Phillip},
+           giveni={P\bibinitperiod}}}%
+        {{hash=0d368418a10e3e88c38f63ad800818db}{%
+           family={Betz},
+           familyi={B\bibinitperiod},
+           given={Tobias},
+           giveni={T\bibinitperiod}}}%
+        {{hash=a8342daadd721d068da7d652be75b0ec}{%
+           family={Bosk},
+           familyi={B\bibinitperiod},
+           given={Marcin},
+           giveni={M\bibinitperiod}}}%
+        {{hash=38e7aaf67ddc23d9c39e3f8fc9a4ef7d}{%
+           family={Fent},
+           familyi={F\bibinitperiod},
+           given={Felix},
+           giveni={F\bibinitperiod}}}%
+        {{hash=3f86b8aec5382a212259008530b43953}{%
+           family={Gehrke},
+           familyi={G\bibinitperiod},
+           given={Nils},
+           giveni={N\bibinitperiod}}}%
+        {{hash=42e0d22e0f5c28cba3e2075611f65a35}{%
+           family={Geisslinger},
+           familyi={G\bibinitperiod},
+           given={Maximilian},
+           giveni={M\bibinitperiod}}}%
+        {{hash=97d97e1ea2690d75053818448dcf4e5b}{%
+           family={Gressenbuch},
+           familyi={G\bibinitperiod},
+           given={Luis},
+           giveni={L\bibinitperiod}}}%
+        {{hash=f99c373d439b70e3251e586efdcf5346}{%
+           family={Hafemann},
+           familyi={H\bibinitperiod},
+           given={Philipp},
+           giveni={P\bibinitperiod}}}%
+        {{hash=5d682bdec9e6a04c4e178db19bb69af7}{%
+           family={Huber},
+           familyi={H\bibinitperiod},
+           given={Sebastian},
+           giveni={S\bibinitperiod}}}%
+        {{hash=a9830a42142f54666339ab5954c70d0a}{%
+           family={Hübner},
+           familyi={H\bibinitperiod},
+           given={Maximilian},
+           giveni={M\bibinitperiod}}}%
+        {{hash=ba20539f833c0e2d1137ab85e322afdd}{%
+           family={Huch},
+           familyi={H\bibinitperiod},
+           given={Sebastian},
+           giveni={S\bibinitperiod}}}%
+        {{hash=5777a7b6c89d757eba96bb40d46b9f29}{%
+           family={Kaljavesi},
+           familyi={K\bibinitperiod},
+           given={Gemb},
+           giveni={G\bibinitperiod}}}%
+        {{hash=75557753861ba47d0013c659b6224cf6}{%
+           family={Kerbl},
+           familyi={K\bibinitperiod},
+           given={Tobias},
+           giveni={T\bibinitperiod}}}%
+        {{hash=723da7bc87d8df9d0c75bc3d33132fb3}{%
+           family={Kulmer},
+           familyi={K\bibinitperiod},
+           given={Dominik},
+           giveni={D\bibinitperiod}}}%
+        {{hash=8106c16dc6ebec1146ce05798110a41d}{%
+           family={Mascetta},
+           familyi={M\bibinitperiod},
+           given={Tobias},
+           giveni={T\bibinitperiod}}}%
+        {{hash=9847601b2099b6cc01ff17d0e3b400ee}{%
+           family={Maierhofer},
+           familyi={M\bibinitperiod},
+           given={Sebastian},
+           giveni={S\bibinitperiod}}}%
+        {{hash=37a6cd5d03ec3dedd167ba63b770365c}{%
+           family={Pfab},
+           familyi={P\bibinitperiod},
+           given={Florian},
+           giveni={F\bibinitperiod}}}%
+        {{hash=3aee9e4946be1bacbf937629d1eced87}{%
+           family={Rezabek},
+           familyi={R\bibinitperiod},
+           given={Filip},
+           giveni={F\bibinitperiod}}}%
+        {{hash=a3c8f8598fda6f70139660d7a1785bd8}{%
+           family={Rivera},
+           familyi={R\bibinitperiod},
+           given={Esteban},
+           giveni={E\bibinitperiod}}}%
+        {{hash=d188b16a1f4caf8418e35e5efc576ee5}{%
+           family={Sagmeister},
+           familyi={S\bibinitperiod},
+           given={Simon},
+           giveni={S\bibinitperiod}}}%
+        {{hash=c670e1a09593fee75cf338d865739e82}{%
+           family={Seidlitz},
+           familyi={S\bibinitperiod},
+           given={Leander},
+           giveni={L\bibinitperiod}}}%
+        {{hash=2fb1f48c835bd741eebfa250c02e6471}{%
+           family={Sauerbeck},
+           familyi={S\bibinitperiod},
+           given={Florian},
+           giveni={F\bibinitperiod}}}%
+        {{hash=7f1e5ab7cd9ff94e9359026ba0eb8d38}{%
+           family={Tahiraj},
+           familyi={T\bibinitperiod},
+           given={Ilir},
+           giveni={I\bibinitperiod}}}%
+        {{hash=39b69a50b90a57b37b53088a5a7f4259}{%
+           family={Trauth},
+           familyi={T\bibinitperiod},
+           given={Rainer},
+           giveni={R\bibinitperiod}}}%
+        {{hash=d8b2b638ba33a9600e00a81c3550470b}{%
+           family={Uhlemann},
+           familyi={U\bibinitperiod},
+           given={Nico},
+           giveni={N\bibinitperiod}}}%
+        {{hash=a88b6638ab0a8d8b25dbc680b64b13ac}{%
+           family={Würsching},
+           familyi={W\bibinitperiod},
+           given={Gerald},
+           giveni={G\bibinitperiod}}}%
+        {{hash=caeb7de8e7ff4ae9575741b85f76ca17}{%
+           family={Zarrouki},
+           familyi={Z\bibinitperiod},
+           given={Baha},
+           giveni={B\bibinitperiod}}}%
+        {{hash=6212f49fc6e2ed8c269aa77471508561}{%
+           family={Althoff},
+           familyi={A\bibinitperiod},
+           given={Matthias},
+           giveni={M\bibinitperiod}}}%
+        {{hash=a008b92053ae0f83515b2efc01b51f15}{%
+           family={Betz},
+           familyi={B\bibinitperiod},
+           given={Johannes},
+           giveni={J\bibinitperiod}}}%
+        {{hash=576b75a84b9f7d56e93297519ab00f7d}{%
+           family={Bengler},
+           familyi={B\bibinitperiod},
+           given={Klaus},
+           giveni={K\bibinitperiod}}}%
+        {{hash=8d4a470562f976d64486a25768467b84}{%
+           family={Carle},
+           familyi={C\bibinitperiod},
+           given={Georg},
+           giveni={G\bibinitperiod}}}%
+        {{hash=2723a08f81b226984d9b0895cb062901}{%
+           family={Diermeyer},
+           familyi={D\bibinitperiod},
+           given={Frank},
+           giveni={F\bibinitperiod}}}%
+        {{hash=b2d2b11856b4958d9995063b8ffd0e93}{%
+           family={Ott},
+           familyi={O\bibinitperiod},
+           given={Jörg},
+           giveni={J\bibinitperiod}}}%
+        {{hash=b6eaf9c0cbe6c46f009c422f4db31a23}{%
+           family={Lienkamp},
+           familyi={L\bibinitperiod},
+           given={Markus},
+           giveni={M\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {arXiv}%
+      }
+      \strng{namehash}{bc4962c90592e89668403ccc5181c7e7}
+      \strng{fullhash}{5f7878d0d61bc8ec8efe64b7425280d4}
+      \strng{bibnamehash}{bc4962c90592e89668403ccc5181c7e7}
+      \strng{authorbibnamehash}{bc4962c90592e89668403ccc5181c7e7}
+      \strng{authornamehash}{bc4962c90592e89668403ccc5181c7e7}
+      \strng{authorfullhash}{5f7878d0d61bc8ec8efe64b7425280d4}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{abstract}{While current research and development of autonomous driving primarily focuses on developing new features and algorithms, the transfer from isolated software components into an entire software stack has been covered sparsely. Besides that, due to the complexity of autonomous software stacks and public road traffic, the optimal validation of entire stacks is an open research problem. Our paper targets these two aspects. We present our autonomous research vehicle EDGAR and its digital twin, a detailed virtual duplication of the vehicle. While the vehicle's setup is closely related to the state of the art, its virtual duplication is a valuable contribution as it is crucial for a consistent validation process from simulation to real-world tests. In addition, different development teams can work with the same model, making integration and testing of the software stacks much easier, significantly accelerating the development process. The real and virtual vehicles are embedded in a comprehensive development environment, which is also introduced. All parameters of the digital twin are provided open-source at https://github.com/TUMFTM/edgar\_digital\_twin.}
+      \field{month}{1}
+      \field{note}{arXiv:2309.15492 [cs]}
+      \field{shorttitle}{{EDGAR}}
+      \field{title}{{EDGAR}: {An} {Autonomous} {Driving} {Research} {Platform} -- {From} {Feature} {Development} to {Real}-{World} {Application}}
+      \field{year}{2024}
+      \verb{doi}
+      \verb 10.48550/arXiv.2309.15492
+      \endverb
+      \keyw{Computer Science - Robotics,EDGAR}
+    \endentry
+    \entry{previous_tfm_bauer}{thesis}{}
+      \name{author}{1}{}{%
+        {{hash=cb44ad0a20fa7f4feb6ef22f6b3254f4}{%
+           family={Bauer},
+           familyi={B\bibinitperiod},
+           given={Simon},
+           giveni={S\bibinitperiod}}}%
+      }
+      \list{institution}{1}{%
+        {TUM}%
+      }
+      \list{language}{1}{%
+        {German}%
+      }
+      \list{location}{1}{%
+        {Munich}%
+      }
+      \strng{namehash}{cb44ad0a20fa7f4feb6ef22f6b3254f4}
+      \strng{fullhash}{cb44ad0a20fa7f4feb6ef22f6b3254f4}
+      \strng{bibnamehash}{cb44ad0a20fa7f4feb6ef22f6b3254f4}
+      \strng{authorbibnamehash}{cb44ad0a20fa7f4feb6ef22f6b3254f4}
+      \strng{authornamehash}{cb44ad0a20fa7f4feb6ef22f6b3254f4}
+      \strng{authorfullhash}{cb44ad0a20fa7f4feb6ef22f6b3254f4}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Objektdetektion und {Bewegungsprädiktion} mittels eines {Stereokamerasystems} beim teleoperierten {Fahren}}
+      \field{type}{mathesis}
+      \field{year}{2014}
+      \keyw{Previous work FTM}
+    \endentry
+    \entry{previous_tfm_gpu_implementation}{thesis}{}
+      \name{author}{1}{}{%
+        {{hash=e7c54c0b2f790e52b8928d9cd7398734}{%
+           family={Rotar},
+           familyi={R\bibinitperiod},
+           given={Anton},
+           giveni={A\bibinitperiod}}}%
+      }
+      \list{institution}{1}{%
+        {TUM}%
+      }
+      \list{language}{1}{%
+        {German}%
+      }
+      \list{location}{1}{%
+        {Munich}%
+      }
+      \strng{namehash}{e7c54c0b2f790e52b8928d9cd7398734}
+      \strng{fullhash}{e7c54c0b2f790e52b8928d9cd7398734}
+      \strng{bibnamehash}{e7c54c0b2f790e52b8928d9cd7398734}
+      \strng{authorbibnamehash}{e7c54c0b2f790e52b8928d9cd7398734}
+      \strng{authornamehash}{e7c54c0b2f790e52b8928d9cd7398734}
+      \strng{authorfullhash}{e7c54c0b2f790e52b8928d9cd7398734}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Weiterentwicklung und echtzeitfähige {Umsetzung} eines {Stereo}-{Vision}-basierten {Bewegungsprädiktionssystems} für die aktive {Sicherheit} von teleoperierten {Fahrzeugen}}
+      \field{type}{mathesis}
+      \field{year}{2016}
+      \keyw{Previous work FTM}
+    \endentry
+    \entry{previous_tfm_pastor}{thesis}{}
+      \name{author}{1}{}{%
+        {{hash=8dba0d9fea6eab9d1b248bb598f71cce}{%
+           family={Pastor},
+           familyi={P\bibinitperiod},
+           given={Carlos},
+           giveni={C\bibinitperiod}}}%
+      }
+      \list{institution}{1}{%
+        {TUM}%
+      }
+      \list{language}{1}{%
+        {English}%
+      }
+      \strng{namehash}{8dba0d9fea6eab9d1b248bb598f71cce}
+      \strng{fullhash}{8dba0d9fea6eab9d1b248bb598f71cce}
+      \strng{bibnamehash}{8dba0d9fea6eab9d1b248bb598f71cce}
+      \strng{authorbibnamehash}{8dba0d9fea6eab9d1b248bb598f71cce}
+      \strng{authornamehash}{8dba0d9fea6eab9d1b248bb598f71cce}
+      \strng{authorfullhash}{8dba0d9fea6eab9d1b248bb598f71cce}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Validation of an {Obstacle} {Detection} {Approach} for {Teleoperation} of {Automated} {Vehicles}}
+      \field{type}{{BSc}. {Thesis}}
+      \field{year}{2021}
+      \keyw{Perception,Redundant Perception,Previous work FTM}
+    \endentry
+    \entry{rosindustrialCameraSurvey}{misc}{}
+      \name{author}{1}{}{%
+        {{hash=d36b548c4c7a2369249fb4cc0e2eba46}{%
+           family={ros},
+           familyi={r\bibinitperiod}}}%
+      }
+      \strng{namehash}{d36b548c4c7a2369249fb4cc0e2eba46}
+      \strng{fullhash}{d36b548c4c7a2369249fb4cc0e2eba46}
+      \strng{bibnamehash}{d36b548c4c7a2369249fb4cc0e2eba46}
+      \strng{authorbibnamehash}{d36b548c4c7a2369249fb4cc0e2eba46}
+      \strng{authornamehash}{d36b548c4c7a2369249fb4cc0e2eba46}
+      \strng{authorfullhash}{d36b548c4c7a2369249fb4cc0e2eba46}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{\url{https://rosindustrial.org/3d-camera-survey}}
+      \field{note}{[Accessed 12-05-2025]}
+      \field{title}{3{D} {C}amera {S}urvey — {R}{O}{S}-{I}ndustrial --- rosindustrial.org}
+      \field{year}{2025}
+    \endentry
+    \entry{stereoCameraTech}{inproceedings}{}
+      \name{author}{4}{}{%
+        {{hash=28ae6b3979ba10de1f505009b4f651dc}{%
+           family={O'\bibnamedelima Riordan},
+           familyi={O\bibinitperiod\bibinitdelim R\bibinitperiod},
+           given={Andrew},
+           giveni={A\bibinitperiod}}}%
+        {{hash=55556b8026750ad8ad390371a4976dcc}{%
+           family={Newe},
+           familyi={N\bibinitperiod},
+           given={Thomas},
+           giveni={T\bibinitperiod}}}%
+        {{hash=8a67f70bbbaf64ebf461e54bbc8c9082}{%
+           family={Toal},
+           familyi={T\bibinitperiod},
+           given={Daniel},
+           giveni={D\bibinitperiod}}}%
+        {{hash=0a7957e136190f8e6c6c0bbc208f0a58}{%
+           family={Dooly},
+           familyi={D\bibinitperiod},
+           given={Gerard},
+           giveni={G\bibinitperiod}}}%
+      }
+      \strng{namehash}{6f765fae38c678117f2b72e2905f9a9a}
+      \strng{fullhash}{6f765fae38c678117f2b72e2905f9a9a}
+      \strng{bibnamehash}{6f765fae38c678117f2b72e2905f9a9a}
+      \strng{authorbibnamehash}{6f765fae38c678117f2b72e2905f9a9a}
+      \strng{authornamehash}{6f765fae38c678117f2b72e2905f9a9a}
+      \strng{authorfullhash}{6f765fae38c678117f2b72e2905f9a9a}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{month}{12}
+      \field{title}{Stereo Vision Sensing: Review of existing systems}
+      \field{year}{2018}
+      \verb{doi}
+      \verb 10.1109/ICSensT.2018.8603605
+      \endverb
+    \endentry
+    \entry{paperCarnegie}{inproceedings}{}
+      \name{author}{4}{}{%
+        {{hash=26ef7bc959d276a83af1c3b0490772c6}{%
+           family={Gjerde},
+           familyi={G\bibinitperiod},
+           given={Magnus\bibnamedelima Kaufmann},
+           giveni={M\bibinitperiod\bibinitdelim K\bibinitperiod}}}%
+        {{hash=a62a0df58d6908409f38bb65a14c4fca}{%
+           family={Nasrollahi},
+           familyi={N\bibinitperiod},
+           given={Kamal},
+           giveni={K\bibinitperiod}}}%
+        {{hash=13bab869a6231c2e4e4c5a51a8120dbb}{%
+           family={Moeslund},
+           familyi={M\bibinitperiod},
+           given={Thomas\bibnamedelima B.},
+           giveni={T\bibinitperiod\bibinitdelim B\bibinitperiod}}}%
+        {{hash=31ec62c69d0db644e0a1c637cfee0668}{%
+           family={Haurum},
+           familyi={H\bibinitperiod},
+           given={Joakim\bibnamedelima Bruslund},
+           giveni={J\bibinitperiod\bibinitdelim B\bibinitperiod}}}%
+      }
+      \strng{namehash}{a1cc90f4d3ecc1b0259e735cf75c34d2}
+      \strng{fullhash}{a1cc90f4d3ecc1b0259e735cf75c34d2}
+      \strng{bibnamehash}{a1cc90f4d3ecc1b0259e735cf75c34d2}
+      \strng{authorbibnamehash}{a1cc90f4d3ecc1b0259e735cf75c34d2}
+      \strng{authornamehash}{a1cc90f4d3ecc1b0259e735cf75c34d2}
+      \strng{authorfullhash}{a1cc90f4d3ecc1b0259e735cf75c34d2}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{ICMVA}
+      \field{title}{Enhancing Direct Visual Odometry with Deblurring and Saliency Maps}
+      \field{year}{2024}
+      \field{pages}{154\bibrangedash 161}
+      \range{pages}{8}
+      \verb{urlraw}
+      \verb https://doi.org/10.1145/3653946.3653970
+      \endverb
+      \verb{url}
+      \verb https://doi.org/10.1145/3653946.3653970
+      \endverb
+    \endentry
+    \entry{paperLuxonis}{article}{}
+      \name{author}{2}{}{%
+        {{hash=77754f64ed90042d78f56fae4c9a29c6}{%
+           family={Rojas-Perez},
+           familyi={R\bibinithyphendelim P\bibinitperiod},
+           given={Leticia\bibnamedelima Oyuki},
+           giveni={L\bibinitperiod\bibinitdelim O\bibinitperiod}}}%
+        {{hash=98873aa0747a505bb5b88b88e975d754}{%
+           family={Martinez-Carranza},
+           familyi={M\bibinithyphendelim C\bibinitperiod},
+           given={Jose},
+           giveni={J\bibinitperiod}}}%
+      }
+      \strng{namehash}{32c565c0686a0948b78f662da60aa493}
+      \strng{fullhash}{32c565c0686a0948b78f662da60aa493}
+      \strng{bibnamehash}{32c565c0686a0948b78f662da60aa493}
+      \strng{authorbibnamehash}{32c565c0686a0948b78f662da60aa493}
+      \strng{authornamehash}{32c565c0686a0948b78f662da60aa493}
+      \strng{authorfullhash}{32c565c0686a0948b78f662da60aa493}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Recent advances have shown for the first time that it is possible to beat a human with an autonomous drone in a drone race. However, this solution relies heavily on external sensors, specifically on the use of a motion capture system. Thus, a truly autonomous solution demands performing computationally intensive tasks such as gate detection, drone localisation, and state estimation. To this end, other solutions rely on specialised hardware such as graphics processing units (GPUs) whose onboard hardware versions are not as powerful as those available for desktop and server computers. An alternative is to combine specialised hardware with smart sensors capable of processing specific tasks on the chip, alleviating the need for the onboard processor to perform these computations. Motivated by this, we present the initial results of adapting a novel smart camera, known as the OpenCV AI Kit or OAK-D, as part of a solution for the ADR running entirely on board. This smart camera performs neural inference on the chip that does not use a GPU. It can also perform depth estimation with a stereo rig and run neural network models using images from a 4K colour camera as the input. Additionally, seeking to limit the payload to 200 g, we present a new 3D-printed design of the camera’s back case, reducing the original weight 40%, thus enabling the drone to carry it in tandem with a host onboard computer, the Intel Stick compute, where we run a controller based on gate detection. The latter is performed with a neural model running on an OAK-D at an operation frequency of 40 Hz, enabling the drone to fly at a speed of 2 m/s. We deem these initial results promising toward the development of a truly autonomous solution that will run intensive computational tasks fully on board.}
+      \field{issn}{1424-8220}
+      \field{journaltitle}{Sensors}
+      \field{number}{22}
+      \field{title}{Towards Autonomous Drone Racing without GPU Using an OAK-D Smart Camera}
+      \field{volume}{21}
+      \field{year}{2021}
+      \verb{doi}
+      \verb 10.3390/s21227436
+      \endverb
+      \verb{urlraw}
+      \verb https://www.mdpi.com/1424-8220/21/22/7436
+      \endverb
+      \verb{url}
+      \verb https://www.mdpi.com/1424-8220/21/22/7436
+      \endverb
+    \endentry
+    \entry{paperIntel}{article}{}
+      \name{author}{3}{}{%
+        {{hash=69fdd2a0cbc3e34f38837b950b9f5b72}{%
+           family={Hübner},
+           familyi={H\bibinitperiod},
+           given={Patrick},
+           giveni={P\bibinitperiod}}}%
+        {{hash=54b5ca52a7984dbfbbec104ff69697ce}{%
+           family={Hou},
+           familyi={H\bibinitperiod},
+           given={Jiwei},
+           giveni={J\bibinitperiod}}}%
+        {{hash=89fa509583af5071c1978ad5e649bca4}{%
+           family={Iwaszczuk},
+           familyi={I\bibinitperiod},
+           given={Dorota},
+           giveni={D\bibinitperiod}}}%
+      }
+      \strng{namehash}{8707e9ad369cf3530a2df422ae2011a0}
+      \strng{fullhash}{8707e9ad369cf3530a2df422ae2011a0}
+      \strng{bibnamehash}{8707e9ad369cf3530a2df422ae2011a0}
+      \strng{authorbibnamehash}{8707e9ad369cf3530a2df422ae2011a0}
+      \strng{authornamehash}{8707e9ad369cf3530a2df422ae2011a0}
+      \strng{authorfullhash}{8707e9ad369cf3530a2df422ae2011a0}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{The International Archives of the Photogrammetry, Remote Sensing and Spatial Information Sciences}
+      \field{month}{12}
+      \field{title}{EVALUATION OF INTEL REALSENSE D455 CAMERA DEPTH ESTIMATION FOR INDOOR SLAM APPLICATIONS}
+      \field{volume}{XLVIII-1/W2-2023}
+      \field{year}{2023}
+      \field{pages}{1207\bibrangedash 1214}
+      \range{pages}{8}
+      \verb{doi}
+      \verb 10.5194/isprs-archives-XLVIII-1-W2-2023-1207-2023
+      \endverb
+    \endentry
+    \entry{paperStereoComparison}{article}{}
+      \name{author}{3}{}{%
+        {{hash=36118fbe0ce74655a5a7790647e8f945}{%
+           family={Rustler},
+           familyi={R\bibinitperiod},
+           given={Lukas},
+           giveni={L\bibinitperiod}}}%
+        {{hash=ed4740a8846dbd121b95c732d9946965}{%
+           family={Volprecht},
+           familyi={V\bibinitperiod},
+           given={Vojtech},
+           giveni={V\bibinitperiod}}}%
+        {{hash=22d3e4d699f13acf518b2f00da50ef00}{%
+           family={Hoffmann},
+           familyi={H\bibinitperiod},
+           given={Matej},
+           giveni={M\bibinitperiod}}}%
+      }
+      \list{publisher}{2}{%
+        {Institute of Electrical}%
+        {Electronics Engineers (IEEE)}%
+      }
+      \strng{namehash}{70ce079f98b679166e1f1f8f7990d2e9}
+      \strng{fullhash}{70ce079f98b679166e1f1f8f7990d2e9}
+      \strng{bibnamehash}{70ce079f98b679166e1f1f8f7990d2e9}
+      \strng{authorbibnamehash}{70ce079f98b679166e1f1f8f7990d2e9}
+      \strng{authornamehash}{70ce079f98b679166e1f1f8f7990d2e9}
+      \strng{authorfullhash}{70ce079f98b679166e1f1f8f7990d2e9}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{issn}{2169-3536}
+      \field{journaltitle}{IEEE Access}
+      \field{title}{Empirical Comparison of Four Stereoscopic Depth Sensing Cameras for Robotics Applications}
+      \field{volume}{13}
+      \field{year}{2025}
+      \field{pages}{67564\bibrangedash 67577}
+      \range{pages}{14}
+      \verb{doi}
+      \verb 10.1109/access.2025.3560810
+      \endverb
+      \verb{urlraw}
+      \verb http://dx.doi.org/10.1109/ACCESS.2025.3560810
+      \endverb
+      \verb{url}
+      \verb http://dx.doi.org/10.1109/ACCESS.2025.3560810
+      \endverb
+    \endentry
+    \entry{paperZivid}{article}{}
+      \name{author}{10}{}{%
+        {{hash=94319c02da30788777fe9c3c567444e3}{%
+           family={Afzal\bibnamedelima Maken},
+           familyi={A\bibinitperiod\bibinitdelim M\bibinitperiod},
+           given={Fahira},
+           giveni={F\bibinitperiod}}}%
+        {{hash=239275aacd994c03010d1407fb2ff462}{%
+           family={Muthu},
+           familyi={M\bibinitperiod},
+           given={Sundaram},
+           giveni={S\bibinitperiod}}}%
+        {{hash=0723357106f1944ead5777566d93fe17}{%
+           family={Nguyen},
+           familyi={N\bibinitperiod},
+           given={Chuong},
+           giveni={C\bibinitperiod}}}%
+        {{hash=52c39ef92117de2a8093aefcfe61b9ae}{%
+           family={Sun},
+           familyi={S\bibinitperiod},
+           given={Changming},
+           giveni={C\bibinitperiod}}}%
+        {{hash=eea6c54eebfa6113110645853f978c28}{%
+           family={Tong},
+           familyi={T\bibinitperiod},
+           given={Jinguang},
+           giveni={J\bibinitperiod}}}%
+        {{hash=a534b04283ee201de3a9459e198e245f}{%
+           family={Wang},
+           familyi={W\bibinitperiod},
+           given={Shan},
+           giveni={S\bibinitperiod}}}%
+        {{hash=03dd2e781f4f35ad68edacb475fde40f}{%
+           family={Tsuchida},
+           familyi={T\bibinitperiod},
+           given={Russell},
+           giveni={R\bibinitperiod}}}%
+        {{hash=83bc56621eaf89ee5056a417703ee5b9}{%
+           family={Howard},
+           familyi={H\bibinitperiod},
+           given={David},
+           giveni={D\bibinitperiod}}}%
+        {{hash=cf75a0b6085a4526a7767037189ada34}{%
+           family={Dunstall},
+           familyi={D\bibinitperiod},
+           given={Simon},
+           giveni={S\bibinitperiod}}}%
+        {{hash=e82b1c862eee6a905e7a0b5638e5ca0f}{%
+           family={Petersson},
+           familyi={P\bibinitperiod},
+           given={Lars},
+           giveni={L\bibinitperiod}}}%
+      }
+      \strng{namehash}{4d7f7d9eea12cebee6ab161f6e9a5e43}
+      \strng{fullhash}{a5415c818b4b7f374206306e19cc1df4}
+      \strng{bibnamehash}{4d7f7d9eea12cebee6ab161f6e9a5e43}
+      \strng{authorbibnamehash}{4d7f7d9eea12cebee6ab161f6e9a5e43}
+      \strng{authornamehash}{4d7f7d9eea12cebee6ab161f6e9a5e43}
+      \strng{authorfullhash}{a5415c818b4b7f374206306e19cc1df4}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{High-resolution RGB-D sensors are widely used in computer vision, manufacturing, and robotics. The depth maps from these sensors have inherently high measurement uncertainty that includes both systematic and non-systematic noise. These noisy depth estimates degrade the quality of scans, resulting in less accurate 3D reconstruction, making them unsuitable for some high-precision applications. In this paper, we focus on quantifying the uncertainty in the depth maps of high-resolution RGB-D sensors for the purpose of improving 3D reconstruction accuracy. To this end, we estimate the noise model for a recent high-precision RGB-D structured light sensor called Zivid when mounted on a robot arm. Our proposed noise model takes into account the measurement distance and angle between the sensor and the measured surface. We additionally analyze the effect of background light, exposure time, and the number of captures on the quality of the depth maps obtained. Our noise model seamlessly integrates with well-known classical and modern neural rendering-based algorithms, from KinectFusion to Point-SLAM methods using bilinear interpolation as well as 3D analytical functions. We collect a high-resolution RGB-D dataset and apply our noise model to improve tracking and produce higher-resolution 3D models.}
+      \field{issn}{1424-8220}
+      \field{journaltitle}{Sensors}
+      \field{number}{3}
+      \field{title}{Improving 3D Reconstruction Through RGB-D Sensor Noise Modeling}
+      \field{volume}{25}
+      \field{year}{2025}
+      \verb{doi}
+      \verb 10.3390/s25030950
+      \endverb
+      \verb{urlraw}
+      \verb https://www.mdpi.com/1424-8220/25/3/950
+      \endverb
+      \verb{url}
+      \verb https://www.mdpi.com/1424-8220/25/3/950
+      \endverb
+    \endentry
+    \entry{paperZed}{article}{}
+      \name{author}{4}{}{%
+        {{hash=07f620b2d897c1cda0668845b1f36bd1}{%
+           family={Wang},
+           familyi={W\bibinitperiod},
+           given={Brian\bibnamedelima H.},
+           giveni={B\bibinitperiod\bibinitdelim H\bibinitperiod}}}%
+        {{hash=864b8aefcf39558764b9cb97289888c7}{%
+           family={Diaz{-}Ruiz},
+           familyi={D\bibinitperiod},
+           given={Carlos},
+           giveni={C\bibinitperiod}}}%
+        {{hash=b539194f27460f7f9f752e5c9a69eabd}{%
+           family={Banfi},
+           familyi={B\bibinitperiod},
+           given={Jacopo},
+           giveni={J\bibinitperiod}}}%
+        {{hash=6c60b7b7d6b5fdac1ed432e224381fec}{%
+           family={Campbell},
+           familyi={C\bibinitperiod},
+           given={Mark\bibnamedelima E.},
+           giveni={M\bibinitperiod\bibinitdelim E\bibinitperiod}}}%
+      }
+      \strng{namehash}{dfca8aa6c45b4941e17105d074c2144c}
+      \strng{fullhash}{dfca8aa6c45b4941e17105d074c2144c}
+      \strng{bibnamehash}{dfca8aa6c45b4941e17105d074c2144c}
+      \strng{authorbibnamehash}{dfca8aa6c45b4941e17105d074c2144c}
+      \strng{authornamehash}{dfca8aa6c45b4941e17105d074c2144c}
+      \strng{authorfullhash}{dfca8aa6c45b4941e17105d074c2144c}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{eprinttype}{arXiv}
+      \field{journaltitle}{CoRR}
+      \field{title}{Detecting and Mapping Trees in Unstructured Environments with a Stereo Camera and Pseudo-Lidar}
+      \field{volume}{abs/2103.15967}
+      \field{year}{2021}
+      \verb{eprint}
+      \verb 2103.15967
+      \endverb
+      \verb{urlraw}
+      \verb https://arxiv.org/abs/2103.15967
+      \endverb
+      \verb{url}
+      \verb https://arxiv.org/abs/2103.15967
+      \endverb
+    \endentry
+    \entry{cricitality_metrics}{article}{}
+      \name{author}{9}{}{%
+        {{hash=9c0818da39325df5bb1cb87099f87325}{%
+           family={Westhofen},
+           familyi={W\bibinitperiod},
+           given={Lukas},
+           giveni={L\bibinitperiod}}}%
+        {{hash=0713d4571b1c42a22e1734159583a47b}{%
+           family={Neurohr},
+           familyi={N\bibinitperiod},
+           given={Christian},
+           giveni={C\bibinitperiod}}}%
+        {{hash=e80656bc817ae970773601e334304de1}{%
+           family={Koopmann},
+           familyi={K\bibinitperiod},
+           given={Tjark},
+           giveni={T\bibinitperiod}}}%
+        {{hash=3e117fe51043fcc2b3a80f7f87b28017}{%
+           family={Butz},
+           familyi={B\bibinitperiod},
+           given={Martin},
+           giveni={M\bibinitperiod}}}%
+        {{hash=ca4cc636497810c34dc763bf406d4cb9}{%
+           family={Schütt},
+           familyi={S\bibinitperiod},
+           given={Barbara},
+           giveni={B\bibinitperiod}}}%
+        {{hash=89acae7f0bf9763258ec03519f7033f6}{%
+           family={Utesch},
+           familyi={U\bibinitperiod},
+           given={Fabian},
+           giveni={F\bibinitperiod}}}%
+        {{hash=145843e8698c47e65163caee5e15078a}{%
+           family={Neurohr},
+           familyi={N\bibinitperiod},
+           given={Birte},
+           giveni={B\bibinitperiod}}}%
+        {{hash=4329816ab8c1e5a16c642072f679c5b0}{%
+           family={Gutenkunst},
+           familyi={G\bibinitperiod},
+           given={Christian},
+           giveni={C\bibinitperiod}}}%
+        {{hash=e28aeab0e0d6191ed5a6f10cc5577334}{%
+           family={Böde},
+           familyi={B\bibinitperiod},
+           given={Eckard},
+           giveni={E\bibinitperiod}}}%
+      }
+      \list{language}{1}{%
+        {en}%
+      }
+      \strng{namehash}{e44770dbaef0819c2db7a3289829333c}
+      \strng{fullhash}{6fee591959a58ffc440de2c16b510be6}
+      \strng{bibnamehash}{e44770dbaef0819c2db7a3289829333c}
+      \strng{authorbibnamehash}{e44770dbaef0819c2db7a3289829333c}
+      \strng{authornamehash}{e44770dbaef0819c2db7a3289829333c}
+      \strng{authorfullhash}{6fee591959a58ffc440de2c16b510be6}
+      \field{sortinit}{4}
+      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{abstract}{The large-scale deployment of automated vehicles on public roads has the potential to vastly change the transportation modalities of today’s society. Although this pursuit has been initiated decades ago, there still exist open challenges in reliably ensuring that such vehicles operate safely in open contexts. While functional safety is a well-established concept, the question of measuring the behavioral safety of a vehicle remains subject to research. One way to both objectively and computationally analyze traffic conflicts is the development and utilization of so-called criticality metrics. Contemporary approaches have leveraged the potential of criticality metrics in various applications related to automated driving, e.g. for computationally assessing the dynamic risk or filtering large data sets to build scenario catalogs. As a prerequisite to systematically choose adequate criticality metrics for such applications, we extensively review the state of the art of criticality metrics, their properties, and their applications in the context of automated driving. Based on this review, we propose a suitability analysis as a methodical tool to be used by practitioners. Both the proposed method and the state of the art review can then be harnessed to select well-suited measurement tools that cover an application’s requirements, as demonstrated by an exemplary execution of the analysis. Ultimately, efficient, valid, and reliable measurements of an automated vehicle’s safety performance are a key requirement for demonstrating its trustworthiness.}
+      \field{issn}{1886-1784}
+      \field{journaltitle}{Archives of Computational Methods in Engineering}
+      \field{month}{1}
+      \field{number}{1}
+      \field{shorttitle}{Criticality {Metrics} for {Automated} {Driving}}
+      \field{title}{Criticality {Metrics} for {Automated} {Driving}: {A} {Review} and {Suitability} {Analysis} of the {State} of the {Art}}
+      \field{volume}{30}
+      \field{year}{2023}
+      \field{pages}{1\bibrangedash 35}
+      \range{pages}{35}
+      \verb{doi}
+      \verb 10.1007/s11831-022-09788-7
+      \endverb
+      \keyw{TTC,Critically metrics}
+    \endentry
+    \entry{nvidiaVersions}{misc}{}
+      \name{author}{1}{}{%
+        {{hash=540df7f83845146f0287ff6d2da77900}{%
+           family={nvidia},
+           familyi={n\bibinitperiod}}}%
+      }
+      \strng{namehash}{540df7f83845146f0287ff6d2da77900}
+      \strng{fullhash}{540df7f83845146f0287ff6d2da77900}
+      \strng{bibnamehash}{540df7f83845146f0287ff6d2da77900}
+      \strng{authorbibnamehash}{540df7f83845146f0287ff6d2da77900}
+      \strng{authornamehash}{540df7f83845146f0287ff6d2da77900}
+      \strng{authorfullhash}{540df7f83845146f0287ff6d2da77900}
+      \field{sortinit}{4}
+      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{\url{https://developer.nvidia.com/cuda-gpus}}
+      \field{note}{[Accessed 09-05-2025]}
+      \field{title}{{N}{V}{I}{D}{I}{A} {C}{U}{D}{A} {G}{P}{U} {C}ompute {C}apability --- developer.nvidia.com}
+      \field{year}{2025}
+    \endentry
+    \entry{disp_map_figure}{inproceedings}{}
+      \name{author}{3}{}{%
+        {{hash=e31a721fb107076ae4db293953629f97}{%
+           family={Heidari},
+           familyi={H\bibinitperiod},
+           given={Shahrokh},
+           giveni={S\bibinitperiod}}}%
+        {{hash=f88259bd726fb5e0ac0f240b2e848862}{%
+           family={Rogers},
+           familyi={R\bibinitperiod},
+           given={Mitchell},
+           giveni={M\bibinitperiod}}}%
+        {{hash=f4e68140446a634a8f7a9fc22c6cce57}{%
+           family={Delmas},
+           familyi={D\bibinitperiod},
+           given={Patrice\bibnamedelima J.},
+           giveni={P\bibinitperiod\bibinitdelim J\bibinitperiod}}}%
+      }
+      \list{language}{1}{%
+        {en}%
+      }
+      \strng{namehash}{5d53a93149315c661b129c3c42215f57}
+      \strng{fullhash}{5d53a93149315c661b129c3c42215f57}
+      \strng{bibnamehash}{5d53a93149315c661b129c3c42215f57}
+      \strng{authorbibnamehash}{5d53a93149315c661b129c3c42215f57}
+      \strng{authornamehash}{5d53a93149315c661b129c3c42215f57}
+      \strng{authorfullhash}{5d53a93149315c661b129c3c42215f57}
+      \field{sortinit}{4}
+      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{PDF {|} As the most computationally intensive part of a stereo vision system, stereo matching has been the focus of intense research activities for the... {|} Find, read and cite all the research you need on ResearchGate}
+      \field{booktitle}{{ResearchGate}}
+      \field{title}{({PDF}) {An} {Improved} {Quantum} {Solution} for the {Stereo} {Matching} {Problem}}
+      \field{urlday}{26}
+      \field{urlmonth}{4}
+      \field{urlyear}{2025}
+      \field{urldateera}{ce}
+      \verb{doi}
+      \verb 10.1109/IVCNZ54163.2021.9653310
+      \endverb
+      \verb{file}
+      \verb Snapshot:/home/adrian/Zotero/storage/NYAN95DY/357424395_An_Improved_Quantum_Solution_for_the_Stereo_Matching_Problem.html:text/html
+      \endverb
+      \verb{urlraw}
+      \verb https://www.researchgate.net/publication/357424395_An_Improved_Quantum_Solution_for_the_Stereo_Matching_Problem
+      \endverb
+      \verb{url}
+      \verb https://www.researchgate.net/publication/357424395_An_Improved_Quantum_Solution_for_the_Stereo_Matching_Problem
+      \endverb
+    \endentry
+    \entry{disparity_block_matching}{inproceedings}{}
+      \name{author}{3}{}{%
+        {{hash=e29277ca3c95cc0c3fc819820b3ef29d}{%
+           family={Karathanasis},
+           familyi={K\bibinitperiod},
+           given={J.},
+           giveni={J\bibinitperiod}}}%
+        {{hash=ae20eb3daac9d52e48e80cc3f12ec896}{%
+           family={Kalivas},
+           familyi={K\bibinitperiod},
+           given={D.},
+           giveni={D\bibinitperiod}}}%
+        {{hash=5aa9e68408d355e573a07a1fbe3e0b7c}{%
+           family={Vlontzos},
+           familyi={V\bibinitperiod},
+           given={J.},
+           giveni={J\bibinitperiod}}}%
+      }
+      \strng{namehash}{0f3b8ee91d597f0818e5118af452f586}
+      \strng{fullhash}{0f3b8ee91d597f0818e5118af452f586}
+      \strng{bibnamehash}{0f3b8ee91d597f0818e5118af452f586}
+      \strng{authorbibnamehash}{0f3b8ee91d597f0818e5118af452f586}
+      \strng{authornamehash}{0f3b8ee91d597f0818e5118af452f586}
+      \strng{authorfullhash}{0f3b8ee91d597f0818e5118af452f586}
+      \field{sortinit}{4}
+      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{In this paper, we present a novel disparity estimation algorithm which is a combination of a block matching part and a dynamic programming part. The block matching gives an initial estimate of the disparity field while the dynamic programming estimates a smooth disparity field. The proposed algorithm is also studied in terms of hardware complexity. The algorithm is tested using real image sequences. The estimated disparity fields are used for the calculation of intermediate views using a simple interpolation/extrapolation algorithm.}
+      \field{booktitle}{Proceedings of {Third} {International} {Conference} on {Electronics}, {Circuits}, and {Systems}}
+      \field{month}{10}
+      \field{title}{Disparity estimation using block matching and dynamic programming}
+      \field{urlday}{26}
+      \field{urlmonth}{4}
+      \field{urlyear}{2025}
+      \field{volume}{2}
+      \field{year}{1996}
+      \field{urldateera}{ce}
+      \field{pages}{728\bibrangedash 731 vol.2}
+      \range{pages}{-1}
+      \verb{doi}
+      \verb 10.1109/ICECS.1996.584465
+      \endverb
+      \verb{file}
+      \verb Snapshot:/home/adrian/Zotero/storage/YC3FA5GN/584465.html:text/html
+      \endverb
+      \verb{urlraw}
+      \verb https://ieeexplore.ieee.org/abstract/document/584465
+      \endverb
+      \verb{url}
+      \verb https://ieeexplore.ieee.org/abstract/document/584465
+      \endverb
+      \keyw{block matching,bm,Cameras,Costs,disparity,Dynamic programming,Extrapolation,Hardware,Image sequences,Interpolation,Layout,Pixel,Testing}
+    \endentry
+    \entry{disparity_sgm}{article}{}
+      \name{author}{1}{}{%
+        {{hash=39dce5aabc979aba0b046d4ee079a0fe}{%
+           family={Hirschmuller},
+           familyi={H\bibinitperiod},
+           given={Heiko},
+           giveni={H\bibinitperiod}}}%
+      }
+      \strng{namehash}{39dce5aabc979aba0b046d4ee079a0fe}
+      \strng{fullhash}{39dce5aabc979aba0b046d4ee079a0fe}
+      \strng{bibnamehash}{39dce5aabc979aba0b046d4ee079a0fe}
+      \strng{authorbibnamehash}{39dce5aabc979aba0b046d4ee079a0fe}
+      \strng{authornamehash}{39dce5aabc979aba0b046d4ee079a0fe}
+      \strng{authorfullhash}{39dce5aabc979aba0b046d4ee079a0fe}
+      \field{sortinit}{4}
+      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{IEEE Transactions on Pattern Analysis and Machine Intelligence}
+      \field{number}{2}
+      \field{title}{Stereo Processing by Semiglobal Matching and Mutual Information}
+      \field{volume}{30}
+      \field{year}{2008}
+      \field{pages}{328\bibrangedash 341}
+      \range{pages}{14}
+      \verb{doi}
+      \verb 10.1109/TPAMI.2007.1166
+      \endverb
+      \keyw{Mutual information;Stereo vision;Radiometry;Cost function;Computational efficiency;Pixel;Interpolation;Image reconstruction;Image segmentation;Runtime;stereo;mutual information;global optimization;multi-baseline;stereo;mutual information;global optimization;multi-baseline}
+    \endentry
+    \entry{disparity_survey}{article}{}
+      \name{author}{2}{}{%
+        {{hash=7ee828faf0001315bf357434e349d1fb}{%
+           family={Hamzah},
+           familyi={H\bibinitperiod},
+           given={Rostam\bibnamedelima Affendi},
+           giveni={R\bibinitperiod\bibinitdelim A\bibinitperiod}}}%
+        {{hash=4454f508464eccea4783da61093d0de2}{%
+           family={Ibrahim},
+           familyi={I\bibinitperiod},
+           given={Haidi},
+           giveni={H\bibinitperiod}}}%
+      }
+      \list{language}{1}{%
+        {en}%
+      }
+      \strng{namehash}{c0ed9e80d42639bc2810ecb60bd46711}
+      \strng{fullhash}{c0ed9e80d42639bc2810ecb60bd46711}
+      \strng{bibnamehash}{c0ed9e80d42639bc2810ecb60bd46711}
+      \strng{authorbibnamehash}{c0ed9e80d42639bc2810ecb60bd46711}
+      \strng{authornamehash}{c0ed9e80d42639bc2810ecb60bd46711}
+      \strng{authorfullhash}{c0ed9e80d42639bc2810ecb60bd46711}
+      \field{sortinit}{4}
+      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{This paper presents a literature survey on existing disparity map algorithms. It focuses on four main stages of processing as proposed by Scharstein and Szeliski in a taxonomy and evaluation of dense two-frame stereo correspondence algorithms performed in 2002. To assist future researchers in developing their own stereo matching algorithms, a summary of the existing algorithms developed for every stage of processing is also provided. The survey also notes the implementation of previous software-based and hardware-based algorithms. Generally, the main processing module for a software-based implementation uses only a central processing unit. By contrast, a hardware-based implementation requires one or more additional processors for its processing module, such as graphical processing unit or a field programmable gate array. This literature survey also presents a method of qualitative measurement that is widely used by researchers in the area of stereo vision disparity mappings.}
+      \field{issn}{1687-7268}
+      \field{journaltitle}{Journal of Sensors}
+      \field{note}{\_eprint: https://onlinelibrary.wiley.com/doi/pdf/10.1155/2016/8742920}
+      \field{number}{1}
+      \field{title}{Literature {Survey} on {Stereo} {Vision} {Disparity} {Map} {Algorithms}}
+      \field{urlday}{26}
+      \field{urlmonth}{4}
+      \field{urlyear}{2025}
+      \field{volume}{2016}
+      \field{year}{2016}
+      \field{urldateera}{ce}
+      \field{pages}{8742920}
+      \range{pages}{1}
+      \verb{doi}
+      \verb 10.1155/2016/8742920
+      \endverb
+      \verb{file}
+      \verb Snapshot:/home/adrian/Zotero/storage/X3N7RX9G/8742920.html:text/html;Submitted Version:/home/adrian/Zotero/storage/PHX2CQRS/Hamzah and Ibrahim - 2016 - Literature Survey on Stereo Vision Disparity Map Algorithms.pdf:application/pdf
+      \endverb
+      \verb{urlraw}
+      \verb https://onlinelibrary.wiley.com/doi/abs/10.1155/2016/8742920
+      \endverb
+      \verb{url}
+      \verb https://onlinelibrary.wiley.com/doi/abs/10.1155/2016/8742920
+      \endverb
+      \keyw{algorithm comparison,disparity}
+    \endentry
+    \entry{optical_flow_concept}{article}{}
+      \name{author}{1}{}{%
+        {{hash=e58e700b27d33703c0daf0aa194566f9}{%
+           family={Niehorster},
+           familyi={N\bibinitperiod},
+           given={Diederick\bibnamedelima C.},
+           giveni={D\bibinitperiod\bibinitdelim C\bibinitperiod}}}%
+      }
+      \strng{namehash}{e58e700b27d33703c0daf0aa194566f9}
+      \strng{fullhash}{e58e700b27d33703c0daf0aa194566f9}
+      \strng{bibnamehash}{e58e700b27d33703c0daf0aa194566f9}
+      \strng{authorbibnamehash}{e58e700b27d33703c0daf0aa194566f9}
+      \strng{authornamehash}{e58e700b27d33703c0daf0aa194566f9}
+      \strng{authorfullhash}{e58e700b27d33703c0daf0aa194566f9}
+      \field{sortinit}{4}
+      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{abstract}{The concept of optic flow, a global pattern of visual motion that is both caused by and signals self-motion, is canonically ascribed to James Gibson's 1950 book “The Perception of the Visual World.” There have, however, been several other developments of this concept, chiefly by Gwilym Grindley and Edward Calvert. Based on rarely referenced scientific literature and archival research, this article describes the development of the concept of optic flow by the aforementioned authors and several others. The article furthermore presents the available evidence for interactions between these authors, focusing on whether parts of Gibson's proposal were derived from the work of Grindley or Calvert. While Grindley's work may have made Gibson aware of the geometrical facts of optic flow, Gibson's work is not derivative of Grindley's. It is furthermore shown that Gibson only learned of Calvert's work in 1956, almost a decade after Gibson first published his proposal. In conclusion, the development of the concept of optic flow presents an intriguing example of convergent thought in the progress of science.}
+      \field{issn}{2041-6695}
+      \field{journaltitle}{i-Perception}
+      \field{month}{12}
+      \field{number}{6}
+      \field{shorttitle}{Optic {Flow}}
+      \field{title}{Optic {Flow}: {A} {History}}
+      \field{volume}{12}
+      \field{year}{2021}
+      \field{pages}{20416695211055766}
+      \range{pages}{1}
+      \verb{doi}
+      \verb 10.1177/20416695211055766
+      \endverb
+      \verb{file}
+      \verb Full Text:/home/adrian/Zotero/storage/YXRTV92C/Niehorster - 2021 - Optic Flow A History.pdf:application/pdf
+      \endverb
+      \verb{urlraw}
+      \verb https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8652193/
+      \endverb
+      \verb{url}
+      \verb https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8652193/
+      \endverb
+      \keyw{history,Optical flow}
+    \endentry
+    \entry{optical_flow_review_2025}{misc}{}
+      \name{author}{1}{}{%
+        {{hash=0791734e6235cf888f1288ad1552418b}{%
+           family={Boesch},
+           familyi={B\bibinitperiod},
+           given={Gaudenz},
+           giveni={G\bibinitperiod}}}%
+      }
+      \list{language}{1}{%
+        {en-US}%
+      }
+      \strng{namehash}{0791734e6235cf888f1288ad1552418b}
+      \strng{fullhash}{0791734e6235cf888f1288ad1552418b}
+      \strng{bibnamehash}{0791734e6235cf888f1288ad1552418b}
+      \strng{authorbibnamehash}{0791734e6235cf888f1288ad1552418b}
+      \strng{authornamehash}{0791734e6235cf888f1288ad1552418b}
+      \strng{authorfullhash}{0791734e6235cf888f1288ad1552418b}
+      \field{sortinit}{5}
+      \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Optical flow tracks the motion of objects within a sequence of images or video frames. In this blog we cover use cases, techniques, and more.}
+      \field{journaltitle}{viso.ai}
+      \field{month}{10}
+      \field{title}{Optical {Flow} - {Everything} {You} {Need} to {Know} in 2025}
+      \field{urlday}{12}
+      \field{urlmonth}{11}
+      \field{urlyear}{2024}
+      \field{year}{2024}
+      \field{urldateera}{ce}
+      \verb{file}
+      \verb Snapshot:/home/adrian/Zotero/storage/3CKTJ2MS/optical-flow.html:text/html
+      \endverb
+      \verb{urlraw}
+      \verb https://viso.ai/deep-learning/optical-flow/
+      \endverb
+      \verb{url}
+      \verb https://viso.ai/deep-learning/optical-flow/
+      \endverb
+      \keyw{Optical flow}
+    \endentry
+    \entry{optical_flow_computation_survey}{article}{}
+      \name{author}{3}{}{%
+        {{hash=cd7e96e09bbbee8f4acf855e3de7e247}{%
+           family={Fortun},
+           familyi={F\bibinitperiod},
+           given={Denis},
+           giveni={D\bibinitperiod}}}%
+        {{hash=ccadbeefcf385837f0d86e28bdf1a06d}{%
+           family={Bouthemy},
+           familyi={B\bibinitperiod},
+           given={Patrick},
+           giveni={P\bibinitperiod}}}%
+        {{hash=45291ce1c5bd7bb223efdf5c756a7154}{%
+           family={Kervrann},
+           familyi={K\bibinitperiod},
+           given={Charles},
+           giveni={C\bibinitperiod}}}%
+      }
+      \list{language}{1}{%
+        {en}%
+      }
+      \strng{namehash}{6b4c610552ff6ef76d1f8b551668b1db}
+      \strng{fullhash}{6b4c610552ff6ef76d1f8b551668b1db}
+      \strng{bibnamehash}{6b4c610552ff6ef76d1f8b551668b1db}
+      \strng{authorbibnamehash}{6b4c610552ff6ef76d1f8b551668b1db}
+      \strng{authornamehash}{6b4c610552ff6ef76d1f8b551668b1db}
+      \strng{authorfullhash}{6b4c610552ff6ef76d1f8b551668b1db}
+      \field{sortinit}{5}
+      \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{abstract}{Optical ﬂow estimation is one of the oldest and still most active research domains in computer vision. In 35 years, many methodological concepts have been introduced and have progressively improved performances, while opening the way to new challenges. In the last decade, the growing interest in evaluation benchmarks has stimulated a great amount of work. In this paper, we propose a survey of optical ﬂow estimation classifying the main principles elaborated during this evolution, with a particular concern given to recent developments. It is conceived as a tutorial organizing in a comprehensive framework current approaches and practices. We give insights on the motivations, interests and limitations of modeling and optimization techniques, and we highlight similarities between methods to allow for a clear understanding of their behavior.}
+      \field{issn}{10773142}
+      \field{journaltitle}{Computer Vision and Image Understanding}
+      \field{month}{5}
+      \field{shorttitle}{Optical flow modeling and computation}
+      \field{title}{Optical flow modeling and computation: {A} survey}
+      \field{urlday}{13}
+      \field{urlmonth}{11}
+      \field{urlyear}{2024}
+      \field{volume}{134}
+      \field{year}{2015}
+      \field{urldateera}{ce}
+      \field{pages}{1\bibrangedash 21}
+      \range{pages}{21}
+      \verb{doi}
+      \verb 10.1016/j.cviu.2015.02.008
+      \endverb
+      \verb{file}
+      \verb PDF:/home/adrian/Zotero/storage/RXSHYKFU/Fortun et al. - 2015 - Optical flow modeling and computation A survey.pdf:application/pdf
+      \endverb
+      \verb{urlraw}
+      \verb https://linkinghub.elsevier.com/retrieve/pii/S1077314215000429
+      \endverb
+      \verb{url}
+      \verb https://linkinghub.elsevier.com/retrieve/pii/S1077314215000429
+      \endverb
+      \keyw{Survey,Optical flow}
+    \endentry
+    \entry{figure_sparse_vs_dense_opf_flw}{article}{}
+      \name{author}{3}{}{%
+        {{hash=578a539f9ba33e34474ba5f5db2c73c3}{%
+           family={Zvorișteanu},
+           familyi={Z\bibinitperiod},
+           given={Otilia},
+           giveni={O\bibinitperiod}}}%
+        {{hash=801aae0dc5fd301366d6638a4cde8bc4}{%
+           family={Caraiman},
+           familyi={C\bibinitperiod},
+           given={Simona},
+           giveni={S\bibinitperiod}}}%
+        {{hash=9e4f7fc741c37593ed485bce1be9fe5a}{%
+           family={Manta},
+           familyi={M\bibinitperiod},
+           given={Vasile},
+           giveni={V\bibinitperiod}}}%
+      }
+      \strng{namehash}{cc22a8b99810087257fc2a77952d6fe7}
+      \strng{fullhash}{cc22a8b99810087257fc2a77952d6fe7}
+      \strng{bibnamehash}{cc22a8b99810087257fc2a77952d6fe7}
+      \strng{authorbibnamehash}{cc22a8b99810087257fc2a77952d6fe7}
+      \strng{authornamehash}{cc22a8b99810087257fc2a77952d6fe7}
+      \strng{authorfullhash}{cc22a8b99810087257fc2a77952d6fe7}
+      \field{sortinit}{5}
+      \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Mathematics}
+      \field{month}{07}
+      \field{title}{Speeding Up Semantic Instance Segmentation by Using Motion Information}
+      \field{volume}{10}
+      \field{year}{2022}
+      \field{pages}{2365}
+      \range{pages}{1}
+      \verb{doi}
+      \verb 10.3390/math10142365
+      \endverb
+    \endentry
+    \entry{opt_flw_flownet}{article}{}
+      \name{author}{9}{}{%
+        {{hash=168e84ce3582cbc6bac5e2ebc3ef8442}{%
+           family={Fischer},
+           familyi={F\bibinitperiod},
+           given={Philipp},
+           giveni={P\bibinitperiod}}}%
+        {{hash=72308762399d6ab62bbd9391c64c7bfd}{%
+           family={Dosovitskiy},
+           familyi={D\bibinitperiod},
+           given={Alexey},
+           giveni={A\bibinitperiod}}}%
+        {{hash=7c9b6b9887231e1d94a57bb34cdafd43}{%
+           family={Ilg},
+           familyi={I\bibinitperiod},
+           given={Eddy},
+           giveni={E\bibinitperiod}}}%
+        {{hash=302a36fce79f3ce2589bb7b5f9657518}{%
+           family={Häusser},
+           familyi={H\bibinitperiod},
+           given={Philip},
+           giveni={P\bibinitperiod}}}%
+        {{hash=fa7dedfd8be3e95547becb9992f1cf1e}{%
+           family={Hazirbas},
+           familyi={H\bibinitperiod},
+           given={Caner},
+           giveni={C\bibinitperiod}}}%
+        {{hash=fb058a8ecaabe83254678725b4b97e6b}{%
+           family={Golkov},
+           familyi={G\bibinitperiod},
+           given={Vladimir},
+           giveni={V\bibinitperiod}}}%
+        {{hash=2118bde20d3b527fd70b3f0c5e339130}{%
+           family={Smagt},
+           familyi={S\bibinitperiod},
+           given={Patrick},
+           giveni={P\bibinitperiod},
+           prefix={van\bibnamedelima der},
+           prefixi={v\bibinitperiod\bibinitdelim d\bibinitperiod}}}%
+        {{hash=1bd2b6b6ca2fc15a90f164070b626131}{%
+           family={Cremers},
+           familyi={C\bibinitperiod},
+           given={Daniel},
+           giveni={D\bibinitperiod}}}%
+        {{hash=b452a32296958371572717940f900884}{%
+           family={Brox},
+           familyi={B\bibinitperiod},
+           given={Thomas},
+           giveni={T\bibinitperiod}}}%
+      }
+      \strng{namehash}{d1629e4533e3e32957b6804115e07855}
+      \strng{fullhash}{71fa8f99aab66cb4a73d79cfce5f8a67}
+      \strng{bibnamehash}{d1629e4533e3e32957b6804115e07855}
+      \strng{authorbibnamehash}{d1629e4533e3e32957b6804115e07855}
+      \strng{authornamehash}{d1629e4533e3e32957b6804115e07855}
+      \strng{authorfullhash}{71fa8f99aab66cb4a73d79cfce5f8a67}
+      \field{sortinit}{5}
+      \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{eprinttype}{arXiv}
+      \field{journaltitle}{CoRR}
+      \field{title}{FlowNet: Learning Optical Flow with Convolutional Networks}
+      \field{volume}{abs/1504.06852}
+      \field{year}{2015}
+      \verb{eprint}
+      \verb 1504.06852
+      \endverb
+      \verb{urlraw}
+      \verb http://arxiv.org/abs/1504.06852
+      \endverb
+      \verb{url}
+      \verb http://arxiv.org/abs/1504.06852
+      \endverb
+    \endentry
+    \entry{optical_flw_raft}{article}{}
+      \name{author}{2}{}{%
+        {{hash=e574e001a15b2ede3e22f98ab812e9e9}{%
+           family={Teed},
+           familyi={T\bibinitperiod},
+           given={Zachary},
+           giveni={Z\bibinitperiod}}}%
+        {{hash=0ae7fdc13773f928525f673b05f37149}{%
+           family={Deng},
+           familyi={D\bibinitperiod},
+           given={Jia},
+           giveni={J\bibinitperiod}}}%
+      }
+      \strng{namehash}{8e2bcf792117b71a09f9397fed64c13a}
+      \strng{fullhash}{8e2bcf792117b71a09f9397fed64c13a}
+      \strng{bibnamehash}{8e2bcf792117b71a09f9397fed64c13a}
+      \strng{authorbibnamehash}{8e2bcf792117b71a09f9397fed64c13a}
+      \strng{authornamehash}{8e2bcf792117b71a09f9397fed64c13a}
+      \strng{authorfullhash}{8e2bcf792117b71a09f9397fed64c13a}
+      \field{sortinit}{5}
+      \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{eprinttype}{arXiv}
+      \field{journaltitle}{CoRR}
+      \field{title}{{RAFT:} Recurrent All-Pairs Field Transforms for Optical Flow}
+      \field{volume}{abs/2003.12039}
+      \field{year}{2020}
+      \verb{eprint}
+      \verb 2003.12039
+      \endverb
+      \verb{urlraw}
+      \verb https://arxiv.org/abs/2003.12039
+      \endverb
+      \verb{url}
+      \verb https://arxiv.org/abs/2003.12039
+      \endverb
+    \endentry
+    \entry{optical_flow_estimation_survey}{article}{}
+      \name{author}{4}{}{%
+        {{hash=d5495307b3202c7780055b778d2e41b8}{%
+           family={Alfarano},
+           familyi={A\bibinitperiod},
+           given={Andrea},
+           giveni={A\bibinitperiod}}}%
+        {{hash=2a6043b8f042cabfdb5ae6de5de784c2}{%
+           family={Maiano},
+           familyi={M\bibinitperiod},
+           given={Luca},
+           giveni={L\bibinitperiod}}}%
+        {{hash=6881e8df2dcb6b542bb171b072eaa2b4}{%
+           family={Papa},
+           familyi={P\bibinitperiod},
+           given={Lorenzo},
+           giveni={L\bibinitperiod}}}%
+        {{hash=340910ad21515da226deccbe9de84035}{%
+           family={Amerini},
+           familyi={A\bibinitperiod},
+           given={Irene},
+           giveni={I\bibinitperiod}}}%
+      }
+      \strng{namehash}{adc5983be24da92d6dfdea680b8d50f3}
+      \strng{fullhash}{adc5983be24da92d6dfdea680b8d50f3}
+      \strng{bibnamehash}{adc5983be24da92d6dfdea680b8d50f3}
+      \strng{authorbibnamehash}{adc5983be24da92d6dfdea680b8d50f3}
+      \strng{authornamehash}{adc5983be24da92d6dfdea680b8d50f3}
+      \strng{authorfullhash}{adc5983be24da92d6dfdea680b8d50f3}
+      \field{sortinit}{5}
+      \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{abstract}{Optical flow estimation is a crucial task in computer vision that provides low-level motion information. Despite recent advances, real-world applications still present significant challenges. This survey provides an overview of optical flow techniques and their application. For a comprehensive review, this survey covers both classical frameworks and the latest AI-based techniques. In doing so, we highlight the limitations of current benchmarks and metrics, underscoring the need for more representative datasets and comprehensive evaluation methods. The survey also highlights the importance of integrating industry knowledge and adopting training practices optimized for deep learning-based models. By addressing these issues, future research can aid the development of robust and efficient optical flow methods that can effectively address real-world scenarios.}
+      \field{journaltitle}{Computer Vision and Image Understanding}
+      \field{month}{12}
+      \field{shorttitle}{Estimating optical flow}
+      \field{title}{Estimating optical flow: {A} comprehensive review of the state of the art}
+      \field{volume}{249}
+      \field{year}{2024}
+      \field{pages}{104160}
+      \range{pages}{1}
+      \verb{doi}
+      \verb 10.1016/j.cviu.2024.104160
+      \endverb
+      \keyw{Survey,Optical flow,Computer Vision,motion estimation}
+    \endentry
+    \entry{opt_flw_old_survey}{article}{}
+      \name{author}{3}{}{%
+        {{hash=de71af8bcd508c41fc6817a123862f36}{%
+           family={Barron},
+           familyi={B\bibinitperiod},
+           given={J.\bibnamedelimi L.},
+           giveni={J\bibinitperiod\bibinitdelim L\bibinitperiod}}}%
+        {{hash=d50e92dd165b6c917102e188ca08d38b}{%
+           family={Fleet},
+           familyi={F\bibinitperiod},
+           given={D.\bibnamedelimi J.},
+           giveni={D\bibinitperiod\bibinitdelim J\bibinitperiod}}}%
+        {{hash=6db173f2760f0e2df324f62596f8060c}{%
+           family={Beauchemin},
+           familyi={B\bibinitperiod},
+           given={S.\bibnamedelimi S.},
+           giveni={S\bibinitperiod\bibinitdelim S\bibinitperiod}}}%
+      }
+      \list{language}{1}{%
+        {en}%
+      }
+      \strng{namehash}{7d224155678e661da707ded1c6a67592}
+      \strng{fullhash}{7d224155678e661da707ded1c6a67592}
+      \strng{bibnamehash}{7d224155678e661da707ded1c6a67592}
+      \strng{authorbibnamehash}{7d224155678e661da707ded1c6a67592}
+      \strng{authornamehash}{7d224155678e661da707ded1c6a67592}
+      \strng{authorfullhash}{7d224155678e661da707ded1c6a67592}
+      \field{sortinit}{5}
+      \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{While different optical flow techniques continue to appear, there has been a lack of quantitative evaluation of existing methods. For a common set of real and synthetic image sequences, we report the results of a number of regularly cited optical flow techniques, including instances of differential, matching, energy-based, and phase-based methods. Our comparisons are primarily empirical, and concentrate on the accuracy, reliability, and density of the velocity measurements; they show that performance can differ significantly among the techniques we implemented.}
+      \field{issn}{1573-1405}
+      \field{journaltitle}{International Journal of Computer Vision}
+      \field{month}{2}
+      \field{number}{1}
+      \field{title}{Performance of optical flow techniques}
+      \field{volume}{12}
+      \field{year}{1994}
+      \field{pages}{43\bibrangedash 77}
+      \range{pages}{35}
+      \verb{doi}
+      \verb 10.1007/BF01420984
+      \endverb
+      \verb{file}
+      \verb PDF:/home/adrian/Zotero/storage/2SE8ZVW6/Barron et al. - 1994 - Performance of optical flow techniques.pdf:application/pdf
+      \endverb
+      \verb{urlraw}
+      \verb https://doi.org/10.1007/BF01420984
+      \endverb
+      \verb{url}
+      \verb https://doi.org/10.1007/BF01420984
+      \endverb
+      \keyw{Optical flow,Perception,Artificial Intelligence,Computer Image,Computer Vision,Image Processing,Quantitative Evaluation}
+    \endentry
+    \entry{flow_lucas_kanade}{article}{}
+      \name{author}{4}{}{%
+        {{hash=061075e8245a617dab62fc875f316a39}{%
+           family={Lucey},
+           familyi={L\bibinitperiod},
+           given={Simon},
+           giveni={S\bibinitperiod}}}%
+        {{hash=5b6a9880236d97f154ea360f64bded76}{%
+           family={Navarathna},
+           familyi={N\bibinitperiod},
+           given={Rajitha},
+           giveni={R\bibinitperiod}}}%
+        {{hash=c37b0d2a16a7100c1a5acff90fefe8d2}{%
+           family={Ashraf},
+           familyi={A\bibinitperiod},
+           given={Ahmed\bibnamedelima Bilal},
+           giveni={A\bibinitperiod\bibinitdelim B\bibinitperiod}}}%
+        {{hash=c1bc00367e79852538e7aee394d64860}{%
+           family={Sridharan},
+           familyi={S\bibinitperiod},
+           given={Sridha},
+           giveni={S\bibinitperiod}}}%
+      }
+      \strng{namehash}{95f59e312334738aff9d7095ce2d8bf3}
+      \strng{fullhash}{95f59e312334738aff9d7095ce2d8bf3}
+      \strng{bibnamehash}{95f59e312334738aff9d7095ce2d8bf3}
+      \strng{authorbibnamehash}{95f59e312334738aff9d7095ce2d8bf3}
+      \strng{authornamehash}{95f59e312334738aff9d7095ce2d8bf3}
+      \strng{authorfullhash}{95f59e312334738aff9d7095ce2d8bf3}
+      \field{sortinit}{5}
+      \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{In this paper, we propose a framework for both gradient descent image and object alignment in the Fourier domain. Our method centers upon the classical Lucas \& Kanade (LK) algorithm where we represent the source and template/model in the complex 2D Fourier domain rather than in the spatial 2D domain. We refer to our approach as the Fourier LK (FLK) algorithm. The FLK formulation is advantageous when one preprocesses the source image and template/model with a bank of filters (e.g., oriented edges, Gabor, etc.) as 1) it can handle substantial illumination variations, 2) the inefficient preprocessing filter bank step can be subsumed within the FLK algorithm as a sparse diagonal weighting matrix, 3) unlike traditional LK, the computational cost is invariant to the number of filters and as a result is far more efficient, and 4) this approach can be extended to the Inverse Compositional (IC) form of the LK algorithm where nearly all steps (including Fourier transform and filter bank preprocessing) can be precomputed, leading to an extremely efficient and robust approach to gradient descent image matching. Further, these computational savings translate to nonrigid object alignment tasks that are considered extensions of the LK algorithm, such as those found in Active Appearance Models (AAMs).}
+      \field{issn}{1939-3539}
+      \field{journaltitle}{IEEE Transactions on Pattern Analysis and Machine Intelligence}
+      \field{month}{6}
+      \field{note}{Conference Name: IEEE Transactions on Pattern Analysis and Machine Intelligence}
+      \field{number}{6}
+      \field{title}{Fourier {Lucas}-{Kanade} {Algorithm}}
+      \field{volume}{35}
+      \field{year}{2013}
+      \field{pages}{1383\bibrangedash 1396}
+      \range{pages}{14}
+      \verb{doi}
+      \verb 10.1109/TPAMI.2012.220
+      \endverb
+      \keyw{Active appearance model,active appearance model (AAM),Fourier domain,illumination invariance,Integrated circuits,Jacobian matrices,Lighting,Linear programming,Lucas \& Kanade (LK),lucas kanade,optflow,Robustness,Vectors}
+    \endentry
+    \entry{opt_flw_tv_l1}{article}{}
+      \name{author}{3}{}{%
+        {{hash=54c8c27a96a1513959ac18517c5a8cfb}{%
+           family={Sánchez},
+           familyi={S\bibinitperiod},
+           given={Javier},
+           giveni={J\bibinitperiod}}}%
+        {{hash=84646d9f9aaa7aeb17baaed66c91a8f0}{%
+           family={Llopis},
+           familyi={L\bibinitperiod},
+           given={Eva},
+           giveni={E\bibinitperiod}}}%
+        {{hash=a20c329018b61f5350dea7c0487fbc42}{%
+           family={Facciolo},
+           familyi={F\bibinitperiod},
+           given={Gabriele},
+           giveni={G\bibinitperiod}}}%
+      }
+      \strng{namehash}{aa8c1dc745e08b78ff95c9d1ce54ab18}
+      \strng{fullhash}{aa8c1dc745e08b78ff95c9d1ce54ab18}
+      \strng{bibnamehash}{aa8c1dc745e08b78ff95c9d1ce54ab18}
+      \strng{authorbibnamehash}{aa8c1dc745e08b78ff95c9d1ce54ab18}
+      \strng{authornamehash}{aa8c1dc745e08b78ff95c9d1ce54ab18}
+      \strng{authorfullhash}{aa8c1dc745e08b78ff95c9d1ce54ab18}
+      \field{sortinit}{5}
+      \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Image Processing On Line}
+      \field{month}{07}
+      \field{title}{TV-L1 optical flow estimation}
+      \field{volume}{3}
+      \field{year}{2013}
+      \field{pages}{137\bibrangedash 150}
+      \range{pages}{14}
+      \verb{doi}
+      \verb 10.5201/ipol.2013.26
+      \endverb
+    \endentry
+    \entry{opf_flw_farneback}{inproceedings}{}
+      \name{author}{1}{}{%
+        {{hash=7bda08f257f451eba0f1d8902689c8fb}{%
+           family={Farnebäck},
+           familyi={F\bibinitperiod},
+           given={Gunnar},
+           giveni={G\bibinitperiod}}}%
+      }
+      \strng{namehash}{7bda08f257f451eba0f1d8902689c8fb}
+      \strng{fullhash}{7bda08f257f451eba0f1d8902689c8fb}
+      \strng{bibnamehash}{7bda08f257f451eba0f1d8902689c8fb}
+      \strng{authorbibnamehash}{7bda08f257f451eba0f1d8902689c8fb}
+      \strng{authornamehash}{7bda08f257f451eba0f1d8902689c8fb}
+      \strng{authorfullhash}{7bda08f257f451eba0f1d8902689c8fb}
+      \field{sortinit}{6}
+      \field{sortinithash}{b33bc299efb3c36abec520a4c896a66d}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{isbn}{978-3-540-40601-3}
+      \field{journaltitle}{In: Image analysis}
+      \field{month}{06}
+      \field{title}{Two-Frame Motion Estimation Based on Polynomial Expansion}
+      \field{volume}{2749}
+      \field{year}{2003}
+      \field{pages}{363\bibrangedash 370}
+      \range{pages}{8}
+      \verb{doi}
+      \verb 10.1007/3-540-45103-X_50
+      \endverb
+    \endentry
+    \entry{opt_flw_coarse_to_fine}{article}{}
+      \name{author}{1}{}{%
+        {{hash=f2e556c93256e7d70895d67702e14f1a}{%
+           family={Szeliski},
+           familyi={S\bibinitperiod},
+           given={Richard},
+           giveni={R\bibinitperiod}}}%
+      }
+      \list{language}{1}{%
+        {en}%
+      }
+      \strng{namehash}{f2e556c93256e7d70895d67702e14f1a}
+      \strng{fullhash}{f2e556c93256e7d70895d67702e14f1a}
+      \strng{bibnamehash}{f2e556c93256e7d70895d67702e14f1a}
+      \strng{authorbibnamehash}{f2e556c93256e7d70895d67702e14f1a}
+      \strng{authornamehash}{f2e556c93256e7d70895d67702e14f1a}
+      \strng{authorfullhash}{f2e556c93256e7d70895d67702e14f1a}
+      \field{extraname}{2}
+      \field{sortinit}{6}
+      \field{sortinithash}{b33bc299efb3c36abec520a4c896a66d}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Computer {Vision}: {Algorithms} and {Applications}}
+      \field{year}{2021}
+      \verb{file}
+      \verb PDF:/home/adrian/Zotero/storage/9KJPZQQ6/Szeliski - Computer Vision Algorithms and Applications.pdf:application/pdf
+      \endverb
+    \endentry
+    \entry{vo_moravec}{report}{}
+      \name{author}{1}{}{%
+        {{hash=eefba41ecfe842106dca2a187860f837}{%
+           family={Moravec},
+           familyi={M\bibinitperiod},
+           given={Hans},
+           giveni={H\bibinitperiod}}}%
+      }
+      \list{location}{1}{%
+        {Pittsburgh, PA}%
+      }
+      \strng{namehash}{eefba41ecfe842106dca2a187860f837}
+      \strng{fullhash}{eefba41ecfe842106dca2a187860f837}
+      \strng{bibnamehash}{eefba41ecfe842106dca2a187860f837}
+      \strng{authorbibnamehash}{eefba41ecfe842106dca2a187860f837}
+      \strng{authornamehash}{eefba41ecfe842106dca2a187860f837}
+      \strng{authorfullhash}{eefba41ecfe842106dca2a187860f837}
+      \field{sortinit}{6}
+      \field{sortinithash}{b33bc299efb3c36abec520a4c896a66d}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Obstacle Avoidance and Navigation in the Real World by a Seeing Robot Rover}
+      \field{type}{techreport}
+      \field{year}{1980}
+    \endentry
+    \entry{vo_nister}{article}{}
+      \name{author}{1}{}{%
+        {{hash=cf2c74b050f6f726039110bc38c2da92}{%
+           family={Nister},
+           familyi={N\bibinitperiod},
+           given={D.},
+           giveni={D\bibinitperiod}}}%
+      }
+      \strng{namehash}{cf2c74b050f6f726039110bc38c2da92}
+      \strng{fullhash}{cf2c74b050f6f726039110bc38c2da92}
+      \strng{bibnamehash}{cf2c74b050f6f726039110bc38c2da92}
+      \strng{authorbibnamehash}{cf2c74b050f6f726039110bc38c2da92}
+      \strng{authornamehash}{cf2c74b050f6f726039110bc38c2da92}
+      \strng{authorfullhash}{cf2c74b050f6f726039110bc38c2da92}
+      \field{sortinit}{6}
+      \field{sortinithash}{b33bc299efb3c36abec520a4c896a66d}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{IEEE Transactions on Pattern Analysis and Machine Intelligence}
+      \field{number}{6}
+      \field{title}{An efficient solution to the five-point relative pose problem}
+      \field{volume}{26}
+      \field{year}{2004}
+      \field{pages}{756\bibrangedash 770}
+      \range{pages}{15}
+      \verb{doi}
+      \verb 10.1109/TPAMI.2004.17
+      \endverb
+      \keyw{Cameras;Layout;Polynomials;Motion estimation;Calibration;Delay estimation;Sparse matrices;Noise robustness;Real time systems;Geometry;Imaging geometry;motion;relative orientation;structure from motion;camera calibration;ego-motion estimation;scene reconstruction.}
+    \endentry
+    \entry{visual_odometry_review}{misc}{}
+      \name{author}{2}{}{%
+        {{hash=bc98074f559da83be5553a3e96d93f46}{%
+           family={Lim},
+           familyi={L\bibinitperiod},
+           given={Kai\bibnamedelima Li},
+           giveni={K\bibinitperiod\bibinitdelim L\bibinitperiod}}}%
+        {{hash=f50ad54f93539c8cee8b439ba432564e}{%
+           family={Bräunl},
+           familyi={B\bibinitperiod},
+           given={Thomas},
+           giveni={T\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {arXiv}%
+      }
+      \strng{namehash}{cf55d8deb796454203d2215ac5ebf6cc}
+      \strng{fullhash}{cf55d8deb796454203d2215ac5ebf6cc}
+      \strng{bibnamehash}{cf55d8deb796454203d2215ac5ebf6cc}
+      \strng{authorbibnamehash}{cf55d8deb796454203d2215ac5ebf6cc}
+      \strng{authornamehash}{cf55d8deb796454203d2215ac5ebf6cc}
+      \strng{authorfullhash}{cf55d8deb796454203d2215ac5ebf6cc}
+      \field{sortinit}{6}
+      \field{sortinithash}{b33bc299efb3c36abec520a4c896a66d}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{The research into autonomous driving applications has observed an increase in computer vision-based approaches in recent years. In attempts to develop exclusive vision-based systems, visual odometry is often considered as a key element to achieve motion estimation and self-localisation, in place of wheel odometry or inertial measurements. This paper presents a recent review to methods that are pertinent to visual odometry with an emphasis on autonomous driving. This review covers visual odometry in their monocular, stereoscopic and visual-inertial form, individually presenting them with analyses related to their applications. Discussions are drawn to outline the problems faced in the current state of research, and to summarise the works reviewed. This paper concludes with future work suggestions to aid prospective developments in visual odometry.}
+      \field{annotation}{Comment: 15 pages, 2 figures, 2 tables}
+      \field{month}{9}
+      \field{note}{arXiv:2009.09193 [cs]}
+      \field{title}{A {Review} of {Visual} {Odometry} {Methods} and {Its} {Applications} for {Autonomous} {Driving}}
+      \field{year}{2020}
+      \verb{doi}
+      \verb 10.48550/arXiv.2009.09193
+      \endverb
+      \keyw{Computer Science - Computer Vision and Pattern Recognition,Visual odometry,Electrical Engineering and Systems Science - Image and Video Processing}
+    \endentry
+    \entry{vo_pnp_survey}{article}{}
+      \name{author}{3}{}{%
+        {{hash=3bc2d7a45922a3e1b371d6cbf480abc2}{%
+           family={Marchand},
+           familyi={M\bibinitperiod},
+           given={Eric},
+           giveni={E\bibinitperiod}}}%
+        {{hash=a98436741ddacbe07200574a3bc76735}{%
+           family={Uchiyama},
+           familyi={U\bibinitperiod},
+           given={Hideaki},
+           giveni={H\bibinitperiod}}}%
+        {{hash=87189a010330e143b030df1ef5df2a8c}{%
+           family={Spindler},
+           familyi={S\bibinitperiod},
+           given={Fabien},
+           giveni={F\bibinitperiod}}}%
+      }
+      \list{language}{1}{%
+        {en}%
+      }
+      \strng{namehash}{e5002a9da4817eb9a670e62b84e0680b}
+      \strng{fullhash}{e5002a9da4817eb9a670e62b84e0680b}
+      \strng{bibnamehash}{e5002a9da4817eb9a670e62b84e0680b}
+      \strng{authorbibnamehash}{e5002a9da4817eb9a670e62b84e0680b}
+      \strng{authornamehash}{e5002a9da4817eb9a670e62b84e0680b}
+      \strng{authorfullhash}{e5002a9da4817eb9a670e62b84e0680b}
+      \field{sortinit}{6}
+      \field{sortinithash}{b33bc299efb3c36abec520a4c896a66d}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{abstract}{Request PDF {|} Pose Estimation for Augmented Reality: A Hands-On Survey {|} Augmented reality (AR) allows to seamlessly insert virtual objects in an image sequence. In order to accomplish this goal, it is important that... {|} Find, read and cite all the research you need on ResearchGate}
+      \field{journaltitle}{ResearchGate}
+      \field{month}{11}
+      \field{shorttitle}{Pose {Estimation} for {Augmented} {Reality}}
+      \field{title}{Pose {Estimation} for {Augmented} {Reality}: {A} {Hands}-{On} {Survey} {|} {Request} {PDF}}
+      \field{urlday}{29}
+      \field{urlmonth}{4}
+      \field{urlyear}{2025}
+      \field{year}{2024}
+      \field{urldateera}{ce}
+      \verb{doi}
+      \verb 10.1109/TVCG.2015.2513408
+      \endverb
+      \verb{file}
+      \verb Full Text:/home/adrian/Zotero/storage/LPL6LAZC/2024 - Pose Estimation for Augmented Reality A Hands-On Survey Request PDF.pdf:application/pdf;Snapshot:/home/adrian/Zotero/storage/JPQJER7U/287348989_Pose_Estimation_for_Augmented_Reality_A_Hands-On_Survey.html:text/html
+      \endverb
+      \verb{urlraw}
+      \verb https://www.researchgate.net/publication/287348989_Pose_Estimation_for_Augmented_Reality_A_Hands-On_Survey
+      \endverb
+      \verb{url}
+      \verb https://www.researchgate.net/publication/287348989_Pose_Estimation_for_Augmented_Reality_A_Hands-On_Survey
+      \endverb
+      \keyw{PnP,Visual odometry}
+    \endentry
+    \entry{vo_orb}{misc}{}
+      \name{author}{1}{}{%
+        {{hash=5bd4c87976f48e6a53919d53e14025e9}{%
+           family={OpenCV},
+           familyi={O\bibinitperiod}}}%
+      }
+      \strng{namehash}{5bd4c87976f48e6a53919d53e14025e9}
+      \strng{fullhash}{5bd4c87976f48e6a53919d53e14025e9}
+      \strng{bibnamehash}{5bd4c87976f48e6a53919d53e14025e9}
+      \strng{authorbibnamehash}{5bd4c87976f48e6a53919d53e14025e9}
+      \strng{authornamehash}{5bd4c87976f48e6a53919d53e14025e9}
+      \strng{authorfullhash}{5bd4c87976f48e6a53919d53e14025e9}
+      \field{extraname}{1}
+      \field{sortinit}{6}
+      \field{sortinithash}{b33bc299efb3c36abec520a4c896a66d}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{{OpenCV}: {ORB} ({Oriented} {FAST} and {Rotated} {BRIEF})}
+      \field{urlday}{27}
+      \field{urlmonth}{4}
+      \field{urlyear}{2025}
+      \field{urldateera}{ce}
+      \verb{file}
+      \verb OpenCV\: ORB (Oriented FAST and Rotated BRIEF):/home/adrian/Zotero/storage/T9I7PA4M/tutorial_py_orb.html:text/html
+      \endverb
+      \verb{urlraw}
+      \verb https://docs.opencv.org/4.x/d1/d89/tutorial_py_orb.html
+      \endverb
+      \verb{url}
+      \verb https://docs.opencv.org/4.x/d1/d89/tutorial_py_orb.html
+      \endverb
+      \keyw{ORB}
+    \endentry
+    \entry{vo_fast}{misc}{}
+      \name{author}{1}{}{%
+        {{hash=5bd4c87976f48e6a53919d53e14025e9}{%
+           family={OpenCV},
+           familyi={O\bibinitperiod}}}%
+      }
+      \strng{namehash}{5bd4c87976f48e6a53919d53e14025e9}
+      \strng{fullhash}{5bd4c87976f48e6a53919d53e14025e9}
+      \strng{bibnamehash}{5bd4c87976f48e6a53919d53e14025e9}
+      \strng{authorbibnamehash}{5bd4c87976f48e6a53919d53e14025e9}
+      \strng{authornamehash}{5bd4c87976f48e6a53919d53e14025e9}
+      \strng{authorfullhash}{5bd4c87976f48e6a53919d53e14025e9}
+      \field{extraname}{2}
+      \field{sortinit}{7}
+      \field{sortinithash}{108d0be1b1bee9773a1173443802c0a3}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{{OpenCV}: {FAST} {Algorithm} for {Corner} {Detection}}
+      \field{urlday}{27}
+      \field{urlmonth}{4}
+      \field{urlyear}{2025}
+      \field{urldateera}{ce}
+      \verb{file}
+      \verb OpenCV\: FAST Algorithm for Corner Detection:/home/adrian/Zotero/storage/6JQ6Z6PA/tutorial_py_fast.html:text/html
+      \endverb
+      \verb{urlraw}
+      \verb https://docs.opencv.org/3.4/df/d0c/tutorial_py_fast.html
+      \endverb
+      \verb{url}
+      \verb https://docs.opencv.org/3.4/df/d0c/tutorial_py_fast.html
+      \endverb
+      \keyw{FAST}
+    \endentry
+    \entry{vo_brief}{misc}{}
+      \name{author}{1}{}{%
+        {{hash=5bd4c87976f48e6a53919d53e14025e9}{%
+           family={OpenCV},
+           familyi={O\bibinitperiod}}}%
+      }
+      \strng{namehash}{5bd4c87976f48e6a53919d53e14025e9}
+      \strng{fullhash}{5bd4c87976f48e6a53919d53e14025e9}
+      \strng{bibnamehash}{5bd4c87976f48e6a53919d53e14025e9}
+      \strng{authorbibnamehash}{5bd4c87976f48e6a53919d53e14025e9}
+      \strng{authornamehash}{5bd4c87976f48e6a53919d53e14025e9}
+      \strng{authorfullhash}{5bd4c87976f48e6a53919d53e14025e9}
+      \field{extraname}{3}
+      \field{sortinit}{7}
+      \field{sortinithash}{108d0be1b1bee9773a1173443802c0a3}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{{OpenCV}: {BRIEF} ({Binary} {Robust} {Independent} {Elementary} {Features})}
+      \field{urlday}{27}
+      \field{urlmonth}{4}
+      \field{urlyear}{2025}
+      \field{urldateera}{ce}
+      \verb{file}
+      \verb OpenCV\: BRIEF (Binary Robust Independent Elementary Features):/home/adrian/Zotero/storage/9TYK5BSX/tutorial_py_brief.html:text/html
+      \endverb
+      \verb{urlraw}
+      \verb https://docs.opencv.org/3.4/dc/d7d/tutorial_py_brief.html
+      \endverb
+      \verb{url}
+      \verb https://docs.opencv.org/3.4/dc/d7d/tutorial_py_brief.html
+      \endverb
+      \keyw{BRIEF}
+    \endentry
+    \entry{IntroductionFAST}{misc}{}
+      \name{author}{1}{}{%
+        {{hash=21d01af167e6874b88ed5f6dc7c4b1e4}{%
+           family={Deep},
+           familyi={D\bibinitperiod}}}%
+      }
+      \strng{namehash}{21d01af167e6874b88ed5f6dc7c4b1e4}
+      \strng{fullhash}{21d01af167e6874b88ed5f6dc7c4b1e4}
+      \strng{bibnamehash}{21d01af167e6874b88ed5f6dc7c4b1e4}
+      \strng{authorbibnamehash}{21d01af167e6874b88ed5f6dc7c4b1e4}
+      \strng{authornamehash}{21d01af167e6874b88ed5f6dc7c4b1e4}
+      \strng{authorfullhash}{21d01af167e6874b88ed5f6dc7c4b1e4}
+      \field{sortinit}{7}
+      \field{sortinithash}{108d0be1b1bee9773a1173443802c0a3}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{\url{https://medium.com/@deepanshut041/introduction-to-fast-features-from-accelerated-segment-test-4ed33dde6d65}}
+      \field{note}{[Accessed 29-04-2025]}
+      \field{title}{{I}ntroduction to {F}{A}{S}{T} ({F}eatures from {A}ccelerated {S}egment {T}est) --- deepanshut041}
+    \endentry
+    \entry{vo_pnp_opencv}{misc}{}
+      \name{author}{1}{}{%
+        {{hash=5bd4c87976f48e6a53919d53e14025e9}{%
+           family={{OpenCV}},
+           familyi={O\bibinitperiod}}}%
+      }
+      \strng{namehash}{5bd4c87976f48e6a53919d53e14025e9}
+      \strng{fullhash}{5bd4c87976f48e6a53919d53e14025e9}
+      \strng{bibnamehash}{5bd4c87976f48e6a53919d53e14025e9}
+      \strng{authorbibnamehash}{5bd4c87976f48e6a53919d53e14025e9}
+      \strng{authornamehash}{5bd4c87976f48e6a53919d53e14025e9}
+      \strng{authorfullhash}{5bd4c87976f48e6a53919d53e14025e9}
+      \field{extraname}{4}
+      \field{sortinit}{7}
+      \field{sortinithash}{108d0be1b1bee9773a1173443802c0a3}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{{OpenCV}: {Perspective}-n-{Point} ({PnP}) pose computation}
+      \field{urlday}{29}
+      \field{urlmonth}{4}
+      \field{urlyear}{2025}
+      \field{year}{2024}
+      \field{urldateera}{ce}
+      \verb{file}
+      \verb OpenCV\: Perspective-n-Point (PnP) pose computation:/home/adrian/Zotero/storage/8URSBL6I/calib3d_solvePnP.html:text/html
+      \endverb
+      \verb{urlraw}
+      \verb https://docs.opencv.org/4.x/d5/d1f/calib3d_solvePnP.html
+      \endverb
+      \verb{url}
+      \verb https://docs.opencv.org/4.x/d5/d1f/calib3d_solvePnP.html
+      \endverb
+      \keyw{pnp,Visual odometry}
+    \endentry
+    \entry{openMP}{misc}{}
+      \name{author}{1}{}{%
+        {{hash=ab7a37a2661ec9bda56227ade2bbc727}{%
+           family={OpenMP},
+           familyi={O\bibinitperiod}}}%
+      }
+      \strng{namehash}{ab7a37a2661ec9bda56227ade2bbc727}
+      \strng{fullhash}{ab7a37a2661ec9bda56227ade2bbc727}
+      \strng{bibnamehash}{ab7a37a2661ec9bda56227ade2bbc727}
+      \strng{authorbibnamehash}{ab7a37a2661ec9bda56227ade2bbc727}
+      \strng{authornamehash}{ab7a37a2661ec9bda56227ade2bbc727}
+      \strng{authorfullhash}{ab7a37a2661ec9bda56227ade2bbc727}
+      \field{sortinit}{7}
+      \field{sortinithash}{108d0be1b1bee9773a1173443802c0a3}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{\url{https://www.openmp.org/resources/refguides/}}
+      \field{note}{[Accessed 02-05-2025]}
+      \field{title}{{R}eference {G}uides - {O}pen{M}{P} --- openmp.org}
+      \field{year}{2025}
+    \endentry
+    \entry{kalman}{article}{}
+      \name{author}{1}{}{%
+        {{hash=45f5df5515dbc3f650fa4dd7ab4fc93e}{%
+           family={Kalman},
+           familyi={K\bibinitperiod},
+           given={Rudolph\bibnamedelima Emil},
+           giveni={R\bibinitperiod\bibinitdelim E\bibinitperiod}}}%
+      }
+      \strng{namehash}{45f5df5515dbc3f650fa4dd7ab4fc93e}
+      \strng{fullhash}{45f5df5515dbc3f650fa4dd7ab4fc93e}
+      \strng{bibnamehash}{45f5df5515dbc3f650fa4dd7ab4fc93e}
+      \strng{authorbibnamehash}{45f5df5515dbc3f650fa4dd7ab4fc93e}
+      \strng{authornamehash}{45f5df5515dbc3f650fa4dd7ab4fc93e}
+      \strng{authorfullhash}{45f5df5515dbc3f650fa4dd7ab4fc93e}
+      \field{sortinit}{8}
+      \field{sortinithash}{a231b008ebf0ecbe0b4d96dcc159445f}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Transactions of the ASME--Journal of Basic Engineering}
+      \field{number}{Series D}
+      \field{title}{A New Approach to Linear Filtering and Prediction Problems}
+      \field{volume}{82}
+      \field{year}{1960}
+      \field{pages}{35\bibrangedash 45}
+      \range{pages}{11}
+    \endentry
+    \entry{ekf}{unknown}{}
+      \name{author}{2}{}{%
+        {{hash=86b50222d7ac85f9bd6c90708d9489c3}{%
+           family={Ribeiro},
+           familyi={R\bibinitperiod},
+           given={Maria},
+           giveni={M\bibinitperiod}}}%
+        {{hash=3eaf9340d4837bac73f0c2d8bc2a1d7f}{%
+           family={Ribeiro},
+           familyi={R\bibinitperiod},
+           given={Isabel},
+           giveni={I\bibinitperiod}}}%
+      }
+      \strng{namehash}{3db232bf7bc9cc8be591d0824667440b}
+      \strng{fullhash}{3db232bf7bc9cc8be591d0824667440b}
+      \strng{bibnamehash}{3db232bf7bc9cc8be591d0824667440b}
+      \strng{authorbibnamehash}{3db232bf7bc9cc8be591d0824667440b}
+      \strng{authornamehash}{3db232bf7bc9cc8be591d0824667440b}
+      \strng{authorfullhash}{3db232bf7bc9cc8be591d0824667440b}
+      \field{sortinit}{8}
+      \field{sortinithash}{a231b008ebf0ecbe0b4d96dcc159445f}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{month}{04}
+      \field{title}{Kalman and Extended Kalman Filters: Concept, Derivation and Properties}
+      \field{year}{2004}
+    \endentry
+    \entry{6d_vision_detailed}{article}{}
+      \name{author}{1}{}{%
+        {{hash=c9204c43ca027421ca4fc00e9cdca069}{%
+           family={Rabe},
+           familyi={R\bibinitperiod},
+           given={Clemens},
+           giveni={C\bibinitperiod}}}%
+      }
+      \list{language}{1}{%
+        {en}%
+      }
+      \strng{namehash}{c9204c43ca027421ca4fc00e9cdca069}
+      \strng{fullhash}{c9204c43ca027421ca4fc00e9cdca069}
+      \strng{bibnamehash}{c9204c43ca027421ca4fc00e9cdca069}
+      \strng{authorbibnamehash}{c9204c43ca027421ca4fc00e9cdca069}
+      \strng{authornamehash}{c9204c43ca027421ca4fc00e9cdca069}
+      \strng{authorfullhash}{c9204c43ca027421ca4fc00e9cdca069}
+      \field{sortinit}{8}
+      \field{sortinithash}{a231b008ebf0ecbe0b4d96dcc159445f}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Driver assistance systems of the future, that will support the driver in complex driving situations, require a thorough understanding of the car's environment. This includes not only the comprehension of the infrastructure, but also the precise detection and measurement of other moving traffic participants. In this thesis, a novel principle is presented and investigated in detail, that allows the reconstruction of the 3d motion field from the image sequence obtained by a stereo camera system. Given correspondences of stereo measurements over time, this principle estimates the 3d position and the 3d motion vector of selected points using Kalman Filters, resulting in a real-time estimation of the observed motion field. Since the state vector of the Kalman Filter consists of six elements, this principle is called 6d-Vision. To estimate the absolute motion field, the ego-motion of the moving observer must be known precisely. Since cars are usually not equipped with high-end inertial sensors, a novel algorithm to estimate the ego-motion from the image sequence is presented. Based on a Kalman Filter, it is able to support even complex vehicle models, and takes advantage of all available data, namely the previously estimated motion field and eventually available inertial sensors. As the 6d-Vision principle is not restricted to particular algorithms to obtain the image measurements, various optical flow and stereo algorithms are evaluated. In particular, a novel dense stereo algorithm is presented, that gives excellent precision results and runs at real-time. In addition, two novel scene flow algorithms are introduced, that measure the optical flow and stereo information in a combined approach, yielding more precise and robust results than a separate analysis of the two information sources. The application of the 6d-Vision principle to real-world data is illustrated throughout the thesis. As practical applications usually require an object understanding, rather than a 3d motion field, a simple, yet efficient algorithm to detect and track moving objects is presented. This algorithm was successfully implemented in a demonstrator vehicle, that performs an autonomous braking resp. steering manoeuvre to avoid collisions with moving pedestrians.}
+      \field{month}{6}
+      \field{note}{Accepted: 2011-02-18}
+      \field{title}{Detection of {Moving} {Objects} by {Spatio}-{Temporal} {Motion} {Analysis}}
+      \field{year}{2011}
+      \keyw{6D Algorithm,Mathematics}
+    \endentry
+    \entry{euler_rodrigues_historical}{article}{}
+      \name{author}{2}{}{%
+        {{hash=e9e1c29b6a7e4f9564f4805ce9463804}{%
+           family={Cheng},
+           familyi={C\bibinitperiod},
+           given={Hui},
+           giveni={H\bibinitperiod}}}%
+        {{hash=cd53f5c800c947dfe09c09406fadb135}{%
+           family={Gupta},
+           familyi={G\bibinitperiod},
+           given={K.\bibnamedelimi C.},
+           giveni={K\bibinitperiod\bibinitdelim C\bibinitperiod}}}%
+      }
+      \strng{namehash}{90b5f2ffc819984aff85ae6c493e8afa}
+      \strng{fullhash}{90b5f2ffc819984aff85ae6c493e8afa}
+      \strng{bibnamehash}{90b5f2ffc819984aff85ae6c493e8afa}
+      \strng{authorbibnamehash}{90b5f2ffc819984aff85ae6c493e8afa}
+      \strng{authornamehash}{90b5f2ffc819984aff85ae6c493e8afa}
+      \strng{authorfullhash}{90b5f2ffc819984aff85ae6c493e8afa}
+      \field{sortinit}{8}
+      \field{sortinithash}{a231b008ebf0ecbe0b4d96dcc159445f}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{It is shown in this paper that Euler was first to derive the finite rotation formula which is often erroneously attributed to Rodrigues, while Rodrigues was responsible for the derivation of the composition formulae for successive finite rotations and the so-called Euler parameters of finite rotation. Therefore, based upon historical facts, the following nomenclature is suggested: Euler’s finite rotation formula, Rodrigues’ composition formulae of finite rotations, and Euler-Rodrigues parameters. The text of the paper contains modern symbols and formula forms, while the Appendices contain brief summaries from relevant historical sources with minor alterations in symbols at the most.}
+      \field{issn}{0021-8936}
+      \field{journaltitle}{Journal of Applied Mechanics}
+      \field{month}{3}
+      \field{note}{\_eprint: https://asmedigitalcollection.asme.org/appliedmechanics/article-pdf/56/1/139/5460585/139\_1.pdf}
+      \field{number}{1}
+      \field{title}{An {Historical} {Note} on {Finite} {Rotations}}
+      \field{volume}{56}
+      \field{year}{1989}
+      \field{pages}{139\bibrangedash 145}
+      \range{pages}{7}
+      \verb{doi}
+      \verb 10.1115/1.3176034
+      \endverb
+      \verb{urlraw}
+      \verb https://doi.org/10.1115/1.3176034
+      \endverb
+      \verb{url}
+      \verb https://doi.org/10.1115/1.3176034
+      \endverb
+    \endentry
+    \entry{euler_rodrigues}{article}{}
+      \name{author}{1}{}{%
+        {{hash=4b89bdaf258b8a1ec4c768e087024ad8}{%
+           family={Dai},
+           familyi={D\bibinitperiod},
+           given={Jian\bibnamedelima S.},
+           giveni={J\bibinitperiod\bibinitdelim S\bibinitperiod}}}%
+      }
+      \strng{namehash}{4b89bdaf258b8a1ec4c768e087024ad8}
+      \strng{fullhash}{4b89bdaf258b8a1ec4c768e087024ad8}
+      \strng{bibnamehash}{4b89bdaf258b8a1ec4c768e087024ad8}
+      \strng{authorbibnamehash}{4b89bdaf258b8a1ec4c768e087024ad8}
+      \strng{authornamehash}{4b89bdaf258b8a1ec4c768e087024ad8}
+      \strng{authorfullhash}{4b89bdaf258b8a1ec4c768e087024ad8}
+      \field{sortinit}{8}
+      \field{sortinithash}{a231b008ebf0ecbe0b4d96dcc159445f}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{This paper reviews the Euler–Rodrigues formula in the axis–angle representation of rotations, studies its variations and derivations in different mathematical forms as vectors, quaternions and Lie groups and investigates their intrinsic connections. The Euler–Rodrigues formula in the Taylor series expansion is presented and its use as an exponential map of Lie algebras is discussed particularly with a non-normalized vector. The connection between Euler–Rodrigues parameters and the Euler–Rodrigues formula is then demonstrated through quaternion conjugation and the equivalence between quaternion conjugation and an adjoint action of the Lie group is subsequently presented. The paper provides a rich reference for the Euler–Rodrigues formula, the variations and their connections and for their use in rigid body kinematics, dynamics and computer graphics.}
+      \field{issn}{0094-114X}
+      \field{journaltitle}{Mechanism and Machine Theory}
+      \field{month}{10}
+      \field{title}{Euler–{Rodrigues} formula variations, quaternion conjugation and intrinsic connections}
+      \field{urlday}{2}
+      \field{urlmonth}{5}
+      \field{urlyear}{2025}
+      \field{volume}{92}
+      \field{year}{2015}
+      \field{urldateera}{ce}
+      \field{pages}{144\bibrangedash 152}
+      \range{pages}{9}
+      \verb{doi}
+      \verb 10.1016/j.mechmachtheory.2015.03.004
+      \endverb
+      \verb{file}
+      \verb ScienceDirect Snapshot:/home/adrian/Zotero/storage/ALFXUZDZ/S0094114X15000415.html:text/html
+      \endverb
+      \verb{urlraw}
+      \verb https://www.sciencedirect.com/science/article/pii/S0094114X15000415
+      \endverb
+      \verb{url}
+      \verb https://www.sciencedirect.com/science/article/pii/S0094114X15000415
+      \endverb
+      \keyw{Euler–Rodrigues formula,Exponential map,Kinematics,Lie algebras,Lie groups,Quaternions,rodrigues}
+    \endentry
+    \entry{k_means_original}{inproceedings}{}
+      \name{author}{1}{}{%
+        {{hash=cb0021a91d6fac762cc1c86cce52fa3a}{%
+           family={MacQueen},
+           familyi={M\bibinitperiod},
+           given={J.\bibnamedelimi B.},
+           giveni={J\bibinitperiod\bibinitdelim B\bibinitperiod}}}%
+      }
+      \name{editor}{2}{}{%
+        {{hash=2001b5a5c7835eee38bbc6dba74bb624}{%
+           family={Cam},
+           familyi={C\bibinitperiod},
+           given={L.\bibnamedelimi M.\bibnamedelimi Le},
+           giveni={L\bibinitperiod\bibinitdelim M\bibinitperiod\bibinitdelim L\bibinitperiod}}}%
+        {{hash=0e81e771c5dc83f5c14479e1c78247a2}{%
+           family={Neyman},
+           familyi={N\bibinitperiod},
+           given={J.},
+           giveni={J\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {University of California Press}%
+      }
+      \strng{namehash}{cb0021a91d6fac762cc1c86cce52fa3a}
+      \strng{fullhash}{cb0021a91d6fac762cc1c86cce52fa3a}
+      \strng{bibnamehash}{cb0021a91d6fac762cc1c86cce52fa3a}
+      \strng{authorbibnamehash}{cb0021a91d6fac762cc1c86cce52fa3a}
+      \strng{authornamehash}{cb0021a91d6fac762cc1c86cce52fa3a}
+      \strng{authorfullhash}{cb0021a91d6fac762cc1c86cce52fa3a}
+      \strng{editorbibnamehash}{5d1e3a1d4201e5c121c3191e4e3f9f13}
+      \strng{editornamehash}{5d1e3a1d4201e5c121c3191e4e3f9f13}
+      \strng{editorfullhash}{5d1e3a1d4201e5c121c3191e4e3f9f13}
+      \field{sortinit}{8}
+      \field{sortinithash}{a231b008ebf0ecbe0b4d96dcc159445f}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{Proc. of the fifth Berkeley Symposium on Mathematical Statistics and Probability}
+      \field{title}{Some Methods for Classification and Analysis of MultiVariate Observations}
+      \field{volume}{1}
+      \field{year}{1967}
+      \field{pages}{281\bibrangedash 297}
+      \range{pages}{17}
+      \keyw{kmeans clustering}
+    \endentry
+    \entry{Hierarchical_original}{article}{}
+      \name{author}{2}{}{%
+        {{hash=b451253f9003290ac47fe9da636f3486}{%
+           family={Murtagh},
+           familyi={M\bibinitperiod},
+           given={Fionn},
+           giveni={F\bibinitperiod}}}%
+        {{hash=5993ce00a3c0c0a36096f597c61087c4}{%
+           family={Legendre},
+           familyi={L\bibinitperiod},
+           given={Pierre},
+           giveni={P\bibinitperiod}}}%
+      }
+      \list{publisher}{2}{%
+        {Springer Science}%
+        {Business Media LLC}%
+      }
+      \strng{namehash}{9ebf67673fd8b61513ecdc479ded6cde}
+      \strng{fullhash}{9ebf67673fd8b61513ecdc479ded6cde}
+      \strng{bibnamehash}{9ebf67673fd8b61513ecdc479ded6cde}
+      \strng{authorbibnamehash}{9ebf67673fd8b61513ecdc479ded6cde}
+      \strng{authornamehash}{9ebf67673fd8b61513ecdc479ded6cde}
+      \strng{authorfullhash}{9ebf67673fd8b61513ecdc479ded6cde}
+      \field{sortinit}{9}
+      \field{sortinithash}{0a5ebc79d83c96b6579069544c73c7d4}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{issn}{1432-1343}
+      \field{journaltitle}{Journal of Classification}
+      \field{month}{10}
+      \field{number}{3}
+      \field{title}{Ward’s Hierarchical Agglomerative Clustering Method: Which Algorithms Implement Ward’s Criterion?}
+      \field{volume}{31}
+      \field{year}{2014}
+      \field{pages}{274\bibrangedash 295}
+      \range{pages}{22}
+      \verb{doi}
+      \verb 10.1007/s00357-014-9161-z
+      \endverb
+      \verb{urlraw}
+      \verb http://dx.doi.org/10.1007/s00357-014-9161-z
+      \endverb
+      \verb{url}
+      \verb http://dx.doi.org/10.1007/s00357-014-9161-z
+      \endverb
+    \endentry
+    \entry{mean_shift_original}{article}{}
+      \name{author}{2}{}{%
+        {{hash=1ae65e6788960de86f25436918513a57}{%
+           family={Comaniciu},
+           familyi={C\bibinitperiod},
+           given={D.},
+           giveni={D\bibinitperiod}}}%
+        {{hash=4f3238f1f4502b9cc27c81a9bdb448d3}{%
+           family={Meer},
+           familyi={M\bibinitperiod},
+           given={P.},
+           giveni={P\bibinitperiod}}}%
+      }
+      \strng{namehash}{1e8e8349f5146d360eda0d27fc0a0e88}
+      \strng{fullhash}{1e8e8349f5146d360eda0d27fc0a0e88}
+      \strng{bibnamehash}{1e8e8349f5146d360eda0d27fc0a0e88}
+      \strng{authorbibnamehash}{1e8e8349f5146d360eda0d27fc0a0e88}
+      \strng{authornamehash}{1e8e8349f5146d360eda0d27fc0a0e88}
+      \strng{authorfullhash}{1e8e8349f5146d360eda0d27fc0a0e88}
+      \field{sortinit}{9}
+      \field{sortinithash}{0a5ebc79d83c96b6579069544c73c7d4}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{IEEE Transactions on Pattern Analysis and Machine Intelligence}
+      \field{number}{5}
+      \field{title}{Mean shift: a robust approach toward feature space analysis}
+      \field{volume}{24}
+      \field{year}{2002}
+      \field{pages}{603\bibrangedash 619}
+      \range{pages}{17}
+      \verb{doi}
+      \verb 10.1109/34.1000236
+      \endverb
+      \keyw{Robustness;Pattern recognition;Convergence;Density functional theory;Kernel;Smoothing methods;Image segmentation;Image resolution;Image analysis;Image color analysis}
+    \endentry
+    \entry{dbscan_original}{inproceedings}{}
+      \name{author}{4}{}{%
+        {{hash=2c062e64ed26aacc08a62155e7944f04}{%
+           family={Ester},
+           familyi={E\bibinitperiod},
+           given={Martin},
+           giveni={M\bibinitperiod}}}%
+        {{hash=9559fe65ed2c0877cf14a66fe1f8e9b3}{%
+           family={Kriegel},
+           familyi={K\bibinitperiod},
+           given={Hans-Peter},
+           giveni={H\bibinithyphendelim P\bibinitperiod}}}%
+        {{hash=802157026f850823b2027c2100cb359a}{%
+           family={Sander},
+           familyi={S\bibinitperiod},
+           given={Jörg},
+           giveni={J\bibinitperiod}}}%
+        {{hash=2dda16c0a5d50fc830d0d4a3787937fa}{%
+           family={Xu},
+           familyi={X\bibinitperiod},
+           given={Xiaowei},
+           giveni={X\bibinitperiod}}}%
+      }
+      \strng{namehash}{3270dfaa31e8210b3bd04b1bcf4a29a3}
+      \strng{fullhash}{3270dfaa31e8210b3bd04b1bcf4a29a3}
+      \strng{bibnamehash}{3270dfaa31e8210b3bd04b1bcf4a29a3}
+      \strng{authorbibnamehash}{3270dfaa31e8210b3bd04b1bcf4a29a3}
+      \strng{authornamehash}{3270dfaa31e8210b3bd04b1bcf4a29a3}
+      \strng{authorfullhash}{3270dfaa31e8210b3bd04b1bcf4a29a3}
+      \field{sortinit}{9}
+      \field{sortinithash}{0a5ebc79d83c96b6579069544c73c7d4}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{Knowledge Discovery and Data Mining}
+      \field{title}{A Density-Based Algorithm for Discovering Clusters in Large Spatial Databases with Noise}
+      \field{year}{1996}
+      \verb{urlraw}
+      \verb https://api.semanticscholar.org/CorpusID:355163
+      \endverb
+      \verb{url}
+      \verb https://api.semanticscholar.org/CorpusID:355163
+      \endverb
+    \endentry
+    \entry{dbscan_clusters}{article}{}
+      \name{author}{3}{}{%
+        {{hash=ac2b41135a67b516df3102375a46ccb5}{%
+           family={Mehle},
+           familyi={M\bibinitperiod},
+           given={Andraz},
+           giveni={A\bibinitperiod}}}%
+        {{hash=1caaecd0cf56c8d593b225e5a06e910b}{%
+           family={Likar},
+           familyi={L\bibinitperiod},
+           given={Boštjan},
+           giveni={B\bibinitperiod}}}%
+        {{hash=3f8f7c9b80b3c97122eb55b89f8fe03c}{%
+           family={Tomaževič},
+           familyi={T\bibinitperiod},
+           given={Dejan},
+           giveni={D\bibinitperiod}}}%
+      }
+      \strng{namehash}{a03b2c386afe79ce34397ef5483c115d}
+      \strng{fullhash}{a03b2c386afe79ce34397ef5483c115d}
+      \strng{bibnamehash}{a03b2c386afe79ce34397ef5483c115d}
+      \strng{authorbibnamehash}{a03b2c386afe79ce34397ef5483c115d}
+      \strng{authornamehash}{a03b2c386afe79ce34397ef5483c115d}
+      \strng{authorfullhash}{a03b2c386afe79ce34397ef5483c115d}
+      \field{sortinit}{9}
+      \field{sortinithash}{0a5ebc79d83c96b6579069544c73c7d4}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{IPSJ Transactions on Computer Vision and Applications}
+      \field{month}{12}
+      \field{title}{In-line recognition of agglomerated pharmaceutical pellets with density-based clustering and convolutional neural network}
+      \field{volume}{9}
+      \field{year}{2017}
+      \verb{doi}
+      \verb 10.1186/s41074-017-0019-2
+      \endverb
+    \endentry
+  \enddatalist
+\endrefsection
+\endinput
+
