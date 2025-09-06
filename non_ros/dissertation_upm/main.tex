@@ -33,6 +33,28 @@ FTMstudentthesis%		baseclass
 %
 \include{source/lists/abbreviations}%
 \begin{document}%
+
+% anade portada en pdf:
+
+
+
+% Portada (no numerada)
+\includepdf[pages=-, fitpaper=true, pagecommand={}]{source/Portada.pdf}
+
+% Página en blanco (no numerada)
+\clearpage
+\thispagestyle{empty}
+\null
+\clearpage
+
+% Reiniciar numeración a 1 aquí
+\setcounter{page}{1}
+
+
+
+%
+ 
+
 %% ========================
 %% ------ Title Page ------
 %% ========================

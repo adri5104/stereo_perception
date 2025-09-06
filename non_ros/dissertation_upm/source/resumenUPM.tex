@@ -3,26 +3,26 @@
 % ====================================================================
 \chapter{Resumen en Español}\label{chap:ResumenEspanol}
 
-\section{Introducción}
+
 
 Los vehículos autónomos avanzan hacia un despliegue generalizado, con el
 potencial de mejorar de forma significativa la seguridad vial, aliviar la
-congestión y aumentar la eficiencia global del transporte. En el núcleo de esta
-transformación se encuentra la capacidad de percibir el entorno con elevada
-precisión y robustez. Los sistemas de percepción permiten a los vehículos
+congestión y aumentar la eficiencia global del transporte. Una parte fundamental
+de esta transformación es la capacidad de percibir el entorno con alta precisión y
+robustez. Los sistemas de percepción permiten a los vehículos
 detectar obstáculos, interpretar el comportamiento de otros agentes del tráfico
 y comprender el contexto general de la escena de conducción. Sin embargo, el
 mundo real es dinámico y a menudo poco estructurado, lo que plantea importantes
 desafíos a los algoritmos de percepción.
 
-Los fallos de percepción pueden desembocar en \textit{disengagements}, es
-decir, situaciones en las que el sistema automatizado ya no puede identificar
+Los fallos de percepción pueden desembocar en \textit{disengagements} (desconexiones
+del sistema), es decir, situaciones en las que el sistema automatizado ya no puede identificar
 un curso de acción seguro y debe transferir el control a un operador humano.
 Estos eventos se producen habitualmente fuera de las condiciones óptimas de
 funcionamiento del sistema y resultan especialmente críticos. Incluso en tales
 escenarios, el vehículo debe mantener un cierto nivel de conocimiento del
-entorno, de forma que se posibilite la activación de estrategias de
-\textit{fallback} o se asista al operador remoto para resolver la situación de
+entorno, de forma que se posibilite la activación de estrategias de respaldo
+(\textit{fallback}) o se asista al operador remoto para resolver la situación de
 manera segura.
 
 Los sistemas de percepción más avanzados en la actualidad suelen basarse en
@@ -30,30 +30,34 @@ técnicas de aprendizaje profundo, entrenadas con grandes volúmenes de datos
 anotados. Aunque estos métodos alcanzan un alto rendimiento en entornos bien
 estructurados y representados en los conjuntos de entrenamiento, tienden a
 mostrar problemas de generalización en situaciones raras o previamente no
-observadas. Su falta de transparencia plantea además interrogantes en torno a
+observadas (problema de generalización). Su falta de transparencia plantea además interrogantes en torno a
 la interpretabilidad y la validación sistemática, aspectos clave en
 aplicaciones de seguridad crítica.
 
-Para afrontar estas limitaciones, esta tesis explora un enfoque complementario
-y determinista basado en información de cámaras estéreo. El objetivo es diseñar
+Para afrontar estas limitaciones, este trabajo fin de máster explora un enfoque completamente determinista basado en información de cámaras estéreo. El objetivo es diseñar
 e implementar un sistema de percepción capaz de estimar la posición y el
 movimiento de los objetos circundantes sin depender de entrenamiento previo ni
 de anotaciones semánticas. Al centrarse en pistas geométricas, como la
 disparidad y el flujo óptico, el sistema busca un rendimiento robusto en
 entornos diversos y desafiantes.
 
-El sistema procesa imágenes estéreo sincronizadas captadas por un conjunto de
-cámaras embarcadas para producir estimaciones de movimiento en seis
-dimensiones: tres posiciones espaciales y las correspondientes tres
-componentes de velocidad de puntos seleccionados de la escena. Un marco basado
-en filtros de Kalman, inspirado en el enfoque \textbf{6D Vision} de Daimler
-\cite{6d_vision_daimler}, integra profundidad, flujo óptico y egomoción para
-calcular dichas estimaciones. El campo de movimiento resultante se agrupa
-mediante el algoritmo \textbf{DBSCAN}, que permite identificar objetos móviles
-coherentes.
+El sistema~\ref{fig:sistema} procesa imágenes estéreo sincronizadas captadas por un conjunto de
+cámaras para estimar vectores de movimiento en seis dimensiones: tres
+componentes espaciales y tres componentes de velocidad de puntos seleccionados
+de la escena. Para ello, implementa distintos filtros de Kalman inspirados en el
+enfoque \textbf{6D Vision} de Daimler \cite{6d_vision_daimler}, que integran
+información de profundidad, flujo óptico y movimiento propio del vehículo. El
+campo de movimiento resultante se agrupa mediante el algoritmo de clustering
+\textbf{DBSCAN}, lo que permite identificar finalmente objetos móviles.
 
-Con el fin de evaluar posibles riesgos, se desarrolla además un módulo de
-criticidad que calcula métricas de seguridad a partir de las trayectorias
+\begin{figure}[H]
+  \centering
+  \resizebox{0.8\textwidth}{!}{\includegraphics{figures/sistema.png}
+  \caption{Salida del sistema desarrollado. Fuente: elaboración propia}\label{fig:sistema}}
+\end{figure}% 
+
+Para evaluar los posibles riesgos, se desarrolla además un módulo de
+criticidad (nivel de riesgo) que calcula métricas de seguridad a partir de las trayectorias
 predichas tanto del ego-vehículo como de los objetos detectados. Una de las
 métricas más relevantes es el \textbf{Tiempo hasta Colisión} (\textit{Time-to-
 Collision}, TTC), que ofrece información directa sobre la urgencia de
@@ -61,13 +65,13 @@ maniobras evasivas. Estas evaluaciones se realizan en tiempo real, de manera
 que el sistema pueda servir de apoyo tanto a estrategias de \textit{fallback}
 autónomo como a la toma de decisiones en teleoperación.
 
-El trabajo se apoya en investigaciones previas realizadas en la Cátedra de
-Tecnología del Automóvil de la Universidad Técnica de Múnich, centradas en
-visión estéreo y estimación determinista de movimiento. La presente tesis se
-concentra en integrar estos métodos en un componente software modular y
-reutilizable. Una contribución destacada es el desarrollo de un servicio
-independiente en \textbf{ROS2}, diseñado para su integración fluida en el
-vehículo de investigación EDGAR y adaptable a otras plataformas.
+Este trabajo se apoya en investigaciones previas de la Cátedra de Tecnología
+del Automóvil de la Universidad Técnica de Múnich (FTM), centradas en visión
+estéreo y estimación determinista de movimiento. El trabajo se enfoca en integrar
+estos métodos en un componente de software modular y reutilizable. Una de sus
+principales contribuciones es el desarrollo de un servicio independiente en
+\textbf{ROS2}, diseñado para integrarse de forma fluida en el vehículo de
+investigación EDGAR y ser fácilmente adaptable a otras plataformas.
 
 El sistema se implementa en C++, con componentes críticos en cuanto a
 rendimiento acelerados mediante \textbf{CUDA} y paralelizados con \textbf{OpenMP}.
@@ -82,31 +86,46 @@ simplifica el despliegue en sistemas heterogéneos.
 La arquitectura del sistema se compone de dos pipelines principales:
 
 \begin{itemize}
-  \item \textbf{Pipeline de percepción:} combina visión estéreo, odometría
+  \item \textbf{Pipeline de percepción~\ref{fig:perception_high_level}:} combina visión estéreo, odometría
   visual y estimación determinista de movimiento para inferir trayectorias en
   seis dimensiones de puntos de la escena. Los objetos en movimiento se
   identifican agrupando estas trayectorias en función de su coherencia espacial
   y dinámica.
 
-  \item \textbf{Pipeline de criticidad:} analiza la interacción entre el ego-
+  \item \textbf{Pipeline de criticidad~\ref{fig:criticality_high_level}:} analiza la interacción entre el ego-
   vehículo y los objetos detectados para calcular métricas de riesgo que
   apoyen decisiones de \textit{fallback} o asistencia al conductor.
 \end{itemize}
 
-La evaluación del sistema se organiza en tres fases. Primero, se calibra y se
-valida el hardware estéreo para asegurar su idoneidad en estimaciones 6D de
-movimiento; si es necesario, se integra hardware alternativo. En segundo lugar,
-se evalúa el rendimiento computacional de todo el pipeline de percepción y
-criticidad para verificar su capacidad de operar en tiempo real. Por último, se
-despliega el sistema en el vehículo EDGAR para su validación en condiciones
-reales, donde sus salidas se comparan con las de la pila de percepción basada
-en aprendizaje de Autoware. Todos los experimentos se diseñan para comprobar el
-cumplimiento de los requisitos funcionales definidos en el
-Capítulo~\ref{sec:RequirementsForTheThesis}, que incluyen la restricción de
-usar únicamente estéreo, la independencia semántica, la modularidad, la
+\begin{figure}[H]
+  \centering
+  \resizebox{0.8\textwidth}{!}{\input{figures/high_level_pp.tikz}}
+  \caption{Diagrama de alto nivel del pipeline de percepción}\label{fig:perception_high_level}
+\end{figure}%
+
+
+\begin{figure}[H]
+  \centering
+  \resizebox{0.2\textwidth}{!}{\input{figures/high_level_cp.tikz}}
+  \caption{Diagrama de alto nivel del pipeline de criticidad}\label{fig:criticality_high_level}
+\end{figure}%
+
+La evaluación del sistema se organiza en tres fases. En primer lugar, se calibra
+y valida el hardware para garantizar que es válido para la estimación 6D de
+movimiento; en caso necesario, se incorpora hardware alternativo. En segundo
+lugar, se analiza el rendimiento computacional de todo el pipeline de percepción
+y criticidad, con el fin de comprobar su capacidad para operar en tiempo real.
+
+
+Finalmente, el sistema se despliega en el vehículo EDGAR para su validación en
+condiciones reales, donde sus resultados se comparan con los obtenidos por la
+sistema de percepción basada en aprendizaje de Autoware. Todos los experimentos se
+diseñan para verificar el cumplimiento de los requisitos funcionales definidos en
+el Capítulo~\ref{sec:RequirementsForTheThesis}, que incluyen la restricción de
+usar únicamente visión estéreo, la independencia semántica, la modularidad, la
 operación en tiempo real y la robustez frente a oclusiones.
 
-En síntesis, la tesis presenta un sistema determinista, modular y capaz de
+En resumen, este trabajo presenta un sistema determinista, modular y capaz de
 operar en tiempo real para la percepción en conducción automatizada. Al
 aprovechar la visión estéreo y algoritmos geométricos, el sistema amplía la
 capacidad de comprensión del entorno en situaciones donde los métodos de
@@ -114,23 +133,13 @@ aprendizaje profundo pueden fallar. Su despliegue como servicio en ROS2,
 optimizado para rendimiento y portabilidad, permite una integración sencilla en
 entornos de investigación y desarrollo diversos.
 
-Finalmente, la estructura del documento es la siguiente: el
-Capítulo~\ref{chap:Introduction} introduce la motivación, los objetivos y el 
-planteamiento general del trabajo. El Capítulo~\ref{chap:StateOfTheArt} revisa 
-los sistemas de percepción actuales para conducción automatizada, incluyendo 
-sensores como LiDAR, RADAR y cámaras. Se analizan también algoritmos para 
-detección de objetos móviles, diferenciando entre enfoques de aprendizaje y 
-deterministas, y se resumen los trabajos relevantes realizados en la Cátedra de 
-Tecnología del Automóvil. El Capítulo~\ref{chap:MethodsAndImplementation} 
-describe el diseño e implementación del sistema propuesto, separando las 
-pipelines de percepción y criticidad en módulos diferenciados. El 
-Capítulo~\ref{chap:ExperimentsAndResults} presenta la evaluación, tanto a nivel 
-de componentes como en pruebas reales con el vehículo EDGAR. Finalmente, el 
-Capítulo~\ref{chap:SummaryAndConclusion} resume las principales contribuciones 
-y plantea futuras líneas de trabajo.
+A continuación, se presenta un resumen del Estado de arte (Sección~\ref{sec:estado_del_arte}), 
+una descripción detallada de cada pipeline (Secciones~\ref{sec:pipeline_percepcion} y~\ref{sec:pipeline_criticidad}), 
+y los resultados de la evaluación experimental (Sección~\ref{sec:evaluacion_experimental}) y las conclusiones y trabajo futuro (Sección~\ref{sec:conclusiones_y_trabajo_futuro}).
 
 
 \section{Estado del arte}
+\label{sec:estado_del_arte}
 
 La investigación en percepción para vehículos automatizados se ha centrado en
 integrar diferentes modalidades sensoriales para obtener una representación
@@ -173,9 +182,10 @@ aprendizaje como Autoware.
 
 
 \section{Pipeline de percepción}
+\label{sec:pipeline_percepcion}
 
 La \textbf{pipeline de percepción} constituye el núcleo del sistema. Su
-objetivo es transformar imágenes estéreo sin procesar en una representación
+objetivo es transformar las imágenes estéreo de la cámara en una representación
 dinámica del entorno en la que cada objeto circundante se describa por su
 posición tridimensional y su vector de velocidad. Para ello, se emplean varias
 etapas que trabajan de forma encadenada: cálculo de flujo óptico, estimación de
@@ -183,7 +193,7 @@ odometría visual, reconstrucción de profundidad, integración de información 
 un filtro de Kalman en seis dimensiones y, finalmente, agrupamiento de puntos
 en entidades coherentes mediante clustering.
 
-El flujo óptico proporciona información sobre el desplazamiento aparente de los
+El flujo óptico~\ref{fig:flujo_optico} proporciona información sobre el desplazamiento aparente de los
 píxeles entre imágenes consecutivas. Su formulación clásica parte de la
 ecuación de constancia de brillo, que asume que la intensidad de un punto se
 mantiene aproximadamente constante a lo largo del tiempo. De esta premisa se
@@ -198,20 +208,42 @@ La implementación en GPU mediante CUDA permite reducir de manera notable los
 tiempos de cómputo, alcanzando frecuencias superiores a 10 Hz, requisito clave
 para la operación en tiempo real.
 
-La segunda etapa del pipeline es la estimación de la egomoción mediante
+\begin{figure}[H]
+  \centering
+  \resizebox{0.8\textwidth}{!}{\includegraphics{figures/flujo_optico.png}}
+  \caption{Flujo óptico visualizado con flechas. Fuente: elaboración propia}\label{fig:flujo_optico}
+\end{figure}%
+
+
+La segunda etapa de la pipeline es la estimación del movimiento propio mediante
 odometría visual estéreo. Este módulo calcula la transformación relativa entre
-pares de imágenes consecutivas, de modo que se distingue entre el movimiento
-propio del vehículo y el movimiento de los objetos externos. El procedimiento
-consiste en detectar puntos característicos (ORB), extraer descriptores
+pares de imágenes consecutivas~\ref{fig:sistemas_referencia}, de modo que se distingue entre el movimiento
+propio del vehículo y el movimiento de los objetos externos.
+
+\begin{figure}[H]
+  \centering
+  \resizebox{0.65\textwidth}{!}{\includegraphics{figures/sistemas_referencia.png}}
+  \caption{Sistemas de referencia estimados. Fuente: elaboración propia}\label{fig:sistemas_referencia}
+\end{figure}%
+
+
+El procedimiento
+consiste en detectar puntos característicos (mediante ORB)~\ref{fig:puntos}, extraer descriptores
 binarios, emparejarlos entre fotogramas y reconstituir su posición tridimensional
 a partir de la disparidad del frame previo. Con estas correspondencias 3D–2D se
-resuelve un problema de \textit{Perspective-n-Point} (PnP) con un esquema de
-robustificación mediante RANSAC. El resultado es la rotación y traslación
-estimada del sistema de cámaras. Para suavizar las oscilaciones entre
+resuelve un problema de \textit{Perspective-n-Point} (PnP) mediante RANSAC. El resultado es la rotación y traslación
+estimada del sistema de cámaras respecto al entorno. Para suavizar las oscilaciones entre
 estimaciones sucesivas, se aplica un filtrado exponencial. Además, se estima de
-forma aproximada la covarianza de la egomoción a partir de los residuales de
+forma aproximada la covarianza del movimiento propio a partir de los residuales de
 reproyección, lo que permite incorporar incertidumbre explícita en la etapa de
 fusión posterior.
+
+\begin{figure}[H]
+  \centering
+  \resizebox{1.0\textwidth}{!}{\includegraphics{figures/puntos_clave.png}}
+  \caption{Puntos característicos a la izquierda e imagen RGB a la derecha. Fuente: elaboración propia}\label{fig:puntos}
+\end{figure}%
+
 
 La tercera pieza es la reconstrucción de profundidad, que se basa en los
 principios de la geometría estéreo. En un sistema rectificado, la disparidad
@@ -229,18 +261,18 @@ regularización global, logrando mapas de disparidad densos y suficientemente
 robustos para escenas complejas. Estos mapas se proyectan al espacio tridimensional
 y sirven de entrada al filtrado en seis dimensiones.
 
-El núcleo del pipeline se inspira en el paradigma \textbf{6D Vision}
+El núcleo del pipeline, el filtro de kalman,  se inspira en el paradigma \textbf{6D Vision}
 \cite{6d_vision_daimler}. Este concepto propone asociar a cada punto de la
 escena un vector de estado compuesto por tres componentes de posición y tres de
 velocidad. La estimación se realiza mediante un filtro de Kalman, que integra
-información de disparidad, flujo óptico y egomoción. El modelo de transición se
+información de disparidad, flujo óptico y movimiento propio. El modelo de estado se
 basa en movimiento constante, expresado como
 
 \[
 \mathbf{x}_{k|k-1} = \mathbf{F}\mathbf{x}_{k-1|k-1} + \mathbf{w}_k,
 \]
 
-donde $\mathbf{F}$ es la matriz de transición que incorpora la relación entre
+donde $\mathbf{F}$ es la matriz de estado que incorpora la relación entre
 posiciones y velocidades y $\mathbf{w}_k$ representa el ruido de proceso. La
 fase de observación utiliza las posiciones derivadas de la disparidad y las
 velocidades proyectadas del flujo óptico, según
@@ -250,15 +282,24 @@ velocidades proyectadas del flujo óptico, según
 \]
 
 con $\mathbf{H}$ como matriz de observación y $\mathbf{v}_k$ el ruido de
-medida. Adicionalmente, la estimación de egomoción obtenida en el bloque
+medida. Adicionalmente, la estimación de movimiento propio obtenida en el bloque
 anterior se emplea para compensar el movimiento propio del vehículo y expresar
 las trayectorias en un marco de referencia estable. De este modo, el sistema es
 capaz de separar el desplazamiento de la cámara de los movimientos reales de la
 escena.
 
 El resultado de este proceso es un conjunto de trayectorias 6D para miles de
-puntos de la escena. No obstante, trabajar únicamente con puntos individuales
-dificulta la interpretación a nivel de objetos. Por ello, se añade una etapa de
+puntos de la escena~\ref{fig:6dv}. No obstante, trabajar únicamente con puntos individuales
+dificulta la interpretación a nivel de objetos.
+
+\begin{figure}[H]
+  \centering
+  \resizebox{1.0\textwidth}{!}{\includegraphics{figures/vision6d.png}}
+  \caption{Campo de movimiento 6D a la izquierda, y puntos seguidos a la derecha. Fuente: elaboración propia}\label{fig:6dv}
+\end{figure}%
+
+
+Por ello, se añade una etapa de
 agrupamiento mediante el algoritmo DBSCAN \cite{dbscan_original}. Este método
 tiene la ventaja de no requerir conocer a priori el número de objetos y de ser
 robusto frente a ruido. Se define una métrica híbrida que combina distancia
@@ -277,6 +318,12 @@ través de un análisis de componentes principales (PCA), que permite alinear la
 caja con la dirección predominante de los puntos. El resultado son entidades
 \textit{WorldEntity} que constituyen la interfaz hacia el módulo de criticidad.
 
+\begin{figure}[H]
+  \centering
+  \resizebox{1.0\textwidth}{!}{\includegraphics{figures/objeto.png}}
+  \caption{Objeto agrupado junto a la escena que lo causa. Fuente: elaboración propia}\label{fig:6dv}
+\end{figure}%
+
 En conjunto, la pipeline de percepción transforma señales crudas en una
 descripción de alto nivel del entorno. Parte de imágenes estéreo, estima
 movimiento 6D a nivel puntual, filtra trayectorias con un modelo dinámico y
@@ -287,6 +334,7 @@ integración en vehículos automatizados.
 
 
 \section{Pipeline de criticidad}
+\label{sec:pipeline_criticidad}
 
 Una vez que la pipeline de percepción ha transformado las imágenes estéreo en
 una lista estructurada de objetos con posición y velocidad, resulta necesario
@@ -296,7 +344,7 @@ objetivo es traducir la información geométrica en indicadores de seguridad que
 puedan emplearse en la toma de decisiones, tanto en un modo de conducción
 automatizada como en teleoperación.
 
-El concepto central que se utiliza en esta tesis es el \textbf{Tiempo hasta
+El concepto central que se utiliza en este trabajo es el \textbf{Tiempo hasta
 Colisión} (\textit{Time-to-Collision}, TTC). El TTC se define como el intervalo
 temporal que transcurriría hasta que el vehículo y un objeto ocupasen la misma
 posición si se mantienen sus trayectorias actuales. Se trata de una métrica
@@ -317,7 +365,7 @@ dirección, el TTC puede expresarse como
 TTC = \frac{d}{v_{rel}}.
 \]
 
-Este enfoque, denominado en esta tesis \textit{twist-based}, es adecuado cuando
+Este enfoque, denominado en este proyecto\textit{twist-based}, es adecuado cuando
 tanto el vehículo como el objeto se desplazan en trayectorias rectilíneas y
 constantes. Sin embargo, en escenarios urbanos o en maniobras complejas, esta
 hipótesis resulta insuficiente. Por ello se implementa un segundo modo de
@@ -329,33 +377,24 @@ su versión más simple, el cálculo se realiza sobre representaciones puntuales
 pero el sistema está diseñado para extenderse a colisiones entre cajas
 delimitadoras orientadas.
 
-La pipeline de criticidad recibe como entradas la lista de objetos detectados
-por el módulo de percepción y la trayectoria prevista del ego-vehículo. Esta
+La pipeline de criticidad recibe como entrada la lista de objetos detectados
+por el módulo de percepción y la trayectoria prevista del vehículo. Esta
 última puede derivarse de la odometría o de un planificador de ruta. A partir
 de estas entradas, se calculan en paralelo ambas variantes del TTC. Los
 resultados se publican en tópicos ROS2, tanto a nivel de cada objeto como en
 forma de un mínimo global, que representa el tiempo hasta la colisión más
 inminente.
 
-Un aspecto relevante del diseño es que la pipeline de criticidad se mantiene
-independiente de la fuente de percepción. Para comparar el sistema propuesto
-con Autoware, se implementó un adaptador que traduce las salidas de Autoware al
-formato de objetos definido en esta tesis. De esta manera, ambos pipelines de
-percepción pueden ser evaluados bajo las mismas métricas de criticidad, lo que
-asegura una comparación justa y coherente. En la práctica, esto significa que
-las discrepancias observadas en los resultados de TTC reflejan diferencias en
-la percepción subyacente y no en la metodología de evaluación.
 
 El diseño modular de este bloque ofrece flexibilidad adicional. Por ejemplo,
 permite sustituir la métrica TTC por otras métricas de riesgo descritas en la
-literatura, como el \textit{Post-Encroachment Time}, el \textit{Crash
-Imminence Metric} o el cálculo de estados de colisión inevitables. Así, la
+literatura. Así, la
 pipeline de criticidad no sólo cumple la función de evaluar la seguridad en
 tiempo real, sino que también constituye una plataforma experimental para
 explorar distintos indicadores de riesgo y estudiar su comportamiento en
 condiciones reales.
 
-En síntesis, la pipeline de criticidad convierte las estimaciones geométricas
+En resumen, la pipeline de criticidad convierte las estimaciones geométricas
 del pipeline de percepción en indicadores cuantitativos de riesgo. Su
 implementación en ROS2, independiente de la fuente de percepción, garantiza la
 reutilización y la comparación con sistemas alternativos. El uso del TTC como
@@ -365,27 +404,23 @@ autónoma como en situaciones de teleoperación.
 
 
 \section{Evaluación experimental}
+\label{sec:evaluacion_experimental}
 
 La validación del sistema desarrollado se llevó a cabo siguiendo una
 metodología progresiva. Primero se abordó la selección y calibración del
 hardware de captura. Después se realizaron pruebas controladas en escenarios
 delimitados, donde era posible medir con precisión las trayectorias de los
 objetos. Finalmente, se efectuaron ensayos en conducción urbana real con el
-vehículo EDGAR, ejecutando el sistema determinista en paralelo con la pila de
-percepción de Autoware. De esta forma se logró una evaluación tanto cualitativa
-como cuantitativa de las prestaciones alcanzadas.
+vehículo EDGAR, ejecutando el sistema desarrollado en paralelo con el software
+de percepción de Autoware. De esta forma se logró una evaluación tanto cualitativa
+como cuantitativa.
 
 \bigskip
 \noindent \textbf{Selección y calibración de cámaras.}  
 Se evaluaron dos cámaras estéreo disponibles en el laboratorio: la Framos D455e
 y la Carnegie S30. La Framos es una cámara de tipo activo, con proyección de
 infrarrojos integrada, mientras que la Carnegie es de tipo pasivo con una base
-estereoscópica de 30 cm. En ambos casos, se llevó a cabo una calibración
-intrínseca mediante un patrón de tablero de ajedrez y se calcularon parámetros
-de distorsión radial y tangencial. La calibración extrínseca se realizó
-empleando técnicas de alineación con marcadores visibles, asegurando que las
-matrices de rotación y traslación entre las dos cámaras alcanzasen errores
-subpíxel. Además, se validó la compatibilidad con el protocolo de
+estereoscópica de 30 cm. Se validó la compatibilidad con el protocolo de
 \textit{Precision Time Protocol} (PTP) para garantizar la sincronización de las
 imágenes con el resto de sensores de EDGAR.
 
@@ -400,7 +435,7 @@ imágenes con el resto de sensores de EDGAR.
     Robustez en exteriores & Limitada & Alta \\
     Ruido en baja textura & Medio/alto & Bajo \\
     Compatibilidad PTP & Parcial & Completa \\
-    Observaciones & Artefactos en oblicuo & Mejor estabilidad en flujo \\ \hline
+    Observaciones & Artefactos en oblicuo & Menos ruido \\ \hline
   \end{tabular}
   \caption{Comparación de las cámaras evaluadas para el sistema}
   \label{tab:camera_comparison}
@@ -421,8 +456,7 @@ constante de ocho metros. El sistema detectó el objeto de manera continua,
 generando un cluster estable y velocidades alineadas con la cinemática real. En
 otro escenario, un objeto se desplazaba de forma oblicua con un ángulo de 18°
 respecto al eje de visión. El sistema fue capaz de identificar la dirección de
-velocidad sin desviaciones notables, demostrando la eficacia de la compensación
-de egomoción. Estas pruebas se repitieron varias veces bajo diferentes
+velocidad sin desviaciones notables, demostrando la eficacia del sistema. Estas pruebas se repitieron varias veces bajo diferentes
 condiciones de iluminación, incluyendo entornos crepusculares, con el fin de
 evaluar la robustez. En todos los casos, la Carnegie S30 mostró un nivel bajo
 de ruido en regiones homogéneas, lo que facilitó la coherencia de las
@@ -432,124 +466,147 @@ estimaciones.
 \noindent \textbf{Ensayos urbanos y comparación con Autoware.}  
 La fase más exigente de la validación consistió en desplegar el sistema en el
 vehículo EDGAR y recorrer entornos urbanos de media complejidad. Se ejecutaron
-en paralelo tanto el pipeline determinista como la pila de Autoware, alojados en
+en paralelo tanto el pipeline determinista como el sistema de Autoware, alojados en
 contenedores Docker separados. Para garantizar una comparación justa, se
 implementó un adaptador que tradujo los objetos de Autoware al formato de
 \texttt{ClusteredObjectArray}, de forma que el cálculo de \textit{Time-to-
 Collision} (TTC) se realizó con la misma metodología para ambos sistemas.
 
-Los resultados mostraron diferencias relevantes. En un escenario de cruce de
-peatones, el pipeline determinista identificó la trayectoria de un individuo
-con ropa oscura en una zona de bajo contraste, mientras que Autoware no generó
-una detección válida. En cambio, en un entorno con varios vehículos, Autoware
-produjo una clasificación semántica más detallada, mientras que el sistema
-determinista agrupó parte de la escena en un único cluster, perdiendo
-granularidad. Este resultado confirma que ambos enfoques son complementarios:
-uno aporta interpretabilidad y robustez, el otro riqueza semántica y
-completitud.
+Los resultados mostraron que la \textit{pipeline} estéreo desarrollada es capaz
+de detectar y seguir de forma fiable objetos dinámicos en una amplia variedad de
+escenarios reales. Los vectores de velocidad estimados resultaron consistentes y
+la lógica de clustering, basada en las salidas del filtro de Kalman, demostró
+ser robusta incluso bajo oclusiones parciales. 
+
+El cálculo del \textit{Time-to-Collision} (TTC) proporcionó estimaciones
+estables e interpretables, sensibles a cambios en la configuración de la
+escena. La limitación más crítica observada fue la aparición de falsos
+positivos en escenas dinámicas, atribuida a errores residuales en la
+compensación de movimiento propio. Estos errores se originan en las limitaciones del
+flujo óptico, especialmente bajo rotaciones rápidas o presencia de desenfoque,
+y no se corrigieron de forma significativa al emplear odometría alternativa
+como la de Autoware.
+
+La comparación con Autoware, por otra parte, revela diferencias de diseño:
+mientras que este se beneficia de cobertura LiDAR de 360° y mayor alcance de
+detección, su inicialización de velocidades es limitada para el cálculo de TTC
+a corto plazo y tiende a incluir gran cantidad de objetos estáticos o de fondo.
+Por el contrario, la \textit{pipeline} estéreo ofrece alta resolución en el
+rango cercano y no depende de modelos entrenados ni de clasificación semántica,
+lo que la hace más adecuada para detectar agentes nuevos o no estructurados en
+entornos urbanos próximos.
+
+En conjunto, ambos enfoques resultan
+complementarios: Autoware aporta completitud y alcance, y el sistema
+determinista ofrece interpretabilidad, robustez frente a oclusiones y mayor
+sensibilidad en el rango corto, si bien futuras mejoras deberán centrarse en la
+estimación de flujo óptico para reducir inconsistencias en escenas desafiantes.
 
 \bigskip
 \noindent \textbf{Rendimiento computacional.}  
-Las pruebas de rendimiento se llevaron a cabo en la unidad GPU del EDGAR. El
-sistema alcanzó frecuencias promedio de 12 Hz, superando el requisito mínimo de
-10 Hz. El cálculo de flujo óptico en CUDA redujo la carga de CPU en un 35\% en
-comparación con la versión puramente en CPU, mientras que la paralelización con
-OpenMP en el filtro de Kalman permitió escalar el número de puntos procesados
-sin degradar la frecuencia. En términos de recursos, la utilización promedio de
-CPU fue del 45\% y la de GPU del 60\%, manteniéndose en márgenes compatibles
-con el resto de procesos del vehículo. La latencia end-to-end desde la captura
-de la imagen hasta la publicación del TTC fue inferior a 90 ms, valor adecuado
-para integrar el sistema en un lazo de control vehicular.
+La evaluación del rendimiento de la \textit{pipeline} se centró en
+dos aspectos complementarios: el uso de recursos (CPU, GPU y memoria) y los
+tiempos de ejecución de los \textit{callbacks}. Se analizaron tanto escenarios
+offline en un PC de escritorio como pruebas en tiempo real a bordo de EDGAR,
+lo que permitió obtener una visión completa del comportamiento del sistema bajo
+condiciones realistas.
+
+El perfilado de CPU y memoria reveló que los nodos de flujo óptico y del filtro
+de Kalman fueron los más exigentes. En el PC de escritorio, ambos superaron el
+100~\% de uso de CPU debido a la ejecución multihilo, mientras que en EDGAR el
+módulo de flujo óptico alcanzó un promedio del 133~\%, reflejando su elevada
+demanda de cómputo. El uso de memoria GPU se mantuvo en valores moderados, por
+debajo de 400~MB en la mayoría de los módulos, con picos en el de flujo óptico.
+En cuanto a memoria RAM, el consumo más alto correspondió al filtro de Kalman,
+que alcanzó 1.4~GB, coherente con la necesidad de almacenar múltiples estados
+y covarianzas de seguimiento.
+
+El análisis de tiempos de \textit{callback} confirmó que la mayoría de los
+componentes funcionan dentro de los márgenes de tiempo real. Los más críticos
+fueron el flujo óptico y la odometría visual basada en profundidad, con tiempos
+promedio en el rango de 50--60~ms y picos ocasionales que evidencian márgenes
+de tiempo ajustados. Otros módulos, como la odometría visual basada en color o
+el detector de objetos, mantuvieron duraciones consistentemente bajas, entre 5
+y 15~ms. El filtro de Kalman mostró un comportamiento bimodal: tiempos cercanos
+a cero en tramas con pocos puntos y duraciones significativamente mayores
+cuando se actualizaban muchos estados. Este comportamiento adaptativo favorece
+la capacidad de respuesta en condiciones variables.
 
 \bigskip
-\noindent \textbf{Limitaciones observadas.}  
-Durante la evaluación se detectaron algunos aspectos susceptibles de mejora. En
-primer lugar, el clustering tendía a fusionar objetos cercanos con velocidades
-similares, lo que podía simplificar en exceso la representación de la escena.
-En segundo lugar, el cálculo del TTC en modo rectilíneo mostraba inestabilidad
-en trayectorias no lineales, lo que confirma la necesidad de extender el método
-a colisiones basadas en cajas delimitadoras orientadas. Por último, la
-resolución de la cámara Carnegie limitaba la precisión en objetos muy pequeños
-o alejados, lo que abre la posibilidad de incorporar técnicas de submuestreo
-adaptativo o fusión con otros sensores.
+\noindent \textbf{Resumen de la evaluación.}  
 
-\bigskip
-En síntesis, la evaluación experimental demostró que el sistema propuesto es
-capaz de operar en condiciones reales, detectar y seguir objetos con coherencia
-temporal y calcular métricas de criticidad en tiempo de ejecución. La
-comparación con Autoware reveló la complementariedad de ambos enfoques y puso
-de relieve la importancia de los métodos deterministas como capa de redundancia
-y seguridad en conducción automatizada.
+Los experimentos confirmaron que la \textit{pipeline} cumple la mayoría de los
+requisitos: opera en tiempo real (>12~Hz), usa exclusivamente cámaras estéreo,
+no depende de semántica y mantiene salidas 6D coherentes. El clustering agrupa
+puntos en objetos de forma robusta y el módulo de criticidad calcula TTC de
+manera interpretable. Sin embargo, se observaron limitaciones en la compensación
+de movimiento propio durante maniobras bruscas y en la segmentación de objetos grandes,
+que a veces quedaban divididos en múltiples clusters. También persisten falsos
+positivos en escenas densas, lo que señala posibles mejoras futuras.
 
 
 
 \section{Conclusiones y trabajo futuro}
+\label{sec:conclusiones_y_trabajo_futuro}
 
-El trabajo desarrollado en esta tesis ha tenido como objetivo el diseño e
-implementación de un sistema determinista de percepción basado exclusivamente
-en cámaras estéreo. A lo largo de las distintas fases se ha demostrado que es
-posible alcanzar una operación en tiempo real, con modularidad suficiente para
-sustituir componentes de forma independiente y con independencia semántica,
-evitando la necesidad de entrenamiento previo. El sistema cumple, por tanto,
-con los requisitos planteados al inicio: procesar en línea información visual,
-distinguir entre movimiento propio del vehículo y movimiento externo, agrupar
-trayectorias en objetos coherentes y calcular métricas de criticidad útiles para
-la toma de decisiones en conducción automatizada o en teleoperación.
+Este trabajo fin de máster desarrollado ha tenido como propósito demostrar la
+viabilidad de un sistema determinista de percepción para vehículos
+automatizados, basado exclusivamente en cámaras estéreo y en algoritmos
+geométricos. A lo largo de la investigación se ha diseñado e implementado un
+conjunto de módulos que, de manera encadenada, permiten transformar imágenes
+crudas en estimaciones dinámicas del entorno, generando salidas interpretables
+y útiles para la toma de decisiones en tiempo real.
 
-Las aportaciones técnicas pueden resumirse en varios ejes. En primer lugar, la
-modernización del paradigma \textbf{6D Vision} mediante una implementación
-modular en ROS2, con soporte de aceleración en GPU y CPU. En segundo lugar, la
-incorporación de un algoritmo de clustering robusto como DBSCAN con métrica
-híbrida, que permite agrupar puntos en objetos sin necesidad de conocer su
-número a priori. En tercer lugar, la integración de una \textbf{pipeline de
-criticidad} que calcula en tiempo real métricas como el \textit{Time-to-
-Collision}, reutilizable tanto para el sistema desarrollado como para otros
-pipelines, como Autoware. Finalmente, la validación práctica en el vehículo
-EDGAR, que ha mostrado la viabilidad del despliegue en un entorno real con
-restricciones de hardware y sincronización estrictas.
+Los principales resultados alcanzados confirman que la \textit{pipeline}
+cumple con los requisitos definidos al inicio. Se ha conseguido procesar datos
+en línea con frecuencias superiores a 12~Hz en el vehículo EDGAR, cumpliendo el
+criterio de tiempo real. Se ha demostrado además la independencia semántica del
+enfoque: la detección de objetos no depende de etiquetas ni de redes
+preentrenadas, lo que confiere al sistema la capacidad de generalizar hacia
+objetos nunca vistos y escenarios poco representados en conjuntos de datos.
+Asimismo, la modularidad de la implementación en ROS2, junto con el despliegue
+en contenedores Docker, garantiza la portabilidad y la integración en
+plataformas heterogéneas. Finalmente, las pruebas en entornos reales confirmaron
+la robustez frente a oclusiones y la capacidad de mantener la coherencia
+temporal de las estimaciones, incluso en escenas complejas.
 
-Pese a estos logros, el trabajo presenta algunas limitaciones que deben
-considerarse. Entre ellas, destacan: 
-\begin{itemize}
-  \item El modelo de proceso del filtro de Kalman, que se basa en hipótesis de
-  movimiento constante y no incorpora aceleraciones ni modelos dinámicos más
-  complejos.
-  \item La ausencia de un algoritmo avanzado de asociación multiobjeto, lo que
-  puede limitar la persistencia de los objetos en escenas densas o en presencia
-  de oclusiones prolongadas.
-  \item El cálculo del TTC, que en su versión actual se limita al análisis de
-  distancias entre centros de caja, en lugar de considerar colisiones entre
-  cajas delimitadoras orientadas (OBB).
-\end{itemize}
+Las aportaciones técnicas del trabajo pueden resumirse en cuatro puntos
+principales. Primero, la actualización del paradigma \textbf{6D Vision}, con un
+filtro de Kalman que integra disparidad, flujo óptico y movimiento propio para estimar
+posiciones y velocidades en seis dimensiones. Segundo, la incorporación de un
+algoritmo de clustering robusto como DBSCAN, con una métrica híbrida que
+combina proximidad espacial y coherencia cinemática. Tercero, el desarrollo de
+una \textbf{pipeline de criticidad} capaz de calcular en tiempo real métricas
+como el \textit{Time-to-Collision}, empleando un diseño modular reutilizable
+también con otras pilas de percepción como Autoware. Por último, la validación
+en un vehículo de investigación real, con integración en la arquitectura de red
+y sincronización temporal de EDGAR.
 
-Estas limitaciones abren líneas claras de trabajo futuro. Una primera dirección
-consiste en integrar información adicional procedente de sensores como IMU o
-LiDAR, lo que aumentaría la robustez y ampliaría el rango operativo. Una
-segunda dirección es la implementación de algoritmos de asociación de objetos
-entre frames, por ejemplo mediante técnicas de \textit{tracking} multiobjetivo
-con estrategias de \textit{data association} y modelos de predicción más
-avanzados. Una tercera línea se centra en extender el cálculo del TTC para
-considerar geometrías completas de colisión, como la intersección entre OBB,
-lo que permitiría obtener estimaciones más realistas y precisas en entornos
-urbanos complejos. Finalmente, se podrían explorar métricas adicionales de
-criticidad, tales como el \textit{Post-Encroachment Time} o indicadores basados
-en estados de colisión inevitables, con el fin de enriquecer la evaluación de
-riesgo en tiempo real.
+No obstante, existen limitaciones que conviene señalar. La compensación de
+movimiento propio, aunque funcional en la mayoría de escenarios, muestra inestabilidad
+en maniobras bruscas, lo que ocasionalmente introduce falsos positivos en
+escenas dinámicas. El filtro de Kalman, por su parte, presenta problemas de
+escalabilidad: si se incrementa la densidad de puntos a seguir, el coste de
+cómputo crece de forma no lineal, lo que amenaza el cumplimiento del tiempo
+real. En cuanto al clustering, este se realiza de forma independiente en cada
+frame, lo que impide mantener identidades de objeto a lo largo del tiempo y
+limita el análisis de trayectorias prolongadas. Finalmente, el cálculo del TTC
+se basa en la proximidad de centroides y no considera todavía las geometrías
+completas de colisión entre cajas delimitadoras.
 
-Más allá de estas propuestas, cabe destacar la relevancia del enfoque
-determinista en un contexto más amplio. En un ecosistema dominado por métodos
-de aprendizaje profundo, disponer de una alternativa transparente y explicable
-es de gran valor para la seguridad funcional. Normativas como ISO~26262 o SOTIF
-exigen argumentos claros de seguridad y verificación, algo que este sistema
-puede proporcionar gracias a su naturaleza basada en principios geométricos y
-modelos matemáticos bien definidos. Además, su carácter modular y portable
-facilita la integración como capa de redundancia en arquitecturas de percepción
-existentes.
+A partir de estas limitaciones se definen varias líneas de trabajo futuro. Una
+primera dirección consiste en optimizar el filtro de Kalman mediante ejecución
+en GPU, lo que permitiría aumentar la resolución espacial sin comprometer la
+frecuencia de proceso. Una segunda línea es mejorar la inicialización y la
+lógica del filtrado, inspirándose en variantes del 6D Vision que exploran
+hipótesis múltiples de velocidad o adaptan los puntos inicializados a las
+regiones más ricas en textura. Otra línea de desarrollo es incorporar un
+seguimiento temporal de clusters, de modo que se asignen identidades
+consistentes a los objetos y se pueda razonar sobre su historial de movimiento.
+En paralelo, el módulo de criticidad podría extenderse para incorporar
+predicción de trayectorias y colisiones basadas en cajas orientadas,
+proporcionando estimaciones más realistas en escenarios urbanos. Finalmente, la
+incorporación de sensores adicionales, como cámaras laterales o IMU, ampliaría
+el campo de visión y aumentaría la robustez global del sistema.
 
-En conjunto, el trabajo demuestra que un sistema determinista basado en cámaras
-estéreo puede complementar de manera eficaz a las soluciones de percepción
-aprendidas, aportando transparencia, robustez y explicabilidad en escenarios
-críticos. Su implementación en un vehículo real confirma la viabilidad práctica
-del enfoque y abre la puerta a futuras investigaciones orientadas a combinar lo
-mejor de ambos mundos: la riqueza semántica del aprendizaje profundo y la
-fiabilidad verificable de los métodos deterministas.
+
