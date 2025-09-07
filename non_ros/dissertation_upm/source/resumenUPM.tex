@@ -12,7 +12,7 @@ de esta transformación es la capacidad de percibir el entorno con alta precisi�
 robustez. Los sistemas de percepción permiten a los vehículos
 detectar obstáculos, interpretar el comportamiento de otros agentes del tráfico
 y comprender el contexto general de la escena de conducción. Sin embargo, el
-mundo real es dinámico y a menudo poco estructurado, lo que plantea importantes
+mundo real es dinámico y poco estructurado, lo que plantea importantes
 desafíos a los algoritmos de percepción.
 
 Los fallos de percepción pueden desembocar en \textit{disengagements} (desconexiones
@@ -28,7 +28,7 @@ manera segura.
 Los sistemas de percepción más avanzados en la actualidad suelen basarse en
 técnicas de aprendizaje profundo, entrenadas con grandes volúmenes de datos
 anotados. Aunque estos métodos alcanzan un alto rendimiento en entornos bien
-estructurados y representados en los conjuntos de entrenamiento, tienden a
+estructurados y representados en los datasets, tienden a
 mostrar problemas de generalización en situaciones raras o previamente no
 observadas (problema de generalización). Su falta de transparencia plantea además interrogantes en torno a
 la interpretabilidad y la validación sistemática, aspectos clave en
@@ -133,7 +133,7 @@ aprendizaje profundo pueden fallar. Su despliegue como servicio en ROS2,
 optimizado para rendimiento y portabilidad, permite una integración sencilla en
 entornos de investigación y desarrollo diversos.
 
-A continuación, se presenta un resumen del Estado de arte (Sección~\ref{sec:estado_del_arte}), 
+A continuación, se presenta un resumen del estado de arte (Sección~\ref{sec:estado_del_arte}), 
 una descripción detallada de cada pipeline (Secciones~\ref{sec:pipeline_percepcion} y~\ref{sec:pipeline_criticidad}), 
 y los resultados de la evaluación experimental (Sección~\ref{sec:evaluacion_experimental}) y las conclusiones y trabajo futuro (Sección~\ref{sec:conclusiones_y_trabajo_futuro}).
 
@@ -582,7 +582,7 @@ también con otras pilas de percepción como Autoware. Por último, la validaci�
 en un vehículo de investigación real, con integración en la arquitectura de red
 y sincronización temporal de EDGAR.
 
-No obstante, existen limitaciones que conviene señalar. La compensación de
+No obstante, existenb limitaciones que conviene señalar. La compensación de
 movimiento propio, aunque funcional en la mayoría de escenarios, muestra inestabilidad
 en maniobras bruscas, lo que ocasionalmente introduce falsos positivos en
 escenas dinámicas. El filtro de Kalman, por su parte, presenta problemas de
