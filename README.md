@@ -1,4 +1,4 @@
-# Stereo Perception System for Automated Vehicles (README WIP)
+# Stereo Perception System for Automated Vehicles
 
 This repository contains the full implementation of a stereo-camera-based
 perception and criticality assessment system developed as part of a Master’s
